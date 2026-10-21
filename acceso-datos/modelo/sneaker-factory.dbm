@@ -1,0 +1,456 @@
+<?xml version='1.0' encoding='utf-8'?>
+<dbmodel pgmodeler-ver="0.9.4" use-changelog="false" last-position="0,0" last-zoom="1" max-obj-count="41" default-schema="public" default-owner="postgres" layers="Default layer" active-layers="0" layer-name-colors="#000000" layer-rect-colors="#b4b4b4" show-layer-names="false" show-layer-rects="false">
+	<database name="sneaker_factory" is-template="false" allow-conns="true">
+</database>
+	<schema name="public" layers="0" fill-color="#e1e1e1" sql-disabled="true">
+</schema>
+	<table name="modelos" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
+		<schema name="public" />
+		<role name="postgres" />
+		<position x="215" y="86" />
+		<column name="id_modelo" not-null="true" identity-type="ALWAYS">
+			<type name="int4" length="0" />
+		</column>
+		<column name="nombre" not-null="true">
+			<type name="varchar" length="40" />
+		</column>
+		<column name="descripcion">
+			<type name="text" length="0" />
+		</column>
+		<column name="precio_base" not-null="true">
+			<type name="numeric" length="8" precision="2" />
+		</column>
+		<column name="activo" not-null="true" default-value="true">
+			<type name="boolean" length="0" />
+		</column>
+		<constraint name="modelos_pk" type="pk-constr" table="public.modelos">
+			<columns names="id_modelo" ref-type="src-columns" />
+		</constraint>
+		<constraint name="modelos_precio_check" type="ck-constr" table="public.modelos">
+			<expression>precio_base &gt;= 0</expression>
+		</constraint>
+	</table>
+	<table name="variantes" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
+		<schema name="public" />
+		<role name="postgres" />
+		<position x="565" y="90" />
+		<column name="id_variante" not-null="true" identity-type="ALWAYS">
+			<type name="int4" length="0" />
+		</column>
+		<column name="id_modelo" not-null="true">
+			<type name="int4" length="0" />
+		</column>
+		<column name="color" not-null="true">
+			<type name="varchar" length="30" />
+		</column>
+		<column name="suplemento_precio" not-null="true" default-value="0">
+			<type name="numeric" length="8" precision="2" />
+		</column>
+		<constraint name="variantes_pk" type="pk-constr" table="public.variantes">
+			<columns names="id_variante" ref-type="src-columns" />
+		</constraint>
+		<constraint name="variantes_id_modelo_color_uq" type="uq-constr" table="public.variantes">
+			<columns names="id_modelo,color" ref-type="src-columns" />
+		</constraint>
+		<constraint name="variantes_check_1" type="ck-constr" table="public.variantes">
+			<expression>suplemento_precio &gt;= 0</expression>
+		</constraint>
+	</table>
+	<table name="producto_sku" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
+		<schema name="public" />
+		<role name="postgres" />
+		<position x="1010" y="90" />
+		<column name="id_producto_sku" not-null="true" identity-type="ALWAYS">
+			<type name="int4" length="0" />
+		</column>
+		<column name="id_variante" not-null="true">
+			<type name="int4" length="0" />
+		</column>
+		<column name="talla" not-null="true">
+			<type name="int2" length="0" />
+		</column>
+		<column name="sku" not-null="true">
+			<type name="varchar" length="30" />
+		</column>
+		<column name="activo" not-null="true" default-value="true">
+			<type name="boolean" length="0" />
+		</column>
+		<constraint name="producto_sku_pk" type="pk-constr" table="public.producto_sku">
+			<columns names="id_producto_sku" ref-type="src-columns" />
+		</constraint>
+		<constraint name="producto_sku_sku_uq" type="uq-constr" table="public.producto_sku">
+			<columns names="sku" ref-type="src-columns" />
+		</constraint>
+		<constraint name="producto_sku_id_variante_talla_uq" type="uq-constr" table="public.producto_sku">
+			<columns names="id_variante,talla" ref-type="src-columns" />
+		</constraint>
+		<constraint name="producto_sku_check_1" type="ck-constr" table="public.producto_sku">
+			<expression>talla BETWEEN 20 AND 55</expression>
+		</constraint>
+	</table>
+	<table name="nave" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
+		<schema name="public" />
+		<role name="postgres" />
+		<position x="1455" y="90" />
+		<column name="id_nave" not-null="true" identity-type="ALWAYS">
+			<type name="int4" length="0" />
+		</column>
+		<column name="nombre" not-null="true">
+			<type name="varchar" length="80" />
+		</column>
+		<column name="ubicacion" not-null="true">
+			<type name="varchar" length="180" />
+		</column>
+		<column name="capacidad" not-null="true">
+			<type name="int4" length="0" />
+		</column>
+		<constraint name="nave_pk" type="pk-constr" table="public.nave">
+			<columns names="id_nave" ref-type="src-columns" />
+		</constraint>
+		<constraint name="nave_check_1" type="ck-constr" table="public.nave">
+			<expression>capacidad &gt;= 0</expression>
+		</constraint>
+	</table>
+	<table name="existencias" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
+		<schema name="public" />
+		<role name="postgres" />
+		<position x="120" y="550" />
+		<column name="id_existencia" not-null="true" identity-type="ALWAYS">
+			<type name="int4" length="0" />
+		</column>
+		<column name="id_producto_sku" not-null="true">
+			<type name="int4" length="0" />
+		</column>
+		<column name="id_nave" not-null="true">
+			<type name="int4" length="0" />
+		</column>
+		<column name="cantidad" not-null="true" default-value="0">
+			<type name="int4" length="0" />
+		</column>
+		<constraint name="existencias_pk" type="pk-constr" table="public.existencias">
+			<columns names="id_existencia" ref-type="src-columns" />
+		</constraint>
+		<constraint name="existencias_id_producto_sku_id_nave_uq" type="uq-constr" table="public.existencias">
+			<columns names="id_producto_sku,id_nave" ref-type="src-columns" />
+		</constraint>
+		<constraint name="existencias_check_1" type="ck-constr" table="public.existencias">
+			<expression>cantidad &gt;= 0</expression>
+		</constraint>
+	</table>
+	<table name="clientes" layers="0" collapse-mode="2" max-obj-count="10" z-value="0">
+		<schema name="public" />
+		<role name="postgres" />
+		<position x="565" y="550" />
+		<column name="id_cliente" not-null="true" identity-type="ALWAYS">
+			<type name="int4" length="0" />
+		</column>
+		<column name="nombre" not-null="true">
+			<type name="varchar" length="120" />
+		</column>
+		<column name="tipo" not-null="true" default-value="'particular'">
+			<type name="varchar" length="20" />
+		</column>
+		<column name="email" not-null="true">
+			<type name="varchar" length="150" />
+		</column>
+		<column name="telefono">
+			<type name="varchar" length="30" />
+		</column>
+		<column name="direccion_entrega">
+			<type name="text" length="0" />
+		</column>
+		<column name="activo" not-null="true" default-value="true">
+			<type name="boolean" length="0" />
+		</column>
+		<constraint name="clientes_pk" type="pk-constr" table="public.clientes">
+			<columns names="id_cliente" ref-type="src-columns" />
+		</constraint>
+		<constraint name="clientes_email_uq" type="uq-constr" table="public.clientes">
+			<columns names="email" ref-type="src-columns" />
+		</constraint>
+		<constraint name="clientes_check_1" type="ck-constr" table="public.clientes">
+			<expression>tipo IN ('particular', 'empresa')</expression>
+		</constraint>
+	</table>
+	<table name="personal" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
+		<schema name="public" />
+		<role name="postgres" />
+		<position x="1010" y="550" />
+		<column name="id_personal" not-null="true" identity-type="ALWAYS">
+			<type name="int4" length="0" />
+		</column>
+		<column name="nombre" not-null="true">
+			<type name="varchar" length="120" />
+		</column>
+		<column name="dni" not-null="true">
+			<type name="varchar" length="20" />
+		</column>
+		<column name="puesto" not-null="true">
+			<type name="varchar" length="80" />
+		</column>
+		<constraint name="personal_pk" type="pk-constr" table="public.personal">
+			<columns names="id_personal" ref-type="src-columns" />
+		</constraint>
+		<constraint name="personal_dni_uq" type="uq-constr" table="public.personal">
+			<columns names="dni" ref-type="src-columns" />
+		</constraint>
+	</table>
+	<table name="roles" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
+		<schema name="public" />
+		<role name="postgres" />
+		<position x="1455" y="550" />
+		<column name="id_rol" not-null="true" identity-type="ALWAYS">
+			<type name="int4" length="0" />
+		</column>
+		<column name="nombre" not-null="true">
+			<type name="varchar" length="50" />
+		</column>
+		<column name="descripcion">
+			<type name="text" length="0" />
+		</column>
+		<constraint name="roles_pk" type="pk-constr" table="public.roles">
+			<columns names="id_rol" ref-type="src-columns" />
+		</constraint>
+		<constraint name="roles_nombre_uq" type="uq-constr" table="public.roles">
+			<columns names="nombre" ref-type="src-columns" />
+		</constraint>
+	</table>
+	<table name="usuarios" layers="0" collapse-mode="2" max-obj-count="9" z-value="0">
+		<schema name="public" />
+		<role name="postgres" />
+		<position x="120" y="1010" />
+		<column name="id_usuario" not-null="true" identity-type="ALWAYS">
+			<type name="int4" length="0" />
+		</column>
+		<column name="username" not-null="true">
+			<type name="varchar" length="60" />
+		</column>
+		<column name="password_hash" not-null="true">
+			<type name="text" length="0" />
+		</column>
+		<column name="id_rol" not-null="true">
+			<type name="int4" length="0" />
+		</column>
+		<column name="id_personal">
+			<type name="int4" length="0" />
+		</column>
+		<column name="activo" not-null="true" default-value="true">
+			<type name="boolean" length="0" />
+		</column>
+		<constraint name="usuarios_pk" type="pk-constr" table="public.usuarios">
+			<columns names="id_usuario" ref-type="src-columns" />
+		</constraint>
+		<constraint name="usuarios_username_uq" type="uq-constr" table="public.usuarios">
+			<columns names="username" ref-type="src-columns" />
+		</constraint>
+		<constraint name="usuarios_id_personal_uq" type="uq-constr" table="public.usuarios">
+			<columns names="id_personal" ref-type="src-columns" />
+		</constraint>
+	</table>
+	<table name="tienda_fisica" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
+		<schema name="public" />
+		<role name="postgres" />
+		<position x="565" y="1010" />
+		<column name="id_tienda" not-null="true" identity-type="ALWAYS">
+			<type name="int4" length="0" />
+		</column>
+		<column name="nombre" not-null="true">
+			<type name="varchar" length="100" />
+		</column>
+		<column name="direccion" not-null="true">
+			<type name="varchar" length="200" />
+		</column>
+		<column name="telefono">
+			<type name="varchar" length="30" />
+		</column>
+		<constraint name="tienda_fisica_pk" type="pk-constr" table="public.tienda_fisica">
+			<columns names="id_tienda" ref-type="src-columns" />
+		</constraint>
+	</table>
+	<table name="pedidos" layers="0" collapse-mode="2" max-obj-count="16" z-value="0">
+		<schema name="public" />
+		<role name="postgres" />
+		<position x="1010" y="1010" />
+		<column name="id_pedido" not-null="true" identity-type="ALWAYS">
+			<type name="int4" length="0" />
+		</column>
+		<column name="referencia" not-null="true">
+			<type name="varchar" length="30" />
+		</column>
+		<column name="id_cliente" not-null="true">
+			<type name="int4" length="0" />
+		</column>
+		<column name="id_usuario">
+			<type name="int4" length="0" />
+		</column>
+		<column name="id_tienda">
+			<type name="int4" length="0" />
+		</column>
+		<column name="fecha_pedido" not-null="true" default-value="CURRENT_TIMESTAMP">
+			<type name="timestamp" length="0" />
+		</column>
+		<column name="fecha_objetivo">
+			<type name="date" length="0" />
+		</column>
+		<column name="estado" not-null="true" default-value="'pendiente'">
+			<type name="varchar" length="25" />
+		</column>
+		<column name="estado_pago" not-null="true" default-value="'pendiente'">
+			<type name="varchar" length="25" />
+		</column>
+		<column name="personalizado" not-null="true" default-value="false">
+			<type name="boolean" length="0" />
+		</column>
+		<column name="personalizacion">
+			<type name="text" length="0" />
+		</column>
+		<column name="cantidad_total" not-null="true" default-value="0">
+			<type name="int4" length="0" />
+		</column>
+		<column name="importe_total" not-null="true" default-value="0">
+			<type name="numeric" length="12" precision="2" />
+		</column>
+		<constraint name="pedidos_pk" type="pk-constr" table="public.pedidos">
+			<columns names="id_pedido" ref-type="src-columns" />
+		</constraint>
+		<constraint name="pedidos_referencia_uq" type="uq-constr" table="public.pedidos">
+			<columns names="referencia" ref-type="src-columns" />
+		</constraint>
+		<constraint name="pedidos_check_1" type="ck-constr" table="public.pedidos">
+			<expression>cantidad_total &gt;= 0</expression>
+		</constraint>
+		<constraint name="pedidos_check_2" type="ck-constr" table="public.pedidos">
+			<expression>importe_total &gt;= 0</expression>
+		</constraint>
+		<constraint name="pedidos_check_3" type="ck-constr" table="public.pedidos">
+			<expression>estado IN ('pendiente', 'en_preparacion', 'enviado', 'entregado', 'cancelado')</expression>
+		</constraint>
+		<constraint name="pedidos_check_4" type="ck-constr" table="public.pedidos">
+			<expression>estado_pago IN ('pendiente', 'pagado', 'reembolsado')</expression>
+		</constraint>
+	</table>
+	<table name="linea_pedido" layers="0" collapse-mode="2" max-obj-count="9" z-value="0">
+		<schema name="public" />
+		<role name="postgres" />
+		<position x="1455" y="1010" />
+		<column name="id_linea" not-null="true" identity-type="ALWAYS">
+			<type name="int4" length="0" />
+		</column>
+		<column name="id_pedido" not-null="true">
+			<type name="int4" length="0" />
+		</column>
+		<column name="id_producto_sku" not-null="true">
+			<type name="int4" length="0" />
+		</column>
+		<column name="cantidad" not-null="true">
+			<type name="int4" length="0" />
+		</column>
+		<column name="precio_unitario" not-null="true">
+			<type name="numeric" length="8" precision="2" />
+		</column>
+		<column name="subtotal" not-null="true">
+			<type name="numeric" length="12" precision="2" />
+		</column>
+		<constraint name="linea_pedido_pk" type="pk-constr" table="public.linea_pedido">
+			<columns names="id_linea" ref-type="src-columns" />
+		</constraint>
+		<constraint name="linea_pedido_check_1" type="ck-constr" table="public.linea_pedido">
+			<expression>cantidad &gt; 0</expression>
+		</constraint>
+		<constraint name="linea_pedido_check_2" type="ck-constr" table="public.linea_pedido">
+			<expression>precio_unitario &gt;= 0</expression>
+		</constraint>
+		<constraint name="linea_pedido_check_3" type="ck-constr" table="public.linea_pedido">
+			<expression>subtotal &gt;= 0</expression>
+		</constraint>
+	</table>
+	<table name="log_eventos" layers="0" collapse-mode="2" max-obj-count="10" z-value="0">
+		<schema name="public" />
+		<role name="postgres" />
+		<position x="120" y="1470" />
+		<column name="id_evento" not-null="true" identity-type="ALWAYS">
+			<type name="int4" length="0" />
+		</column>
+		<column name="id_usuario">
+			<type name="int4" length="0" />
+		</column>
+		<column name="tabla_afectada" not-null="true">
+			<type name="varchar" length="80" />
+		</column>
+		<column name="id_registro">
+			<type name="int4" length="0" />
+		</column>
+		<column name="accion" not-null="true">
+			<type name="varchar" length="30" />
+		</column>
+		<column name="fecha_hora" not-null="true" default-value="CURRENT_TIMESTAMP">
+			<type name="timestamp" length="0" />
+		</column>
+		<column name="detalle">
+			<type name="text" length="0" />
+		</column>
+		<constraint name="log_eventos_pk" type="pk-constr" table="public.log_eventos">
+			<columns names="id_evento" ref-type="src-columns" />
+		</constraint>
+	</table>
+	<constraint name="variantes_id_modelo_fk" type="fk-constr" comparison-type="MATCH SIMPLE" upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.modelos" table="public.variantes">
+		<columns names="id_modelo" ref-type="src-columns" />
+		<columns names="id_modelo" ref-type="dst-columns" />
+	</constraint>
+	<relationship name="rel_variantes_modelos_id_modelo" type="relfk" src-table="public.variantes" dst-table="public.modelos" src-required="false" dst-required="false" />
+	<constraint name="producto_sku_id_variante_fk" type="fk-constr" comparison-type="MATCH SIMPLE" upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.variantes" table="public.producto_sku">
+		<columns names="id_variante" ref-type="src-columns" />
+		<columns names="id_variante" ref-type="dst-columns" />
+	</constraint>
+	<relationship name="rel_producto_sku_variantes_id_variante" type="relfk" src-table="public.producto_sku" dst-table="public.variantes" src-required="false" dst-required="false" />
+	<constraint name="existencias_id_producto_sku_fk" type="fk-constr" comparison-type="MATCH SIMPLE" upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.producto_sku" table="public.existencias">
+		<columns names="id_producto_sku" ref-type="src-columns" />
+		<columns names="id_producto_sku" ref-type="dst-columns" />
+	</constraint>
+	<relationship name="rel_existencias_producto_sku_id_producto_sku" type="relfk" src-table="public.existencias" dst-table="public.producto_sku" src-required="false" dst-required="false" />
+	<constraint name="existencias_id_nave_fk" type="fk-constr" comparison-type="MATCH SIMPLE" upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.nave" table="public.existencias">
+		<columns names="id_nave" ref-type="src-columns" />
+		<columns names="id_nave" ref-type="dst-columns" />
+	</constraint>
+	<relationship name="rel_existencias_nave_id_nave" type="relfk" src-table="public.existencias" dst-table="public.nave" src-required="false" dst-required="false" />
+	<constraint name="usuarios_id_rol_fk" type="fk-constr" comparison-type="MATCH SIMPLE" upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.roles" table="public.usuarios">
+		<columns names="id_rol" ref-type="src-columns" />
+		<columns names="id_rol" ref-type="dst-columns" />
+	</constraint>
+	<relationship name="rel_usuarios_roles_id_rol" type="relfk" src-table="public.usuarios" dst-table="public.roles" src-required="false" dst-required="false" />
+	<constraint name="usuarios_id_personal_fk" type="fk-constr" comparison-type="MATCH SIMPLE" upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.personal" table="public.usuarios">
+		<columns names="id_personal" ref-type="src-columns" />
+		<columns names="id_personal" ref-type="dst-columns" />
+	</constraint>
+	<relationship name="rel_usuarios_personal_id_personal" type="relfk" src-table="public.usuarios" dst-table="public.personal" src-required="false" dst-required="false" />
+	<constraint name="pedidos_id_cliente_fk" type="fk-constr" comparison-type="MATCH SIMPLE" upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.clientes" table="public.pedidos">
+		<columns names="id_cliente" ref-type="src-columns" />
+		<columns names="id_cliente" ref-type="dst-columns" />
+	</constraint>
+	<relationship name="rel_pedidos_clientes_id_cliente" type="relfk" src-table="public.pedidos" dst-table="public.clientes" src-required="false" dst-required="false" />
+	<constraint name="pedidos_id_usuario_fk" type="fk-constr" comparison-type="MATCH SIMPLE" upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.usuarios" table="public.pedidos">
+		<columns names="id_usuario" ref-type="src-columns" />
+		<columns names="id_usuario" ref-type="dst-columns" />
+	</constraint>
+	<relationship name="rel_pedidos_usuarios_id_usuario" type="relfk" src-table="public.pedidos" dst-table="public.usuarios" src-required="false" dst-required="false" />
+	<constraint name="pedidos_id_tienda_fk" type="fk-constr" comparison-type="MATCH SIMPLE" upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.tienda_fisica" table="public.pedidos">
+		<columns names="id_tienda" ref-type="src-columns" />
+		<columns names="id_tienda" ref-type="dst-columns" />
+	</constraint>
+	<relationship name="rel_pedidos_tienda_fisica_id_tienda" type="relfk" src-table="public.pedidos" dst-table="public.tienda_fisica" src-required="false" dst-required="false" />
+	<constraint name="linea_pedido_id_pedido_fk" type="fk-constr" comparison-type="MATCH SIMPLE" upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.pedidos" table="public.linea_pedido">
+		<columns names="id_pedido" ref-type="src-columns" />
+		<columns names="id_pedido" ref-type="dst-columns" />
+	</constraint>
+	<relationship name="rel_linea_pedido_pedidos_id_pedido" type="relfk" src-table="public.linea_pedido" dst-table="public.pedidos" src-required="false" dst-required="false" />
+	<constraint name="linea_pedido_id_producto_sku_fk" type="fk-constr" comparison-type="MATCH SIMPLE" upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.producto_sku" table="public.linea_pedido">
+		<columns names="id_producto_sku" ref-type="src-columns" />
+		<columns names="id_producto_sku" ref-type="dst-columns" />
+	</constraint>
+	<relationship name="rel_linea_pedido_producto_sku_id_producto_sku" type="relfk" src-table="public.linea_pedido" dst-table="public.producto_sku" src-required="false" dst-required="false" />
+	<constraint name="log_eventos_id_usuario_fk" type="fk-constr" comparison-type="MATCH SIMPLE" upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.usuarios" table="public.log_eventos">
+		<columns names="id_usuario" ref-type="src-columns" />
+		<columns names="id_usuario" ref-type="dst-columns" />
+	</constraint>
+	<relationship name="rel_log_eventos_usuarios_id_usuario" type="relfk" src-table="public.log_eventos" dst-table="public.usuarios" src-required="false" dst-required="false" />
+</dbmodel>
