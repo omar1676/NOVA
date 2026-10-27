@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVA Sneakers · Dashboard</title>
+    <link rel="icon" href="img/Nova Logo.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="adm" data-pagina="dashboard">
+
+<div class="adm-sidebar">
+    <div class="adm-marca">
+        <img src="img/Nova Logo.png" alt="NOVA Sneakers">
+    </div>
+    <nav class="adm-menu">
+        <a href="admin.html" class="adm-activo"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+        <a href="pedidosAdmin.html"><i data-lucide="shopping-bag"></i> Pedidos</a>
+        <a href="productosAdmin.html"><i data-lucide="footprints"></i> Productos</a>
+        <a href="inventarioAdmin.html"><i data-lucide="warehouse"></i> Inventario</a>
+        <a href="clientesAdmin.html"><i data-lucide="users"></i> Clientes</a>
+        <a href="trabajadoresAdmin.html"><i data-lucide="hard-hat"></i> Trabajadores</a>
+        <a href="sugerenciasAdmin.html"><i data-lucide="lightbulb"></i> Sugerencias</a>
+        <a href="mejorasAdmin.html"><i data-lucide="kanban"></i> Mejoras</a>
+        <a href="estadisticasAdmin.html"><i data-lucide="bar-chart-3"></i> Estadísticas</a>
+        <a href="auditoriaAdmin.html"><i data-lucide="scroll-text"></i> Auditoría</a>
+        <a href="configuracionAdmin.html"><i data-lucide="settings"></i> Configuración</a>
+        <a href="#" id="adm-salir"><i data-lucide="log-out"></i> Cerrar sesión</a>
+    </nav>
+</div>
+
+<div class="adm-contenido">
+    <h1>Dashboard</h1>
+
+    <div class="adm-tarjetas">
+        <div class="adm-tarjeta"><span>Ventas acumuladas</span><strong id="adm-ventas">—</strong></div>
+        <div class="adm-tarjeta"><span>Pedidos del día</span><strong id="adm-pedidos-hoy">—</strong></div>
+        <div class="adm-tarjeta"><span>Pedidos pendientes</span><strong id="adm-pedidos-pendientes">—</strong></div>
+        <div class="adm-tarjeta"><span>Sugerencias pendientes</span><strong id="adm-sugerencias-pendientes">—</strong></div>
+    </div>
+
+    <div class="adm-fila">
+        <div class="adm-panel">
+            <h2>Últimas operaciones</h2>
+            <table class="adm-tabla">
+                <thead>
+                    <tr>
+                        <th>Referencia</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody id="adm-ultimos">
+                    <tr><td colspan="5" class="adm-vacio">Cargando datos…</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="adm-panel">
+            <h2>Pedidos por estado</h2>
+            <div class="adm-lista-estados" id="adm-estados">
+                <div><span>pendiente</span><span>—</span></div>
+                <div><span>confirmado</span><span>—</span></div>
+                <div><span>en_preparacion</span><span>—</span></div>
+                <div><span>enviado</span><span>—</span></div>
+                <div><span>entregado</span><span>—</span></div>
+                <div><span>cancelado</span><span>—</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="adm-fila adm-fila-igual">
+        <div class="adm-panel">
+            <h2>Ventas por día</h2>
+            <div class="adm-grafico-vacio" id="adm-ventas-vacio">Sin datos de ventas todavía</div>
+            <div class="adm-grafico-caja" id="adm-ventas-caja" style="display: none;">
+                <canvas id="adm-ventas-canvas" role="img" aria-label="Gráfico de barras: ventas por día"></canvas>
+            </div>
+        </div>
+
+        <div class="adm-panel">
+            <h2>Stock bajo</h2>
+            <div class="adm-lista-estados" id="adm-stock-bajo">
+                <p class="adm-vacio">Cargando datos…</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/lucide@1.62.0/dist/umd/lucide.min.js" integrity="sha384-KbBG+Cdzk6eN6IszNtkSQeU6IJq84TBpyLQN+W8Fn8y0QNsTNiB+j8vFW5Rn1SGZ" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" crossorigin="anonymous"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
