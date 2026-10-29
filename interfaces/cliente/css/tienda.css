@@ -1,0 +1,485 @@
+/* tienda.css — estilos de la tienda online (js/tienda.js): la barra de
+   cuenta y carrito, la compra en la ficha, el carrito, el pedido y «Mis
+   pedidos». Usa los colores y los botones de inicio.css. */
+
+/* Los elementos con el atributo hidden no se ven aunque una regla les dé
+   display (por ejemplo, .compra es un bloque y .checkout-paso tambien). */
+.barra-tienda [hidden],
+.modal-info [hidden],
+.acceso [hidden],
+.dialogo-tienda [hidden] {
+  display: none !important;
+}
+
+/* El escaparate ocupaba la pantalla menos la cabecera; ahora también menos
+   la barra de la tienda (40 px). */
+.coleccion {
+  min-height: calc(100vh - 112px);
+}
+
+/* ---------- Barra de la tienda, bajo la cabecera ---------- */
+.barra-tienda {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 22px;
+  min-height: 40px;
+  padding: 0 5%;
+  background: #121113;
+  border-bottom: 1px solid #ffffff14;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.barra-tienda a,
+.barra-tienda button {
+  padding: 10px 0;
+  border: 0;
+  background: none;
+  color: var(--tinta);
+  font-size: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-decoration: none;
+}
+.barra-tienda a:hover,
+.barra-tienda button:hover {
+  color: #efb17d;
+}
+.barra-saludo {
+  margin: 0 auto 0 0;
+  color: var(--suave);
+}
+.barra-carrito {
+  font-weight: bold;
+}
+.barra-carrito span {
+  color: var(--brillo);
+}
+
+/* ---------- Tarjetas del catálogo: disponible, agotado o no disponible ---------- */
+.catalogo-datos .catalogo-estado {
+  order: 4;
+  width: 100%;
+  font-size: 0.66rem;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.catalogo-datos .catalogo-estado.disponible {
+  color: #2e6b3a;
+}
+.catalogo-datos .catalogo-estado.agotado {
+  color: #8d3b2a;
+}
+.catalogo-datos .catalogo-estado.no-disponible {
+  color: #6a625d;
+}
+
+/* ---------- La compra dentro de la ficha ---------- */
+.compra-aviso {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-left: 3px solid #d7a381;
+  background: #00000030;
+}
+.modal-info p.compra-aviso {
+  color: #f2d2b6;
+}
+.compra {
+  margin: 4px 0 14px;
+}
+.compra-grupo {
+  min-width: 0;
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+}
+.compra-grupo legend {
+  margin-bottom: 6px;
+  padding: 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  color: #d7a381;
+}
+.compra-opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.compra-opcion {
+  position: relative;
+}
+/* El radio de verdad queda encima, transparente: se puede usar con el ratón
+   y con el teclado (flechas), y el lector de pantalla lo anuncia. */
+.compra-opcion input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.compra-opcion b {
+  display: inline-block;
+  min-width: 42px;
+  padding: 8px 10px;
+  border: 1px solid #ffffff66;
+  font-weight: normal;
+  text-align: center;
+}
+.compra-opcion input:checked + b {
+  border-color: #eee2d7;
+  background: #eee2d7;
+  color: #292426;
+  font-weight: bold;
+}
+.compra-opcion input:focus-visible + b {
+  outline: 2px solid #f6c696;
+  outline-offset: 2px;
+}
+.compra-opcion input:disabled {
+  cursor: not-allowed;
+}
+.compra-opcion input:disabled + b {
+  border-style: dashed;
+  color: #b8afab;
+  text-decoration: line-through;
+}
+.modal-info .compra-stock {
+  margin: 0 0 8px;
+  font-size: 0.75rem;
+}
+.compra-cantidad {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  font-size: 0.75rem;
+}
+.compra-cantidad input,
+.carrito-cantidad input {
+  width: 64px;
+  padding: 7px;
+  border: 1px solid #ffffff66;
+  background: transparent;
+  color: white;
+}
+.boton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.modal-info .compra-mensaje {
+  min-height: 1.4em;
+  margin: 8px 0 0;
+  color: #bfe0b6;
+}
+.modal-info .compra-mensaje.error {
+  color: #f2a38d;
+}
+
+/* ---------- Diálogos de cuenta (los de Álvaro) ---------- */
+.acceso-pie {
+  margin: 16px 0 0;
+  font-size: 0.78rem;
+}
+.acceso-campo textarea {
+  width: 100%;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 1px solid #ffffff4a;
+  background: transparent;
+  color: white;
+  font: inherit;
+  resize: vertical;
+}
+.acceso-campo textarea:focus-visible {
+  outline: 2px solid #f6c696;
+  outline-offset: 3px;
+}
+.enlace-boton {
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: #f0c39b;
+  font-size: inherit;
+  text-decoration: underline;
+}
+.enlace-boton:hover {
+  color: white;
+}
+
+/* ---------- Carrito, pedido y mis pedidos ---------- */
+dialog.dialogo-tienda {
+  width: min(760px, 94vw);
+}
+.tienda-caja {
+  position: relative;
+  padding: 48px 32px 32px;
+}
+.tienda-caja h2 {
+  margin: 0.2em 0 0.4em;
+  font-size: 2rem;
+  letter-spacing: -0.04em;
+}
+.tienda-caja h2 span {
+  color: var(--brillo);
+}
+.tienda-caja p,
+.tienda-vacio {
+  color: #d3cac6;
+}
+.tienda-caja .tienda-nota {
+  font-size: 0.75rem;
+  color: #c1b6b2;
+}
+.tienda-botones {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+.tienda-botones .boton {
+  flex: 1;
+}
+.boton-secundario {
+  border-color: #ffffff66;
+  background: transparent;
+  color: var(--tinta);
+}
+.boton-secundario:hover {
+  background: #ffffff14;
+}
+.carrito-lista,
+.carrito-avisos,
+.pedidos-lista,
+.pedido-lineas {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.carrito-avisos li {
+  margin-bottom: 6px;
+  color: #f2d2b6;
+  font-size: 0.78rem;
+}
+
+.carrito-linea {
+  display: grid;
+  grid-template-columns: 72px 1fr auto auto auto;
+  grid-template-areas: "foto datos cantidad subtotal quitar";
+  align-items: center;
+  gap: 8px 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid #ffffff1f;
+}
+.carrito-linea img {
+  grid-area: foto;
+  width: 72px;
+  height: 56px;
+  object-fit: contain;
+}
+.carrito-datos {
+  grid-area: datos;
+  display: grid;
+  gap: 2px;
+}
+.carrito-datos small {
+  color: #c9c0bc;
+}
+.carrito-cantidad {
+  grid-area: cantidad;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+}
+.carrito-subtotal {
+  grid-area: subtotal;
+}
+.carrito-linea .enlace-boton {
+  grid-area: quitar;
+}
+.carrito-pie {
+  margin-top: 18px;
+}
+.tienda-caja .carrito-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0;
+  color: var(--tinta);
+  font-size: 1rem;
+}
+.carrito-total strong {
+  font-size: 1.3rem;
+}
+
+.checkout-pasos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 0 0 18px;
+  padding: 0;
+  list-style: none;
+  color: #a9a19d;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.checkout-pasos [aria-current="step"] {
+  color: var(--brillo);
+  font-weight: bold;
+}
+.checkout-datos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 12px 0 0;
+}
+.checkout-datos dt {
+  color: #d7a381;
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.checkout-datos dd {
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+}
+.tabla-tienda {
+  overflow-x: auto;
+}
+.tabla-tienda table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+.tabla-tienda th,
+.tabla-tienda td {
+  padding: 8px 6px;
+  border-bottom: 1px solid #ffffff1f;
+  text-align: left;
+}
+.tabla-tienda th {
+  color: #d7a381;
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.tabla-tienda td:not(:first-child),
+.tabla-tienda thead th:not(:first-child) {
+  text-align: right;
+  white-space: nowrap;
+}
+.tabla-tienda tfoot th,
+.tabla-tienda tfoot td {
+  border-bottom: 0;
+  color: var(--tinta);
+  font-size: 0.95rem;
+  font-weight: bold;
+}
+.tabla-tienda tfoot th {
+  text-align: right;
+}
+.pago-simulado {
+  margin: 18px 0;
+  padding: 14px 16px;
+  border: 1px dashed var(--brillo);
+  background: #e5a1681a;
+}
+.tienda-caja .pago-simulado-titulo {
+  margin: 0 0 6px;
+  color: var(--brillo);
+  font-size: 0.7rem;
+  font-weight: bold;
+  letter-spacing: 0.15em;
+}
+.tienda-caja .resultado-titulo {
+  margin: 10px 0;
+  color: var(--tinta);
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+.solo-lector {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.pedido {
+  padding: 12px 0;
+  border-bottom: 1px solid #ffffff1f;
+}
+.pedido-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 16px;
+  font-size: 0.8rem;
+}
+.pedido-estado {
+  padding: 2px 8px;
+  border: 1px solid currentColor;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.estado-pendiente {
+  color: #f0c39b;
+}
+.estado-confirmado,
+.estado-en_preparacion,
+.estado-enviado,
+.estado-entregado {
+  color: #bfe0b6;
+}
+.estado-cancelado {
+  color: #c9c0bc;
+}
+.pedido-lineas li {
+  padding: 6px 0 0 12px;
+  color: #ddd5d1;
+  font-size: 0.78rem;
+}
+
+@media (max-width: 760px) {
+  .barra-tienda {
+    gap: 16px;
+  }
+  .coleccion {
+    min-height: calc(100vh - 104px);
+  }
+  .tienda-caja {
+    padding: 44px 18px 22px;
+  }
+  .tienda-botones {
+    flex-direction: column;
+  }
+  .checkout-datos {
+    grid-template-columns: 1fr;
+  }
+  .carrito-linea {
+    grid-template-columns: 56px 1fr auto;
+    grid-template-areas:
+      "foto datos datos"
+      "foto cantidad subtotal"
+      "foto quitar quitar";
+  }
+  .carrito-linea img {
+    width: 56px;
+    height: 46px;
+  }
+  .carrito-linea .enlace-boton {
+    justify-self: start;
+  }
+}
+@media (max-width: 370px) {
+  .barra-tienda {
+    gap: 12px;
+    font-size: 0.62rem;
+  }
+}
