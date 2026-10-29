@@ -1,0 +1,163 @@
+===== escritorio (1280 px)
+--- acceso
+PASS  sin sesion, admin.html lleva a login.html (http://127.0.0.1:3100/login.html)
+PASS  contrasena mala: aviso y sigue en login (Usuario o contrase�a incorrectos)
+PASS  trabajador: no tiene permiso y sigue en login (El usuario taller.demo (trabajador) no tiene permiso para el panel.)
+PASS  al trabajador se le cierra la sesion (401) (401)
+PASS  administrador: entra al dashboard
+--- dashboard
+PASS  ventas acumuladas = P-A (10.686,45��)
+PASS  pedidos del dia (12)
+PASS  pedidos pendientes (11)
+PASS  sugerencias: No disponible
+PASS  ultimas operaciones = 5 ultimos pedidos (CUSTOM-40,NOVA-0011,NOVA-0009,NOVA-0010,NOVA-0001)
+PASS  pedidos por estado (los 6) ({'pendiente': '11', 'confirmado': '1', 'en_preparacion': '0', 'enviado': '0', 'entregado': '0', 'cancelado': '0'})
+PASS  stock bajo = C8 (< 10) (0)
+PASS  grafico de ventas dibujado
+PASS  sin desbordamiento horizontal
+--- tablas
+PASS  pedidos: mismas filas que PostgreSQL (12)
+PASS  pedidos: ningun dato de ejemplo
+PASS  pedidos: sin desbordamiento horizontal
+PASS  productos: mismas filas que PostgreSQL (60)
+PASS  productos: ningun dato de ejemplo
+PASS  productos: sin desbordamiento horizontal
+PASS  inventario: mismas filas que PostgreSQL (60)
+PASS  inventario: ningun dato de ejemplo
+PASS  inventario: sin desbordamiento horizontal
+PASS  clientes: mismas filas que PostgreSQL (6)
+PASS  clientes: ningun dato de ejemplo
+PASS  clientes: sin desbordamiento horizontal
+PASS  trabajadores: mismas filas que PostgreSQL (3)
+PASS  trabajadores: ningun dato de ejemplo
+PASS  trabajadores: sin desbordamiento horizontal
+PASS  auditoria: mismas filas que PostgreSQL (7)
+PASS  auditoria: ningun dato de ejemplo
+PASS  auditoria: sin desbordamiento horizontal
+--- filtros
+PASS  pedidos: filtro pendiente (11)
+PASS  pedidos: filtro confirmado (['CUSTOM-40'])
+PASS  pedidos: buscador 'custom' (['CUSTOM-40'])
+PASS  pedidos: sin coincidencias -> 'No hay resultados'
+PASS  pedidos: una fila identica a PostgreSQL (['CUSTOM-40', 'Club Atletico NOVA', '11/11/2026', 'confirmado', '4796,00\xa0�'])
+PASS  inventario: filtro bajo (0)
+PASS  inventario: filtro agotado (0)
+PASS  inventario: filtro suficiente (60)
+PASS  auditoria: filtro ALTA (1)
+PASS  trabajadores: buscador 'taller' ([['Demo Taller', 'taller.demo', 'Operario de taller', 'trabajador', 'activo']])
+PASS  trabajadores: sin DNI en la pagina
+--- estadisticas
+PASS  ingresos del mes (10.686,45��)
+PASS  pedidos del mes (12)
+PASS  ticket medio (890,54��)
+PASS  pares del mes (90)
+PASS  mas vendidos = P-C (['NOVA Velocity|82', 'NOVA Archive|2', 'NOVA Eclipse|2', 'NOVA Origin|2', 'NOVA Aura|1', 'NOVA Pulse|1'])
+PASS  graficos de ventas e ingresos
+PASS  estadisticas sin desbordamiento
+--- prototipos
+PASS  sugerenciasAdmin.html: aviso de prototipo visible
+PASS  sugerenciasAdmin.html: sin desbordamiento
+PASS  mejorasAdmin.html: aviso de prototipo visible
+PASS  mejorasAdmin.html: sin desbordamiento
+PASS  configuracionAdmin.html: aviso de prototipo visible
+PASS  configuracionAdmin.html: sin desbordamiento
+PASS  sugerencias: el filtro de Alvaro sigue funcionando (1)
+PASS  configuracion: Guardar avisa de que es prototipo
+--- cerrar sesion
+PASS  Cerrar sesion lleva a login
+PASS  despues, pedidosAdmin.html vuelve a login
+PASS  y la API responde 401
+===== movil (390 px)
+--- acceso
+PASS  sin sesion, admin.html lleva a login.html (http://127.0.0.1:3100/login.html)
+PASS  contrasena mala: aviso y sigue en login (Usuario o contrase�a incorrectos)
+PASS  trabajador: no tiene permiso y sigue en login (El usuario taller.demo (trabajador) no tiene permiso para el panel.)
+PASS  al trabajador se le cierra la sesion (401) (401)
+PASS  administrador: entra al dashboard
+--- dashboard
+PASS  ventas acumuladas = P-A (10.686,45��)
+PASS  pedidos del dia (12)
+PASS  pedidos pendientes (11)
+PASS  sugerencias: No disponible
+PASS  ultimas operaciones = 5 ultimos pedidos (CUSTOM-40,NOVA-0011,NOVA-0009,NOVA-0010,NOVA-0001)
+PASS  pedidos por estado (los 6) ({'pendiente': '11', 'confirmado': '1', 'en_preparacion': '0', 'enviado': '0', 'entregado': '0', 'cancelado': '0'})
+PASS  stock bajo = C8 (< 10) (0)
+PASS  grafico de ventas dibujado
+PASS  sin desbordamiento horizontal
+--- tablas
+PASS  pedidos: mismas filas que PostgreSQL (12)
+PASS  pedidos: ningun dato de ejemplo
+PASS  pedidos: sin desbordamiento horizontal
+PASS  productos: mismas filas que PostgreSQL (60)
+PASS  productos: ningun dato de ejemplo
+PASS  productos: sin desbordamiento horizontal
+PASS  inventario: mismas filas que PostgreSQL (60)
+PASS  inventario: ningun dato de ejemplo
+PASS  inventario: sin desbordamiento horizontal
+PASS  clientes: mismas filas que PostgreSQL (6)
+PASS  clientes: ningun dato de ejemplo
+PASS  clientes: sin desbordamiento horizontal
+PASS  trabajadores: mismas filas que PostgreSQL (3)
+PASS  trabajadores: ningun dato de ejemplo
+PASS  trabajadores: sin desbordamiento horizontal
+PASS  auditoria: mismas filas que PostgreSQL (7)
+PASS  auditoria: ningun dato de ejemplo
+PASS  auditoria: sin desbordamiento horizontal
+--- filtros
+PASS  pedidos: filtro pendiente (11)
+PASS  pedidos: filtro confirmado (['CUSTOM-40'])
+PASS  pedidos: buscador 'custom' (['CUSTOM-40'])
+PASS  pedidos: sin coincidencias -> 'No hay resultados'
+PASS  pedidos: una fila identica a PostgreSQL (['CUSTOM-40', 'Club Atletico NOVA', '11/11/2026', 'confirmado', '4796,00\xa0�'])
+PASS  inventario: filtro bajo (0)
+PASS  inventario: filtro agotado (0)
+PASS  inventario: filtro suficiente (60)
+PASS  auditoria: filtro ALTA (1)
+PASS  trabajadores: buscador 'taller' ([['Demo Taller', 'taller.demo', 'Operario de taller', 'trabajador', 'activo']])
+PASS  trabajadores: sin DNI en la pagina
+--- estadisticas
+PASS  ingresos del mes (10.686,45��)
+PASS  pedidos del mes (12)
+PASS  ticket medio (890,54��)
+PASS  pares del mes (90)
+PASS  mas vendidos = P-C (['NOVA Velocity|82', 'NOVA Archive|2', 'NOVA Eclipse|2', 'NOVA Origin|2', 'NOVA Aura|1', 'NOVA Pulse|1'])
+PASS  graficos de ventas e ingresos
+PASS  estadisticas sin desbordamiento
+--- prototipos
+PASS  sugerenciasAdmin.html: aviso de prototipo visible
+PASS  sugerenciasAdmin.html: sin desbordamiento
+PASS  mejorasAdmin.html: aviso de prototipo visible
+PASS  mejorasAdmin.html: sin desbordamiento
+PASS  configuracionAdmin.html: aviso de prototipo visible
+PASS  configuracionAdmin.html: sin desbordamiento
+PASS  sugerencias: el filtro de Alvaro sigue funcionando (1)
+PASS  configuracion: Guardar avisa de que es prototipo
+--- cerrar sesion
+PASS  Cerrar sesion lleva a login
+PASS  despues, pedidosAdmin.html vuelve a login
+PASS  y la API responde 401
+--- un dato con HTML no se ejecuta (cliente temporal en la base desechable)
+PASS  el nombre se ve como texto
+PASS  no se crea ninguna imagen ni salta ningun alert
+--- errores en la consola del navegador: 4
+    escritorio: HTTP 401 POST http://127.0.0.1:3100/api/login
+    escritorio: Failed to load resource: the server responded with a status of 401 (Unauthorized)
+    movil: HTTP 401 POST http://127.0.0.1:3100/api/login
+    movil: Failed to load resource: the server responded with a status of 401 (Unauthorized)
+=== fase 4: 124 PASS, 0 FAIL
+
+--- Iconos de Lucide 1.62.0 y Chart.js 4.4.1 (los dos con integrity)
+PASS  admin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  pedidosAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  productosAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  inventarioAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  clientesAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  trabajadoresAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  sugerenciasAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  mejorasAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  estadisticasAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  auditoriaAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  configuracionAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  Chart.js 4.4.1 con SRI cargado y graficos dibujados
+errores de consola (SRI, CDN...): 0 []
+=== iconos: 12 PASS, 0 FAIL

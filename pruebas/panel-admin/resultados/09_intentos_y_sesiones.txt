@@ -1,0 +1,39 @@
+Limite de intentos de login y sesiones. Servidor aparte con el bloqueo acortado a 3 s (BLOQUEO_LOGIN_MS=3000); por defecto son 5 minutos.
+
+--- limite de intentos
+PASS  5 contrasenas malas de admin.demo -> 401 (401 401 401 401 401 )
+PASS  ninguna dio cookie de sesion (0)
+PASS  6.o intento CON la contrasena buena -> 429 (429)
+PASS  el bloqueo no crea sesion (0)
+PASS  lleva Retry-After (1)
+PASS  5 intentos con un usuario que no existe -> 401 (401 401 401 401 401 )
+PASS  6.o intento -> 429 (429)
+PASS  misma respuesta exista o no la cuenta ({"error":"Demasiados intentos. Espera unos minutos y vuelve a probar."})
+PASS  otro usuario (taller.demo) no queda bloqueado (200)
+PASS  pasado el bloqueo, admin.demo vuelve a entrar (200)
+PASS  y su sesion funciona (200)
+PASS  un acierto pone el contador a cero (tras 4 fallos se entra) (200)
+PASS  tras ese acierto, un fallo nuevo es 401 y no 429 (401)
+--- sesion de un administrador que se desactiva
+PASS  cuenta activa -> 200 (200)
+PASS  desactivada en la base, misma cookie -> 401 (401)
+PASS  y no puede volver a entrar (401)
+PASS  reactivada: la sesion antigua ya se borro -> 401 (401)
+PASS  un login nuevo funciona (200)
+--- sesion de un administrador al que se le cambia el rol
+PASS  antes del cambio -> 200 (200)
+PASS  ahora es trabajador, misma cookie -> 403 (403)
+PASS  rol devuelto: la sesion antigua ya se borro -> 401 (401)
+--- logout
+PASS  con sesion -> 200 (200)
+PASS  logout -> 200 (200)
+PASS  despues del logout -> 401 (401)
+PASS  la cookie dura 2 horas (Max-Age=7200) (1)
+=== intentos y sesiones: 25 PASS, 0 FAIL
+
+--- Caducidad de la sesion (2 horas), adelantando el reloj
+PASS  recien creada, la sesion vale
+PASS  a la 1 h 59 min sigue valiendo
+PASS  a las 2 h y 1 s ya no vale
+PASS  y se ha borrado: con el reloj normal tampoco vale
+=== caducidad: 4 PASS, 0 FAIL

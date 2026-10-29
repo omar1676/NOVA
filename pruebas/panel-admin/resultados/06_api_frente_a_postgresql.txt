@@ -1,0 +1,75 @@
+--- permisos en las 8 rutas
+PASS  dashboard sin sesion -> 401
+PASS  dashboard trabajador -> 403
+PASS  dashboard administrador -> 200 y JSON valido
+PASS  dashboard sin datos sensibles
+PASS  pedidos sin sesion -> 401
+PASS  pedidos trabajador -> 403
+PASS  pedidos administrador -> 200 y JSON valido
+PASS  pedidos sin datos sensibles
+PASS  productos sin sesion -> 401
+PASS  productos trabajador -> 403
+PASS  productos administrador -> 200 y JSON valido
+PASS  productos sin datos sensibles
+PASS  inventario sin sesion -> 401
+PASS  inventario trabajador -> 403
+PASS  inventario administrador -> 200 y JSON valido
+PASS  inventario sin datos sensibles
+PASS  clientes sin sesion -> 401
+PASS  clientes trabajador -> 403
+PASS  clientes administrador -> 200 y JSON valido
+PASS  clientes sin datos sensibles
+PASS  trabajadores sin sesion -> 401
+PASS  trabajadores trabajador -> 403
+PASS  trabajadores administrador -> 200 y JSON valido
+PASS  trabajadores sin datos sensibles
+PASS  auditoria sin sesion -> 401
+PASS  auditoria trabajador -> 403
+PASS  auditoria administrador -> 200 y JSON valido
+PASS  auditoria sin datos sensibles
+PASS  estadisticas sin sesion -> 401
+PASS  estadisticas trabajador -> 403
+PASS  estadisticas administrador -> 200 y JSON valido
+PASS  estadisticas sin datos sensibles
+--- dashboard frente a PostgreSQL
+PASS  ventas = P-A (10686.45)
+PASS  pedidos de hoy (12)
+PASS  pedidos pendientes (11)
+PASS  sugerencias pendientes = no disponible (null)
+PASS  ultimos 5 pedidos
+PASS  pedidos por estado
+PASS  stock bajo = C8 con umbral 10 (0 referencias)
+PASS  umbral = 10
+PASS  ventas por dia suman lo mismo
+--- tablas frente a PostgreSQL
+PASS  pedidos: mismas referencias y totales (12 pedidos)
+PASS  productos: un SKU por fila y precio = base + suplemento (60 SKU)
+PASS  inventario: mismo stock por SKU y nave (60 filas)
+PASS  inventario: estado coherente con el umbral
+PASS  clientes: mismos correos (6 clientes)
+PASS  trabajadores: mismo personal y usuarios (3 personas)
+PASS  auditoria: mismos eventos y acciones reales (7 eventos)
+PASS  estadisticas: ingresos, pedidos y pares del mes (10686.45 € · 12 pedidos · 90 pares)
+PASS  estadisticas: ticket medio = ingresos / pedidos (890.54)
+PASS  estadisticas: mas vendidos = P-C
+--- filtros
+PASS  pedidos?estado=pendiente (11)
+PASS  pedidos?estado=confirmado (CUSTOM-40)
+PASS  pedidos?texto=custom (sin distinguir mayusculas) (CUSTOM-40)
+PASS  los dos filtros a la vez (0 filas)
+PASS  texto que no existe -> 0 filas
+PASS  intento de inyeccion ' OR '1'='1 -> 0 filas
+PASS  estado que no existe -> 400
+PASS  estado repetido (array) -> 400
+PASS  inventario?estado=bajo: entre 1 y 9 (0 filas)
+PASS  inventario?estado=agotado: stock 0 (0 filas)
+PASS  bajo + agotado + suficiente = todo
+PASS  inventario?texto=42 (talla o SKU) (12 filas)
+PASS  clientes?estado=activo (6)
+PASS  auditoria?accion=ALTA (1)
+PASS  auditoria?accion=crear (accion del prototipo) -> 400
+PASS  trabajadores?texto=taller
+PASS  productos?estado=inactivo
+--- consultar no cambia nada
+PASS  80 consultas mas: pedidos, lineas, clientes, existencias, auditoria y usuarios intactos
+=== fase 3: 69 PASS, 0 FAIL
