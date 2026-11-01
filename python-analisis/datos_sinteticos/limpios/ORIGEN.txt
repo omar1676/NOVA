@@ -1,0 +1,2 @@
+Tipo: SINTETICO
+Datos INVENTADOS por generador_datos.py con la semilla 2026: 18 meses desde 2025-05, corte 2026-11-01 00:00:00. No son datos de NOVA ni salen de PostgreSQL.
