@@ -1,0 +1,10 @@
+# Entorno virtual local: cada uno lo crea con requirements.txt
+.venv/
+
+# Archivos que genera Python al ejecutar
+__pycache__/
+*.pyc
+
+# Resultados y registros que se generan al ejecutar (fases siguientes)
+outputs/
+logs/
