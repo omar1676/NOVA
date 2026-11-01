@@ -1,0 +1,37 @@
+npm run test:tienda: las 23 pruebas de la tienda (PRUEBA_TIENDA_BASE_DESECHABLE=si, y la cuenta admin.demo para la integracion con el panel).
+Base desechable nova_tienda (PostgreSQL 17.11, puerto 55433), montada desde cero con los scripts 01-21.
+Pasada final: inicio 11/11/2026 23:43:54 · fin 11/11/2026 23:45:09.
+Resultado: 23 de 23.
+
+===== Salida =====
+✔ catalogo: los 12 modelos de la web, con precio, color, tallas y stock de PostgreSQL (159.6982ms)
+✔ la web se sirve en /tienda/ y no deja salir de su carpeta (32.4462ms)
+✔ registro: crea la cuenta, abre la sesion y la cookie es HttpOnly, SameSite=Strict y solo para /api/tienda (47.9348ms)
+✔ registro: rechaza datos que no valen (28.0158ms)
+✔ login: correcto, contrasena mala y correo que no existe (mismo mensaje) (32.2414ms)
+✔ login: 5 fallos bloquean ese correo (429), exista o no, y despues se puede entrar (1814.797ms)
+✔ logout: la sesion deja de valer, tambien con la cookie antigua (35.7092ms)
+✔ la sesion de un cliente no sirve en el panel, ni sus credenciales en el login del panel (24.0909ms)
+✔ la sesion de un administrador no sirve en la tienda, ni sus credenciales en el login de la tienda (23.1001ms)
+✔ checkout sin sesion: 401 (6.8528ms)
+✔ checkout: carrito vacio, cantidades y productos que no valen (59.6594ms)
+✔ compra: un precio o un cliente manipulados se ignoran; precio y total salen de PostgreSQL (51.5578ms)
+✔ pago aceptado: confirmado y pagado; el stock baja exactamente lo comprado (35.3692ms)
+✔ pago rechazado: el pedido se cancela y el stock no cambia; ya no se puede pagar (31.4164ms)
+✔ cancelar antes de pagar: cancelado y sin tocar el stock (20.6176ms)
+✔ doble clic al crear: dos peticiones a la vez con la misma clave dan UN pedido (83.7425ms)
+✔ la clave de compra de otro cliente no le da su pedido (40.3778ms)
+✔ doble clic al pagar: dos pagos a la vez descuentan el stock UNA sola vez (82.8188ms)
+✔ compras a la vez de los ultimos pares: uno compra, al otro se le cancela y el stock queda en 0 (60.054ms)
+✔ sin stock: una talla agotada no se puede pedir (35.4627ms)
+✔ error a mitad del pago: si una linea se queda sin stock, no se descuenta ninguna (53.49ms)
+✔ historial: cada cliente ve solo sus pedidos y no puede tocar los de otro (57.7533ms)
+✔ panel: la compra sale en Pedidos, Dashboard, Inventario y Auditoria (66.8418ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3288.012

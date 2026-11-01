@@ -1,0 +1,17 @@
+El usuario de conexion de la tienda, entrando de verdad con su contrasena (scram-sha-256).
+Base desechable nova_tienda (PostgreSQL 17.11, puerto 55433), montada desde cero con los scripts 01-21.
+Pasada final: inicio 11/11/2026 23:43:54 · fin 11/11/2026 23:45:09.
+Resultado: 9 de 9.
+
+===== Resultados =====
+--- tienda_nova con su contrasena
+PASS U1 entra como tienda_nova
+--- tienda_nova con una contrasena mala (se espera error)
+PASS U2 password authentication failed for user "tienda_nova"
+PASS U3 no puede pasar a nova_admin
+PASS U3 no puede pasar a nova_cliente
+PASS U3 no puede pasar a panel_lectura
+PASS U3 no puede pasar a postgres
+PASS U4 sin SET ROLE no lee ni el catalogo
+PASS U5 con SET ROLE tienda_web lee 19 modelos
+PASS U6 web_nova (panel) no puede pasar a tienda_web

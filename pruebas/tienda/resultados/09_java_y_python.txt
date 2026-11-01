@@ -1,0 +1,132 @@
+Compatibilidad con Java y Python sobre la base con la tienda (12 modelos nuevos y compras web).
+Java: PruebasRubrica (A-J) con java_nova contra nova_tienda: 47 PASS, 0 FAIL.
+Python: CSV exportados con 16_exportar_csv_dashboard.sql despues de las compras, y python-analisis/main.py --entrada
+con esos CSV: termina bien; los 5 archivos al 100 % de calidad y las comprobaciones de la fase 1 en OK.
+Aviso de Python (regla 12, advertencia que no bloquea): los pedidos web cancelados y vueltos a intentar con las
+mismas lineas salen como "posible pedido repetido".
+
+===== Java: PruebasRubrica =====
+Contrase�a de admin.demo: Contrase�a de tienda.demo (comercial): Contrase�a de taller.demo (trabajador):
+--- Inicio de sesion y rol de conexion
+PASS L1 login de admin.demo -> rol administrador, conectado como nova_admin
+PASS L1 login de tienda.demo -> rol comercial, conectado como nova_comercial
+PASS L1 login de taller.demo -> rol trabajador, conectado como nova_trabajador
+PASS L2 contrasena incorrecta -> Usuario o contrasena incorrectos
+
+--- Prueba A: pedido Custom valido
+PASS A1 cabecera -> PRUEBA-A-840503 confirmado y personalizado
+PASS A2 lineas -> 2 lineas, tallas 41 y 42
+PASS A3 total calculado por PostgreSQL -> importe_total 599.50 = suma de lineas 599.50, 5 pares
+PASS A4 stock tras confirmar -> talla 41: 20 -> 18, talla 42: 20 -> 17
+PASS A5 auditoria con usuario y hora -> tienda.demo: ALTA 23:40:40, CAMBIO_ESTADO 23:40:40
+PASS A6 auditoria del stock -> 2 cambios de stock firmados por tienda.demo
+
+--- Prueba B: stock insuficiente
+PASS B1 confirmacion rechazada -> Stock insuficiente o producto no encontrado
+PASS B2 sin cambios parciales -> estado pendiente, stock 20 -> 20
+
+--- Prueba C: cancelacion
+PASS C1 estado cancelado -> estado cancelado
+PASS C2 stock devuelto -> talla 41: 18 -> 20, talla 42: 17 -> 20
+PASS C3 cancelacion auditada -> taller.demo BAJA_LOGICA: Pedido PRUEBA-A-840503: confirmado -> cancelado. Usuario del pedido: 3
+
+--- Prueba D: ROLLBACK deliberado
+PASS D1 dentro de la transaccion si habia cambiado -> stock 20 -> 19 antes del ROLLBACK
+PASS D2 el ROLLBACK lo deshace todo -> estado pendiente, stock 20
+PASS D3 la auditoria tambien se deshace -> 1 eventos antes y 1 despues
+
+--- Prueba E: consultas y filtros
+PASS E1 sin filtros -> 23 filas, SQL 23
+PASS E2 dos filtros (cliente y estado) -> 1 filas, SQL 1
+PASS E3 tres filtros (cliente, modelo y fechas) -> 3 filas, SQL 3
+PASS E4 limpiar filtros vuelve a todo -> 23 filas
+
+--- Prueba F: sin coincidencias y sin permiso
+PASS F1 busqueda sin coincidencias -> 0 filas
+PASS F2 el comercial no ve la auditoria (Java) -> Acceso denegado: el rol comercial no puede ver la auditor�a
+PASS F3 PostgreSQL lo deniega aunque se salte Java -> Acceso denegado por PostgreSQL: permission denied for table log_eventos
+
+--- Prueba G: registro TXT
+     2026-11-11 23:40:41 | taller.demo | trabajador | CONSULTA PEDIDOS | correcto | 23 filas; cliente=null, modelo=null, estado=null, desde=null, hasta=null
+     2026-11-11 23:40:41 | taller.demo | trabajador | CONSULTA PEDIDOS | correcto | 1 filas; cliente=6, modelo=null, estado=pendiente, desde=null, hasta=null
+     2026-11-11 23:40:41 | taller.demo | trabajador | CONSULTA PEDIDOS | correcto | 0 filas; cliente=null, modelo=null, estado=entregado, desde=2000-01-01, hasta=2000-01-02
+PASS G1 tres consultas, tres lineas nuevas -> 3 lineas
+
+--- Prueba H: pedido completo y error forzado
+PASS H1 tablas actualizadas -> confirmado, 2 x 129.99
+PASS H2 aparece en la consulta visual -> PRUEBA-H-840503
+PASS H3 TXT de la creacion y la confirmacion -> las dos lineas estan
+PASS H4 error forzado: TXT rechazado y ningun pedido nuevo -> Ya existe un registro con ese valor: duplicate key value violates unique constraint "pedidos_referencia_uq"
+PASS H5 en log_eventos solo queda el alta buena -> 1 alta
+
+--- Prueba I: usuarios y JSON
+PASS I1 el usuario nuevo aparece en el JSON -> 4 usuarios en el JSON
+PASS I2 el JSON no lleva contrasenas ni hashes -> sin password ni $2a$
+PASS I3 el usuario nuevo puede entrar -> rol comercial
+PASS I4 cambio de rol y desactivacion en el JSON, sin perder a nadie -> 4 usuarios en el JSON
+PASS I5 el comercial no puede exportar -> Acceso denegado: el rol comercial no puede gestionar usuarios
+
+--- Prueba J: indicadores y CSV filtrado
+PASS J1 resumen = SQL (P-A) -> 15 pedidos, 96 pares, 11416.03 EUR
+PASS J2 pedidos por estado suman el total -> 24 = 24
+PASS J3 pares por talla suman los pares vendidos -> 96 = 96
+PASS J4 pares por modelo suman los pares vendidos -> primero: NOVA Velocity con 82 pares
+PASS J5 stock bajo con umbral 19 -> 111 referencias, SQL 111
+PASS J6 CSV = tabla filtrada -> 11 filas y 9 columnas en consulta_pedidos.csv
+
+--- Permisos: el trabajador no crea pedidos y el comercial no crea usuarios
+PASS P1 trabajador crea pedido (Java) -> Acceso denegado: el rol trabajador no puede crear pedidos
+PASS P2 trabajador crea pedido saltandose Java -> Acceso denegado por PostgreSQL: permission denied for function realizar_compra
+PASS P3 ningun pedido nuevo -> 24 -> 24
+PASS P4 comercial crea usuario saltandose Java -> Acceso denegado por PostgreSQL: permission denied for function crear_usuario
+PASS P5 ningun usuario nuevo -> 4 -> 4
+
+RESULTADO: 47 PASS, 0 FAIL
+
+===== Python: calidad de los datos y comprobaciones de main.py =====
+Calidad de los datos (12 reglas, apartado 6.2)
+----------------------------------------------
+        tabla           archivo   estado  filas_entrada  filas_validas  filas_rechazadas  porcentaje_calidad  bloqueantes  recuperables  advertencias
+     clientes      clientes.csv correcto              8              8                 0               100.0            0             0             0
+      modelos       modelos.csv correcto             19             19                 0               100.0            0             0             0
+      pedidos       pedidos.csv correcto             24             24                 0               100.0            0             0             8
+lineas_pedido lineas_pedido.csv correcto             33             33                 0               100.0            0             0             0
+        stock         stock.csv correcto            166            166                 0               100.0            0             0             0
+
+8 incidencias:
+regla   tabla registro  fila    columna                    valor    gravedad                                                                                                                                                     detalle
+   12 pedidos       48    14 referencia WEB-DD660A52085D49E6BE5C advertencia mismo cliente y mismas líneas que WEB-9EB8FC209004495BA568, WEB-B5549E31095149758412: posible pedido repetido (no se elimina; confirmar con Acceso a Datos)
+   12 pedidos       49    15 referencia WEB-9EB8FC209004495BA568 advertencia mismo cliente y mismas líneas que WEB-DD660A52085D49E6BE5C, WEB-B5549E31095149758412: posible pedido repetido (no se elimina; confirmar con Acceso a Datos)
+   12 pedidos       50    16 referencia WEB-B5549E31095149758412 advertencia mismo cliente y mismas líneas que WEB-DD660A52085D49E6BE5C, WEB-9EB8FC209004495BA568: posible pedido repetido (no se elimina; confirmar con Acceso a Datos)
+   12 pedidos       52    18 referencia WEB-3411424CB7F04AEBA6D1 advertencia mismo cliente y mismas líneas que WEB-68BAB5D8E28B4673B895, WEB-FBD9B3DF0E8F4071B068: posible pedido repetido (no se elimina; confirmar con Acceso a Datos)
+   12 pedidos       53    19 referencia WEB-68BAB5D8E28B4673B895 advertencia mismo cliente y mismas líneas que WEB-3411424CB7F04AEBA6D1, WEB-FBD9B3DF0E8F4071B068: posible pedido repetido (no se elimina; confirmar con Acceso a Datos)
+   12 pedidos       54    20 referencia WEB-FBD9B3DF0E8F4071B068 advertencia mismo cliente y mismas líneas que WEB-3411424CB7F04AEBA6D1, WEB-68BAB5D8E28B4673B895: posible pedido repetido (no se elimina; confirmar con Acceso a Datos)
+   12 pedidos       11    11 referencia                NOVA-0011 advertencia                                          mismo cliente y mismas líneas que CUSTOM-40: posible pedido repetido (no se elimina; confirmar con Acceso a Datos)
+   12 pedidos       46    12 referencia                CUSTOM-40 advertencia                                          mismo cliente y mismas líneas que NOVA-0011: posible pedido repetido (no se elimina; confirmar con Acceso a Datos)
+
+Resumen de la carga
+-------------------
+  Clientes:                 8
+  Modelos:                 19
+  Pedidos:                 24
+  Líneas de pedido:        33
+  Registros de stock:     166
+  Fecha de corte stock: 2026-11-11 23:40:58
+
+          archivo  filas  columnas  bytes          modificado           analizado
+     clientes.csv      8         6    537 2026-11-11 23:40:58 2026-11-11 23:41:22
+      modelos.csv     19         5   1539 2026-11-11 23:40:58 2026-11-11 23:41:22
+      pedidos.csv     24        10   2205 2026-11-11 23:40:58 2026-11-11 23:41:22
+lineas_pedido.csv     33         8   1306 2026-11-11 23:40:58 2026-11-11 23:41:22
+        stock.csv    166         7   9044 2026-11-11 23:40:58 2026-11-11 23:41:22
+
+Comprobaciones rápidas de la fase 1
+-----------------------------------
+  [OK   ] Tipos de datos: todos los valores se han convertido a su tipo
+  [OK   ] Columnas del exportador: las 36 columnas esperadas, en su orden
+  [OK   ] Codificación UTF-8: leídos como UTF-8, sin caracteres mal convertidos
+  [OK   ] Claves únicas: ningún identificador repetido
+  [OK   ] Relaciones entre tablas: las 5 relaciones encuentran su pareja
+  [OK   ] Pedidos con líneas: todos los pedidos tienen al menos una línea
+  [OK   ] Importes y cantidades: 24 pedidos y 33 líneas cuadran: 228 pares y 26482.92 €
+  [AVISO] Periodo de los pedidos: del 2026-11-11 al 2026-11-11, 1 mes(es) distinto(s): no hay historial para series mensuales con los datos reales
