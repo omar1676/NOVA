@@ -1,0 +1,3 @@
+referencia,sku,cliente,modelo,color,personalizacion,talla,cantidad
+PRUEBA-ERR-1,NOVA-4-40,Club de Prueba,NOVA Velocity,Rojo,Pedido de prueba con un error a proposito,40,10
+PRUEBA-ERR-1,NOVA-4-41,Club de Prueba,NOVA Velocity,Rojo,Pedido de prueba con un error a proposito,41,0
