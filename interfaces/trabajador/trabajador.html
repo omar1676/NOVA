@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVA Sneakers · Resumen</title>
+    <link rel="icon" href="img/Nova Logo.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="adm">
+
+<div class="adm-sidebar">
+    <div class="adm-marca">
+        <img src="img/Nova Logo.png" alt="NOVA Sneakers">
+    </div>
+    <nav class="adm-menu">
+        <a href="trabajador.html" class="adm-activo"><i data-lucide="layout-dashboard"></i> Resumen</a>
+        <a href="pedidosTrabajador.html"><i data-lucide="shopping-bag"></i> Pedidos</a>
+        <a href="inventarioTrabajador.html"><i data-lucide="warehouse"></i> Inventario</a>
+        <a href="personalizadosTrabajador.html"><i data-lucide="sparkles"></i> Personalizados</a>
+    </nav>
+</div>
+
+<div class="adm-contenido">
+    <h1>Resumen</h1>
+
+    <div class="adm-tarjetas">
+        <div class="adm-tarjeta"><span>Pedidos por preparar</span><strong id="adm-por-preparar">—</strong></div>
+        <div class="adm-tarjeta"><span>Pedidos en preparación</span><strong id="adm-en-preparacion">—</strong></div>
+        <div class="adm-tarjeta"><span>Stock bajo</span><strong id="adm-stock-bajo">—</strong></div>
+        <div class="adm-tarjeta"><span>Pedidos de hoy</span><strong id="adm-pedidos-hoy">—</strong></div>
+    </div>
+
+    <p class="adm-vacio" id="adm-aviso"></p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
