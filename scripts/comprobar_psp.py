@@ -37,8 +37,12 @@ def main():
         run(['javac', '-encoding', 'UTF-8', '-d', str(classes), *map(str, csv_sources)])
         java = ['java', '-Dfile.encoding=UTF-8', '-cp', str(classes)]
         response = run([*java, 'ValidadorPedidoCustom'], data)
-        if response.stdout.strip() != 'OK;CUSTOM-40;4;40':
+        lines = response.stdout.splitlines()
+        if not lines or lines[0].strip() != 'OK;CUSTOM-40;4;40':
             raise RuntimeError('El validador no reconoce los cuatro registros CSV multilínea.')
+        normalized = [line for line in lines[1:] if line.startswith('LINEA;')]
+        if len(normalized) != 4 or 'FIN' not in lines or 'PEDIDO;CUSTOM-40' not in lines:
+            raise RuntimeError('El validador no devuelve los cuatro registros normalizados.')
         summary = run([*java, 'LanzadorValidacion', str(csv_path)]).stdout
         expected = [f'Talla {size}: 10 pares' for size in range(40, 44)] + ['Total: 40 pares']
         if not all(line in summary.splitlines() for line in expected):
