@@ -7,7 +7,6 @@ VALUES
 ('NOVA Aura', 'Diseno ligero y contemporaneo', 99.99, true),
 ('NOVA Pulse', 'Estilo tecnico y futurista', 114.90, true),
 ('X-NOVA', 'Concepto de fabricacion personalizada mediante escaneo simulado del pie', 12000.00, true);
--- Variantes de los modelos normales
 
 INSERT INTO public.variantes (id_modelo, color)
 SELECT m.id_modelo, datos.color
@@ -27,17 +26,16 @@ FROM (
         ('NOVA Pulse', 'Negro')
 ) AS datos(nombre_modelo, color)
 JOIN public.modelos m ON m.nombre = datos.nombre_modelo;
--- Generar cinco tallas por cada variante
 
 INSERT INTO public.producto_sku (id_variante, talla, sku)
 SELECT
     v.id_variante,
-    t.talla,
-    'NOVA-' || v.id_variante || '-' || t.talla
+    tallas.talla,
+    'NOVA-' || v.id_variante || '-' || tallas.talla
 FROM public.variantes v
 JOIN public.modelos m
     ON m.id_modelo = v.id_modelo
-CROSS JOIN generate_series(40, 44) AS t(talla)
+CROSS JOIN generate_series(40, 44) AS tallas(talla)
 WHERE m.nombre IN (
     'NOVA Origin',
     'NOVA Velocity',
@@ -47,13 +45,11 @@ WHERE m.nombre IN (
     'NOVA Pulse'
 );
 
--- Almacen principal de NOVA Sneakers
 
 INSERT INTO public.nave (nombre, ubicacion, capacidad)
 VALUES ('NOVA Central', 'Madrid', 2000);
 
 
--- Inventario inicial: 20 pares por cada SKU
 
 INSERT INTO public.existencias (
     id_producto_sku,
@@ -61,13 +57,12 @@ INSERT INTO public.existencias (
     cantidad
 )
 SELECT
-    p.id_producto_sku,
+    s.id_producto_sku,
     n.id_nave,
     20
-FROM public.producto_sku p
+FROM public.producto_sku s
 CROSS JOIN public.nave n
 WHERE n.nombre = 'NOVA Central';
--- Clientes ficticios de NOVA Sneakers
 
 INSERT INTO public.clientes (nombre, email)
 VALUES
@@ -76,11 +71,51 @@ VALUES
     ('Santi Cruz', 'santi.cruz@example.com'),
     ('Nuria Soto', 'nuria.soto@example.com'),
     ('Aitor Parras', 'aitor.parras@example.com');
-    -- Diez pedidos de demostracion
+
+INSERT INTO public.clientes (nombre, tipo, email, telefono)
+VALUES
+    ('Club Atletico NOVA', 'empresa', 'club.atletico@example.com', '600000000');
+
+INSERT INTO public.roles (nombre, descripcion)
+VALUES
+    ('administrador', 'Gestiona el catalogo, los pedidos y el inventario'),
+    ('trabajador', 'Prepara los pedidos y actualiza su estado'),
+    ('comercial', 'Registra pedidos de clientes en la tienda');
+
+INSERT INTO public.personal (nombre, dni, puesto)
+VALUES
+    ('Demo Administracion', 'X0000001X', 'Administrador de sistema'),
+    ('Demo Taller', 'X0000002X', 'Operario de taller'),
+    ('Demo Tienda', 'X0000003X', 'Comercial de tienda');
+
+INSERT INTO public.usuarios (
+    username,
+    password_hash,
+    id_rol,
+    id_personal,
+    activo
+)
+SELECT
+    datos.username,
+    '!',
+    r.id_rol,
+    pe.id_personal,
+    true
+FROM (
+    VALUES
+        ('admin.demo', 'administrador', 'X0000001X'),
+        ('taller.demo', 'trabajador', 'X0000002X'),
+        ('tienda.demo', 'comercial', 'X0000003X')
+) AS datos(username, nombre_rol, dni)
+JOIN public.roles r
+    ON r.nombre = datos.nombre_rol
+JOIN public.personal pe
+    ON pe.dni = datos.dni;
 
 INSERT INTO public.pedidos (
     referencia,
     id_cliente,
+    id_usuario,
     estado,
     estado_pago,
     personalizado,
@@ -89,31 +124,34 @@ INSERT INTO public.pedidos (
 SELECT
     datos.referencia,
     c.id_cliente,
+    u.id_usuario,
     'pendiente',
     'pendiente',
     datos.personalizado,
     datos.personalizacion
 FROM (
     VALUES
-    ('NOVA-0001', 'daniel.jan@example.com', false, NULL),
-    ('NOVA-0002', 'jose.ferrer@example.com', false, NULL),
-    ('NOVA-0003', 'santi.cruz@example.com', true, 'Cordones personalizados'),
-    ('NOVA-0004', 'nuria.soto@example.com', false, NULL),
-    ('NOVA-0005', 'aitor.parras@example.com', false, NULL),
-    ('NOVA-0006', 'daniel.jan@example.com', true, 'Colores personalizados'),
-    ('NOVA-0007', 'jose.ferrer@example.com', false, NULL),
-    ('NOVA-0008', 'santi.cruz@example.com', false, NULL),
-    ('NOVA-0009', 'nuria.soto@example.com', true, 'Iniciales personalizadas'),
-    ('NOVA-0010', 'aitor.parras@example.com', false, NULL)
-) AS datos(referencia, email, personalizado, personalizacion)
+    ('NOVA-0001', 'daniel.jan@example.com', 'tienda.demo', false, NULL),
+    ('NOVA-0002', 'jose.ferrer@example.com', 'tienda.demo', false, NULL),
+    ('NOVA-0003', 'santi.cruz@example.com', 'tienda.demo', true, 'Cordones personalizados'),
+    ('NOVA-0004', 'nuria.soto@example.com', 'taller.demo', false, NULL),
+    ('NOVA-0005', 'aitor.parras@example.com', 'taller.demo', false, NULL),
+    ('NOVA-0006', 'daniel.jan@example.com', 'taller.demo', true, 'Colores personalizados'),
+    ('NOVA-0007', 'jose.ferrer@example.com', 'admin.demo', false, NULL),
+    ('NOVA-0008', 'santi.cruz@example.com', 'admin.demo', false, NULL),
+    ('NOVA-0009', 'nuria.soto@example.com', NULL, true, 'Iniciales personalizadas'),
+    ('NOVA-0010', 'aitor.parras@example.com', NULL, false, NULL)
+) AS datos(referencia, email, username, personalizado, personalizacion)
 JOIN public.clientes c
-    ON c.email = datos.email;
+    ON c.email = datos.email
+LEFT JOIN public.usuarios u
+    ON u.username = datos.username;
     
-    -- Productos incluidos en los diez pedidos
 
 INSERT INTO public.linea_pedido (
     id_pedido,
     id_producto_sku,
+    id_nave,
     cantidad,
     precio_unitario,
     subtotal
@@ -121,6 +159,7 @@ INSERT INTO public.linea_pedido (
 SELECT
     p.id_pedido,
     s.id_producto_sku,
+    (SELECT id_nave FROM public.nave WHERE nombre = 'NOVA Central'),
     1,
     m.precio_base + v.suplemento_precio,
     0
@@ -144,6 +183,61 @@ JOIN public.modelos m
 JOIN public.variantes v
     ON v.id_modelo = m.id_modelo
    AND v.color = datos.color
+JOIN public.producto_sku s
+    ON s.id_variante = v.id_variante
+   AND s.talla = datos.talla;
+
+INSERT INTO public.pedidos (
+    referencia,
+    id_cliente,
+    id_usuario,
+    estado,
+    estado_pago,
+    personalizado,
+    personalizacion
+)
+SELECT
+    'NOVA-0011',
+    c.id_cliente,
+    u.id_usuario,
+    'pendiente',
+    'pendiente',
+    true,
+    'Pedido de club: 40 pares repartidos en cuatro tallas'
+FROM public.clientes c
+JOIN public.usuarios u
+    ON u.username = 'tienda.demo'
+WHERE c.email = 'club.atletico@example.com';
+
+INSERT INTO public.linea_pedido (
+    id_pedido,
+    id_producto_sku,
+    id_nave,
+    cantidad,
+    precio_unitario,
+    subtotal
+)
+SELECT
+    p.id_pedido,
+    s.id_producto_sku,
+    (SELECT id_nave FROM public.nave WHERE nombre = 'NOVA Central'),
+    datos.cantidad,
+    m.precio_base + v.suplemento_precio,
+    0
+FROM (
+    VALUES
+        (40, 10),
+        (41, 10),
+        (42, 10),
+        (43, 10)
+) AS datos(talla, cantidad)
+JOIN public.pedidos p
+    ON p.referencia = 'NOVA-0011'
+JOIN public.modelos m
+    ON m.nombre = 'NOVA Velocity'
+JOIN public.variantes v
+    ON v.id_modelo = m.id_modelo
+   AND v.color = 'Rojo'
 JOIN public.producto_sku s
     ON s.id_variante = v.id_variante
    AND s.talla = datos.talla;
