@@ -1,7 +1,9 @@
--- Sneaker Factory — esquema inicial, PostgreSQL 14+
--- Ejecutar en una base de datos nueva y vacía.
--- No ejecuta INSERT, DROP, ni modifica datos existentes.
 BEGIN;
+
+CREATE SCHEMA IF NOT EXISTS extensiones;
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto SCHEMA extensiones;
+
 
 CREATE TABLE public.modelos (
     id_modelo int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
@@ -122,7 +124,7 @@ CREATE TABLE public.pedidos (
     CONSTRAINT pedidos_referencia_uq UNIQUE (referencia),
     CONSTRAINT pedidos_check_1 CHECK (cantidad_total >= 0),
     CONSTRAINT pedidos_check_2 CHECK (importe_total >= 0),
-    CONSTRAINT pedidos_check_3 CHECK (estado IN ('pendiente', 'en_preparacion', 'enviado', 'entregado', 'cancelado')),
+    CONSTRAINT pedidos_check_3 CHECK (estado IN ('pendiente', 'confirmado', 'en_preparacion', 'enviado', 'entregado', 'cancelado')),
     CONSTRAINT pedidos_check_4 CHECK (estado_pago IN ('pendiente', 'pagado', 'reembolsado'))
 );
 
@@ -133,6 +135,8 @@ CREATE TABLE public.linea_pedido (
     cantidad int4 NOT NULL,
     precio_unitario numeric(8,2) NOT NULL,
     subtotal numeric(12,2) NOT NULL,
+    id_nave int4,
+    stock_descontado boolean NOT NULL DEFAULT false,
     CONSTRAINT linea_pedido_pk PRIMARY KEY (id_linea),
     CONSTRAINT linea_pedido_check_1 CHECK (cantidad > 0),
     CONSTRAINT linea_pedido_check_2 CHECK (precio_unitario >= 0),
@@ -161,9 +165,9 @@ ALTER TABLE public.pedidos ADD CONSTRAINT pedidos_id_usuario_fk FOREIGN KEY (id_
 ALTER TABLE public.pedidos ADD CONSTRAINT pedidos_id_tienda_fk FOREIGN KEY (id_tienda) REFERENCES public.tienda_fisica (id_tienda);
 ALTER TABLE public.linea_pedido ADD CONSTRAINT linea_pedido_id_pedido_fk FOREIGN KEY (id_pedido) REFERENCES public.pedidos (id_pedido);
 ALTER TABLE public.linea_pedido ADD CONSTRAINT linea_pedido_id_producto_sku_fk FOREIGN KEY (id_producto_sku) REFERENCES public.producto_sku (id_producto_sku);
+ALTER TABLE public.linea_pedido ADD CONSTRAINT linea_pedido_id_nave_fk FOREIGN KEY (id_nave) REFERENCES public.nave (id_nave);
 ALTER TABLE public.log_eventos ADD CONSTRAINT log_eventos_id_usuario_fk FOREIGN KEY (id_usuario) REFERENCES public.usuarios (id_usuario);
 
--- Índices para mejorar JOIN sobre claves foráneas
 CREATE INDEX variantes_id_modelo_idx ON public.variantes (id_modelo);
 CREATE INDEX producto_sku_id_variante_idx ON public.producto_sku (id_variante);
 CREATE INDEX existencias_id_producto_sku_idx ON public.existencias (id_producto_sku);
