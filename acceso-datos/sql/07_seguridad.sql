@@ -41,8 +41,18 @@ ON public.modelos, public.variantes, public.producto_sku,
    public.nave, public.clientes
 TO nova_trabajador;
 
-GRANT SELECT, UPDATE
+-- Trabajador: lectura operativa
+GRANT SELECT
 ON public.pedidos, public.linea_pedido, public.existencias
+TO nova_trabajador;
+
+-- Actualizacion limitada a columnas autorizadas
+GRANT UPDATE (estado, fecha_objetivo)
+ON public.pedidos
+TO nova_trabajador;
+
+GRANT UPDATE (cantidad)
+ON public.existencias
 TO nova_trabajador;
 
 -- Cliente: consultar catalogo y disponibilidad
