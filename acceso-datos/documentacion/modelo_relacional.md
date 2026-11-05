@@ -157,3 +157,47 @@ La separacion de pedidos y lineas permite almacenar varios productos sin duplica
 La separacion de productos, almacenes y existencias permite controlar el inventario de cada ubicacion.
 
 Estas decisiones apoyan la normalizacion del modelo, aunque la comprobacion formal de 3FN requiere analizar las dependencias funcionales de todos los atributos.
+
+## 14. Dependencias funcionales y atributos derivados
+
+### Dependencias principales
+
+En la tabla modelos, id_modelo determina el nombre, la descripcion, el precio base y el estado del modelo.
+
+En variantes, id_variante determina el modelo relacionado, el color y el suplemento de precio.
+
+En producto_sku, id_producto_sku determina la variante, la talla, el codigo SKU y su estado.
+
+En pedidos, id_pedido determina los datos generales de cada compra.
+
+En linea_pedido, id_linea identifica cada linea y sus valores.
+
+### Datos calculados
+
+El diseño almacena tres valores derivados:
+
+- linea_pedido.subtotal: cantidad multiplicada por precio_unitario.
+- pedidos.cantidad_total: suma de cantidades de sus lineas.
+- pedidos.importe_total: suma de subtotales de sus lineas.
+
+Estos campos facilitan consultar los importes sin repetir los calculos en cada solicitud.
+
+Para mantener su coherencia se utilizan triggers de PostgreSQL.
+
+### Normalizacion
+
+La separacion de modelos, variantes y SKU reduce duplicidades.
+
+Las tablas pedidos y linea_pedido separan la cabecera de la compra de sus productos.
+
+Las existencias se relacionan con cada SKU y almacen, evitando duplicar los datos de los productos.
+
+Los atributos derivados son decisiones de implementacion que deben justificarse al analizar la normalizacion.
+
+La comprobacion formal de 3FN para el esquema completo requiere revisar todas sus dependencias funcionales y claves candidatas.
+
+### Validacion
+
+Se comprobaron diez pedidos de demostracion.
+
+Los importes y cantidades calculados coincidieron con los valores almacenados en los pedidos, sin diferencias.
