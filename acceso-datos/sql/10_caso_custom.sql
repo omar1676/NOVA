@@ -55,7 +55,7 @@ SELECT :stock_antes AS stock_total_antes;
 
 \echo ''
 \echo '--- Paso 4: crear el pedido Custom con 10 pares de la talla 40'
-SELECT public.realizar_compra('CUSTOM-40', :cliente, :sku40, :nave, 10) AS pedido
+SELECT public.realizar_compra('CUSTOM-40-TEST', :cliente, :sku40, :nave, 10) AS pedido
 \gset
 UPDATE public.pedidos
 SET personalizado = true,
@@ -79,9 +79,9 @@ CROSS JOIN (
     SELECT count(DISTINCT s.talla) AS tallas, max(l.precio_unitario) AS precio
     FROM public.linea_pedido l
     JOIN public.producto_sku s ON s.id_producto_sku = l.id_producto_sku
-    WHERE l.id_pedido = (SELECT id_pedido FROM public.pedidos WHERE referencia = 'CUSTOM-40')
+    WHERE l.id_pedido = (SELECT id_pedido FROM public.pedidos WHERE referencia = 'CUSTOM-40-TEST')
 ) AS resumen
-WHERE p.referencia = 'CUSTOM-40';
+WHERE p.referencia = 'CUSTOM-40-TEST';
 
 \echo ''
 \echo '--- Paso 7: el pedido sigue pendiente y el stock NO se ha movido'
@@ -152,9 +152,9 @@ FROM (
     SELECT
         (SELECT sum(cantidad) FROM public.existencias) AS stock,
         (SELECT count(*) FROM public.linea_pedido
-          WHERE id_pedido = (SELECT id_pedido FROM public.pedidos WHERE referencia = 'CUSTOM-40')
+          WHERE id_pedido = (SELECT id_pedido FROM public.pedidos WHERE referencia = 'CUSTOM-40-TEST')
             AND stock_descontado = true) AS marcas_activas,
-        (SELECT importe_total FROM public.pedidos WHERE referencia = 'CUSTOM-40') AS importe
+        (SELECT importe_total FROM public.pedidos WHERE referencia = 'CUSTOM-40-TEST') AS importe
 ) AS t;
 
 \echo ''
@@ -193,7 +193,7 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '--- Consulta de fabricacion para PSP'
+\echo '--- Consulta de fabricacion para PSP (solo este pedido)'
 SELECT
     p.referencia,
     c.nombre AS cliente,
@@ -207,12 +207,15 @@ JOIN public.linea_pedido l ON l.id_pedido = p.id_pedido
 JOIN public.producto_sku s ON s.id_producto_sku = l.id_producto_sku
 JOIN public.variantes v ON v.id_variante = s.id_variante
 JOIN public.modelos m ON m.id_modelo = v.id_modelo
-WHERE p.personalizado = true
-ORDER BY p.referencia, s.talla;
+WHERE p.referencia = 'CUSTOM-40-TEST'
+ORDER BY s.talla;
 
 \echo ''
-\echo '--- Exportacion CSV de fabricacion'
-\copy (SELECT p.referencia, c.nombre AS cliente, m.nombre AS modelo, p.personalizacion, s.talla, l.cantidad FROM public.pedidos p JOIN public.clientes c ON c.id_cliente = p.id_cliente JOIN public.linea_pedido l ON l.id_pedido = p.id_pedido JOIN public.producto_sku s ON s.id_producto_sku = l.id_producto_sku JOIN public.variantes v ON v.id_variante = s.id_variante JOIN public.modelos m ON m.id_modelo = v.id_modelo WHERE p.personalizado = true ORDER BY p.referencia, s.talla) TO 'fabricacion_psp.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8')
+\echo '--- La exportacion CSV no se hace aqui'
+\echo '    Este archivo prueba el caso dentro de BEGIN ... ROLLBACK, asi que'
+\echo '    CUSTOM-40-TEST desaparece al terminar y no se puede exportar de aqui.'
+\echo '    Para dejarlo guardado:  14_caso_custom_persistente.sql'
+\echo '    Para exportar el CSV:   15_exportar_fabricacion.sql'
 
 ROLLBACK;
 
