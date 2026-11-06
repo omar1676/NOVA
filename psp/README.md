@@ -1,306 +1,362 @@
-# PSP — Validación y resumen del pedido Custom
+# PSP — Procesador auxiliar de pedidos Custom
 
-Parte de **Programación de Servicios y Procesos** correspondiente a mi trabajo:
-validar el pedido `CUSTOM-40` que sale de PostgreSQL y resumir sus cantidades
-por talla, usando procesos y comunicación entre ellos.
+Parte de **Programación de Servicios y Procesos**, según el apartado 4.3 y el
+anexo 13 del enunciado (Proyecto Intermodular v0.3).
 
-**De dónde vienen los datos.** Del CSV que exporta
-`acceso-datos/sql/15_exportar_fabricacion.sql`. **Hoy no vienen de Odoo**: el
-ERP todavía no exporta nada. Cuando lo haga, solo habrá que cambiar el origen
-del archivo.
+Es una aplicación Java de consola que recibe la **exportación CSV de un pedido
+Custom** y la procesa con **tres procesos hijos** lanzados con `ProcessBuilder`:
+valida los datos, agrupa los pares por variante y talla, y prepara una **ficha
+auxiliar para el taller**.
 
-**Lo que esto no es.** No es el `ProcesadorPedidosCustom` del enunciado, que es
-el coordinador del equipo y encadenará también `GeneradorFichaTaller`. Aquí solo
-están mis dos procesos y un lanzador que los prueba.
+**Lo que no hace.** No escribe en PostgreSQL ni en Odoo, no toca el stock y no
+crea la orden de fabricación. Solo lee una copia exportada del pedido y genera
+archivos en `salidas/`.
 
-## Las tres clases
+## Las clases
 
-### `ValidadorPedidoCustom.java` — proceso hijo
+| Clase | Qué es | Tarea del reparto | Qué hace |
+|---|---|---|---|
+| `ProcesadorPedidosCustom` | **proceso padre** | PSP-01 | Comprueba el archivo, lanza los tres hijos uno detrás de otro, les pasa los datos, mira sus códigos y respuestas, guarda la ficha y escribe el resumen |
+| `GestorProcesos` | clase de apoyo del padre | PSP-05 | Lanza **un** hijo con `ProcessBuilder`, le escribe por stdin, recoge stdout y stderr por separado, espera con `waitFor` y lo cancela si tarda demasiado |
+| `ValidadorPedidoCustom` | **hijo 1** | PSP-02 | Comprueba el CSV y devuelve los datos normalizados |
+| `LectorCsv` | clase de apoyo del hijo 1 | — | Parte el CSV en registros respetando las comillas |
+| `Psp.AnalizadorTallas` | **hijo 2**, de Álvaro | PSP-03 | Agrupa los pares por modelo + color + talla y por talla |
+| `GeneradorFichaTaller` | **hijo 3** | PSP-04 | Comprueba que las cantidades cuadran y escribe la ficha |
+| `pruebas/PruebasPsp` | pruebas | — | Las 27 pruebas, lanzando los programas de verdad |
+| `pruebas/HijoDePrueba` | hijo solo para pruebas | — | Tarda, falla o devuelve un código raro a propósito |
 
-Lee **toda** su entrada estándar y la pasa por `LectorCsv`, que le devuelve los
-registros. Despues comprueba ocho cosas: que llega contenido, que la cabecera
-trae las 8 columnas esperadas, que hay registros de pedido además de la
-cabecera, que cada registro tiene 8 campos, que la referencia no está vacía, que
-todos los registros son del mismo pedido, que la talla es un número positivo y
-que la cantidad es un entero mayor que cero.
-
-Lee la entrada de golpe con `readAllBytes()`, no línea a línea, porque un
-registro puede ocupar varias líneas del archivo.
-
-Si todo está bien escribe una línea en su **salida estándar** y termina con
-código **0**:
-
-```
-OK;CUSTOM-40;4;40
-   referencia  líneas  pares
-```
-
-Si algo falla escribe el motivo en su **salida de error** y termina con código
-**2**:
-
-```
-ERROR;La cantidad de la linea 2 tiene que ser mayor que cero, y es -5
-```
-
-### `AnalizadorTallas.java` — proceso hijo
-
-Lee el mismo CSV por su entrada estándar, también de golpe y con `LectorCsv`,
-agrupa las cantidades por talla y escribe el resumen:
-
-```
-Talla 40: 10 pares
-Talla 41: 10 pares
-Talla 42: 10 pares
-Talla 43: 10 pares
-Total: 40 pares
-```
-
-Guarda los datos en **dos listas que van en paralelo**: en `tallas` la talla y
-en `cantidades` sus pares, en la misma posición. Si una talla ya estaba, le suma;
-si no, la añade al final. Al terminar ordena las dos listas de menor a mayor
-talla, para que el resumen salga igual aunque el archivo venga desordenado.
-
-**Ninguna cifra está escrita en el código**: todas se calculan sumando lo que
-trae el archivo.
-
-### `LectorCsv.java` — clase auxiliar compartida
-
-Recorre el contenido de un CSV y lo separa en **registros**, cada uno ya
-partido en campos. Está aparte porque la necesitan **los dos hijos**: tenerla en
-un sitio evita escribir dos veces el mismo código y que uno se arregle y el otro
-no.
-
-**Una línea del archivo no es lo mismo que un registro.** Esto es lo importante
-de esta clase, y es lo que más cuesta ver.
-
-Un campo entrecomillado puede llevar un **salto de línea dentro**, y entonces un
-solo registro ocupa varias líneas del archivo. PostgreSQL los genera de verdad:
-si una personalización se guarda en dos líneas, `COPY` exporta esto, que son dos
-líneas del archivo para **un** registro:
-
-```
-CUSTOM-40,NOVA-4-40,...,Rojo,"Logo bordado, con el texto ""NOVA""
-Segunda linea: numeracion en el talon",40,10
-```
-
-Por eso la clase **no lee línea a línea**: recorre todo el contenido letra a
-letra y decide ella misma dónde acaba cada registro. Un salto de línea dentro de
-comillas es texto del campo y se conserva tal cual; fuera de comillas, termina
-el registro.
-
-Las cuatro reglas que aplica: las comas separan campos; un campo entre comillas
-puede contener comas; dentro de las comillas, dos comillas seguidas (`""`) son
-una comilla de verdad; y dentro de las comillas, un salto de línea es texto.
-
-Si el CSV está mal formado —comilla sin cerrar al acabar el archivo, texto
-pegado detrás de la comilla de cierre, comilla en medio de un campo sin
-entrecomillar— lanza una excepción con el motivo, y el hijo la convierte en su
-`ERROR;…`.
-
-**Qué se ha probado, y qué no.** Están probados: comas dentro de comillas,
-comillas escapadas, saltos de línea CRLF y LF dentro del campo, los tres
-combinados, comilla sin cerrar, registro incompleto y un CSV real exportado por
-`COPY`. No se afirma compatibilidad total con el estándar CSV: por ejemplo, un
-retorno de carro suelto fuera de comillas se rechaza en vez de tratarse como
-final de línea, y no se admiten separadores distintos de la coma.
-
-### `LanzadorValidacion.java` — proceso padre
-
-Recibe la ruta del CSV como argumento, lo lee y lanza los dos hijos con
-`ProcessBuilder`:
-
-1. Lanza el validador y le manda el CSV por su stdin.
-2. Lee su respuesta, comprueba el código de salida y que empiece por `OK;`.
-3. **Solo si la validación es correcta**, lanza el analizador y muestra su
-   resumen.
-
-Si cualquiera de los dos falla, muestra el error y **no continúa**.
+`Psp.AnalizadorTallas` es la clase de Álvaro (`psp/src/Psp/`, en su rama
+`feature/AlvaroBaz`). **Se usa sin cambiarla**: el padre la lanza por su nombre
+y el validador le prepara la entrada en el formato que ella ya leía.
 
 ## Cómo se comunican los procesos
 
-El padre y los hijos hablan por las tuberías que crea `ProcessBuilder`:
+Los datos pasan de un hijo al siguiente **a través del padre**, siempre por la
+entrada y la salida estándar:
 
 ```
-LanzadorValidacion  --- CSV por stdin --->  ValidadorPedidoCustom
-                    <-- OK;... por stdout --
-                    <-- ERROR;... por stderr
+                         CSV del pedido
+                               |
+                               v
+  ProcesadorPedidosCustom --stdin--> ValidadorPedidoCustom      (hijo 1)
+                          <--stdout-- OK;... + datos normalizados
+                          <--stderr-- ERROR;motivo
+          |
+          | el padre separa el bloque PEDIDO / LINEA / FIN
+          v
+  ProcesadorPedidosCustom --stdin--> Psp.AnalizadorTallas       (hijo 2)
+                          <--stdout-- OK;... + VARIANTE_TALLA / TALLA / TOTAL
+          |
+          | el padre añade cliente y personalización
+          v
+  ProcesadorPedidosCustom --stdin--> GeneradorFichaTaller       (hijo 3)
+                          <--stdout-- OK;... + la ficha
+          |
+          v
+  salidas/ficha_taller_CUSTOM-40.txt   y   salidas/registro_psp.txt
 ```
 
-Tres detalles que importan:
+Después de cada paso, el padre comprueba:
 
-Las tuberías tienen un tamaño limitado: cuando se llenan, quien escribe se
-queda bloqueado esperando sitio. Hay **tres tuberías** —entrada, salida y salida
-de error— y cualquiera de las tres puede colgar el programa.
+1. el **código de salida** (`waitFor` y `exitValue`);
+2. que la respuesta empiece por **`OK;`** y hable **del mismo pedido**;
+3. que **las cuentas cuadren**: el total de pares del analizador tiene que ser
+   el mismo que el del validador.
 
-La solución es **un hilo por tubería**, y el hilo principal solo espera:
+Si algo falla, **no lanza el paso siguiente**.
+
+### Qué recibe y qué devuelve cada hijo
+
+**Hijo 1 — `ValidadorPedidoCustom`.** Recibe el CSV entero por stdin. Si está
+bien, devuelve por stdout:
 
 ```
-hilo escritor       -> escribe el CSV en la entrada del hijo
-hilo lector salida  -> vacía la salida del hijo
-hilo lector error   -> vacía la salida de error del hijo
-hilo principal      -> waitFor(10 segundos) y decide
+OK;CUSTOM-40;4;40                                   <- referencia, líneas, pares
+CLIENTE;Club Atletico NOVA
+PERSONALIZACION;Club Atletico NOVA: logo bordado y numeracion en el talon
+PEDIDO;CUSTOM-40
+LINEA;NOVA-4-40;NOVA Velocity;Rojo;40;10            <- sku;modelo;color;talla;cantidad
+LINEA;NOVA-4-41;NOVA Velocity;Rojo;41;10
+LINEA;NOVA-4-42;NOVA Velocity;Rojo;42;10
+LINEA;NOVA-4-43;NOVA Velocity;Rojo;43;10
+FIN
 ```
 
-**Por qué hace falta cada uno.** Si el padre escribiera él mismo y el hijo no
-leyera, el padre se quedaría atascado en `write()` sin llegar nunca a su espera:
-comprobado con un CSV de 6 MB, se colgaba **46 segundos**. Y si nadie vaciara la
-salida del hijo, el hijo se bloquearía al escribir y no podría terminar:
-comprobado con un pedido de **6.000 tallas distintas**, que hace que el
-analizador escriba más de lo que cabe en la tubería.
+Si una personalización ocupa varias líneas, sale una línea `PERSONALIZACION`
+por cada una, para que no se pierda texto.
 
-Con un hilo en cada una, ninguna se llena y el hilo principal queda libre para
-controlar el tiempo.
+**Hijo 2 — `Psp.AnalizadorTallas` (Álvaro).** Recibe el bloque `PEDIDO …
+FIN` y devuelve:
 
-**Los tres hilos son demonios**, así que si alguno quedara bloqueado no
-impediría que el programa termine. Cada lector guarda las líneas en **su propia
-lista**, y el hilo principal no las mira hasta después de `join()`: por eso no
-hace falta sincronizar nada.
+```
+OK;CUSTOM-40
+VARIANTE_TALLA;NOVA Velocity;Rojo;40;10             <- modelo;color;talla;pares
+...
+TALLA;40;10                                         <- talla;pares
+...
+TOTAL;40
+```
 
-**Si el hijo no termina en 10 segundos** se cancela: primero `destroy()`, que le
-pide que termine, y si en un segundo no lo ha hecho, `destroyForcibly()`, que lo
-mata. Al morir el hijo se cierran las tuberías y los tres hilos acaban solos.
+**Hijo 3 — `GeneradorFichaTaller`.** Recibe `PEDIDO`, `ORIGEN` (el nombre del
+archivo exportado), `CLIENTE`, `PERSONALIZACION`, las líneas del analizador y
+`FIN`. Comprueba que el total, la suma por variante y la suma por talla sean
+iguales, y devuelve `OK;CUSTOM-40` seguido de la ficha. El padre la guarda en
+`salidas/ficha_taller_<referencia>.txt`. Hay un ejemplo en
+`../pruebas/psp/ficha_taller_CUSTOM-40.txt`.
 
-### Si la escritura falla, el padre lo dice
+**Si un hijo rechaza los datos,** no escribe nada por stdout, escribe
+`ERROR;motivo` por stderr y termina con **código 2**. Es el formato del ejemplo
+del profesor `EstadisticasHijo2.java`, y Álvaro usa el mismo código 2.
 
-El hilo escritor guarda el error en vez de tragárselo, y el padre distingue dos
-situaciones:
+### Por qué `GestorProcesos` usa tres hilos
 
-- **Cancelación por tiempo.** Si hemos cancelado al hijo, es normal que la
-  escritura falle. No se avisa de nada aparte: el mensaje es que se ha cancelado.
-- **Fallo real.** Si el hijo termina con código 0 pero no se le pudieron enviar
-  todos los datos, significa que ha contestado leyendo solo una parte del
-  pedido. El padre avisa de que **su respuesta no es fiable** y termina con 1.
+Las tres tuberías de un hijo (entrada, salida y error) tienen un tamaño
+limitado. Si una se llena, quien escribe se queda bloqueado: el padre al
+enviarle datos que no lee, o el hijo al escribir algo que nadie recoge.
 
-### Lo que esto garantiza, y lo que no
+Por eso hay **un hilo por tubería**, y el hilo principal solo hace
+`waitFor(10 s)`:
 
-**El programa siempre termina.** Los cuatro bloqueos posibles, probados con
-hijos preparados a propósito:
+```
+hilo escritor       -> escribe los datos en la entrada del hijo y la cierra
+hilo lector salida  -> guarda la salida del hijo en una lista
+hilo lector error   -> guarda la salida de error en otra lista
+hilo principal      -> waitFor(10 segundos) y, si no termina, lo cancela
+```
 
-| Escenario | Exit | Tiempo | Huérfanos |
-|---|---|---|---|
-| No termina nunca | 1 | 10 s | 0 |
-| No lee su entrada, CSV de 6 MB | 1 | 11 s | 0 |
-| Inunda stderr (200.000 líneas) | **0** | 2 s | 0 |
-| Pedido de 6.000 tallas | **0** | 1 s | 0 |
+- **Sin sincronizar nada:** cada hilo escribe en **su** lista, y el principal
+  no las lee hasta después de `join()`.
+- **Cancelación:** si el hijo no termina, primero `destroy()` y, si en un
+  segundo sigue vivo, `destroyForcibly()`.
+- **Origen:** es el mismo diseño que ya tenía `LanzadorValidacion.ejecutarHijo()`
+  (8 de noviembre). Allí se midió que sin estos hilos el programa se colgaba
+  con un CSV de 6 MB o con un hijo que escribía mucho.
 
-Los dos últimos salen con **0 porque ahora terminan bien**: los hilos vacían sus
-tuberías y el resultado se conserva. Antes se cancelaban a los 10 segundos y se
-perdía.
+## Códigos de salida
 
-**No hay límite de tamaño.** El CSV de 6 MB con 60.000 líneas se procesa en
-1 segundo, y el pedido de 6.000 tallas devuelve sus 6.000 líneas de resumen.
+| Código | Padre (`ProcesadorPedidosCustom`) | Hijos |
+|---|---|---|
+| 0 | Correcto: ficha generada | Correcto |
+| 1 | Problema con un archivo: el de entrada (no se lanza ningún hijo) o al guardar | Java no encuentra la clase o hay una excepción sin capturar |
+| 2 | Un hijo ha rechazado los datos del pedido | Datos incorrectos (`ERROR;motivo`) |
+| 3 | Un hijo ha fallado: no arranca, código inesperado, tiempo agotado, respuesta no válida o cuentas que no cuadran | Error inesperado (solo el de Álvaro) |
 
-**Lo que no hace:** el padre guarda en memoria todo lo que escriba el hijo. Con
-6.000 líneas no es problema, pero no hay un tope. Y el protocolo sigue siendo
-que el validador contesta **una sola línea** empezando por `OK;`: si escribiera
-algo antes, el padre lo tomaría por respuesta y la rechazaría.
+`GestorProcesos` usa dos valores propios, porque en esos casos el hijo no da
+código: **-1** si no se ha podido arrancar y **-2** si se ha cancelado por
+tiempo.
 
-## Cómo compilar y ejecutar
+## Errores que se controlan
 
-Hace falta un JDK; está probado con el **17.0.12**. No hay Maven ni librerías.
+| Situación | Quién lo detecta | Código del padre |
+|---|---|---|
+| Falta el argumento, el archivo no existe, no es `.csv`, está vacío o no es UTF-8 | padre, antes de lanzar nada | 1 |
+| CSV mal formado (comilla sin cerrar, texto pegado a una comilla…) | hijo 1 (`LectorCsv`) | 2 |
+| Cabecera distinta o registro con un número de campos distinto de 8 | hijo 1 | 2 |
+| Falta la referencia, el SKU, el cliente, el modelo, el color, la talla o la cantidad | hijo 1 | 2 |
+| Talla o cantidad que no es un entero, o cantidad ≤ 0 | hijo 1 | 2 |
+| Dos pedidos o dos clientes en el mismo archivo | hijo 1 | 2 |
+| Talla fuera de 20–55 | hijo 2 (regla de Álvaro) | 2 |
+| Las cantidades no cuadran entre los procesos | padre o hijo 3 | 3 o 2 |
+| Un hijo no arranca, no se encuentra su clase o termina con un código inesperado | padre | 3 |
+| Un hijo tarda más de 10 segundos | `GestorProcesos`, que lo cancela | 3 |
 
-**En este ordenador `javac` y `java` no están en el PATH**, así que los comandos
-cortos no funcionan: dan «javac no se reconoce como un comando interno o
-externo». Hay que usar la ruta completa del JDK, que está en la variable
-`JAVA_HOME`.
+Pase lo que pase, el padre termina con una línea `Resultado: …` y añade el
+resumen al final de `salidas/registro_psp.txt`.
 
-Desde **PowerShell**, dentro de la carpeta `psp`:
+## Cómo ejecutarlo en Windows con JDK 17
+
+Probado con el **JDK 17.0.12**, sin Maven ni librerías. En este ordenador `javac`
+y `java` no están en el PATH, así que se usa la ruta de `JAVA_HOME`. Las
+carpetas `clases/` y `salidas/` no se suben al repositorio (`.gitignore`).
+
+### 1. Conseguir el analizador de Álvaro
+
+**Cuando su rama esté integrada,** sus archivos estarán en `psp\src\Psp` y no
+hace falta este paso.
+
+**Mientras tanto,** se pueden sacar de su rama sin cambiar de rama y sin
+mezclar nada. `git archive` solo lee:
 
 ```powershell
-cd C:\Users\omar2\NOVA\psp
-& "$env:JAVA_HOME\bin\javac.exe" -encoding UTF-8 -d clases *.java
-& "$env:JAVA_HOME\bin\java.exe" -cp clases LanzadorValidacion ..\fabricacion_psp.csv
+cd psp    # desde la carpeta del repositorio
+git archive -o $env:TEMP\analizador_alvaro.zip origin/feature/AlvaroBaz src/Psp
+Expand-Archive $env:TEMP\analizador_alvaro.zip $env:TEMP\analizador_alvaro -Force
 ```
 
-Desde **cmd**:
+Desde dentro de `psp`, la ruta es `src/Psp`: `git archive` la toma relativa a la
+carpeta actual (con `psp/src/Psp` da «did not match any files»).
+
+### 2. Compilar
+
+Todo en la carpeta `clases`. Mientras su rama no esté integrada:
+
+```powershell
+& "$env:JAVA_HOME\bin\javac.exe" -encoding UTF-8 -d clases *.java pruebas\*.java $env:TEMP\analizador_alvaro\src\Psp\*.java
+```
+
+Con su rama ya integrada:
+
+```powershell
+& "$env:JAVA_HOME\bin\javac.exe" -encoding UTF-8 -d clases *.java pruebas\*.java src\Psp\*.java
+```
+
+### 3. Procesar el pedido
+
+```powershell
+& "$env:JAVA_HOME\bin\java.exe" -cp clases ProcesadorPedidosCustom datos\custom40_fabricacion_psp.csv
+type salidas\ficha_taller_CUSTOM-40.txt
+```
+
+Para ver un fallo controlado:
+
+```powershell
+& "$env:JAVA_HOME\bin\java.exe" -cp clases ProcesadorPedidosCustom datos\prueba_cantidad_cero.csv
+```
+
+### 4. Pruebas
+
+```powershell
+& "$env:JAVA_HOME\bin\java.exe" -cp clases PruebasPsp
+```
+
+Trabajan en una carpeta temporal nueva y no tocan el repositorio. La última
+ejecución está en `../pruebas/psp/04_resultado_pruebas.txt`.
+
+### Cada hijo, suelto
+
+Se puede probar cada hijo con una tubería:
+
+```powershell
+Get-Content datos\custom40_fabricacion_psp.csv | & "$env:JAVA_HOME\bin\java.exe" -cp clases ValidadorPedidoCustom
+```
+
+Hay ejemplos de los tres en `../pruebas/psp/03_hijos_por_separado.txt`.
+
+## Los datos de entrada
+
+**`datos/custom40_fabricacion_psp.csv`** es una copia sin cambios del CSV que
+genera `acceso-datos/sql/15_exportar_fabricacion.sql`. Se generó el 9 de
+noviembre sobre la **base de PRUEBA**, no sobre la del equipo.
+
+- **Columnas:** `referencia, sku, cliente, modelo, color, personalizacion,
+  talla, cantidad`.
+- **Contenido:** el pedido CUSTOM-40, que está *confirmado*: Club Atletico NOVA,
+  NOVA Velocity en rojo, tallas 40 a 43 con 10 pares cada una, 40 pares en
+  total.
+
+**`datos/prueba_cantidad_cero.csv`** es un pedido de prueba con un error a
+propósito, para enseñar un rechazo.
+
+Para exportarlo de nuevo, siempre sobre una base de prueba:
 
 ```
-cd C:\Users\omar2\NOVA\psp
-"%JAVA_HOME%\bin\javac" -encoding UTF-8 -d clases *.java
-"%JAVA_HOME%\bin\java" -cp clases LanzadorValidacion ..\fabricacion_psp.csv
-```
-
-Si se añade `%JAVA_HOME%\bin` al PATH, entonces sí valen los comandos cortos
-`javac` y `java`.
-
-La carpeta `clases` que se crea al compilar **no se sube al repositorio**: son
-archivos generados.
-
-Para generar primero el CSV desde PostgreSQL. El script deja siempre
-`fabricacion_psp.csv` en el directorio desde el que se lanza psql, así que hay
-que situarse donde se quiera el archivo:
-
-```
-cd C:\Users\omar2\NOVA\psp
 psql -U postgres -d nova_sneakers -f ..\acceso-datos\sql\15_exportar_fabricacion.sql
 ```
 
-El nombre es fijo a propósito: la exportación usa `\copy`, que es la única vía
-de psql que **no altera los saltos de línea** de los campos en Windows. Está
-explicado en `acceso-datos/documentacion/README.md`.
+El script deja `fabricacion_psp.csv` en la carpeta desde la que se lanza.
 
-Cada hijo se puede probar suelto con una tubería. En PowerShell:
+## Relación con PostgreSQL y Odoo
 
-```powershell
-Get-Content ..\fabricacion_psp.csv | & "$env:JAVA_HOME\bin\java.exe" -cp clases ValidadorPedidoCustom
-Get-Content ..\fabricacion_psp.csv | & "$env:JAVA_HOME\bin\java.exe" -cp clases AnalizadorTallas
-```
+- **PostgreSQL** es de donde sale hoy el CSV, con el script 15. PSP solo lo
+  **lee**: no se conecta a la base.
+- **Odoo** lleva la venta y la fabricación de verdad. PSP no se conecta a Odoo.
+  La ficha dice expresamente que **no sustituye a la orden de fabricación de
+  Odoo**.
+- **Cómo se relaciona el resultado con el pedido original.** Por la
+  **referencia**, que se conserva de principio a fin:
+  - en el CSV y en cada respuesta `OK;CUSTOM-40`;
+  - en el nombre de la ficha y dentro de ella;
+  - en el registro, junto con el nombre del archivo de origen.
+- **Lo que falta para Odoo.** Hoy **no hay ninguna exportación de Odoo** en el
+  repositorio, y el pedido del ejemplo del enunciado (SO024, Club Halcones,
+  Runner X, tallas 38–46) **no está en PostgreSQL**. No se ha supuesto que
+  CUSTOM-40 y SO024 sean el mismo pedido. Cuando Odoo tenga el pedido, hay dos
+  caminos:
+  - exportar sus líneas a un CSV con estas mismas 8 columnas, y PSP lo procesa
+    sin cambiar nada;
+  - o registrar CUSTOM-40 en Odoo con esa misma referencia (ver
+    `integracion/recorrido-manual-odoo.md`, que es un borrador).
 
-En cmd se usa `type` en lugar de `Get-Content`.
+## La versión anterior: `LanzadorValidacion` y `AnalizadorTallas`
 
-## Qué pasa si hay un error
+Del 8 de noviembre (commit `f4847d4`). `LanzadorValidacion` lanza el validador
+y el `AnalizadorTallas` de la raíz, que solo agrupa por talla y lee el CSV
+directamente.
 
-| Situación | Qué hace | Código |
-|---|---|---|
-| Todo correcto | valida y muestra el resumen | 0 |
-| Falta el argumento o no existe el archivo | avisa y no lanza nada | 1 |
-| El validador rechaza los datos | muestra su `ERROR;…` y no lanza el analizador | 1 |
-| Un hijo no se puede lanzar | muestra su error y para | 1 |
-| Un hijo no termina, no lee su entrada o llena su salida | lo cancela a los 10 segundos y recoge el hilo escritor | 1 |
+- **Siguen funcionando:** el validador mantiene su primera línea
+  `OK;referencia;líneas;pares`, que es la que ellos leen.
+- **No forman parte del coordinador:** se usa el analizador de Álvaro, que ya
+  agrupa por variante y por talla, para no tener dos versiones de la misma
+  tarea.
+- **Qué hacer con ellos:** queda por decidir entre los tres si se quedan como
+  ejemplo o se quitan. No se ha borrado nada.
 
-El validador por su cuenta devuelve 0 si acepta los datos y 2 si los rechaza.
+## Integración con el trabajo de Álvaro
+
+- **Qué se usa:** `Psp.AnalizadorTallas`, sin ningún cambio, como hijo 2. Se
+  sigue su formato de entrada (`PEDIDO / LINEA / FIN`) y su convenio de
+  códigos (0 correcto, 2 datos incorrectos, 3 error inesperado).
+- **Qué no se usa:**
+  - `LanzadorAnalizador` y `ResultadoProceso`: el padre usa `GestorProcesos`
+    (PSP-05);
+  - `PruebasAnalizador`: sigue siendo su prueba del analizador y da 8 de 8.
+- **Qué debería revisar Álvaro en `LanzadorAnalizador`:**
+  - **El tiempo de espera no llega a actuar.** Lee la salida con
+    `readAllBytes()` antes del `waitFor(10 s)`, y `readAllBytes()` espera a que
+    el hijo termine.
+  - **Medido el 10 de noviembre:** con un hijo que tarda 20 segundos, el
+    lanzador esperó 20,1 s y devolvió código 0 en vez de `SIN_RESPUESTA`.
+  - **Riesgo de bloqueo:** también puede bloquearse si el hijo escribe mucho
+    por stderr, porque lee primero toda la salida y después los errores.
+  - **No se ha cambiado su archivo:** es una propuesta para que la revise él.
+- **Para integrarlo de verdad:** que Álvaro fusione su rama (o abra su PR), así
+  su autoría queda en su commit `6b7f4c1`. Esta rama no copia sus archivos.
+
+## Autoría
+
+- **Commit `f4847d4`** (Omar, 8 de noviembre): `ValidadorPedidoCustom`,
+  `LectorCsv`, `LanzadorValidacion` y el `AnalizadorTallas` de la raíz.
+- **Commit `6b7f4c1`** (Álvaro, 9 de noviembre), en su rama: `psp/src/Psp/`.
+- **10 de noviembre, en la rama de Omar y sin commit:**
+  - nuevos: `ProcesadorPedidosCustom`, `GestorProcesos`,
+    `GeneradorFichaTaller`, `pruebas/` y `datos/`;
+  - cambios en `ValidadorPedidoCustom`: datos normalizados, comprobación de
+    datos que faltan y salida en UTF-8.
+
+  Se prepararon en la sesión de Omar con ayuda de Claude.
+- **Pendiente de acordar:** en el reparto, PSP-01 (`ProcesadorPedidosCustom`) y
+  PSP-04 (`GeneradorFichaTaller`) eran de Berme, que no ha subido nada de PSP.
+  Hay que decidir entre los tres quién los revisa y los defiende.
 
 ## Ejemplos del profesor utilizados
 
-De **`mini_reto_1_lanzador_estadisticas`**:
+- **`mini_reto_1_lanzador_estadisticas`:**
+  - el protocolo `OK;…` por stdout y `ERROR;…` por stderr con
+    `System.exit(2)` (`EstadisticasHijo2.java`);
+  - construir el comando con `java.home` y el classpath del propio programa;
+  - comprobar que la respuesta empieza por `OK;` antes de usarla
+    (`LanzadorEstadisticas.java`).
+- **`UD2 IPC y sincronizacion/EG1_PipelineTexto`:** el hijo que lee su entrada
+  estándar con un `BufferedReader` sobre `System.in`.
+- **`UD1_ejemplo_guiado_clase/LanzadorProcesoFinal2.java`:** la espera con
+  límite `waitFor(n, TimeUnit.SECONDS)` y `destroyForcibly()`.
 
-- El protocolo `OK;campo1;campo2` por stdout y `ERROR;motivo` por stderr con
-  `System.exit(2)`, que viene de `EstadisticasHijo2.java`.
-- La estructura del padre de `LanzadorEstadisticas.java`: construir el comando
-  con `java.home` y el classpath del propio proceso, leer los dos flujos con
-  `inputReader()` y `errorReader()`, `waitFor()`, comprobar el código de salida
-  y **validar que la respuesta empiece por `OK;` antes de interpretarla**.
+**Qué es distinto de los ejemplos:**
 
-De **`UD2 IPC y sincronizacion/EG1_PipelineTexto`**:
+- **Los datos van por stdin y no como argumentos,** porque un CSV entero no cabe
+  cómodamente en la línea de órdenes.
+- **Los hilos de `GestorProcesos`.** Los ejemplos del profesor no usan hilos;
+  aquí hicieron falta para que el tiempo de espera funcione aunque el hijo no
+  lea o escriba mucho (ver arriba).
 
-- Cómo un hijo lee su entrada estándar con un `BufferedReader` sobre
-  `System.in`, de `ContadorPalabrasLargas.java`.
+## Límites conocidos
 
-De **`UD1_ejemplo_guiado_clase/LanzadorProcesoFinal2.java`**:
-
-- La espera con límite de tiempo: `waitFor(n, TimeUnit.SECONDS)` y, si no
-  termina, `destroyForcibly()`.
-
-### Qué se ha adaptado
-
-- En el ejemplo del profesor los datos van al hijo **como argumentos**. Aquí van
-  por **stdin**, porque un CSV completo no cabe cómodamente en la línea de
-  órdenes.
-- `LanzadorEstadisticas.java` **no compila** tal cual: declara `String salida;`
-  y `String error;` y luego los vuelve a declarar. Se comprobó con
-  `javac 17.0.12`. Al adaptarlo se ha corregido.
-- El padre usa `outputWriter()` para escribir al hijo, que es el método
-  simétrico de `inputReader()`.
-
-### Qué es propio
-
-Las ocho comprobaciones del validador, el agrupamiento por talla con dos listas
-en paralelo, su ordenación, el encadenado de los dos pasos con parada si el
-primero falla, y el formato del resumen.
-
-**El hilo que escribe el CSV también es propio.** Los ejemplos `.java` del
-profesor no usan hilos: trabajan con procesos, no con concurrencia dentro del
-programa. En el material teórico los hilos solo se mencionan de pasada, sin
-código. Hizo falta uno porque sin él el padre se bloqueaba al escribir un CSV
-grande en un hijo que no lo leía, y está explicado en el código para poder
-defenderlo.
+- **Solo CSV:** un `.json` se rechaza con código 1.
+- **Un pedido por archivo.** Procesar varios a la vez sería la «ampliación
+  posterior» del enunciado y no se ha hecho.
+- **Lectura del CSV:** no se admiten separadores distintos de la coma, y un
+  retorno de carro suelto fuera de comillas se rechaza.
+- **Memoria:** el padre guarda en memoria todo lo que escribe cada hijo, sin
+  tope.
+- **Orden de la ficha:** las filas por modelo, color y talla salen en el orden
+  del archivo (así las devuelve el analizador); las de talla, ordenadas.

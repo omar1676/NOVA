@@ -1,0 +1,54 @@
+# Hijo 1 suelto: el CSV entra por stdin y los datos normalizados salen por stdout
+> type datos\custom40_fabricacion_psp.csv | java -cp "clases;clases_alvaro" ValidadorPedidoCustom
+OK;CUSTOM-40;4;40
+CLIENTE;Club Atletico NOVA
+PERSONALIZACION;Club Atletico NOVA: logo bordado y numeracion en el talon
+PEDIDO;CUSTOM-40
+LINEA;NOVA-4-40;NOVA Velocity;Rojo;40;10
+LINEA;NOVA-4-41;NOVA Velocity;Rojo;41;10
+LINEA;NOVA-4-42;NOVA Velocity;Rojo;42;10
+LINEA;NOVA-4-43;NOVA Velocity;Rojo;43;10
+FIN
+(codigo de salida: 0)
+# Hijo 2 suelto (de Alvaro): recibe el bloque PEDIDO / LINEA / FIN que ha dado el hijo 1
+> (bloque PEDIDO..FIN del hijo 1) | java -cp "clases;clases_alvaro" Psp.AnalizadorTallas
+OK;CUSTOM-40
+VARIANTE_TALLA;NOVA Velocity;Rojo;40;10
+VARIANTE_TALLA;NOVA Velocity;Rojo;41;10
+VARIANTE_TALLA;NOVA Velocity;Rojo;42;10
+VARIANTE_TALLA;NOVA Velocity;Rojo;43;10
+TALLA;40;10
+TALLA;41;10
+TALLA;42;10
+TALLA;43;10
+TOTAL;40
+(codigo de salida: 0)
+
+# Hijo 3 suelto: recibe los datos del pedido y el resumen del hijo 2, y devuelve la ficha
+Entrada que recibe por stdin:
+    PEDIDO;CUSTOM-40
+    ORIGEN;custom40_fabricacion_psp.csv
+    CLIENTE;Club Atletico NOVA
+    PERSONALIZACION;Club Atletico NOVA: logo bordado y numeracion en el talon
+    VARIANTE_TALLA;NOVA Velocity;Rojo;40;10
+    VARIANTE_TALLA;NOVA Velocity;Rojo;41;10
+    VARIANTE_TALLA;NOVA Velocity;Rojo;42;10
+    VARIANTE_TALLA;NOVA Velocity;Rojo;43;10
+    TALLA;40;10
+    TALLA;41;10
+    TALLA;42;10
+    TALLA;43;10
+    TOTAL;40
+    FIN
+Salida (solo las 3 primeras lineas):
+OK;CUSTOM-40
+==================================================
+NOVA SNEAKERS - FICHA AUXILIAR PARA TALLER
+    ...
+(codigo de salida: 0)
+
+# Hijo 1 con un dato mal: nada por stdout, el motivo por stderr y codigo 2
+> type datos\prueba_cantidad_cero.csv | java -cp "clases;clases_alvaro" ValidadorPedidoCustom
+stdout: []
+stderr: ERROR;La cantidad del registro 2 tiene que ser mayor que cero, y es 0
+(codigo de salida: 2)
