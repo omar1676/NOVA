@@ -1,0 +1,13 @@
+id_modelo,nombre_modelo,descripcion,precio_base,activo
+1,SINT Runner,Modelo inventado para el histórico sintético,129.99,true
+2,SINT Court,Modelo inventado para el histórico sintético,79.99,true
+3,SINT Trail,Modelo inventado para el histórico sintético,69.99,true
+4,SINT Street,Modelo inventado para el histórico sintético,119.99,true
+5,SINT Classic,Modelo inventado para el histórico sintético,89.99,true
+6,SINT Flex,Modelo inventado para el histórico sintético,99.99,true
+7,SINT Sprint,Modelo inventado para el histórico sintético,69.99,true
+8,SINT Urban,Modelo inventado para el histórico sintético,89.99,true
+9,SINT Peak,Modelo inventado para el histórico sintético,119.99,true
+10,SINT Wave,Modelo inventado para el histórico sintético,89.99,true
+11,SINT Volt,Modelo inventado para el histórico sintético,129.99,true
+12,SINT Retro,Modelo inventado para el histórico sintético,129.99,true
