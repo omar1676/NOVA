@@ -1,48 +1,426 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Descubre la primera selección de NOVA Sneakers.">
-  <title>NOVA Sneakers | Inicio</title>
-  <link rel="stylesheet" href="css/inicio.css">
-  <script src="js/inicio.js" defer></script>
-</head>
-<body>
-  <header class="cabecera">
-    <a class="marca" href="index.html" aria-label="NOVA Sneakers, inicio">NOVA<span> SNEAKERS</span></a>
-    <nav aria-label="Navegación principal">
-      <a class="activo" href="index.html" aria-current="page">Inicio</a>
-      <a href="#catalogo">Catálogo <span aria-hidden="true">↗</span></a>
-    </nav>
-  </header>
-
-  <main>
-    <section class="presentacion" aria-labelledby="titulo">
-      <div>
-        <p class="etiqueta">NOVA SNEAKERS / COLECCIÓN DE INICIO</p>
-        <h1 id="titulo">Una selección.<br><span>Muchos caminos.</span></h1>
-        <p class="introduccion">Ocho formas de encontrar tu propio ritmo. Descubre la primera selección de NOVA.</p>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Descubre el escaparate de NOVA Sneakers."
+    />
+    <title>NOVA Sneakers | El escaparate</title>
+    <link rel="stylesheet" href="css/inicio.css" />
+    <script src="js/modelos.js" defer></script>
+    <script src="js/inicio.js" defer></script>
+  </head>
+  <body>
+    <div class="entrada-nova" aria-hidden="true">
+      <img src="images/logo-nova.png" alt="" />
+    </div>
+    <a class="saltar" href="#catalogo">Saltar al escaparate</a>
+    <header class="cabecera">
+      <a
+        class="marca marca-logo"
+        href="#inicio"
+        aria-label="NOVA Sneakers, inicio"
+        ><img src="images/logo-nova.png" alt=""
+      /></a>
+      <nav aria-label="Navegación principal">
+        <a href="#catalogo-completo">Catálogo</a
+        ><a href="#historia">Nuestra visión</a>
+      </nav>
+      <a class="cabecera-enlace" href="#catalogo"
+        >EXPLORAR <span aria-hidden="true">↗</span></a
+      >
+    </header>
+    <main id="inicio">
+      <section
+        class="coleccion"
+        id="catalogo"
+        aria-labelledby="titulo-coleccion"
+      >
+        <div class="seccion-cabeza">
+          <div>
+            <p class="etiqueta">NOVA SNEAKERS / COLECCIÓN 01</p>
+            <h1 id="titulo-coleccion">El escaparate<span>.</span></h1>
+            <p>Una colección. Muchas formas de avanzar.</p>
+          </div>
+          <p class="instruccion">
+            <span>COLECCIÓN NOVA</span><br />SELECCIONA UN MODELO<br />PARA
+            VERLO DE CERCA ↗
+          </p>
+        </div>
+        <div class="controles">
+          <fieldset>
+            <legend>Filtrar por colección</legend>
+            <div class="filtros">
+              <button
+                type="button"
+                class="filtro"
+                data-filtro="street"
+                aria-pressed="false"
+              >
+                STREET <span id="cantidad-street"></span>
+              </button>
+              <button
+                type="button"
+                class="filtro"
+                data-filtro="luxe"
+                aria-pressed="false"
+              >
+                LUXE <span id="cantidad-luxe"></span>
+              </button>
+              <button
+                type="button"
+                class="filtro activo"
+                data-filtro="casual"
+                aria-pressed="true"
+              >
+                CASUAL <span id="cantidad-casual"></span>
+              </button>
+              <button
+                type="button"
+                class="filtro"
+                data-filtro="hombre"
+                aria-pressed="false"
+              >
+                HOMBRE <span id="cantidad-hombre"></span>
+              </button>
+              <button
+                type="button"
+                class="filtro"
+                data-filtro="mujer"
+                aria-pressed="false"
+              >
+                MUJER <span id="cantidad-mujer"></span>
+              </button>
+              <button
+                type="button"
+                class="filtro"
+                data-filtro="unisex"
+                aria-pressed="false"
+              >
+                UNISEX <span id="cantidad-unisex"></span>
+              </button>
+              <button
+                type="button"
+                class="filtro"
+                data-filtro="todos"
+                aria-pressed="false"
+              >
+                TODOS <span id="cantidad-todos"></span>
+              </button>
+            </div>
+          </fieldset>
+          <label class="buscar"
+            ><span>BUSCAR MODELO</span
+            ><input
+              id="busqueda"
+              type="search"
+              placeholder="Nombre del modelo"
+              autocomplete="off"
+          /></label>
+        </div>
+        <p class="resultados" id="resultados" aria-live="polite"></p>
+        <div class="estanterias" id="estanterias"></div>
+        <p id="vacio" class="vacio" hidden>
+          No encontramos modelos con esa búsqueda. Prueba con otro nombre o
+          colección.
+        </p>
+        <noscript>Activa JavaScript para explorar los modelos.</noscript>
+        <div class="escaparate-pie">
+          <span>DISEÑADO PARA MOVERTE</span>
+          <a class="ir-catalogo" href="#catalogo-completo"
+            >DESLIZA O VER CATÁLOGO <span aria-hidden="true">↓</span></a
+          >
+        </div>
+      </section>
+      <section
+        class="catalogo-completo"
+        id="catalogo-completo"
+        aria-labelledby="titulo-catalogo"
+      >
+        <div class="catalogo-cabecera">
+          <div>
+            <p class="etiqueta">02 / LA COLECCIÓN</p>
+            <h2 id="titulo-catalogo">Todos los modelos<span>.</span></h2>
+          </div>
+          <p>
+            Descubre nuestras seis colecciones.<br />Selecciona un modelo para
+            verlo de cerca.
+          </p>
+        </div>
+        <div class="catalogo-herramientas">
+          <div
+            class="catalogo-filtros"
+            role="group"
+            aria-label="Filtrar catálogo por colección"
+          >
+            <button
+              type="button"
+              class="catalogo-filtro activo"
+              data-coleccion="todos"
+              aria-pressed="true"
+            >
+              Todos
+            </button>
+            <button
+              type="button"
+              class="catalogo-filtro"
+              data-coleccion="street"
+              aria-pressed="false"
+            >
+              Street
+            </button>
+            <button
+              type="button"
+              class="catalogo-filtro"
+              data-coleccion="luxe"
+              aria-pressed="false"
+            >
+              Luxe
+            </button>
+            <button
+              type="button"
+              class="catalogo-filtro"
+              data-coleccion="casual"
+              aria-pressed="false"
+            >
+              Casual
+            </button>
+            <button
+              type="button"
+              class="catalogo-filtro"
+              data-coleccion="hombre"
+              aria-pressed="false"
+            >
+              Hombre
+            </button>
+            <button
+              type="button"
+              class="catalogo-filtro"
+              data-coleccion="mujer"
+              aria-pressed="false"
+            >
+              Mujer
+            </button>
+            <button
+              type="button"
+              class="catalogo-filtro"
+              data-coleccion="unisex"
+              aria-pressed="false"
+            >
+              Unisex
+            </button>
+          </div>
+          <label for="buscar-catalogo">Buscar en el catálogo</label
+          ><input
+            id="buscar-catalogo"
+            type="search"
+            placeholder="Buscar modelo"
+            autocomplete="off"
+          />
+          <p id="catalogo-resultados" aria-live="polite"></p>
+        </div>
+        <div class="catalogo-grid" id="catalogo-grid"></div>
+        <p id="catalogo-vacio" hidden>
+          No encontramos modelos con esa búsqueda y colección. Prueba con otros
+          filtros.
+        </p>
+        <p class="nota">
+          Colección visual de presentación. Precios, tallas y disponibilidad
+          pendientes de confirmación.
+        </p>
+      </section>
+      <section class="historia" id="historia">
+        <div>
+          <p class="etiqueta">03 / NUESTRA VISIÓN</p>
+          <h2>Muévete a tu<br /><em>manera.</em></h2>
+        </div>
+        <div>
+          <p>
+            Para los que hacen de cada paso una declaración. NOVA une
+            inspiración urbana y una mirada hacia lo que viene.
+          </p>
+          <a href="#catalogo">Explorar la colección ↗</a>
+          <p class="nota">
+            Colección visual de presentación. Precios, tallas y disponibilidad
+            pendientes de confirmación.
+          </p>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <a class="marca" href="#inicio">NOVA<span> SNEAKERS</span></a>
+      <p>Una nueva forma de avanzar.</p>
+      <a href="#inicio">Volver arriba ↑</a
+      ><small>Proyecto académico · NOVA Sneakers</small>
+    </footer>
+    <dialog id="detalle" aria-labelledby="detalle-titulo">
+      <div class="modal">
+        <button class="cerrar" type="button" aria-label="Cerrar ficha">
+          ×
+        </button>
+        <div class="modal-texto">
+          <p class="etiqueta" id="detalle-coleccion"></p>
+          <h2 id="detalle-titulo"></h2>
+          <p>Una mirada más cercana a la colección NOVA.</p>
+        </div>
+        <div class="modal-imagen">
+          <img id="detalle-imagen" alt="" />
+          <div class="repisa-grande" aria-hidden="true"></div>
+        </div>
+        <div class="modal-info">
+          <span>EL MODELO</span><strong>Información de compra pendiente</strong>
+          <p>
+            Precio, tallas y stock estarán disponibles cuando se conecten los
+            datos del proyecto.
+          </p>
+          <button class="boton abrir-probador" type="button">
+            VER EN EL PROBADOR <span aria-hidden="true">↗</span>
+          </button>
+          <button class="boton cerrar-secundario" type="button">
+            SEGUIR EXPLORANDO <span aria-hidden="true">↗</span>
+          </button>
+        </div>
       </div>
-      <a class="enlace-catalogo" href="#catalogo">Explorar catálogo <span aria-hidden="true">↗</span></a>
-    </section>
-
-    <section class="escaparate" aria-labelledby="titulo-escaparate">
-      <div class="encabezado-escaparate">
-        <div><p class="etiqueta">01 / EL ESCAPARATE</p><h2 id="titulo-escaparate">Pares que hablan por ti.</h2></div>
-        <p>Ocho modelos. Un espacio para elegir sin prisa.</p>
+    </dialog>
+    <dialog id="probador" aria-labelledby="titulo-probador">
+      <div class="probador-contenido">
+        <button
+          class="cerrar cerrar-probador"
+          type="button"
+          aria-label="Cerrar probador"
+        >
+          ×
+        </button>
+        <div class="probador-vista" data-escenario="madrid">
+          <img
+            class="modelo-base"
+            src="images/probador/modelo-base.png"
+            alt="Modelo conceptual con ropa oscura"
+          />
+          <img id="escena-completa" class="escena-completa" alt="" hidden />
+          <img id="zapatilla-escena" class="zapatilla-escena" alt="" hidden />
+          <span id="aviso-sin-foto" class="aviso-sin-foto" hidden
+            >Aún no hay foto con este modelo puesto</span
+          >
+          <span class="etiqueta-vista">VISTA CONCEPTUAL</span>
+        </div>
+        <div class="probador-controles">
+          <p class="etiqueta">NOVA / PROBADOR</p>
+          <h2 id="titulo-probador">Imagina tu estilo<span>.</span></h2>
+          <p>Una primera vista del modelo y la zapatilla seleccionada.</p>
+          <div class="probador-zapatilla">
+            <img id="probador-zapatilla" alt="" />
+            <div>
+              <strong id="probador-nombre"></strong>
+              <p>Modelo seleccionado</p>
+            </div>
+          </div>
+          <label class="probador-campo" for="elegir-zapatilla"
+            >Zapatilla
+            <select id="elegir-zapatilla"></select>
+          </label>
+          <div class="probador-medidas">
+            <label class="probador-campo" for="altura-modelo"
+              >Estatura (cm)
+              <input
+                id="altura-modelo"
+                type="number"
+                min="120"
+                max="220"
+                step="5"
+                value="175"
+              />
+            </label>
+            <label class="probador-campo" for="peso-modelo"
+              >Peso (kg)
+              <input
+                id="peso-modelo"
+                type="number"
+                min="30"
+                max="200"
+                step="5"
+                value="75"
+              />
+            </label>
+          </div>
+          <fieldset id="modelo-unisex" class="modelo-unisex" hidden>
+            <legend>Ver este modelo unisex en</legend>
+            <button
+              type="button"
+              data-modelo-unisex="hombre"
+              aria-pressed="false"
+            >
+              Hombre
+            </button>
+            <button
+              type="button"
+              data-modelo-unisex="mujer"
+              aria-pressed="false"
+            >
+              Mujer
+            </button>
+          </fieldset>
+          <label class="probador-campo" for="tipo-modelo"
+            >Pose, ropa y complexión aproximadas
+            <select id="tipo-modelo">
+              <option value="persona01">Modelo 1 · conjunto casual</option>
+              <option value="persona02">Modelo 2 · chaqueta y vaqueros</option>
+              <option value="persona03">Modelo 3 · sudadera deportiva</option>
+              <option value="persona04">Modelo 4 · conjunto urbano</option>
+              <option value="base">De frente · complexión media</option>
+              <option value="delgado">De lado · complexión delgada</option>
+              <option value="ancho">De lado · complexión amplia</option>
+              <option value="urbano">Urbano · sobrecamisa y vaqueros</option>
+              <option value="deportivo">
+                Deportivo · caminando con sudadera
+              </option>
+              <option value="street01">
+                Ejemplo con NOVA Street 01 puesta
+              </option>
+              <option value="casual01-urbano">Casual 01 puesta · urbano</option>
+              <option value="casual01-deportivo">
+                Casual 01 puesta · deportivo
+              </option>
+              <option value="casual02-escena">
+                Casual 02 puesta · escena fija
+              </option>
+              <option value="casual03-escena">
+                Casual 03 puesta · escena fija
+              </option>
+              <option value="producto">Zapatilla sola · sin foto puesta</option>
+            </select>
+          </label>
+          <p id="aviso-escena" class="probador-nota" hidden>
+            Esta imagen tiene escenario y pose fijos; para cambiar de fondo,
+            elige «Zapatilla sola».
+          </p>
+          <fieldset class="escenarios">
+            <legend>Elige un escenario</legend>
+            <button type="button" data-escenario="madrid" aria-pressed="true">
+              Madrid
+            </button>
+            <button type="button" data-escenario="tokio" aria-pressed="false">
+              Tokio
+            </button>
+          </fieldset>
+          <p class="probador-nota">
+            Las opciones con «puesta» son imágenes generadas aproximadas de ese
+            producto. Si un modelo aún no tiene foto con la zapatilla puesta, se
+            muestra la zapatilla sola sobre el escenario. Esta vista no sirve
+            para elegir talla.
+          </p>
+          <p class="probador-nota">
+            La altura cambia la escala visual y el peso no determina la
+            complexión. Cada opción es una imagen completa: pose, ropa y cuerpo
+            no se cambian por separado. Pelo y tono de piel pendientes.
+          </p>
+          <button class="boton cerrar-probador-secundario" type="button">
+            VOLVER A LA ZAPATILLA <span aria-hidden="true">↗</span>
+          </button>
+        </div>
       </div>
-      <div id="estanterias" class="estanterias" aria-label="Selección de ocho zapatillas"></div>
-      <noscript><p>Activa JavaScript para ver las ocho ilustraciones del escaparate.</p></noscript>
-      <p class="nota">Ilustraciones de concepto · Los modelos y sus datos están pendientes de definir.</p>
-    </section>
-
-    <section id="catalogo" class="aviso-catalogo" aria-labelledby="titulo-catalogo">
-      <div><p class="etiqueta">SIGUIENTE PASO</p><h2 id="titulo-catalogo">El catálogo está en camino.</h2><p>Pronto podrás descubrir toda la colección aquí.</p></div>
-      <span aria-hidden="true">↗</span>
-    </section>
-  </main>
-
-  <footer><a class="marca marca-pie" href="index.html">NOVA<span> SNEAKERS</span></a><p>Una primera mirada a NOVA Sneakers.</p><a href="#titulo">Volver arriba ↑</a></footer>
-</body>
+    </dialog>
+  </body>
 </html>
