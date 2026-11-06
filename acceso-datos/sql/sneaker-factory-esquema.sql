@@ -12,6 +12,11 @@ CREATE TABLE public.modelos (
     precio_base numeric(8,2) NOT NULL,
     activo boolean NOT NULL DEFAULT true,
     CONSTRAINT modelos_pk PRIMARY KEY (id_modelo),
+    -- El nombre del modelo se usa como clave de busqueda en los scripts
+    -- (WHERE m.nombre = 'NOVA Velocity'), asi que no puede repetirse: si
+    -- hubiera dos modelos con el mismo nombre, esas busquedas cogerian
+    -- uno cualquiera sin avisar.
+    CONSTRAINT modelos_nombre_uq UNIQUE (nombre),
     CONSTRAINT modelos_precio_check CHECK (precio_base >= 0)
 );
 
