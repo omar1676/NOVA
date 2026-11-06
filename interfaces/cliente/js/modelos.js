@@ -625,3 +625,41 @@ const modelos = [
     imagenCatalogo: "images/nova/unisex/nova-unisex-20.webp",
   },
 ];
+
+// Datos de compra comunes a todos los modelos de una colección.
+// PROVISIONAL: precios y tallas pendientes de acordar con el equipo
+// (deben coincidir con Odoo y PostgreSQL). Se cambian solo aquí.
+const datosColeccion = {
+  street: {
+    precio: 109.9,
+    tallas: [38, 39, 40, 41, 42, 43, 44, 45, 46],
+    descripcion:
+      "Zapatilla urbana de estilo técnico, con suela marcada y diseño atrevido.",
+  },
+  luxe: {
+    precio: 139.9,
+    tallas: [38, 39, 40, 41, 42, 43, 44, 45, 46],
+    descripcion:
+      "Línea elegante, de acabados cuidados y colores sobrios, para vestir.",
+  },
+  casual: {
+    precio: 89.9,
+    tallas: [38, 39, 40, 41, 42, 43, 44, 45, 46],
+    descripcion: "Zapatilla de inspiración retro, cómoda para el día a día.",
+  },
+  hombre: {
+    precio: 99.9,
+    tallas: [40, 41, 42, 43, 44, 45, 46],
+    descripcion: "Modelos de corte clásico y caña media, con horma de hombre.",
+  },
+  mujer: {
+    precio: 99.9,
+    tallas: [35, 36, 37, 38, 39, 40, 41, 42],
+    descripcion: "Diseños con detalles cuidados y horma pensada para mujer.",
+  },
+  unisex: {
+    precio: 94.9,
+    tallas: [36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46],
+    descripcion: "Diseño neutro y tallaje amplio, para cualquier persona.",
+  },
+};
