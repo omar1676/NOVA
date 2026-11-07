@@ -160,3 +160,15 @@
 .adm-estado.adm-suficiente      { color: #5fc58a; }
 .adm-estado.adm-bajo    { color: var(--adm-dorado); }
 .adm-estado.adm-agotado { color: #e66a6a; }
+.adm-estado.adm-en-revision  { color: #6aa3ff; }
+.adm-estado.adm-aprobada     { color: #5fc58a; }
+.adm-estado.adm-rechazada    { color: #e66a6a; }
+.adm-estado.adm-implementada { color: #b48cf2; }
+
+.adm-prioridad {
+  font-size: 13px;
+}
+
+.adm-prioridad.adm-alta  { color: #e66a6a; }
+.adm-prioridad.adm-media { color: var(--adm-dorado); }
+.adm-prioridad.adm-baja  { color: var(--adm-texto-suave); }
