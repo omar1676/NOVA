@@ -38,3 +38,14 @@ function pintarDashboard(datos) {
     datos.ventasDia.map(function (d) { return d.dia; }),
     datos.ventasDia.map(function (d) { return d.total; }));
 }
+
+// ===== Configuración =====
+const botonGuardar = document.getElementById("adm-guardar");
+const avisoGuardar = document.getElementById("adm-aviso-guardar");
+
+if (botonGuardar && avisoGuardar) {
+  botonGuardar.addEventListener("click", function () {
+    avisoGuardar.textContent = "Todavía no hay servidor: los cambios no se guardan.";
+  });
+}
+

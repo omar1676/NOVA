@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVA Sneakers · Configuración</title>
+    <link rel="icon" href="img/Nova Logo.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="adm">
+
+    <div class="adm-sidebar">
+        <div class="adm-marca">
+            <img src="img/Nova Logo.png" alt="NOVA Sneakers">
+        </div>
+        <nav class="adm-menu">
+            <a href="admin.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+            <a href="pedidosAdmin.html"><i data-lucide="shopping-bag"></i> Pedidos</a>
+            <a href="productosAdmin.html"><i data-lucide="footprints"></i> Productos</a>
+            <a href="inventarioAdmin.html"><i data-lucide="warehouse"></i> Inventario</a>
+            <a href="clientesAdmin.html"><i data-lucide="users"></i> Clientes</a>
+            <a href="trabajadoresAdmin.html"><i data-lucide="hard-hat"></i> Trabajadores</a>
+            <a href="sugerenciasAdmin.html"><i data-lucide="lightbulb"></i> Sugerencias</a>
+            <a href="mejorasAdmin.html"><i data-lucide="kanban"></i> Mejoras</a>
+            <a href="estadisticasAdmin.html"><i data-lucide="bar-chart-3"></i> Estadísticas</a>
+            <a href="auditoriaAdmin.html"><i data-lucide="scroll-text"></i> Auditoría</a>
+            <a href="configuracionAdmin.html" class="adm-activo"><i data-lucide="settings"></i> Configuración</a>
+        </nav>
+    </div>
+
+    <div class="adm-contenido">
+        <h1>Configuración</h1>
+        <p class="adm-nota">Ajustes de la tienda online. Cada cambio queda registrado en el historial con quién y cuándo
+            lo hizo.</p>
+
+        <form id="adm-config">
+            <div class="adm-ajustes">
+
+                <div class="adm-panel">
+                    <h2>Tienda</h2>
+
+                    <div class="adm-opcion">
+                        <div class="adm-opcion-texto">
+                            Banner promocional
+                            <small>Muestra un aviso en la parte superior de la tienda</small>
+                        </div>
+                        <label class="adm-interruptor">
+                            <input type="checkbox" id="adm-banner-activo">
+                            <span></span>
+                        </label>
+                    </div>
+
+                    <div class="adm-campo">
+                        <label for="adm-banner-texto">Texto del anuncio</label>
+                        <input type="text" id="adm-banner-texto" placeholder="Ej.: Envío gratis a partir de 50 €">
+                    </div>
+
+                    
+                    <div class="adm-campo">
+                        <label for="adm-seccion-destacada">Sección destacada en la portada</label>
+                        <select id="adm-seccion-destacada">
+                            <option>novedades</option>
+                            <option>más vendidos</option>
+                            <option>ofertas</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="adm-panel">
+                    <h2>Inventario y módulos</h2>
+
+                    <div class="adm-campo">
+                        <label for="adm-umbral-stock">Umbral de stock bajo</label>
+                        <input type="number" id="adm-umbral-stock" value="5" min="0">
+                        <span class="adm-ayuda">Con estas unidades o menos, la talla aparece como "bajo" en
+                            Inventario.</span>
+                    </div>
+
+                    <div class="adm-opcion">
+                        <div class="adm-opcion-texto">
+                            Sección de novedades
+                            <small>Muestra los últimos modelos en la tienda</small>
+                        </div>
+                        <label class="adm-interruptor">
+                            <input type="checkbox" id="adm-modulo-novedades" checked>
+                            <span></span>
+                        </label>
+                    </div>
+
+                    <div class="adm-opcion">
+                        <div class="adm-opcion-texto">
+                            Sugerencias de clientes
+                            <small>Permite enviar sugerencias desde la tienda</small>
+                        </div>
+                        <label class="adm-interruptor">
+                            <input type="checkbox" id="adm-modulo-sugerencias" checked>
+                            <span></span>
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="adm-acciones">
+                <button type="button" class="adm-boton" id="adm-guardar">Guardar cambios</button>
+                <button type="reset" class="adm-boton adm-boton-secundario">Descartar</button>
+                <span class="adm-aviso" id="adm-aviso-guardar"></span>
+            </div>
+        </form>
+
+        <div class="adm-panel adm-historial">
+            <h2>Historial de cambios</h2>
+            <table class="adm-tabla">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Usuario</th>
+                        <th>Ajuste</th>
+                        <th>Valor anterior</th>
+                        <th>Valor nuevo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="5" class="adm-vacio">Todavía no hay cambios registrados</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="script.js"></script>
+
+</body>
+
+</html>
