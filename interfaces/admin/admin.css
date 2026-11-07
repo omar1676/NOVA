@@ -85,3 +85,66 @@ nav a.activo {
 .tarjeta strong {
   font-size: 28px;
 }
+
+.barra-herramientas {
+  display: flex;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.barra-herramientas input,
+.barra-herramientas select {
+  background: var(--panel);
+  color: var(--texto);
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.barra-herramientas input {
+  flex: 1;
+}
+
+.barra-herramientas input::placeholder {
+  color: var(--texto-suave);
+}
+
+.tabla-caja {
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  text-align: left;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--borde);
+}
+
+th {
+  color: var(--texto-suave);
+  font-size: 13px;
+  font-weight: normal;
+}
+
+tbody tr:hover {
+  background: var(--borde);
+}
+
+.estado {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  background: var(--borde);
+}
+
+.estado.pendiente { color: var(--dorado); }
+.estado.enviado   { color: #6aa3ff; }
+.estado.entregado { color: #5fc58a; }
+.estado.cancelado { color: #e66a6a; }

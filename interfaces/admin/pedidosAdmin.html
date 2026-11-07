@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVA Sneakers · Pedidos</title>
+    <link rel="icon" href="img/logo.png">
+    <link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="marca">
+        <img src="img/Nova Logo.png" alt="NOVA Sneakers">
+    </div>
+    <nav>
+        <a href="admin.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+        <a href="pedidos.html" class="activo"><i data-lucide="shopping-bag"></i> Pedidos</a>
+        <a href="productos.html"><i data-lucide="footprints"></i> Productos</a>
+        <a href="inventario.html"><i data-lucide="warehouse"></i> Inventario</a>
+        <a href="clientes.html"><i data-lucide="users"></i> Clientes</a>
+        <a href="trabajadores.html"><i data-lucide="hard-hat"></i> Trabajadores</a>
+        <a href="sugerencias.html"><i data-lucide="lightbulb"></i> Sugerencias</a>
+        <a href="mejoras.html"><i data-lucide="kanban"></i> Mejoras</a>
+        <a href="estadisticas.html"><i data-lucide="bar-chart-3"></i> Estadísticas</a>
+        <a href="auditoria.html"><i data-lucide="scroll-text"></i> Auditoría</a>
+        <a href="configuracion.html"><i data-lucide="settings"></i> Configuración</a>
+    </nav>
+</div>
+
+<div class="contenido">
+    <h1>Pedidos</h1>
+
+    <div class="barra-herramientas">
+        <input type="text" id="buscador" placeholder="Buscar por referencia o cliente...">
+        <select id="filtro-estado">
+            <option value="">Todos los estados</option>
+            <option value="pendiente">pendiente</option>
+            <option value="en_preparacion">en_preparacion</option>
+            <option value="enviado">enviado</option>
+            <option value="entregado">entregado</option>
+            <option value="cancelado">cancelado</option>
+        </select>
+    </div>
+
+    <div class="tabla-caja">
+        <table>
+            <thead>
+                <tr>
+                    <th>Referencia</th>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>EJEMPLO-001</td>
+                    <td>Cliente de ejemplo A</td>
+                    <td>—</td>
+                    <td><span class="estado pendiente">pendiente</span></td>
+                    <td>—</td>
+                </tr>
+                <tr>
+                    <td>EJEMPLO-002</td>
+                    <td>Cliente de ejemplo B</td>
+                    <td>—</td>
+                    <td><span class="estado enviado">enviado</span></td>
+                    <td>—</td>
+                </tr>
+                <tr>
+                    <td>EJEMPLO-003</td>
+                    <td>Cliente de ejemplo C</td>
+                    <td>—</td>
+                    <td><span class="estado entregado">entregado</span></td>
+                    <td>—</td>
+                </tr>
+                <tr>
+                    <td>EJEMPLO-004</td>
+                    <td>Cliente de ejemplo D</td>
+                    <td>—</td>
+                    <td><span class="estado cancelado">cancelado</span></td>
+                    <td>—</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
