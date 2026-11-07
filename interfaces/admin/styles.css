@@ -131,6 +131,58 @@
   color: var(--adm-texto-suave);
 }
 
+/* ===== Estadísticas ===== */
+.adm-grafico-vacio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 180px;
+  border: 1px dashed var(--adm-borde);
+  border-radius: 9px;
+  color: var(--adm-texto-suave);
+  font-size: 13px;
+}
+
+.adm-grafico-caja {
+  position: relative;
+  height: 220px;
+}
+
+.adm-barra-fila {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--adm-borde);
+  font-size: 14px;
+}
+
+.adm-barra-nombre {
+  width: 150px;
+  flex-shrink: 0;
+}
+
+.adm-barra-pista {
+  flex: 1;
+  height: 8px;
+  background: var(--adm-borde);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.adm-barra-relleno {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--adm-dorado);
+}
+
+.adm-barra-valor {
+  width: 60px;
+  text-align: right;
+  color: var(--adm-texto-suave);
+}
+
 
 .adm-herramientas {
   display: flex;
@@ -220,16 +272,14 @@
 .adm-prioridad.adm-baja  { color: var(--adm-texto-suave); }
 
 
-/* Mejoras: tablero Kanban */
 
-/* Color de cada fase */
 .adm-fase-planificada { --adm-fase: #6aa3ff; }
 .adm-fase-desarrollo  { --adm-fase: #c9a24b; }
 .adm-fase-pruebas     { --adm-fase: #b48cf2; }
 .adm-fase-publicada   { --adm-fase: #5fc58a; }
 .adm-fase-cancelada   { --adm-fase: #e66a6a; }
 
-/* Cabecera */
+
 .adm-cabecera h1 {
   margin: 0;
 }
@@ -240,7 +290,7 @@
   font-size: 14px;
 }
 
-/* Resumen */
+
 .adm-resumen {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -270,7 +320,7 @@
   color: #e66a6a;
 }
 
-/* Barra de progreso */
+
 .adm-progreso {
   background: var(--adm-panel);
   border: 1px solid var(--adm-borde);
@@ -301,7 +351,7 @@
   background: var(--adm-fase);
 }
 
-/* Tablero */
+
 .adm-kanban {
   display: grid;
   grid-template-columns: repeat(5, minmax(220px, 1fr));
@@ -352,7 +402,7 @@
   font-weight: normal;
 }
 
-/* Tarjetas */
+
 .adm-mejora {
   position: relative;
   background: var(--adm-fondo);

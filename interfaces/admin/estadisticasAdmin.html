@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVA Sneakers · Estadísticas</title>
+    <link rel="icon" href="img/Nova Logo.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="adm">
+
+<div class="adm-sidebar">
+    <div class="adm-marca">
+        <img src="img/Nova Logo.png" alt="NOVA Sneakers">
+    </div>
+    <nav class="adm-menu">
+        <a href="admin.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+        <a href="pedidosAdmin.html"><i data-lucide="shopping-bag"></i> Pedidos</a>
+        <a href="productosAdmin.html"><i data-lucide="footprints"></i> Productos</a>
+        <a href="inventarioAdmin.html"><i data-lucide="warehouse"></i> Inventario</a>
+        <a href="clientesAdmin.html"><i data-lucide="users"></i> Clientes</a>
+        <a href="trabajadoresAdmin.html"><i data-lucide="hard-hat"></i> Trabajadores</a>
+        <a href="sugerenciasAdmin.html"><i data-lucide="lightbulb"></i> Sugerencias</a>
+        <a href="mejorasAdmin.html"><i data-lucide="kanban"></i> Mejoras</a>
+        <a href="estadisticasAdmin.html" class="adm-activo"><i data-lucide="bar-chart-3"></i> Estadísticas</a>
+        <a href="auditoriaAdmin.html"><i data-lucide="scroll-text"></i> Auditoría</a>
+        <a href="configuracionAdmin.html"><i data-lucide="settings"></i> Configuración</a>
+    </nav>
+</div>
+
+<div class="adm-contenido">
+    <h1>Estadísticas</h1>
+    <p class="adm-nota">Los pedidos cancelados no cuentan como ventas. Los gráficos se dibujarán cuando haya pedidos en la base de datos.</p>
+
+    <div class="adm-tarjetas" style="margin-top: 20px;">
+        <div class="adm-tarjeta"><span>Ingresos del mes</span><strong id="adm-est-ingresos">—</strong></div>
+        <div class="adm-tarjeta"><span>Pedidos del mes</span><strong id="adm-est-pedidos">—</strong></div>
+        <div class="adm-tarjeta"><span>Ticket medio</span><strong id="adm-est-ticket">—</strong></div>
+        <div class="adm-tarjeta"><span>Pares vendidos</span><strong id="adm-est-pares">—</strong></div>
+    </div>
+
+    <div class="adm-fila adm-fila-igual">
+        <div class="adm-panel">
+            <h2>Ventas por día</h2>
+            <div class="adm-grafico-vacio" id="adm-ventas-vacio">Sin datos de ventas todavía</div>
+            <div class="adm-grafico-caja" id="adm-ventas-caja" style="display: none;">
+                <canvas id="adm-ventas-canvas"></canvas>
+            </div>
+        </div>
+
+        <div class="adm-panel">
+            <h2>Evolución de ingresos</h2>
+            <div class="adm-grafico-vacio" id="adm-ingresos-vacio">Sin datos de ingresos todavía</div>
+            <div class="adm-grafico-caja" id="adm-ingresos-caja" style="display: none;">
+                <canvas id="adm-ingresos-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="adm-fila adm-fila-igual">
+        <div class="adm-panel">
+            <h2>Pedidos por estado</h2>
+            <div class="adm-lista-estados">
+                <div><span>pendiente</span><span>—</span></div>
+                <div><span>en_preparacion</span><span>—</span></div>
+                <div><span>enviado</span><span>—</span></div>
+                <div><span>entregado</span><span>—</span></div>
+                <div><span>cancelado</span><span>—</span></div>
+            </div>
+        </div>
+
+        <div class="adm-panel">
+            <h2>Productos más vendidos</h2>
+            <div id="adm-productos-lista">
+                <div class="adm-barra-fila">
+                    <span class="adm-barra-nombre">Adidos Zamba</span>
+                    <span class="adm-barra-pista"><span class="adm-barra-relleno"></span></span>
+                    <span class="adm-barra-valor">—</span>
+                </div>
+                <div class="adm-barra-fila">
+                    <span class="adm-barra-nombre">Nokia Air Maximo</span>
+                    <span class="adm-barra-pista"><span class="adm-barra-relleno"></span></span>
+                    <span class="adm-barra-valor">—</span>
+                </div>
+                <div class="adm-barra-fila">
+                    <span class="adm-barra-nombre">Jordan de Barrio</span>
+                    <span class="adm-barra-pista"><span class="adm-barra-relleno"></span></span>
+                    <span class="adm-barra-valor">—</span>
+                </div>
+                <div class="adm-barra-fila">
+                    <span class="adm-barra-nombre">New Balanza 9060</span>
+                    <span class="adm-barra-pista"><span class="adm-barra-relleno"></span></span>
+                    <span class="adm-barra-valor">—</span>
+                </div>
+                <div class="adm-barra-fila">
+                    <span class="adm-barra-nombre">Yizi Buster 350</span>
+                    <span class="adm-barra-pista"><span class="adm-barra-relleno"></span></span>
+                    <span class="adm-barra-valor">—</span>
+                </div>
+                <div class="adm-barra-fila">
+                    <span class="adm-barra-nombre">ASIKS Gel-Canon</span>
+                    <span class="adm-barra-pista"><span class="adm-barra-relleno"></span></span>
+                    <span class="adm-barra-valor">—</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>

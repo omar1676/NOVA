@@ -74,7 +74,10 @@
     <div class="adm-fila adm-fila-igual">
         <div class="adm-panel">
             <h2>Ventas por día</h2>
-            <p class="adm-vacio">Sin datos de ventas todavía</p>
+            <div class="adm-grafico-vacio" id="adm-ventas-vacio">Sin datos de ventas todavía</div>
+            <div class="adm-grafico-caja" id="adm-ventas-caja" style="display: none;">
+                <canvas id="adm-ventas-canvas"></canvas>
+            </div>
         </div>
 
         <div class="adm-panel">
@@ -85,6 +88,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="script.js"></script>
 
 </body>

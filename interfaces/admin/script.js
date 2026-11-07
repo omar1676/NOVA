@@ -27,3 +27,14 @@ if (buscador && filtroEstado) {
   buscador.addEventListener("input", filtrarTabla);
   filtroEstado.addEventListener("change", filtrarTabla);
 }
+//Dashboard 
+function pintarDashboard(datos) {
+  document.getElementById("adm-ventas").textContent = datos.ventas + " €";
+  document.getElementById("adm-pedidos-hoy").textContent = datos.pedidosHoy;
+  document.getElementById("adm-pedidos-pendientes").textContent = datos.pedidosPendientes;
+  document.getElementById("adm-sugerencias-pendientes").textContent = datos.sugerenciasPendientes;
+
+  dibujarGrafico("ventas", "bar",
+    datos.ventasDia.map(function (d) { return d.dia; }),
+    datos.ventasDia.map(function (d) { return d.total; }));
+}
