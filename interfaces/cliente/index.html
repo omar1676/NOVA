@@ -8,9 +8,11 @@
       content="Descubre el escaparate de NOVA Sneakers."
     />
     <title>NOVA Sneakers | El escaparate</title>
+    <link rel="icon" type="image/png" href="images/favicon.png" />
     <link rel="stylesheet" href="css/inicio.css" />
     <script src="js/modelos.js" defer></script>
     <script src="js/inicio.js" defer></script>
+    <script src="js/custom.js" defer></script>
   </head>
   <body>
     <div class="entrada-nova" aria-hidden="true">
@@ -26,7 +28,9 @@
       /></a>
       <nav aria-label="Navegación principal">
         <a href="#catalogo-completo">Catálogo</a
-        ><a href="#historia">Nuestra visión</a>
+        ><a href="#historia">Nuestra visión</a
+        ><a href="#custom">Custom</a
+        ><a href="#contacto">Contacto</a>
       </nav>
       <a class="cabecera-enlace" href="#catalogo"
         >EXPLORAR <span aria-hidden="true">↗</span></a
@@ -227,8 +231,8 @@
           filtros.
         </p>
         <p class="nota">
-          Colección visual de presentación. Precios, tallas y disponibilidad
-          pendientes de confirmación.
+          Precios orientativos por colección. El precio final y la
+          disponibilidad se confirman en el presupuesto.
         </p>
       </section>
       <section class="historia" id="historia">
@@ -243,16 +247,153 @@
           </p>
           <a href="#catalogo">Explorar la colección ↗</a>
           <p class="nota">
-            Colección visual de presentación. Precios, tallas y disponibilidad
-            pendientes de confirmación.
+            Precios orientativos por colección. El precio final y la
+            disponibilidad se confirman en el presupuesto.
           </p>
         </div>
+      </section>
+      <section class="custom" id="custom" aria-labelledby="titulo-custom">
+        <div class="custom-intro">
+          <p class="etiqueta">04 / NOVA CUSTOM</p>
+          <h2 id="titulo-custom">Zapatillas para tu equipo<span>.</span></h2>
+          <p>
+            Fabricamos pedidos personalizados para clubes y equipos. Así
+            funciona:
+          </p>
+          <ol class="custom-pasos">
+            <li>
+              <strong>Solicitud.</strong> Nos indicas el modelo, la
+              personalización y los pares de cada talla.
+            </li>
+            <li>
+              <strong>Presupuesto.</strong> El equipo comercial revisa la
+              solicitud y te envía un presupuesto.
+            </li>
+            <li>
+              <strong>Fabricación.</strong> Cuando lo aceptas, el pedido pasa a
+              fábrica.
+            </li>
+            <li>
+              <strong>Entrega.</strong> Recibes los pares agrupados por talla.
+            </li>
+          </ol>
+          <p class="nota">
+            Ejemplo de pedido: SO024 · Club Halcones · Runner X · 40 pares de la
+            talla 38 a la 46 con diseño personalizado.
+          </p>
+        </div>
+        <form class="custom-form" id="form-custom">
+          <p class="custom-aviso">
+            <strong>Prototipo:</strong> el envío es una simulación. No se envía
+            ningún dato ni se registra ningún pedido.
+          </p>
+          <div class="custom-campos">
+            <label class="campo"
+              >Club o equipo
+              <input
+                id="custom-club"
+                name="club"
+                autocomplete="organization"
+                placeholder="Ej.: Club Halcones"
+                required
+            /></label>
+            <label class="campo"
+              >Persona de contacto
+              <input name="contacto" autocomplete="name" required
+            /></label>
+            <label class="campo"
+              >Email
+              <input name="email" type="email" autocomplete="email" required
+            /></label>
+            <label class="campo"
+              >Teléfono (opcional)
+              <input name="telefono" type="tel" autocomplete="tel"
+            /></label>
+            <label class="campo"
+              >Modelo
+              <input
+                id="custom-modelo"
+                name="modelo"
+                list="custom-modelos"
+                placeholder="Ej.: Runner X"
+                required
+            /></label>
+            <label class="campo"
+              >Colores (opcional)
+              <input name="colores" placeholder="Ej.: azul y blanco"
+            /></label>
+          </div>
+          <datalist id="custom-modelos"></datalist>
+          <label class="campo"
+            >Personalización
+            <textarea
+              name="personalizacion"
+              rows="3"
+              placeholder="Ej.: escudo del club en el lateral y nombre en el talón"
+              required
+            ></textarea>
+          </label>
+          <fieldset class="custom-tallas">
+            <legend>Pares por talla (de la 38 a la 46)</legend>
+            <label>38 <input type="number" min="0" step="1" data-talla="38" /></label>
+            <label>39 <input type="number" min="0" step="1" data-talla="39" /></label>
+            <label>40 <input type="number" min="0" step="1" data-talla="40" /></label>
+            <label>41 <input type="number" min="0" step="1" data-talla="41" /></label>
+            <label>42 <input type="number" min="0" step="1" data-talla="42" /></label>
+            <label>43 <input type="number" min="0" step="1" data-talla="43" /></label>
+            <label>44 <input type="number" min="0" step="1" data-talla="44" /></label>
+            <label>45 <input type="number" min="0" step="1" data-talla="45" /></label>
+            <label>46 <input type="number" min="0" step="1" data-talla="46" /></label>
+          </fieldset>
+          <p class="custom-total">
+            Total: <output id="custom-total">0</output> pares
+          </p>
+          <button class="boton" type="submit">
+            SIMULAR ENVÍO <span aria-hidden="true">↗</span>
+          </button>
+          <p class="custom-resultado" id="custom-resultado" role="status"></p>
+        </form>
+      </section>
+      <section
+        class="contacto"
+        id="contacto"
+        aria-labelledby="titulo-contacto"
+      >
+        <div>
+          <p class="etiqueta">05 / CONTACTO</p>
+          <h2 id="titulo-contacto">Hablemos<span>.</span></h2>
+          <p>
+            ¿Dudas sobre un modelo o sobre un pedido para tu equipo? Escríbenos
+            o usa el formulario Custom.
+          </p>
+        </div>
+        <dl class="contacto-datos">
+          <div>
+            <dt>Email</dt>
+            <dd>
+              <a href="mailto:hola@nova-sneakers.example"
+                >hola@nova-sneakers.example</a
+              >
+            </dd>
+          </div>
+          <div>
+            <dt>Fábrica</dt>
+            <dd>Polígono Industrial NOVA, nave 3 · Madrid</dd>
+          </div>
+          <div>
+            <dt>Horario</dt>
+            <dd>De lunes a viernes, de 9:00 a 18:00</dd>
+          </div>
+        </dl>
+        <p class="nota">
+          Datos de contacto ficticios: NOVA Sneakers es un proyecto académico.
+        </p>
       </section>
     </main>
     <footer>
       <a class="marca" href="#inicio">NOVA<span> SNEAKERS</span></a>
       <p>Una nueva forma de avanzar.</p>
-      <a href="#inicio">Volver arriba ↑</a
+      <a href="#top">Volver arriba ↑</a
       ><small>Proyecto académico · NOVA Sneakers</small>
     </footer>
     <dialog id="detalle" aria-labelledby="detalle-titulo">
@@ -263,18 +404,16 @@
         <div class="modal-texto">
           <p class="etiqueta" id="detalle-coleccion"></p>
           <h2 id="detalle-titulo"></h2>
-          <p>Una mirada más cercana a la colección NOVA.</p>
+          <p id="detalle-descripcion"></p>
         </div>
         <div class="modal-imagen">
           <img id="detalle-imagen" alt="" />
           <div class="repisa-grande" aria-hidden="true"></div>
         </div>
         <div class="modal-info">
-          <span>EL MODELO</span><strong>Información de compra pendiente</strong>
-          <p>
-            Precio, tallas y stock estarán disponibles cuando se conecten los
-            datos del proyecto.
-          </p>
+          <span>PRECIO ORIENTATIVO</span><strong id="detalle-precio"></strong>
+          <p id="detalle-tallas"></p>
+          <p>El precio final se confirma en el presupuesto.</p>
           <button class="boton abrir-probador" type="button">
             VER EN EL PROBADOR <span aria-hidden="true">↗</span>
           </button>
