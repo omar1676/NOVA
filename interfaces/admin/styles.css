@@ -206,6 +206,10 @@
 .adm-estado.adm-aprobada     { color: #5fc58a; }
 .adm-estado.adm-rechazada    { color: #e66a6a; }
 .adm-estado.adm-implementada { color: #b48cf2; }
+.adm-estado.adm-crear     { color: #5fc58a; }
+.adm-estado.adm-modificar { color: #6aa3ff; }
+.adm-estado.adm-eliminar  { color: #e66a6a; }
+.adm-estado.adm-acceso    { color: var(--adm-dorado); }
 
 .adm-prioridad {
   font-size: 13px;
