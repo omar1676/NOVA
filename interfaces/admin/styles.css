@@ -157,3 +157,6 @@
 .adm-estado.adm-cancelado      { color: #e66a6a; }
 .adm-estado.adm-activo         { color: #5fc58a; }
 .adm-estado.adm-inactivo       { color: var(--adm-texto-suave); }
+.adm-estado.adm-suficiente      { color: #5fc58a; }
+.adm-estado.adm-bajo    { color: var(--adm-dorado); }
+.adm-estado.adm-agotado { color: #e66a6a; }

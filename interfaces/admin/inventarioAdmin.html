@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVA Sneakers · Inventario</title>
+    <link rel="icon" href="img/Nova Logo.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="adm">
+
+<div class="adm-sidebar">
+    <div class="adm-marca">
+        <img src="img/Nova Logo.png" alt="NOVA Sneakers">
+    </div>
+    <nav class="adm-menu">
+        <a href="admin.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+        <a href="pedidosAdmin.html"><i data-lucide="shopping-bag"></i> Pedidos</a>
+        <a href="productosAdmin.html"><i data-lucide="footprints"></i> Productos</a>
+        <a href="inventarioAdmin.html" class="adm-activo"><i data-lucide="warehouse"></i> Inventario</a>
+        <a href="clientesAdmin.html"><i data-lucide="users"></i> Clientes</a>
+        <a href="trabajadoresAdmin.html"><i data-lucide="hard-hat"></i> Trabajadores</a>
+        <a href="sugerenciasAdmin.html"><i data-lucide="lightbulb"></i> Sugerencias</a>
+        <a href="mejorasAdmin.html"><i data-lucide="kanban"></i> Mejoras</a>
+        <a href="estadisticasAdmin.html"><i data-lucide="bar-chart-3"></i> Estadísticas</a>
+        <a href="auditoriaAdmin.html"><i data-lucide="scroll-text"></i> Auditoría</a>
+        <a href="configuracionAdmin.html"><i data-lucide="settings"></i> Configuración</a>
+    </nav>
+</div>
+
+<div class="adm-contenido">
+    <h1>Inventario</h1>
+
+    <div class="adm-herramientas">
+        <input type="text" id="adm-buscador" placeholder="Buscar por nave, modelo, color, talla o SKU...">
+        <select id="adm-filtro-estado">
+            <option value="">Todo el stock</option>
+            <option value="suficiente">suficiente</option>
+            <option value="bajo">bajo</option>
+            <option value="agotado">agotado</option>
+        </select>
+    </div>
+
+    <div class="adm-tabla-caja">
+        <table class="adm-tabla">
+            <thead>
+                <tr>
+                    <th>Nave</th>
+                    <th>Modelo</th>
+                    <th>Color</th>
+                    <th>Talla</th>
+                    <th>SKU</th>
+                    <th>Stock</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Nave de ejemplo 1</td>
+                    <td>Adidos Zamba</td>
+                    <td>Negro</td>
+                    <td>42</td>
+                    <td>EJ-ZAMBA-NEG-42</td>
+                    <td>24</td>
+                    <td><span class="adm-estado adm-suficiente">suficiente</span></td>
+                </tr>
+                <tr>
+                    <td>Nave de ejemplo 1</td>
+                    <td>Nokia Air Maximo</td>
+                    <td>Blanco</td>
+                    <td>41</td>
+                    <td>EJ-MAXIMO-BLA-41</td>
+                    <td>3</td>
+                    <td><span class="adm-estado adm-bajo">bajo</span></td>
+                </tr>
+                <tr>
+                    <td>Nave de ejemplo 2</td>
+                    <td>Jordan de Barrio</td>
+                    <td>Rojo</td>
+                    <td>43</td>
+                    <td>EJ-BARRIO-ROJ-43</td>
+                    <td>0</td>
+                    <td><span class="adm-estado adm-agotado">agotado</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
