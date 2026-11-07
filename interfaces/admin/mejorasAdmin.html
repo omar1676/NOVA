@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVA Sneakers · Mejoras</title>
+    <link rel="icon" href="img/Nova Logo.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="adm">
+
+<div class="adm-sidebar">
+    <div class="adm-marca">
+        <img src="img/Nova Logo.png" alt="NOVA Sneakers">
+    </div>
+    <nav class="adm-menu">
+        <a href="admin.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+        <a href="pedidosAdmin.html"><i data-lucide="shopping-bag"></i> Pedidos</a>
+        <a href="productosAdmin.html"><i data-lucide="footprints"></i> Productos</a>
+        <a href="inventarioAdmin.html"><i data-lucide="warehouse"></i> Inventario</a>
+        <a href="clientesAdmin.html"><i data-lucide="users"></i> Clientes</a>
+        <a href="trabajadoresAdmin.html"><i data-lucide="hard-hat"></i> Trabajadores</a>
+        <a href="sugerenciasAdmin.html"><i data-lucide="lightbulb"></i> Sugerencias</a>
+        <a href="mejorasAdmin.html" class="adm-activo"><i data-lucide="kanban"></i> Mejoras</a>
+        <a href="estadisticasAdmin.html"><i data-lucide="bar-chart-3"></i> Estadísticas</a>
+        <a href="auditoriaAdmin.html"><i data-lucide="scroll-text"></i> Auditoría</a>
+        <a href="configuracionAdmin.html"><i data-lucide="settings"></i> Configuración</a>
+    </nav>
+</div>
+
+<div class="adm-contenido">
+
+    <div class="adm-cabecera">
+        <h1>Mejoras</h1>
+        <p class="adm-nota">Publicada solo registra el estado; no despliega la web.</p>
+    </div>
+
+    <div class="adm-resumen">
+        <div class="adm-dato"><span>Total de mejoras</span><strong>5</strong></div>
+        <div class="adm-dato"><span>En curso</span><strong>2</strong></div>
+        <div class="adm-dato"><span>Publicadas</span><strong>1</strong></div>
+        <div class="adm-dato adm-dato-alta"><span>Prioridad alta</span><strong>2</strong></div>
+    </div>
+
+    <div class="adm-progreso">
+        <div class="adm-progreso-texto">
+            <span>Progreso del tablero</span>
+            <span>1 de 5 publicadas</span>
+        </div>
+        <div class="adm-tira">
+            <span class="adm-fase-planificada" style="width: 40%"></span>
+            <span class="adm-fase-desarrollo" style="width: 20%"></span>
+            <span class="adm-fase-pruebas" style="width: 20%"></span>
+            <span class="adm-fase-publicada" style="width: 20%"></span>
+        </div>
+    </div>
+
+    <div class="adm-kanban">
+
+        <div class="adm-columna adm-fase-planificada">
+            <div class="adm-columna-barra"></div>
+            <div class="adm-columna-cuerpo">
+                <h2><span class="adm-punto"></span>Planificada<span class="adm-contador">2</span></h2>
+
+                <div class="adm-mejora adm-alta">
+                    <h3>Mejora de ejemplo 1</h3>
+                    <span class="adm-etiqueta">Sugerencia #003</span>
+                    <div class="adm-mejora-pie">
+                        <div class="adm-avatar">A</div>
+                        <span class="adm-prioridad adm-alta">alta</span>
+                    </div>
+                </div>
+
+                <div class="adm-mejora adm-baja">
+                    <h3>Mejora de ejemplo 2</h3>
+                    <span class="adm-etiqueta">Sugerencia #006</span>
+                    <div class="adm-mejora-pie">
+                        <div class="adm-avatar adm-avatar-vacio">+</div>
+                        <span class="adm-prioridad adm-baja">baja</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="adm-columna adm-fase-desarrollo">
+            <div class="adm-columna-barra"></div>
+            <div class="adm-columna-cuerpo">
+                <h2><span class="adm-punto"></span>En desarrollo<span class="adm-contador">1</span></h2>
+
+                <div class="adm-mejora adm-media">
+                    <h3>Mejora de ejemplo 3</h3>
+                    <span class="adm-etiqueta">Sugerencia #002</span>
+                    <div class="adm-mejora-pie">
+                        <div class="adm-avatar">A</div>
+                        <span class="adm-prioridad adm-media">media</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="adm-columna adm-fase-pruebas">
+            <div class="adm-columna-barra"></div>
+            <div class="adm-columna-cuerpo">
+                <h2><span class="adm-punto"></span>En pruebas<span class="adm-contador">1</span></h2>
+
+                <div class="adm-mejora adm-media">
+                    <h3>Mejora de ejemplo 4</h3>
+                    <span class="adm-etiqueta">Sugerencia #004</span>
+                    <div class="adm-mejora-pie">
+                        <div class="adm-avatar">A</div>
+                        <span class="adm-prioridad adm-media">media</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="adm-columna adm-fase-publicada">
+            <div class="adm-columna-barra"></div>
+            <div class="adm-columna-cuerpo">
+                <h2><span class="adm-punto"></span>Publicada<span class="adm-contador">1</span></h2>
+
+                <div class="adm-mejora adm-alta">
+                    <h3>Mejora de ejemplo 5</h3>
+                    <span class="adm-etiqueta">Sugerencia #005</span><span class="adm-etiqueta adm-etiqueta-version">v1.0</span>
+                    <div class="adm-mejora-pie">
+                        <div class="adm-avatar">A</div>
+                        <span class="adm-prioridad adm-alta">alta</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="adm-columna adm-fase-cancelada">
+            <div class="adm-columna-barra"></div>
+            <div class="adm-columna-cuerpo">
+                <h2><span class="adm-punto"></span>Cancelada<span class="adm-contador">0</span></h2>
+                <div class="adm-vacio-caja">No hay mejoras canceladas</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>

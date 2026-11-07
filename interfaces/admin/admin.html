@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NOVA Sneakers · Dashboard</title>
-    <link rel="icon" href="img/logo.png">
+    <link rel="icon" href="img/Nova Logo.png">
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -32,11 +32,55 @@
 
 <div class="adm-contenido">
     <h1>Dashboard</h1>
+
     <div class="adm-tarjetas">
-        <div class="adm-tarjeta"><span>Ventas acumuladas</span><strong>—</strong></div>
-        <div class="adm-tarjeta"><span>Pedidos del día</span><strong>—</strong></div>
-        <div class="adm-tarjeta"><span>Pedidos pendientes</span><strong>—</strong></div>
-        <div class="adm-tarjeta"><span>Sugerencias pendientes</span><strong>—</strong></div>
+        <div class="adm-tarjeta"><span>Ventas acumuladas</span><strong id="adm-ventas">—</strong></div>
+        <div class="adm-tarjeta"><span>Pedidos del día</span><strong id="adm-pedidos-hoy">—</strong></div>
+        <div class="adm-tarjeta"><span>Pedidos pendientes</span><strong id="adm-pedidos-pendientes">—</strong></div>
+        <div class="adm-tarjeta"><span>Sugerencias pendientes</span><strong id="adm-sugerencias-pendientes">—</strong></div>
+    </div>
+
+    <div class="adm-fila">
+        <div class="adm-panel">
+            <h2>Últimas operaciones</h2>
+            <table class="adm-tabla">
+                <thead>
+                    <tr>
+                        <th>Referencia</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="5" class="adm-vacio">Todavía no hay pedidos</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="adm-panel">
+            <h2>Pedidos por estado</h2>
+            <div class="adm-lista-estados">
+                <div><span>pendiente</span><span>—</span></div>
+                <div><span>en_preparacion</span><span>—</span></div>
+                <div><span>enviado</span><span>—</span></div>
+                <div><span>entregado</span><span>—</span></div>
+                <div><span>cancelado</span><span>—</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="adm-fila adm-fila-igual">
+        <div class="adm-panel">
+            <h2>Ventas por día</h2>
+            <p class="adm-vacio">Sin datos de ventas todavía</p>
+        </div>
+
+        <div class="adm-panel">
+            <h2>Stock bajo</h2>
+            <p class="adm-vacio">No hay alertas de stock</p>
+        </div>
     </div>
 </div>
 
