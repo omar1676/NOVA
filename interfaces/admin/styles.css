@@ -1,0 +1,159 @@
+.adm {
+  --adm-fondo: #0f0f10;
+  --adm-panel: #18181b;
+  --adm-borde: #2a2a2e;
+  --adm-texto: #e7e7ea;
+  --adm-texto-suave: #8d8d95;
+  --adm-dorado: #c9a24b;
+
+  margin: 0;
+  display: flex;
+  background: var(--adm-fondo);
+  color: var(--adm-texto);
+  font-family: Arial, sans-serif;
+}
+
+.adm,
+.adm * {
+  box-sizing: border-box;
+}
+
+
+.adm-sidebar {
+  width: 240px;
+  min-height: 100vh;
+  background: var(--adm-panel);
+  border-right: 1px solid var(--adm-borde);
+  padding: 20px;
+}
+
+.adm-marca {
+  margin-bottom: 30px;
+}
+
+.adm-marca img {
+  width: 100%;
+  max-width: 180px;
+  display: block;
+}
+
+.adm-menu a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 4px;
+  color: var(--adm-texto-suave);
+  text-decoration: none;
+  border-radius: 6px;
+}
+
+.adm-menu a:hover {
+  background: var(--adm-borde);
+  color: var(--adm-texto);
+}
+
+.adm-menu a.adm-activo {
+  color: var(--adm-dorado);
+  background: var(--adm-borde);
+}
+
+
+.adm-contenido {
+  flex: 1;
+  padding: 30px;
+}
+
+
+.adm-tarjetas {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.adm-tarjeta {
+  background: var(--adm-panel);
+  border: 1px solid var(--adm-borde);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.adm-tarjeta span {
+  display: block;
+  color: var(--adm-texto-suave);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.adm-tarjeta strong {
+  font-size: 28px;
+}
+
+
+.adm-herramientas {
+  display: flex;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.adm-herramientas input,
+.adm-herramientas select {
+  background: var(--adm-panel);
+  color: var(--adm-texto);
+  border: 1px solid var(--adm-borde);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.adm-herramientas input {
+  flex: 1;
+}
+
+.adm-herramientas input::placeholder {
+  color: var(--adm-texto-suave);
+}
+
+
+.adm-tabla-caja {
+  background: var(--adm-panel);
+  border: 1px solid var(--adm-borde);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.adm-tabla {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.adm-tabla th,
+.adm-tabla td {
+  text-align: left;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--adm-borde);
+}
+
+.adm-tabla th {
+  color: var(--adm-texto-suave);
+  font-size: 13px;
+  font-weight: normal;
+}
+
+.adm-tabla tbody tr:hover {
+  background: var(--adm-borde);
+}
+
+.adm-estado {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  background: var(--adm-borde);
+}
+
+.adm-estado.adm-pendiente      { color: var(--adm-dorado); }
+.adm-estado.adm-en_preparacion { color: #e0a458; }
+.adm-estado.adm-enviado        { color: #6aa3ff; }
+.adm-estado.adm-entregado      { color: #5fc58a; }
+.adm-estado.adm-cancelado      { color: #e66a6a; }
+.adm-estado.adm-activo         { color: #5fc58a; }
+.adm-estado.adm-inactivo       { color: var(--adm-texto-suave); }

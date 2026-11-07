@@ -1,16 +1,19 @@
+// Dibuja los iconos de Lucide
 lucide.createIcons();
 
-const buscador = document.getElementById("buscador");
-const filtroEstado = document.getElementById("filtro-estado");
+// Elementos del buscador y del filtro (solo existen en las páginas con tabla)
+const buscador = document.getElementById("adm-buscador");
+const filtroEstado = document.getElementById("adm-filtro-estado");
 
-function filtrarPedidos() {
+// Muestra u oculta cada fila según el texto y el estado elegidos
+function filtrarTabla() {
   const texto = buscador.value.toLowerCase();
   const estado = filtroEstado.value;
-  const filas = document.querySelectorAll("tbody tr");
+  const filas = document.querySelectorAll(".adm-tabla tbody tr");
 
   filas.forEach(function (fila) {
     const contenido = fila.textContent.toLowerCase();
-    const estadoFila = fila.querySelector(".estado").textContent;
+    const estadoFila = fila.querySelector(".adm-estado").textContent;
 
     const coincideTexto = contenido.includes(texto);
     const coincideEstado = estado === "" || estadoFila === estado;
@@ -19,7 +22,8 @@ function filtrarPedidos() {
   });
 }
 
+// Solo activa el filtro si la página tiene buscador (el dashboard no)
 if (buscador && filtroEstado) {
-  buscador.addEventListener("input", filtrarPedidos);
-  filtroEstado.addEventListener("change", filtrarPedidos);
+  buscador.addEventListener("input", filtrarTabla);
+  filtroEstado.addEventListener("change", filtrarTabla);
 }

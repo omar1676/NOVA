@@ -6,36 +6,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NOVA Sneakers · Pedidos</title>
     <link rel="icon" href="img/logo.png">
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 
-<body>
+<body class="adm">
 
-<div class="sidebar">
-    <div class="marca">
+<div class="adm-sidebar">
+    <div class="adm-marca">
         <img src="img/Nova Logo.png" alt="NOVA Sneakers">
     </div>
-    <nav>
+    <nav class="adm-menu">
         <a href="admin.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
-        <a href="pedidosAdmin.html" class="activo"><i data-lucide="shopping-bag"></i> Pedidos</a>
-        <a href="productos.html"><i data-lucide="footprints"></i> Productos</a>
-        <a href="inventario.html"><i data-lucide="warehouse"></i> Inventario</a>
-        <a href="clientes.html"><i data-lucide="users"></i> Clientes</a>
-        <a href="trabajadores.html"><i data-lucide="hard-hat"></i> Trabajadores</a>
-        <a href="sugerencias.html"><i data-lucide="lightbulb"></i> Sugerencias</a>
-        <a href="mejoras.html"><i data-lucide="kanban"></i> Mejoras</a>
-        <a href="estadisticas.html"><i data-lucide="bar-chart-3"></i> Estadísticas</a>
-        <a href="auditoria.html"><i data-lucide="scroll-text"></i> Auditoría</a>
-        <a href="configuracion.html"><i data-lucide="settings"></i> Configuración</a>
+        <a href="pedidosAdmin.html" class="adm-activo"><i data-lucide="shopping-bag"></i> Pedidos</a>
+        <a href="productosAdmin.html"><i data-lucide="footprints"></i> Productos</a>
+        <a href="inventarioAdmin.html"><i data-lucide="warehouse"></i> Inventario</a>
+        <a href="clientesAdmin.html"><i data-lucide="users"></i> Clientes</a>
+        <a href="trabajadoresAdmin.html"><i data-lucide="hard-hat"></i> Trabajadores</a>
+        <a href="sugerenciasAdmin.html"><i data-lucide="lightbulb"></i> Sugerencias</a>
+        <a href="mejorasAdmin.html"><i data-lucide="kanban"></i> Mejoras</a>
+        <a href="estadisticasAdmin.html"><i data-lucide="bar-chart-3"></i> Estadísticas</a>
+        <a href="auditoriaAdmin.html"><i data-lucide="scroll-text"></i> Auditoría</a>
+        <a href="configuracionAdmin.html"><i data-lucide="settings"></i> Configuración</a>
     </nav>
 </div>
 
-<div class="contenido">
+<div class="adm-contenido">
     <h1>Pedidos</h1>
 
-    <div class="barra-herramientas">
-        <input type="text" id="buscador" placeholder="Buscar por referencia o cliente...">
-        <select id="filtro-estado">
+    <div class="adm-herramientas">
+        <input type="text" id="adm-buscador" placeholder="Buscar por referencia o cliente...">
+        <select id="adm-filtro-estado">
             <option value="">Todos los estados</option>
             <option value="pendiente">pendiente</option>
             <option value="en_preparacion">en_preparacion</option>
@@ -45,8 +45,8 @@
         </select>
     </div>
 
-    <div class="tabla-caja">
-        <table>
+    <div class="adm-tabla-caja">
+        <table class="adm-tabla">
             <thead>
                 <tr>
                     <th>Referencia</th>
@@ -60,30 +60,30 @@
                 <tr>
                     <td>EJEMPLO-001</td>
                     <td>Cliente de ejemplo A</td>
-                    <td>—</td>
-                    <td><span class="estado pendiente">pendiente</span></td>
-                    <td>—</td>
+                    <td>28/10/2026</td>
+                    <td><span class="adm-estado adm-pendiente">pendiente</span></td>
+                    <td>89,90 €</td>
                 </tr>
                 <tr>
                     <td>EJEMPLO-002</td>
                     <td>Cliente de ejemplo B</td>
-                    <td>—</td>
-                    <td><span class="estado enviado">enviado</span></td>
-                    <td>—</td>
+                    <td>27/10/2026</td>
+                    <td><span class="adm-estado adm-enviado">enviado</span></td>
+                    <td>120,00 €</td>
                 </tr>
                 <tr>
                     <td>EJEMPLO-003</td>
                     <td>Cliente de ejemplo C</td>
-                    <td>—</td>
-                    <td><span class="estado entregado">entregado</span></td>
-                    <td>—</td>
+                    <td>25/10/2026</td>
+                    <td><span class="adm-estado adm-entregado">entregado</span></td>
+                    <td>74,50 €</td>
                 </tr>
                 <tr>
                     <td>EJEMPLO-004</td>
                     <td>Cliente de ejemplo D</td>
-                    <td>—</td>
-                    <td><span class="estado cancelado">cancelado</span></td>
-                    <td>—</td>
+                    <td>24/10/2026</td>
+                    <td><span class="adm-estado adm-cancelado">cancelado</span></td>
+                    <td>99,00 €</td>
                 </tr>
             </tbody>
         </table>
