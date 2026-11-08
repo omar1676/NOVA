@@ -109,11 +109,13 @@ function mostrarCatalogo() {
     const tarjeta = document.createElement("button");
     tarjeta.type = "button";
     tarjeta.className = "catalogo-tarjeta";
-    // Las fotos con fondo de estudio llenan el hueco; las recortadas se muestran enteras.
-    if (modelo.catalogoConFondo) tarjeta.classList.add("con-fondo");
+    tarjeta.classList.add("c-" + modelo.coleccion);
     tarjeta.setAttribute("aria-label", `Ver ${modelo.nombre}`);
+    const etiqueta = document.createElement("span");
+    etiqueta.className = "catalogo-etiqueta";
+    etiqueta.textContent = modelo.coleccion;
     const imagen = document.createElement("img");
-    imagen.src = modelo.imagenCatalogo;
+    imagen.src = modelo.imagen;
     imagen.alt = "";
     imagen.loading = "lazy";
     const contenido = document.createElement("span");
@@ -123,7 +125,7 @@ function mostrarCatalogo() {
     const accion = document.createElement("span");
     accion.textContent = "Ver modelo ↗";
     contenido.append(nombre, accion);
-    tarjeta.append(imagen, contenido);
+    tarjeta.append(etiqueta, imagen, contenido);
     tarjeta.addEventListener("click", () => abrirDetalle(modelo, tarjeta));
     catalogoGrid.append(tarjeta);
   });

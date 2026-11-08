@@ -1268,3 +1268,83 @@ dialog.acceso {
   font-size: 0.78rem;
   margin: 0 0 14px;
 }
+
+.catalogo-tarjeta {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #fff;
+  border-radius: 4px;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
+}
+.catalogo-tarjeta:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 40px #0005;
+}
+.catalogo-tarjeta:focus-visible {
+  outline-color: #f6c696;
+}
+.catalogo-tarjeta.c-casual {
+  background: linear-gradient(160deg, #c98a5e, #7a4a30);
+}
+.catalogo-tarjeta.c-street {
+  background: linear-gradient(160deg, #3d5a73, #16222d);
+}
+.catalogo-tarjeta.c-luxe {
+  background: linear-gradient(160deg, #4a3d1f, #0e0d0a);
+}
+.catalogo-tarjeta.c-hombre {
+  background: linear-gradient(160deg, #3a4f8a, #141b30);
+}
+.catalogo-tarjeta.c-mujer {
+  background: linear-gradient(160deg, #9a4a5c, #3a1722);
+}
+.catalogo-tarjeta.c-unisex {
+  background: linear-gradient(160deg, #5f7a6a, #1c2622);
+}
+.catalogo-etiqueta {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  z-index: 1;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #ffffffcc;
+}
+.catalogo-tarjeta img {
+  background: none;
+  aspect-ratio: 1.15;
+  object-fit: contain;
+  padding: 40px 10px 0;
+  filter: drop-shadow(0 20px 16px #0007);
+}
+.catalogo-tarjeta:hover img {
+  filter: drop-shadow(0 20px 16px #0007);
+  transform: scale(1.05) translateY(-4px);
+}
+.catalogo-datos {
+  padding: 16px 18px;
+  background: #00000030;
+  font-size: 0.82rem;
+}
+.catalogo-datos span {
+  color: #ffffffcc;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.catalogo-tarjeta:hover .catalogo-datos strong {
+  color: #fff;
+}
+@media (max-width: 760px) {
+  .catalogo-tarjeta img {
+    padding: 36px 6px 0;
+  }
+  .catalogo-datos {
+    padding: 12px;
+  }
+}
