@@ -46,6 +46,23 @@ cuándo se escribió cada uno.
 | 11 | `11_dml_ejemplos.sql` | Ejemplos de INSERT, UPDATE y DELETE, y casos rechazados por las restricciones. Opcional | no |
 | 12 | `12_consultas_panel.sql` | Consultas parametrizadas de búsqueda e indicadores para el panel Java. Opcional | no |
 | 13 | `13_activar_usuarios.sql` | **Pone las contraseñas de las tres cuentas de demostración.** Pregunta por teclado; no guarda nada en el repositorio | **sí** |
+| 14 | `14_caso_custom_persistente.sql` | **Deja el pedido `CUSTOM-40` guardado de verdad**, con 40 pares en cuatro tallas. Va al final, después de las pruebas. Opcional | no |
+| 15 | `15_exportar_fabricacion.sql` | Exporta la orden de fabricación de `CUSTOM-40` a un CSV para PSP. Necesita que el 14 se haya ejecutado. Opcional | no |
+
+**Los dos últimos van al final, y el orden importa.** El orden correcto es:
+instalación (1–7) → pruebas (8–12) → contraseñas (13) → `CUSTOM-40` (14) →
+exportación (15).
+
+Dos razones, las dos comprobadas ejecutándolo:
+
+- **El 13 va después de las pruebas, no antes.** Las comprobaciones `A1` y `A2`
+  verifican que las tres cuentas llegan *sin* contraseña utilizable. Si el 13 ya
+  se ha ejecutado, esas dos dan `FAIL` con toda la razón.
+- **El 14 va después del 13**, porque inicia sesión como `tienda.demo` y
+  necesita su contraseña. Y añade un pedido, así que después ya no hay 11
+  pedidos ni 14 líneas. Las comprobaciones de `09_pruebas.sql` que dependían de
+  esas cifras se reescribieron para medir integridad y diferencias antes/después,
+  así que **ahora pasan igual con `CUSTOM-40` guardado o sin él**.
 
 El primer script necesita permisos de administrador porque crea una
 extensión. `CREATE EXTENSION pgcrypto` solo lo puede hacer un superusuario o
@@ -641,21 +658,45 @@ forman parte de él.
 
 ## 11. Pruebas
 
-Hay cuatro archivos de pruebas, y entre los cuatro dan **109 veredictos**:
+Hay cuatro archivos de pruebas, y entre los cuatro dan **110 veredictos**:
 
 | Archivo | Qué prueba | Veredictos |
 |---|---|---|
-| `09_pruebas.sql` | Instalación, compras, confirmaciones, cancelaciones, auditoría, X-NOVA, errores, permisos, autenticación, gestión de usuarios, falsificación de identidad, **autorización**, ciclo de estados y datos mínimos | 90 |
+| `09_pruebas.sql` | Instalación, compras, confirmaciones, cancelaciones, auditoría, X-NOVA, errores, permisos, autenticación, gestión de usuarios, falsificación de identidad, **autorización**, ciclo de estados y datos mínimos | 91 |
 | `10_caso_custom.sql` | El caso del club: 40 pares en cuatro tallas, de principio a fin | 6 |
 | `11_dml_ejemplos.sql` | INSERT, UPDATE, DELETE y seis casos rechazados por las restricciones | 12 |
 | `12_consultas_panel.sql` | Coherencia de los indicadores del panel | 1 |
+
+`09_pruebas.sql` tiene ahora **91** comprobaciones, no 90: la antigua P2 se
+partió en dos, P2 para el catálogo instalado y P2a para los 11 pedidos de
+demostración. Con eso son **110** sobre la base recién instalada.
+
+Después, al final de todo, hay once más que comprueban la persistencia y la
+exportación del pedido Custom:
+
+| Archivo | Qué prueba | Veredictos |
+|---|---|---|
+| `14_caso_custom_persistente.sql` | Operador en la sesión, pedido único, confirmado y personalizado, 40 pares, cuatro líneas sin repetir, 10 por talla, stock descontado una vez, sin existencias negativas, los 11 pedidos de demostración intactos y la auditoría con operador | 9 |
+| `15_exportar_fabricacion.sql` | El pedido está confirmado con 4 líneas, 4 tallas y 40 pares, y la orden exportada son esas 4 filas | 2 |
+
+En total, **121 comprobaciones** si se ejecuta la secuencia completa en el orden
+del apartado 3.
+
+**Las de los scripts 14 y 15 no imprimen `FAIL`: lanzan un error.** Si algo no
+cuadra, psql se detiene y devuelve un código de salida distinto de cero, para
+que un fallo no pueda pasar por bueno.
+
+**`A1` y `A2` solo pasan antes de ejecutar `13_activar_usuarios.sql`**, porque
+comprueban que las cuentas llegan sin contraseña utilizable. Es correcto: son
+comprobaciones del estado inicial. Si se vuelve a lanzar `09_pruebas.sql`
+después del 13, esas dos darán `FAIL` y las otras 89 seguirán pasando.
 
 Además hay **tres pruebas que necesitan dos sesiones a la vez** y no pueden
 estar en un archivo de psql: la de concurrencia y las dos de visibilidad con
 COMMIT y ROLLBACK. Están al final de este apartado, con el procedimiento
 exacto.
 
-Las 90 pruebas de `09_pruebas.sql` van cada una dentro de su
+Las 91 pruebas de `09_pruebas.sql` van cada una dentro de su
 `BEGIN ... ROLLBACK`, así que al terminar la base queda igual que estaba y no
 se pierden los datos de demostración. Lo mismo con los otros tres archivos.
 
@@ -692,8 +733,8 @@ psql -U postgres -d nova_sneakers -f 09_pruebas.sql
 
 ### Resultados reales
 
-Ejecutadas el 7 de noviembre de 2026 sobre PostgreSQL 17.11 en instalaciones
-limpias desde cero. **109 de 109 dieron PASS**, más las tres pruebas de dos
+Ejecutadas el 8 de noviembre de 2026 sobre PostgreSQL 17.11 en instalaciones
+limpias desde cero. **110 de 110 dieron PASS**, más las tres pruebas de dos
 sesiones, que también pasaron.
 
 Esta tabla recoge las de `09_pruebas.sql`. Los otros tres archivos imprimen
@@ -704,9 +745,10 @@ sus veredictos con el mismo formato.
 | P1 objetos | 14 tablas, 16 FK, 19 funciones, 10 triggers, 4 roles | igual |
 | P1b dueño de las funciones | todas las SECURITY DEFINER del dueño de las tablas | 0 excepciones |
 | P1c search_path | todas las SECURITY DEFINER lo fijan | 0 excepciones |
-| P2 datos | 7, 12, 60, 1, 5, 3, 3, 3, 10, 10, 1200 pares, 1.094,45 € | igual |
-| P2b usuarios en los pedidos | 8 con usuario y 2 sin usuario | 8 y 2 |
-| P3 totales calculados | 10 de 10 pedidos cuadran | 10 de 10 |
+| P2 catálogo instalado | 7 modelos, 12 variantes, 60 SKU, 1 nave, 6 clientes, 3 roles, 3 personal, 3 usuarios, 1200 pares de stock | igual |
+| P2a pedidos de demostración | 11 pedidos, 14 líneas, 5.890,45 € | igual |
+| P2b usuarios en los pedidos | 9 con usuario y 2 sin usuario | 9 y 2 |
+| P3 totales calculados | ningún pedido con totales incoherentes | 0 de 11 |
 | **P4 crear no mueve stock, confirmar sí** | al crear 1200 y marca false; al confirmar 1198 y marca true | igual |
 | **P4b editar y luego confirmar** | tras editar a 8, el stock sigue en 1200; al confirmar baja 8, no 5 | igual |
 | **P4c confirmar dos veces** | se descuenta una sola vez | 3 pares |
@@ -822,22 +864,31 @@ SELECT sum(cantidad) AS stock FROM existencias;
 SELECT count(*) AS pedidos FROM pedidos WHERE referencia = 'TX-COMMIT';
 ```
 
-Resultado medido el 7 de noviembre de 2026, en una base recién instalada:
+Resultado medido el 8 de noviembre de 2026, en una base recién instalada:
 
 | Momento | Eventos que ve B | Stock que ve B | Pedido que ve B |
 |---|---|---|---|
 | Antes | 0 | 1200 | 0 |
 | **Durante** la transacción de A | **0** | **1200** | **0** |
-| Después del COMMIT de A | 2 | 1198 | 1 |
+| Después del COMMIT de A | 1 | 1200 | 1 |
 
 Es decir: el evento de auditoría se crea dentro de la misma transacción que el
 cambio de datos, y **la otra sesión no ve ninguno de los dos hasta el COMMIT**.
 
+El stock sigue en 1200 después del COMMIT porque `realizar_compra` deja el
+pedido en `pendiente`, y **el stock solo se descuenta al confirmar** (ver el
+apartado 7b). Por eso también se crea un solo evento, el del alta, y no dos.
+
 Para el ROLLBACK, la misma sesión A pero cambiando `COMMIT` por `ROLLBACK` y
-comprando 3 unidades. A, dentro de su propia transacción, veía **4 eventos y
-stock 1195**. B veía 2 y 1198 antes, durante y después. Al terminar, el pedido
-`TX-ROLLBACK` no existe: cero filas. Los cambios y sus eventos de auditoría
-desaparecen juntos.
+comprando 3 unidades. A, dentro de su propia transacción, veía **2 eventos y
+stock 1200**. B veía 1 evento y 1200 antes, durante y después. Al terminar, el
+pedido `TX-ROLLBACK` no existe: cero filas. Los cambios y sus eventos de
+auditoría desaparecen juntos.
+
+Una medición anterior de este apartado decía 2 eventos y stock 1198, y 4
+eventos y stock 1195. Esas cifras eran de **antes** del rediseño que movió el
+descuento de stock de la compra a la confirmación. Las conclusiones no
+cambiaron; los números sí.
 
 ### Prueba de concurrencia
 
@@ -1132,39 +1183,163 @@ las cancelaciones con cada rol, X-NOVA, los permisos, la auditoría y las ocho
 consultas están probados sobre PostgreSQL 17.11 con los resultados del
 apartado 11.
 
-### Exportación CSV para PSP
+### Exportación CSV para PSP: la orden de fabricación del pedido Custom
 
-El enunciado permite hacer la exportación a mano desde el cliente de
-PostgreSQL. `10_caso_custom.sql` la hace con `\copy` y deja el archivo
-`fabricacion_psp.csv` en la carpeta desde la que se lanza psql:
+#### Qué es el pedido Custom
+
+Es el caso del enunciado: el Club Atlético NOVA encarga **40 pares** del modelo
+NOVA Velocity en color rojo, repartidos en cuatro tallas —10 pares de la 40, 10
+de la 41, 10 de la 42 y 10 de la 43—, con una personalización: logo bordado y
+numeración en el talón. Su referencia es `CUSTOM-40`.
+
+#### Cómo se guarda en PostgreSQL
+
+No hay ninguna tabla especial para los pedidos personalizados. Se usan las
+mismas que para cualquier otro pedido:
+
+- En `pedidos` va una fila con la referencia `CUSTOM-40`, el cliente, el
+  operador que lo atiende, el estado, `personalizado = true` y el texto de
+  `personalizacion`.
+- En `linea_pedido` van **cuatro filas**, una por talla, cada una con su
+  `id_producto_sku`, su cantidad de 10 y su precio.
+- Los triggers calculan el subtotal de cada línea y los totales del pedido, y
+  al confirmarlo descuentan el stock de cada una de las cuatro referencias.
+
+Hay dos archivos y hacen cosas distintas, a propósito:
+
+- `10_caso_custom.sql` **prueba** el caso completo —crear, confirmar, auditar,
+  cancelar y devolver el stock— dentro de `BEGIN ... ROLLBACK`. Al terminar no
+  queda nada en la base: eso es lo que se quiere de una prueba. Usa la
+  referencia `CUSTOM-40-TEST` para no chocar con el pedido de verdad.
+- `14_caso_custom_persistente.sql` **guarda** el pedido `CUSTOM-40` con un
+  `COMMIT`, para que exista de verdad. Se puede lanzar las veces que se quiera:
+  si ya está, lo comprueba y no toca nada, así que no duplica el pedido, ni las
+  líneas, ni vuelve a descontar stock. No borra ni modifica ningún otro pedido.
+
+#### Cómo se genera `fabricacion_psp.csv`
+
+Lo hace `15_exportar_fabricacion.sql`, y **lee el pedido guardado en la base**,
+no datos de una transacción que luego desaparece. Antes de escribir nada
+comprueba tres cosas: que `CUSTOM-40` existe, que suma exactamente 40 pares y
+que tiene cuatro tallas distintas. Si alguna falla, psql se detiene con un
+código de error y **el CSV anterior se queda intacto**, porque no llega a
+abrirlo.
+
+El archivo se llama siempre `fabricacion_psp.csv` y se deja **en el directorio
+desde el que se lanza psql**. Conviene lanzarlo desde una carpeta de salidas,
+para no dejar archivos generados en la raíz del repositorio:
 
 ```
-\copy (SELECT p.referencia, c.nombre AS cliente, m.nombre AS modelo,
-              p.personalizacion, s.talla, l.cantidad
-       FROM pedidos p
-       JOIN clientes c ON c.id_cliente = p.id_cliente
-       JOIN linea_pedido l ON l.id_pedido = p.id_pedido
-       JOIN producto_sku s ON s.id_producto_sku = l.id_producto_sku
-       JOIN variantes v ON v.id_variante = s.id_variante
-       JOIN modelos m ON m.id_modelo = v.id_modelo
-       WHERE p.personalizado = true
-       ORDER BY p.referencia, s.talla)
-TO 'fabricacion_psp.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8')
+mkdir salidas
+cd salidas
+psql -U postgres -d nova_sneakers -f ..\acceso-datos\sql\15_exportar_fabricacion.sql
 ```
 
-Comprobado el 7 de noviembre de 2026: 11 filas más la de encabezados,
-codificación UTF-8, separador coma, y las mismas cifras que devuelve la
-consulta SQL. Los encabezados son `referencia, cliente, modelo,
-personalizacion, talla, cantidad`.
+#### Por qué el nombre del archivo es fijo
 
-**Lo que falta aquí es de acuerdo entre asignaturas, no de código.** El
-apartado 8 de `integracion/contrato-pedido.md` sigue con los identificadores
-pendientes de acordar, y el contrato habla de cinco CSV
-(`clientes.csv`, `modelos.csv`, `pedidos.csv`, `lineas_pedido.csv`,
-`stock.csv`) que todavía no están definidos columna a columna. Mientras PSP y
-Odoo no digan **qué identificador usan ellos**, esta exportación lleva los
-nuestros (`referencia` y `talla`) y no se ha inventado ninguna
-correspondencia.
+Porque la alternativa estropea los datos en Windows, y se midió byte a byte.
+
+La exportación usa `\copy`. Su argumento se toma literalmente, así que **no
+admite variables** y el nombre no se puede configurar. Hubo una versión que
+usaba `\o` con `COPY ... TO STDOUT` para poder pasar la ruta por `-v`, y esa
+versión **alteraba el contenido**: psql escribe su salida en modo texto en
+Windows y convierte cada `\n` en `\r\n`, también los que forman parte de un
+campo.
+
+Con una personalización de dos líneas, medido en hexadecimal:
+
+| Vía | Lo que escribe | |
+|---|---|---|
+| en la base | `linea1` `0a` `linea2` | original |
+| `\o` + `COPY TO STDOUT` | `linea1` `0d 0a` `linea2` | **alterado** |
+| redirección del shell | `linea1` `0d 0a` `linea2` | **alterado** |
+| `psql -o archivo` | `linea1` `0d 0a` `linea2` | **alterado** |
+| `\copy` | `linea1` `0a` `linea2` | correcto |
+| `COPY` del servidor | `linea1` `0a` `linea2` | correcto |
+
+Y si el campo ya tenía `\r\n`, con `\o` salía `\r\r\n`. PostgreSQL y `COPY`
+están bien; el que altera los bytes es **psql al escribir el archivo**.
+
+De las dos vías correctas se eligió `\copy` porque el `COPY` del servidor
+necesita **superusuario** y escribe en la máquina del servidor. `\copy` funciona
+con los permisos normales y escribe donde está el cliente.
+
+Comprobado que el carácter sobrevive al viaje completo: se guardó una
+personalización con un salto de línea, se exportó y PSP la leyó. El hexadecimal
+recuperado es idéntico al de la base, con LF y con CRLF.
+
+#### Limitación conocida de la exportación
+
+La exportación escribe directamente en `fabricacion_psp.csv`. Las validaciones
+del pedido se ejecutan antes de abrirlo, así que un pedido inexistente,
+cancelado o con cantidades incorrectas no modifica un CSV anterior. Sin
+embargo, si `psql` se cierra o la conexión se interrumpe cuando `\copy` ya está
+escribiendo, el archivo puede quedar incompleto. Para el alcance académico de
+este proyecto se acepta esta limitación: se vuelve a ejecutar el script y solo
+se procesa el CSV cuando `psql` termina correctamente.
+
+#### Qué información recibe PSP
+
+Ocho columnas, todas con datos reales de PostgreSQL, y **solo las cuatro filas
+de `CUSTOM-40`**. No se mezcla con `NOVA-0011` ni con ningún otro pedido
+personalizado: cada orden de fabricación es de un pedido.
+
+| Columna | De dónde sale | Para qué |
+|---|---|---|
+| `referencia` | `pedidos.referencia` | identificar el pedido |
+| `sku` | `producto_sku.sku` | la referencia exacta de inventario |
+| `cliente` | `clientes.nombre` | para quién se fabrica |
+| `modelo` | `modelos.nombre` | qué zapatilla |
+| `color` | `variantes.color` | en qué color |
+| `personalizacion` | `pedidos.personalizacion` | qué hay que personalizar |
+| `talla` | `producto_sku.talla` | qué talla |
+| `cantidad` | `linea_pedido.cantidad` | cuántos pares de esa talla |
+
+Cabecera, codificación UTF-8, separador coma y orden estable por talla. Los
+precios no van aquí: la fabricación no los necesita y su sitio es
+`lineas_pedido.csv`, cuando se acuerde su formato.
+
+Comprobado con tres ejecuciones seguidas: los tres archivos salen idénticos
+byte a byte.
+
+#### Qué identificadores deben compartir PostgreSQL, Odoo y PSP
+
+El contrato (`integracion/contrato-pedido.md`) dice que los CSV tienen que
+llevar **los mismos identificadores que la base**, para poder relacionarlos.
+De los que PostgreSQL ya tiene y puede exportar hoy:
+
+- `pedidos.id_pedido` y `pedidos.referencia`
+- `clientes.id_cliente`
+- `linea_pedido.id_linea`
+- `modelos.id_modelo`, `variantes.id_variante` y `producto_sku.sku`
+- `producto_sku.talla` y `linea_pedido.cantidad`
+
+Este CSV lleva `referencia`, `sku` y `talla`, que son los tres que identifican
+sin ambigüedad qué hay que fabricar. Los numéricos internos (`id_pedido`,
+`id_linea`, `id_cliente`, `id_modelo`) existen y se pueden añadir en cuanto se
+sepa si los otros módulos los van a usar.
+
+#### Qué integración es real y cuál está pendiente
+
+**Real y comprobado:** la base guarda el pedido Custom con sus cuatro tallas y
+su personalización, y PostgreSQL lo exporta a CSV de forma repetible, validada
+y con los identificadores que son nuestros.
+
+**Pendiente, y no depende de Acceso a Datos:** el apartado 8 del contrato sigue
+sin acordar los nombres definitivos de entidades y columnas, cómo se
+representan las variantes personalizadas, los estados definitivos de pedido y
+pago, las entregas parciales, **qué columnas llevan los cinco CSV**
+(`clientes.csv`, `modelos.csv`, `pedidos.csv`, `lineas_pedido.csv` y
+`stock.csv`) y el diccionario de datos. Mientras PSP no diga qué identificador
+usa, esta exportación lleva los nuestros y **no se ha inventado ninguna
+correspondencia**.
+
+**De Odoo no se afirma nada.** El contrato no lo menciona: habla de Python. No
+hay ningún identificador de Odoo acordado ni comprobado.
+
+**Este CSV no es ninguno de los cinco del contrato.** Es la orden de
+fabricación de un pedido concreto y se mantiene aparte, hasta que se acuerde el
+formato definitivo de los cinco.
 
 ### Última corrección (7 de noviembre de 2026)
 
