@@ -67,11 +67,12 @@ WHERE f.pronamespace = 'public'::regnamespace AND f.prosecdef
 ORDER BY f.proname;
 
 \echo ''
-\echo '--- P2 datos de demostracion'
+\echo '--- P2 datos de demostracion: el catalogo instalado'
+\echo '    (el catalogo no cambia aunque despues se anadan pedidos)'
 SELECT
     CASE WHEN modelos = 7 AND variantes = 12 AND sku = 60 AND naves = 1
               AND clientes = 6 AND roles_app = 3 AND personal = 3 AND usuarios = 3
-              AND pedidos = 11 AND lineas = 14 AND stock = 1200 AND importe = 5890.45
+              AND stock_total = 1200 - stock_descontado
          THEN 'PASS' ELSE 'FAIL' END AS p2,
     conteo.*
 FROM (
@@ -84,10 +85,30 @@ FROM (
         (SELECT count(*) FROM public.roles) AS roles_app,
         (SELECT count(*) FROM public.personal) AS personal,
         (SELECT count(*) FROM public.usuarios) AS usuarios,
-        (SELECT count(*) FROM public.pedidos) AS pedidos,
-        (SELECT count(*) FROM public.linea_pedido) AS lineas,
-        (SELECT sum(cantidad) FROM public.existencias) AS stock,
-        (SELECT sum(importe_total) FROM public.pedidos) AS importe
+        (SELECT sum(cantidad) FROM public.existencias) AS stock_total,
+        -- Las 1200 unidades instaladas menos lo que se haya descontado
+        -- por pedidos confirmados. Asi la cuenta sigue cuadrando aunque
+        -- se confirmen pedidos despues de instalar.
+        (SELECT coalesce(sum(l.cantidad), 0) FROM public.linea_pedido l
+          WHERE l.stock_descontado = true) AS stock_descontado
+) AS conteo;
+
+\echo ''
+\echo '--- P2a los 11 pedidos de demostracion y sus 14 lineas'
+\echo '    (acotado a las referencias NOVA-%, para no contar pedidos anadidos luego)'
+SELECT
+    CASE WHEN pedidos = 11 AND lineas = 14 AND importe = 5890.45
+         THEN 'PASS' ELSE 'FAIL' END AS p2a,
+    pedidos, lineas, importe
+FROM (
+    SELECT
+        (SELECT count(*) FROM public.pedidos
+          WHERE referencia LIKE 'NOVA-%') AS pedidos,
+        (SELECT count(*) FROM public.linea_pedido l
+           JOIN public.pedidos p ON p.id_pedido = l.id_pedido
+          WHERE p.referencia LIKE 'NOVA-%') AS lineas,
+        (SELECT sum(importe_total) FROM public.pedidos
+          WHERE referencia LIKE 'NOVA-%') AS importe
 ) AS conteo;
 
 \echo ''
@@ -99,20 +120,28 @@ FROM (
     SELECT count(id_usuario) AS con_usuario,
            count(*) - count(id_usuario) AS sin_usuario
     FROM public.pedidos
+    WHERE referencia LIKE 'NOVA-%'
 ) AS t;
 
 \echo ''
-\echo '--- P3 los disparadores calcularon bien los totales (esperado 11 de 11)'
+\echo '--- P3 los disparadores calcularon bien los totales de TODOS los pedidos'
+\echo '    (se cuentan los incoherentes: tienen que ser cero, haya 11 pedidos o 50)'
 SELECT
-    CASE WHEN count(*) = 11 THEN 'PASS' ELSE 'FAIL' END AS p3,
-    count(*) AS pedidos_correctos
-FROM public.pedidos p
-WHERE p.cantidad_total = COALESCE((
-        SELECT sum(l.cantidad) FROM public.linea_pedido l WHERE l.id_pedido = p.id_pedido
-      ), 0)
-  AND p.importe_total = COALESCE((
-        SELECT sum(l.subtotal) FROM public.linea_pedido l WHERE l.id_pedido = p.id_pedido
-      ), 0);
+    CASE WHEN incoherentes = 0 THEN 'PASS' ELSE 'FAIL' END AS p3,
+    incoherentes, total_pedidos
+FROM (
+    SELECT
+        count(*) FILTER (
+            WHERE p.cantidad_total <> COALESCE((
+                    SELECT sum(l.cantidad) FROM public.linea_pedido l
+                     WHERE l.id_pedido = p.id_pedido), 0)
+               OR p.importe_total <> COALESCE((
+                    SELECT sum(l.subtotal) FROM public.linea_pedido l
+                     WHERE l.id_pedido = p.id_pedido), 0)
+        ) AS incoherentes,
+        count(*) AS total_pedidos
+    FROM public.pedidos p
+) AS t;
 
 \echo ''
 \echo '===== COMPRAS Y CANCELACIONES ====='
@@ -404,15 +433,23 @@ ROLLBACK;
 \echo '===== AUDITORIA ====='
 \echo ''
 \echo '--- P10 el alta, la confirmacion y la cancelacion dejan rastro en log_eventos'
+\echo '    (se mide la DIFERENCIA de eventos, no el total, para que la prueba'
+\echo '     siga valiendo si el registro ya tenia eventos de antes)'
+SELECT
+    (SELECT count(*) FROM public.log_eventos WHERE tabla_afectada = 'existencias') AS stock_antes,
+    (SELECT count(*) FROM public.log_eventos WHERE tabla_afectada = 'pedidos') AS pedido_antes
+\gset
 BEGIN;
 SELECT public.realizar_compra('P10', :cliente_a, :sku, :nave, 2, :usuario) AS id_pedido
 \gset
 UPDATE public.pedidos SET estado = 'confirmado' WHERE id_pedido = :id_pedido;
 UPDATE public.pedidos SET estado = 'cancelado' WHERE id_pedido = :id_pedido;
 SELECT
-    CASE WHEN eventos_stock = 2 AND eventos_pedido = 3
+    CASE WHEN eventos_stock - :stock_antes = 2
+              AND eventos_pedido - :pedido_antes = 3
          THEN 'PASS' ELSE 'FAIL' END AS p10,
-    eventos_stock, eventos_pedido
+    eventos_stock - :stock_antes AS nuevos_de_stock,
+    eventos_pedido - :pedido_antes AS nuevos_de_pedido
 FROM (
     SELECT
         (SELECT count(*) FROM public.log_eventos WHERE tabla_afectada = 'existencias') AS eventos_stock,
@@ -420,6 +457,7 @@ FROM (
 ) AS t;
 SELECT tabla_afectada, accion, id_usuario, detalle
 FROM public.log_eventos
+WHERE detalle LIKE '%P10%' OR tabla_afectada = 'existencias'
 ORDER BY id_evento;
 ROLLBACK;
 
@@ -469,15 +507,25 @@ ROLLBACK;
 
 \echo ''
 \echo '--- P11c la auditoria registra el alta del pedido y la baja logica al cancelar'
+\echo '    (tambien por diferencia antes/despues)'
+SELECT
+    (SELECT count(*) FROM public.log_eventos WHERE accion = 'ALTA') AS altas_antes,
+    (SELECT count(*) FROM public.log_eventos WHERE accion = 'BAJA_LOGICA') AS bajas_antes,
+    (SELECT count(*) FROM public.log_eventos WHERE accion = 'CAMBIO_STOCK') AS stock_antes_p11c
+\gset
 BEGIN;
 SELECT public.realizar_compra('P11c', :cliente_a, :sku, :nave, 1) AS id_pedido
 \gset
 UPDATE public.pedidos SET estado = 'confirmado' WHERE id_pedido = :id_pedido;
 UPDATE public.pedidos SET estado = 'cancelado' WHERE id_pedido = :id_pedido;
 SELECT
-    CASE WHEN altas = 1 AND bajas = 1 AND cambios_stock = 2
+    CASE WHEN altas - :altas_antes = 1
+              AND bajas - :bajas_antes = 1
+              AND cambios_stock - :stock_antes_p11c = 2
          THEN 'PASS' ELSE 'FAIL' END AS p11c,
-    altas, bajas, cambios_stock
+    altas - :altas_antes AS nuevas_altas,
+    bajas - :bajas_antes AS nuevas_bajas,
+    cambios_stock - :stock_antes_p11c AS nuevos_cambios_stock
 FROM (
     SELECT
         (SELECT count(*) FROM public.log_eventos WHERE accion = 'ALTA') AS altas,
@@ -839,6 +887,8 @@ SELECT sum(cantidad) AS stock_antes FROM public.existencias
 \gset
 SELECT count(*) AS pedidos_antes FROM public.pedidos
 \gset
+SELECT count(*) AS eventos_antes FROM public.log_eventos
+\gset
 BEGIN;
 SELECT public.realizar_compra('E11', :cliente_a, :sku, :nave, 2) AS id_pedido
 \gset
@@ -857,7 +907,8 @@ END
 $$;
 ROLLBACK;
 SELECT
-    CASE WHEN stock = :stock_antes AND pedidos = :pedidos_antes AND eventos = 0
+    CASE WHEN stock = :stock_antes AND pedidos = :pedidos_antes
+              AND eventos = :eventos_antes
          THEN 'PASS' ELSE 'FAIL' END AS e11,
     stock, pedidos, eventos
 FROM (
