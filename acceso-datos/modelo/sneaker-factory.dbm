@@ -26,6 +26,9 @@
 		<constraint name="modelos_pk" type="pk-constr" table="public.modelos">
 			<columns names="id_modelo" ref-type="src-columns" />
 		</constraint>
+		<constraint name="modelos_nombre_uq" type="uq-constr" table="public.modelos">
+			<columns names="nombre" ref-type="src-columns" />
+		</constraint>
 		<constraint name="modelos_precio_check" type="ck-constr" table="public.modelos">
 			<expression>precio_base &gt;= 0</expression>
 		</constraint>
