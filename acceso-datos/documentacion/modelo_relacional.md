@@ -25,7 +25,7 @@ Su objetivo es gestionar el catalogo de zapatillas, las variantes, el inventario
 
 ## 3. Relaciones
 
-Las siguientes 15 claves foraneas se han comprobado directamente en PostgreSQL.
+Las siguientes 16 claves foraneas se han comprobado directamente en PostgreSQL.
 
 | Tabla origen | Columna | Tabla destino | Columna |
 |---|---|---|---|
@@ -44,6 +44,7 @@ Las siguientes 15 claves foraneas se han comprobado directamente en PostgreSQL.
 | usuarios | id_personal | personal | id_personal |
 | usuarios | id_rol | roles | id_rol |
 | log_eventos | id_usuario | usuarios | id_usuario |
+| linea_pedido | id_nave | nave | id_nave |
 
 ## 4. Organizacion de los productos
 
@@ -103,13 +104,13 @@ Por tanto, no se afirma que todo el esquema cumpla estrictamente 3FN sin una rev
 
 ## 11. Integridad referencial
 
-Las 15 claves foraneas impiden referencias a registros inexistentes.
+Las 16 claves foraneas impiden referencias a registros inexistentes.
 
 Ademas, el esquema utiliza restricciones CHECK y UNIQUE para validar estados, importes y configuraciones X-NOVA.
 
 ## 12. Conclusion
 
-NOVA Sneakers tiene un modelo relacional de 14 tablas y 15 claves foraneas comprobadas.
+NOVA Sneakers tiene un modelo relacional de 14 tablas y 16 claves foraneas comprobadas.
 
 La estructura separa las entidades principales y permite gestionar productos, clientes, pedidos, inventario y personalizaciones.
 
@@ -201,3 +202,66 @@ La comprobacion formal de 3FN para el esquema completo requiere revisar todas su
 Se comprobaron diez pedidos de demostracion.
 
 Los importes y cantidades calculados coincidieron con los valores almacenados en los pedidos, sin diferencias.
+
+## 15. Control de existencias en linea_pedido
+
+La tabla linea_pedido tiene dos columnas que no son datos del producto, sino
+del control de inventario.
+
+- id_nave: de que almacen salieron las unidades de esa linea. Admite nulo
+  porque las lineas X-NOVA no salen de ningun almacen, se fabrican a medida.
+- stock_descontado: una marca de si o no que indica si a esa linea ya se le
+  resto el stock. Empieza en false y realizar_compra la pone en true.
+
+La restriccion linea_stock_descontado_check las relaciona: si una linea dice
+que ha descontado stock, tiene que tener producto y almacen, y no puede ser una
+personalizacion X-NOVA. Es lo que hace posible devolver las unidades al
+almacen correcto cuando se cancela un pedido, y lo que impide devolverlas dos
+veces.
+
+Las lineas de los once pedidos de demostracion llevan su almacen en id_nave y
+stock_descontado a false, porque los pedidos se cargan en estado pendiente y
+el inventario solo se mueve al confirmar.
+
+## 16. Correspondencia con el archivo de pgModeler
+
+El archivo acceso-datos/modelo/sneaker-factory.dbm ya corresponde con la base
+real: declara las 14 tablas, las 16 claves foraneas, la tabla
+configuraciones_xnova y las columnas id_nave, stock_descontado e
+id_configuracion_xnova de linea_pedido.
+
+Se comprobo que el XML esta bien formado y que su lista de tablas y de claves
+foraneas coincide exactamente con la de una base recien instalada. Lo que no
+se ha podido comprobar es que pgModeler lo abra sin avisos, porque pgModeler
+no estaba instalado. Hay que abrirlo una vez antes de entregar; si diera
+problemas, se regenera por ingenieria inversa desde una base limpia.
+
+En la rama de Alvaro hay otro diagrama,
+acceso-datos/modelo-er/Modelo-Er-Intermodular.drawio, que tampoco se ha
+comprobado contra el esquema final.
+
+## 17. Estados del pedido
+
+La columna estado admite seis valores: pendiente, confirmado, en_preparacion,
+enviado, entregado y cancelado. El valor confirmado se anadio para poder
+representar el ciclo pendiente, confirmado, cancelado que describe el
+enunciado.
+
+El unico paso prohibido por un trigger es salir de cancelado. El resto de
+combinaciones las permite el esquema, porque no hay maquina de estados.
+
+La columna estado_pago admite pendiente, pagado y reembolsado, y es
+independiente de estado.
+
+## 18. Momento en que se mueve el inventario
+
+El descuento de existencias no ocurre al crear la linea de pedido, sino al
+pasar el pedido a confirmado. La devolucion ocurre al pasarlo a cancelado.
+
+La columna stock_descontado de linea_pedido es la que evita los dobles
+movimientos: el trigger de confirmacion solo recorre las lineas que la tienen
+a false, y el de cancelacion solo las que la tienen a true.
+
+Las lineas X-NOVA nunca entran en este circuito, porque no tienen SKU ni
+almacen y el CHECK linea_stock_descontado_check impide que su marca se
+encienda.
