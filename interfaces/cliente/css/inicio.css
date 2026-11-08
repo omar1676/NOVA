@@ -1211,3 +1211,60 @@ dialog::backdrop {
   font-size: 0.62rem;
   letter-spacing: 0.08em;
 }
+
+dialog.acceso {
+  width: min(440px, 92vw);
+}
+.acceso-caja {
+  position: relative;
+  padding: 48px 32px 32px;
+}
+.acceso-caja h2 {
+  font-size: 2rem;
+  letter-spacing: -0.04em;
+  margin: 0.2em 0 0.3em;
+}
+.acceso-caja h2 span {
+  color: var(--brillo);
+}
+.acceso-caja > p:not(.etiqueta):not(.acceso-error) {
+  color: #c1b6b2;
+}
+.acceso-campo {
+  display: grid;
+  gap: 6px;
+  margin: 18px 0;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+.acceso-campo input {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid #ffffff4a;
+  background: transparent;
+  color: white;
+  padding: 10px 0;
+}
+.acceso-clave {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #ffffff4a;
+}
+.acceso-clave input {
+  border-bottom: 0;
+}
+.acceso-clave button {
+  border: 0;
+  background: none;
+  color: var(--suave);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.acceso-error {
+  color: #f2a38d;
+  font-size: 0.78rem;
+  margin: 0 0 14px;
+}
