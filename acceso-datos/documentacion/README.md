@@ -11,7 +11,8 @@ Los scripts están en `acceso-datos/sql`.
 ## 2. Requisitos
 
 - PostgreSQL 17 (probado con la 17.11).
-- Un usuario con permisos de administrador, porque hay que crear la base y tres roles.
+- Un usuario con permisos de administrador, porque hay que crear la base, los
+  cuatro roles y los usuarios de conexión (scripts 17, 19 y 20).
 - pgAdmin 4 o psql.
 
 No hace falta ninguna extensión ni librería externa.
@@ -48,7 +49,7 @@ cuándo se escribió cada uno.
 | 13 | `13_activar_usuarios.sql` | **Pone las contraseñas de las tres cuentas de demostración.** Pregunta por teclado; no guarda nada en el repositorio | **sí** |
 | 14 | `14_caso_custom_persistente.sql` | **Deja el pedido `CUSTOM-40` guardado de verdad**, con 40 pares en cuatro tallas. Va al final, después de las pruebas. Opcional | no |
 | 15 | `15_exportar_fabricacion.sql` | Exporta a un CSV para PSP la orden de fabricación de un pedido Custom confirmado de 40 pares: `CUSTOM-40` por defecto (necesita el 14) u otro con `-v referencia=SO024`. Opcional | no |
-| 16 | `16_exportar_csv_dashboard.sql` | Exporta los cinco CSV del contrato (clientes, modelos, pedidos, líneas y stock) para el dashboard. Solo lee. Opcional | no |
+| 16 | `16_exportar_csv_dashboard.sql` | Exporta los cinco CSV del dashboard de Python (clientes, modelos, pedidos, líneas y stock). Solo lee. Opcional | no |
 | 17 | `17_usuario_java.sql` | **Crea `java_nova`, el usuario con el que se conecta la aplicación Java**, y deja al comercial marcar pedidos Custom. Pide la contraseña por teclado. Se puede lanzar después del 7 o al final | **sí** |
 | 18 | `18_datos_so024.sql` | **Datos del caso común SO024**: el cliente Club Halcones, el modelo Runner X con sus tallas 38–46 (SKU y existencias). **No crea el pedido**: SO024 se crea y confirma desde la aplicación Java. El precio, el color y el stock se pasan con `-v` hasta que se acuerden; sin ellos no inserta nada. Va al final, después de las pruebas | no |
 | 19 | `19_usuario_web.sql` | **Crea `panel_lectura`, un rol de solo lectura, y `web_nova`, el usuario con el que se conecta el servidor del panel de administración** (`servidor-admin/`). `web_nova` solo puede pasar a `panel_lectura` con `SET ROLE` y no hereda nada. `panel_lectura` no puede escribir en ninguna tabla ni leer `password_hash`, `dni` ni `direccion_entrega`. Pide la contraseña por teclado. Se puede lanzar después del 7 o al final | **sí** |
@@ -365,7 +366,7 @@ Además de las 14 claves primarias y las 16 foráneas:
 | `linea_tipo_producto_check` | Una línea es de SKU normal **o** de X-NOVA, nunca de las dos cosas ni de ninguna |
 | `linea_stock_descontado_check` | Si una línea dice que descontó stock, tiene que tener SKU y almacén, y no puede ser X-NOVA |
 | `linea_configuracion_xnova_uq` | Una configuración X-NOVA solo se puede usar en una línea |
-| `pedidos_check_3` | El estado solo puede ser pendiente, en_preparacion, enviado, entregado o cancelado |
+| `pedidos_check_3` | El estado solo puede ser pendiente, confirmado, en_preparacion, enviado, entregado o cancelado |
 | `pedidos_check_4` | El estado de pago solo puede ser pendiente, pagado o reembolsado |
 | `existencias_check_1` | La cantidad en almacén nunca puede ser negativa |
 | `clientes_email_uq`, `pedidos_referencia_uq`, `producto_sku_sku_uq` | No se repiten correos, referencias ni códigos SKU |
@@ -465,14 +466,15 @@ tenerlo separado:
 
 | Qué es | Dónde vive | Para qué sirve |
 |---|---|---|
-| **Rol de PostgreSQL** (`nova_admin`, `nova_trabajador`, `nova_cliente`) | En el servidor, fuera de la base | Decide qué tablas y funciones se pueden tocar |
+| **Rol de PostgreSQL** (`nova_admin`, `nova_comercial`, `nova_trabajador`, `nova_cliente`) | En el servidor, fuera de la base | Decide qué tablas y funciones se pueden tocar |
 | **Usuario de la aplicación** (fila de `usuarios`) | En la tabla `usuarios` | Es quien hace login en la aplicación: tiene `username`, contraseña y un rol funcional |
 | **Rol funcional** (fila de `roles`) | En la tabla `roles` | Agrupa a los usuarios de la aplicación: administrador, trabajador, comercial |
 
-Los tres roles de PostgreSQL son `NOLOGIN`: nadie se conecta con ellos. La
-aplicación se conecta con **un solo usuario de PostgreSQL** al que se le
-concede uno de los tres roles. **Tener tres roles de PostgreSQL no demuestra
-que haya login**: el login es lo del apartado siguiente.
+Los cuatro roles de PostgreSQL son `NOLOGIN`: nadie se conecta con ellos. La
+aplicación Java se conecta con **un solo usuario de PostgreSQL**, `java_nova`
+(script 17), que puede pasar con `SET ROLE` a `nova_admin`, `nova_comercial` o
+`nova_trabajador`. **Tener cuatro roles de PostgreSQL no demuestra que haya
+login**: el login es lo del apartado siguiente.
 
 ### Quién hace cada operación: el operador de la transacción
 
@@ -693,18 +695,19 @@ Hay cuatro archivos de pruebas, y entre los cuatro dan **110 veredictos**:
 partió en dos, P2 para el catálogo instalado y P2a para los 11 pedidos de
 demostración. Con eso son **110** sobre la base recién instalada.
 
-Después, al final de todo, hay once más que comprueban la persistencia y la
-exportación del pedido Custom:
+Después, al final de todo, hay trece más que comprueban la persistencia y la
+exportación del pedido Custom y la de los cinco CSV del dashboard:
 
 | Archivo | Qué prueba | Veredictos |
 |---|---|---|
 | `14_caso_custom_persistente.sql` | Operador en la sesión, pedido único, confirmado y personalizado, 40 pares, cuatro líneas sin repetir, 10 por talla, stock descontado una vez, sin existencias negativas, los 11 pedidos de demostración intactos y la auditoría con operador | 9 |
 | `15_exportar_fabricacion.sql` | El pedido está confirmado con 4 líneas, 4 tallas y 40 pares, y la orden exportada son esas 4 filas | 2 |
+| `16_exportar_csv_dashboard.sql` | El total de cada pedido coincide con la suma de sus líneas, y todas las líneas tienen modelo y talla | 2 |
 
-En total, **121 comprobaciones** si se ejecuta la secuencia completa en el orden
+En total, **123 comprobaciones** si se ejecuta la secuencia completa en el orden
 del apartado 3.
 
-**Las de los scripts 14 y 15 no imprimen `FAIL`: lanzan un error.** Si algo no
+**Las de los scripts 14, 15 y 16 no imprimen `FAIL`: lanzan un error.** Si algo no
 cuadra, psql se detiene y devuelve un código de salida distinto de cero, para
 que un fallo no pueda pasar por bueno.
 
@@ -755,9 +758,11 @@ psql -U postgres -d nova_sneakers -f 09_pruebas.sql
 
 ### Resultados reales
 
-Ejecutadas el 8 de noviembre de 2026 sobre PostgreSQL 17.11 en instalaciones
-limpias desde cero. **110 de 110 dieron PASS**, más las tres pruebas de dos
-sesiones, que también pasaron.
+Ejecutadas el 12 de noviembre de 2026 sobre PostgreSQL 17.11, en una base
+nueva y en el orden del apartado 3: los scripts 9 a 16 dan **123 PASS, 0 FAIL
+y 1 ERROR previsto**. El ERROR es la `S4b`: el cliente intenta ejecutar `descontar_stock`
+y PostgreSQL se lo deniega, que es lo que se quiere comprobar (se explica más
+abajo). Las tres pruebas de dos sesiones se pasaron el 8 de noviembre.
 
 Esta tabla recoge las de `09_pruebas.sql`. Los otros tres archivos imprimen
 sus veredictos con el mismo formato.
@@ -976,8 +981,10 @@ apartado 13.
 **1b. El operador solo queda registrado si Java llama a `iniciar_sesion`.**
 El mecanismo funciona y está probado (apartado 9), pero si la aplicación no lo
 usa, `log_eventos.id_usuario` se queda a nulo. No es un fallo de la base: es
-un requisito de integración que todavía no se puede dar por cerrado porque no
-hay código Java en el repositorio.
+un requisito de integración, y la aplicación Java lo cumple:
+`ConexionBD.empezarTransaccion` llama a `iniciar_sesion` al empezar cada
+transacción que escribe, y la prueba A de `PruebasRubrica` comprueba que
+`log_eventos` guarda el usuario y la hora.
 
 **1c. La autorización depende del rol de conexión, no del usuario
 autenticado.** Todas las operaciones funcionan sin haber hecho login: lo que
@@ -1335,8 +1342,10 @@ byte a byte.
 
 #### Qué identificadores deben compartir PostgreSQL, Odoo y PSP
 
-El contrato (`integracion/contrato-pedido.md`) dice que los CSV tienen que
-llevar **los mismos identificadores que la base**, para poder relacionarlos.
+Para poder relacionar los CSV con la base, tienen que llevar **los mismos
+identificadores que ella**. El formato del CSV de fabricación está descrito en
+`integracion/contrato-fabricacion.md`, y los datos del caso común que faltan
+por acordar, en `integracion/caso-comun-SO024.md`.
 De los que PostgreSQL ya tiene y puede exportar hoy:
 
 - `pedidos.id_pedido` y `pedidos.referencia`
@@ -1356,8 +1365,8 @@ sepa si los otros módulos los van a usar.
 su personalización, y PostgreSQL lo exporta a CSV de forma repetible, validada
 y con los identificadores que son nuestros.
 
-**Pendiente, y no depende de Acceso a Datos:** el apartado 8 del contrato sigue
-sin acordar los nombres definitivos de entidades y columnas, cómo se
+**Pendiente, y no depende de Acceso a Datos:** falta acordar los nombres
+definitivos de entidades y columnas, cómo se
 representan las variantes personalizadas, los estados definitivos de pedido y
 pago, las entregas parciales, **qué columnas llevan los cinco CSV**
 (`clientes.csv`, `modelos.csv`, `pedidos.csv`, `lineas_pedido.csv` y
@@ -1365,18 +1374,19 @@ pago, las entregas parciales, **qué columnas llevan los cinco CSV**
 usa, esta exportación lleva los nuestros y **no se ha inventado ninguna
 correspondencia**.
 
-**De Odoo no se afirma nada.** El contrato no lo menciona: habla de Python. No
-hay ningún identificador de Odoo acordado ni comprobado.
+**De Odoo no se afirma nada.** No hay ningún identificador de Odoo acordado ni
+comprobado: el número del pedido y el SKU en Odoo son dos de los datos por
+acordar de `integracion/caso-comun-SO024.md`.
 
-**Este CSV no es ninguno de los cinco del contrato.** Es la orden de
+**Este CSV no es ninguno de los cinco del dashboard.** Es la orden de
 fabricación de un pedido concreto y se mantiene aparte, hasta que se acuerde el
 formato definitivo de los cinco.
 
-### Exportación de los cinco CSV del contrato (dashboard)
+### Exportación de los cinco CSV del dashboard
 
-`16_exportar_csv_dashboard.sql` genera los cinco archivos del apartado 7 del
-contrato, que son los que pide el enunciado de Ampliación de Python para su
-dashboard: `clientes.csv`, `modelos.csv`, `pedidos.csv`, `lineas_pedido.csv` y
+`16_exportar_csv_dashboard.sql` genera los cinco archivos que pide el
+enunciado de Ampliación de Python para su dashboard: `clientes.csv`,
+`modelos.csv`, `pedidos.csv`, `lineas_pedido.csv` y
 `stock.csv`. Solo lee; no cambia ninguna tabla.
 
 ```
@@ -1385,9 +1395,9 @@ cd salidas
 psql -U postgres -d nova_sneakers -f ..\acceso-datos\sql\16_exportar_csv_dashboard.sql
 ```
 
-**Es una propuesta de Acceso a Datos.** El contrato deja las columnas sin
-cerrar (apartado 8). Aquí se usan sus nombres (`id_pedido`, `fecha_pedido`,
-`tipo_pedido`, `estado_pedido`, `importe_linea`…) más los campos mínimos que
+**Es una propuesta de Acceso a Datos.** Las columnas no están acordadas entre
+los módulos. Aquí se usan los nombres `id_pedido`, `fecha_pedido`,
+`tipo_pedido`, `estado_pedido`, `importe_linea`…, más los campos mínimos que
 pide Python (`id_modelo` en las líneas, `stock_disponible` y `fecha_corte` en el
 stock). El equipo tiene que aprobarla.
 
@@ -1569,11 +1579,10 @@ perdedor se queda en `pendiente` sin stock negativo.
 **También se actualizó el `.dbm` de pgModeler** a las 14 tablas reales (ver el
 problema 6b, que explica qué falta comprobar).
 
-Lo que queda pendiente son los puntos del apartado 12 y, sobre todo, **toda la
-parte de Java/JDBC**: a 7 de noviembre de 2026 no hay ni un archivo `.java` en
-ninguna rama del repositorio, así que el login, el panel, los filtros, el TXT
-de actividad, el JSON de usuarios y las pruebas de extremo a extremo siguen sin
-empezar. La base de datos ya tiene preparado todo lo que esa parte necesita.
+El 7 de noviembre de 2026 quedaban pendientes los puntos del apartado 12 y
+**toda la parte de Java/JDBC**, que entonces no tenía ningún archivo `.java` en
+el repositorio. La aplicación Java se hizo después: está descrita en el
+apartado siguiente.
 
 ### Parte Java (9 de noviembre de 2026)
 
