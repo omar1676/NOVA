@@ -126,12 +126,11 @@ function mostrarCatalogo() {
     const tarjeta = document.createElement("button");
     tarjeta.type = "button";
     tarjeta.className = "catalogo-tarjeta";
-    // Las fotos con fondo de estudio llenan el hueco; las recortadas se muestran enteras.
-    if (modelo.catalogoConFondo) tarjeta.classList.add("con-fondo");
+    tarjeta.classList.add("c-" + modelo.coleccion);
     const textoPrecio = formatoPrecio(datosColeccion[modelo.coleccion].precio);
     tarjeta.setAttribute("aria-label", `Ver ${modelo.nombre}, ${textoPrecio}`);
     const imagen = document.createElement("img");
-    imagen.src = modelo.imagenCatalogo;
+    imagen.src = modelo.imagen;
     imagen.alt = "";
     imagen.loading = "lazy";
     const contenido = document.createElement("span");
@@ -437,4 +436,57 @@ probador.addEventListener("click", (evento) => {
 });
 probador.addEventListener("close", () => {
   if (modeloSeleccionado && !dialogo.open) dialogo.showModal();
+});
+
+// Inicio de sesión (solo interfaz) 
+const dialogoAcceso = document.querySelector("#acceso");
+const formularioAcceso = document.querySelector("#formulario-acceso");
+const campoUsuarioAcceso = document.querySelector("#acceso-usuario");
+const campoClaveAcceso = document.querySelector("#acceso-clave");
+const botonVerClave = document.querySelector("#acceso-ver");
+const errorAcceso = document.querySelector("#acceso-error");
+
+function mostrarErrorAcceso(mensaje) {
+  errorAcceso.textContent = mensaje;
+  errorAcceso.hidden = false;
+}
+
+document.querySelector("#abrir-acceso").addEventListener("click", (evento) => {
+  evento.preventDefault();
+  errorAcceso.hidden = true;
+  dialogoAcceso.showModal();
+});
+
+dialogoAcceso
+  .querySelector(".cerrar-acceso")
+  .addEventListener("click", () => dialogoAcceso.close());
+
+dialogoAcceso.addEventListener("click", (evento) => {
+  if (evento.target === dialogoAcceso) dialogoAcceso.close();
+});
+
+botonVerClave.addEventListener("click", () => {
+  const oculta = campoClaveAcceso.type === "password";
+  campoClaveAcceso.type = oculta ? "text" : "password";
+  botonVerClave.textContent = oculta ? "Ocultar" : "Mostrar";
+  botonVerClave.setAttribute("aria-pressed", oculta ? "true" : "false");
+});
+
+formularioAcceso.addEventListener("submit", (evento) => {
+  evento.preventDefault();
+  errorAcceso.hidden = true;
+
+  if (campoUsuarioAcceso.value.trim() === "") {
+    mostrarErrorAcceso("Escribe tu usuario o correo.");
+    campoUsuarioAcceso.focus();
+    return;
+  }
+  if (campoClaveAcceso.value === "") {
+    mostrarErrorAcceso("Escribe tu contraseña.");
+    campoClaveAcceso.focus();
+    return;
+  }
+
+  // Omar: aquí se llamará a la API de inicio de sesión.
+  mostrarErrorAcceso("El inicio de sesión todavía no está conectado al servidor.");
 });

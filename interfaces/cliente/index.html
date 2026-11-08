@@ -31,6 +31,7 @@
         ><a href="#historia">Nuestra visión</a
         ><a href="#custom">Custom</a
         ><a href="#contacto">Contacto</a>
+        <a href="#acceso" id="abrir-acceso">Iniciar sesión</a>
       </nav>
       <a class="cabecera-enlace" href="#catalogo"
         >EXPLORAR <span aria-hidden="true">↗</span></a
@@ -560,6 +561,29 @@
           </button>
         </div>
       </div>
+    </dialog>
+    <dialog id="acceso" class="acceso" aria-labelledby="titulo-acceso">
+      <form class="acceso-caja" id="formulario-acceso" novalidate>
+        <button class="cerrar cerrar-acceso" type="button" aria-label="Cerrar inicio de sesión">×</button>
+        <p class="etiqueta">NOVA / TU CUENTA</p>
+        <h2 id="titulo-acceso">Iniciar sesión<span>.</span></h2>
+        <p>Accede a tu cuenta NOVA.</p>
+
+        <label class="acceso-campo" for="acceso-usuario">Usuario o correo
+          <input id="acceso-usuario" name="usuario" type="text" autocomplete="username" required />
+        </label>
+
+        <label class="acceso-campo" for="acceso-clave">Contraseña
+          <span class="acceso-clave">
+            <input id="acceso-clave" name="clave" type="password" autocomplete="current-password" required />
+            <button type="button" id="acceso-ver" aria-pressed="false">Mostrar</button>
+          </span>
+        </label>
+
+        <p class="acceso-error" id="acceso-error" role="alert" hidden></p>
+
+        <button class="boton" type="submit">ENTRAR <span aria-hidden="true">↗</span></button>
+      </form>
     </dialog>
   </body>
 </html>

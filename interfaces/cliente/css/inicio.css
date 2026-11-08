@@ -1401,3 +1401,90 @@ dialog::backdrop {
     gap: 10px;
   }
 }
+
+/* Inicio de sesión: estilos de Álvaro (commit 52a8800), sin cambios. */
+dialog.acceso {
+  width: min(440px, 92vw);
+}
+.acceso-caja {
+  position: relative;
+  padding: 48px 32px 32px;
+}
+.acceso-caja h2 {
+  font-size: 2rem;
+  letter-spacing: -0.04em;
+  margin: 0.2em 0 0.3em;
+}
+.acceso-caja h2 span {
+  color: var(--brillo);
+}
+.acceso-caja > p:not(.etiqueta):not(.acceso-error) {
+  color: #c1b6b2;
+}
+.acceso-campo {
+  display: grid;
+  gap: 6px;
+  margin: 18px 0;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+.acceso-campo input {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid #ffffff4a;
+  background: transparent;
+  color: white;
+  padding: 10px 0;
+}
+.acceso-clave {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #ffffff4a;
+}
+.acceso-clave input {
+  border-bottom: 0;
+}
+.acceso-clave button {
+  border: 0;
+  background: none;
+  color: var(--suave);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.acceso-error {
+  color: #f2a38d;
+  font-size: 0.78rem;
+  margin: 0 0 14px;
+}
+
+/* Restyle de las tarjetas de Álvaro (commit 5f0ce57): partes conservadas en la
+   integración. Los degradados por colección, la etiqueta de colección, la banda
+   oscura, los textos blancos y el contorno de foco claro quedan fuera porque
+   el precio y esos textos no llegan al contraste mínimo (pendiente de Álvaro). */
+.catalogo-tarjeta {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 4px;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
+}
+.catalogo-tarjeta:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 40px #0005;
+}
+.catalogo-tarjeta img {
+  background: none;
+  aspect-ratio: 1.15;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 16px #0007);
+}
+.catalogo-tarjeta:hover img {
+  filter: drop-shadow(0 20px 16px #0007);
+  transform: scale(1.05) translateY(-4px);
+}

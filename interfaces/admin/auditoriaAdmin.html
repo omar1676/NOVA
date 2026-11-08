@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVA Sneakers · Auditoría</title>
+    <link rel="icon" href="img/Nova Logo.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="adm">
+
+<div class="adm-sidebar">
+    <div class="adm-marca">
+        <img src="img/Nova Logo.png" alt="NOVA Sneakers">
+    </div>
+    <nav class="adm-menu">
+        <a href="admin.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+        <a href="pedidosAdmin.html"><i data-lucide="shopping-bag"></i> Pedidos</a>
+        <a href="productosAdmin.html"><i data-lucide="footprints"></i> Productos</a>
+        <a href="inventarioAdmin.html"><i data-lucide="warehouse"></i> Inventario</a>
+        <a href="clientesAdmin.html"><i data-lucide="users"></i> Clientes</a>
+        <a href="trabajadoresAdmin.html"><i data-lucide="hard-hat"></i> Trabajadores</a>
+        <a href="sugerenciasAdmin.html"><i data-lucide="lightbulb"></i> Sugerencias</a>
+        <a href="mejorasAdmin.html"><i data-lucide="kanban"></i> Mejoras</a>
+        <a href="estadisticasAdmin.html"><i data-lucide="bar-chart-3"></i> Estadísticas</a>
+        <a href="auditoriaAdmin.html" class="adm-activo"><i data-lucide="scroll-text"></i> Auditoría</a>
+        <a href="configuracionAdmin.html"><i data-lucide="settings"></i> Configuración</a>
+    </nav>
+</div>
+
+<div class="adm-contenido">
+    <h1>Auditoría</h1>
+
+    <div class="adm-herramientas">
+        <input type="text" id="adm-buscador" placeholder="Buscar por usuario, tabla o detalle...">
+        <select id="adm-filtro-estado">
+            <option value="">Todas las acciones</option>
+            <option value="crear">crear</option>
+            <option value="modificar">modificar</option>
+            <option value="eliminar">eliminar</option>
+            <option value="acceso">acceso</option>
+        </select>
+    </div>
+
+    <div class="adm-tabla-caja">
+        <table class="adm-tabla">
+            <thead>
+                <tr>
+                    <th>Fecha y hora</th>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                    <th>Tabla</th>
+                    <th>Registro</th>
+                    <th>Detalle</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>05/11/2026 09:12</td>
+                    <td>ejemplo.a</td>
+                    <td><span class="adm-estado adm-modificar">modificar</span></td>
+                    <td>pedidos</td>
+                    <td>EJEMPLO-001</td>
+                    <td>Estado cambiado a enviado</td>
+                </tr>
+                <tr>
+                    <td>05/11/2026 09:05</td>
+                    <td>admin</td>
+                    <td><span class="adm-estado adm-crear">crear</span></td>
+                    <td>mejoras</td>
+                    <td>3</td>
+                    <td>Mejora creada desde la sugerencia #003</td>
+                </tr>
+                <tr>
+                    <td>04/11/2026 17:40</td>
+                    <td>ejemplo.b</td>
+                    <td><span class="adm-estado adm-modificar">modificar</span></td>
+                    <td>existencias</td>
+                    <td>12</td>
+                    <td>Stock ajustado: entrada de 20 unidades</td>
+                </tr>
+                <tr>
+                    <td>04/11/2026 12:15</td>
+                    <td>admin</td>
+                    <td><span class="adm-estado adm-eliminar">eliminar</span></td>
+                    <td>sugerencias</td>
+                    <td>8</td>
+                    <td>Sugerencia duplicada eliminada</td>
+                </tr>
+                <tr>
+                    <td>04/11/2026 08:58</td>
+                    <td>admin</td>
+                    <td><span class="adm-estado adm-acceso">acceso</span></td>
+                    <td>usuarios</td>
+                    <td>1</td>
+                    <td>Inicio de sesión en el panel</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
