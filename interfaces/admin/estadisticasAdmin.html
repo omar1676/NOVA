@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="adm">
+<body class="adm" data-pagina="estadisticas">
 
 <div class="adm-sidebar">
     <div class="adm-marca">
@@ -27,12 +27,13 @@
         <a href="estadisticasAdmin.html" class="adm-activo"><i data-lucide="bar-chart-3"></i> Estadísticas</a>
         <a href="auditoriaAdmin.html"><i data-lucide="scroll-text"></i> Auditoría</a>
         <a href="configuracionAdmin.html"><i data-lucide="settings"></i> Configuración</a>
+        <a href="#" id="adm-salir"><i data-lucide="log-out"></i> Cerrar sesión</a>
     </nav>
 </div>
 
 <div class="adm-contenido">
     <h1>Estadísticas</h1>
-    <p class="adm-nota">Los pedidos cancelados no cuentan como ventas. Los gráficos se dibujarán cuando haya pedidos en la base de datos.</p>
+    <p class="adm-nota">Los pedidos cancelados no cuentan como ventas. Las cuatro tarjetas son del mes en curso.</p>
 
     <div class="adm-tarjetas" style="margin-top: 20px;">
         <div class="adm-tarjeta"><span>Ingresos del mes</span><strong id="adm-est-ingresos">—</strong></div>
@@ -46,7 +47,7 @@
             <h2>Ventas por día</h2>
             <div class="adm-grafico-vacio" id="adm-ventas-vacio">Sin datos de ventas todavía</div>
             <div class="adm-grafico-caja" id="adm-ventas-caja" style="display: none;">
-                <canvas id="adm-ventas-canvas"></canvas>
+                <canvas id="adm-ventas-canvas" role="img" aria-label="Gráfico de barras: ventas por día"></canvas>
             </div>
         </div>
 
@@ -54,7 +55,7 @@
             <h2>Evolución de ingresos</h2>
             <div class="adm-grafico-vacio" id="adm-ingresos-vacio">Sin datos de ingresos todavía</div>
             <div class="adm-grafico-caja" id="adm-ingresos-caja" style="display: none;">
-                <canvas id="adm-ingresos-canvas"></canvas>
+                <canvas id="adm-ingresos-canvas" role="img" aria-label="Gráfico de líneas: ingresos por mes"></canvas>
             </div>
         </div>
     </div>
@@ -62,7 +63,7 @@
     <div class="adm-fila adm-fila-igual">
         <div class="adm-panel">
             <h2>Pedidos por estado</h2>
-            <div class="adm-lista-estados">
+            <div class="adm-lista-estados" id="adm-estados">
                 <div><span>pendiente</span><span>—</span></div>
                 <div><span>confirmado</span><span>—</span></div>
                 <div><span>en_preparacion</span><span>—</span></div>
@@ -75,43 +76,14 @@
         <div class="adm-panel">
             <h2>Productos más vendidos</h2>
             <div id="adm-productos-lista">
-                <div class="adm-barra-fila">
-                    <span class="adm-barra-nombre">NOVA Origin</span>
-                    <span class="adm-barra-pista"><span class="adm-barra-relleno"></span></span>
-                    <span class="adm-barra-valor">—</span>
-                </div>
-                <div class="adm-barra-fila">
-                    <span class="adm-barra-nombre">NOVA Velocity</span>
-                    <span class="adm-barra-pista"><span class="adm-barra-relleno"></span></span>
-                    <span class="adm-barra-valor">—</span>
-                </div>
-                <div class="adm-barra-fila">
-                    <span class="adm-barra-nombre">NOVA Eclipse</span>
-                    <span class="adm-barra-pista"><span class="adm-barra-relleno"></span></span>
-                    <span class="adm-barra-valor">—</span>
-                </div>
-                <div class="adm-barra-fila">
-                    <span class="adm-barra-nombre">NOVA Archive</span>
-                    <span class="adm-barra-pista"><span class="adm-barra-relleno"></span></span>
-                    <span class="adm-barra-valor">—</span>
-                </div>
-                <div class="adm-barra-fila">
-                    <span class="adm-barra-nombre">NOVA Aura</span>
-                    <span class="adm-barra-pista"><span class="adm-barra-relleno"></span></span>
-                    <span class="adm-barra-valor">—</span>
-                </div>
-                <div class="adm-barra-fila">
-                    <span class="adm-barra-nombre">NOVA Pulse</span>
-                    <span class="adm-barra-pista"><span class="adm-barra-relleno"></span></span>
-                    <span class="adm-barra-valor">—</span>
-                </div>
+                <p class="adm-vacio">Cargando datos…</p>
             </div>
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@1.62.0/dist/umd/lucide.min.js" integrity="sha384-KbBG+Cdzk6eN6IszNtkSQeU6IJq84TBpyLQN+W8Fn8y0QNsTNiB+j8vFW5Rn1SGZ" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" crossorigin="anonymous"></script>
 <script src="script.js"></script>
 
 </body>

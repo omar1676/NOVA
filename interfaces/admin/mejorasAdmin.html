@@ -27,6 +27,7 @@
         <a href="estadisticasAdmin.html"><i data-lucide="bar-chart-3"></i> Estadísticas</a>
         <a href="auditoriaAdmin.html"><i data-lucide="scroll-text"></i> Auditoría</a>
         <a href="configuracionAdmin.html"><i data-lucide="settings"></i> Configuración</a>
+        <a href="#" id="adm-salir"><i data-lucide="log-out"></i> Cerrar sesión</a>
     </nav>
 </div>
 
@@ -34,6 +35,7 @@
 
     <div class="adm-cabecera">
         <h1>Mejoras</h1>
+        <p class="adm-prototipo">Prototipo · Los datos de esta página son de ejemplo: todavía no está conectada a la base de datos.</p>
         <p class="adm-nota">Publicada solo registra el estado; no despliega la web.</p>
     </div>
 
@@ -57,7 +59,7 @@
         </div>
     </div>
 
-    <div class="adm-kanban">
+    <div class="adm-kanban" role="region" aria-label="Tablero de mejoras" tabindex="0">
 
         <div class="adm-columna adm-fase-planificada">
             <div class="adm-columna-barra"></div>
@@ -143,7 +145,7 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@1.62.0/dist/umd/lucide.min.js" integrity="sha384-KbBG+Cdzk6eN6IszNtkSQeU6IJq84TBpyLQN+W8Fn8y0QNsTNiB+j8vFW5Rn1SGZ" crossorigin="anonymous"></script>
 <script src="script.js"></script>
 
 </body>

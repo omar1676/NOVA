@@ -252,6 +252,7 @@
 .adm-estado.adm-cancelado      { color: #e66a6a; }
 .adm-estado.adm-activo         { color: #5fc58a; }
 .adm-estado.adm-inactivo       { color: var(--adm-texto-suave); }
+.adm-estado.adm-sin-cuenta     { color: var(--adm-texto-suave); }
 .adm-estado.adm-suficiente      { color: #5fc58a; }
 .adm-estado.adm-bajo    { color: var(--adm-dorado); }
 .adm-estado.adm-agotado { color: #e66a6a; }
@@ -743,3 +744,56 @@
     flex: 1;
   }
 } 
+
+/* ===== Acceso al panel (login.html) ===== */
+.adm-login {
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.adm-login-caja {
+  width: 100%;
+  max-width: 380px;
+}
+
+.adm-login-caja h1 {
+  margin: 0 0 6px;
+  font-size: 22px;
+}
+
+.adm-login-caja form {
+  margin-top: 20px;
+}
+
+.adm-login-caja .adm-boton {
+  width: 100%;
+}
+
+.adm-login-caja .adm-aviso {
+  min-height: 1.2em;
+  margin: 12px 0 0;
+  color: #e66a6a;
+}
+
+/* ===== Avisos del panel conectado a la API ===== */
+.adm-prototipo {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  border: 1px solid var(--adm-dorado);
+  border-radius: 8px;
+  color: var(--adm-dorado);
+  font-size: 14px;
+}
+
+.adm-tarjeta strong.adm-no-disponible {
+  font-size: 16px;
+  color: var(--adm-texto-suave);
+}
+
+/* Foco bien visible en el formulario de acceso */
+.adm-login-caja .adm-campo input:focus {
+  outline: 2px solid var(--adm-dorado);
+  outline-offset: 1px;
+}

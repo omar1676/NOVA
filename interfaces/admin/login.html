@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NOVA Sneakers · Acceso al panel</title>
+  <link rel="icon" href="img/Nova Logo.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="adm adm-login">
+
+  <main class="adm-panel adm-login-caja">
+    <div class="adm-marca">
+      <img src="img/Nova Logo.png" alt="NOVA Sneakers">
+    </div>
+
+    <h1>Panel de administración</h1>
+    <p class="adm-nota">Entra con un usuario administrador de NOVA.</p>
+
+    <form id="adm-login" method="post" action="/api/login">
+      <div class="adm-campo">
+        <label for="adm-usuario">Usuario</label>
+        <input type="text" id="adm-usuario" name="usuario" autocomplete="username" maxlength="60" required>
+      </div>
+
+      <div class="adm-campo">
+        <label for="adm-contrasena">Contraseña</label>
+        <input type="password" id="adm-contrasena" name="contrasena" autocomplete="current-password" maxlength="200" required>
+      </div>
+
+      <button type="submit" class="adm-boton">Entrar</button>
+      <p class="adm-aviso" id="adm-login-aviso" role="alert"></p>
+    </form>
+  </main>
+
+  <script src="login.js"></script>
+</body>
+
+</html>

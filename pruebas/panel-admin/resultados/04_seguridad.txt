@@ -1,0 +1,40 @@
+--- cabeceras
+PASS  sin X-Powered-By en paginas (0)
+PASS  sin X-Powered-By en la API (0)
+PASS  nosniff (1)
+PASS  no se puede meter en un iframe (1)
+PASS  la API no se guarda en cache (1)
+PASS  las paginas si se pueden cachear (sin no-store) (0)
+--- cuerpos grandes
+PASS  200 KB en el login -> 413 (413)
+PASS  el servidor sigue respondiendo (200)
+--- web_nova (como panel_lectura) no puede tocar la auditoria ni leer hashes
+PASS  web_nova ya no puede pasar a nova_admin (1)
+PASS  INSERT en log_eventos denegado (1)
+PASS  INSERT y DELETE en log_eventos denegados (2 errores) (2)
+PASS  password_hash denegado (1)
+PASS  UPDATE de pedidos y existencias en READ ONLY rechazados (2) (2)
+PASS  web_nova sin SET ROLE no lee pedidos (1)
+--- hallazgos de la revision independiente
+PASS  Host ajeno -> 400 (400)
+PASS  login con Host ajeno -> 400 (400)
+PASS  localhost sigue funcionando (200)
+PASS  NUL en el login -> 400 (400)
+PASS  NUL en un filtro -> 400 (400)
+PASS  charset latin1 -> 415 (415)
+PASS  /API/admin/clientes lleva no-store (1)
+PASS  ?texto=_ ya no devuelve todo (0 pedidos con _) (0)
+PASS  ?texto=producto_sku encuentra eventos de esa tabla (1)
+PASS  modelo dado de baja: sus SKU salen inactivos (inactivo)
+PASS  cuenta sin ficha de personal: aparece en Trabajadores (true)
+PASS  tabla bloqueada: 503 en lugar de quedarse colgado (503)
+      (respondio en 10.013518 s)
+PASS  despues del bloqueo todo vuelve a funcionar (200)
+=== seguridad extra (total): 27 PASS, 0 FAIL
+
+--- Atras despues de cerrar sesion (Edge, con y sin modo headless)
+headless=True: tras logout + Atras -> http://127.0.0.1:3100/login.html | correos de clientes visibles: 0
+headless=False: tras logout + Atras -> http://127.0.0.1:3100/login.html | correos de clientes visibles: 0
+
+--- Login con JavaScript desactivado
+PASS  sin JavaScript la contrasena no va en la URL (http://127.0.0.1:3100/api/login)

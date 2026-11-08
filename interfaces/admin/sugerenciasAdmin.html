@@ -27,15 +27,17 @@
         <a href="estadisticasAdmin.html"><i data-lucide="bar-chart-3"></i> Estadísticas</a>
         <a href="auditoriaAdmin.html"><i data-lucide="scroll-text"></i> Auditoría</a>
         <a href="configuracionAdmin.html"><i data-lucide="settings"></i> Configuración</a>
+        <a href="#" id="adm-salir"><i data-lucide="log-out"></i> Cerrar sesión</a>
     </nav>
 </div>
 
 <div class="adm-contenido">
     <h1>Sugerencias</h1>
+    <p class="adm-prototipo">Prototipo · Los datos de esta página son de ejemplo: todavía no está conectada a la base de datos.</p>
 
     <div class="adm-herramientas">
-        <input type="text" id="adm-buscador" placeholder="Buscar por título, usuario o categoría...">
-        <select id="adm-filtro-estado">
+        <input type="text" id="adm-buscador" placeholder="Buscar por título, usuario o categoría..." aria-label="Buscar por título, usuario o categoría">
+        <select id="adm-filtro-estado" aria-label="Filtrar por estado">
             <option value="">Todos los estados</option>
             <option value="pendiente">pendiente</option>
             <option value="en revisión">en revisión</option>
@@ -121,7 +123,7 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@1.62.0/dist/umd/lucide.min.js" integrity="sha384-KbBG+Cdzk6eN6IszNtkSQeU6IJq84TBpyLQN+W8Fn8y0QNsTNiB+j8vFW5Rn1SGZ" crossorigin="anonymous"></script>
 <script src="script.js"></script>
 
 </body>

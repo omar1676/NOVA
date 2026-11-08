@@ -5,11 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NOVA Sneakers · Productos</title>
-    <link rel="icon" href="img/logo.png">
+    <link rel="icon" href="img/Nova Logo.png">
     <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="adm">
+<body class="adm" data-pagina="productos">
 
 <div class="adm-sidebar">
     <div class="adm-marca">
@@ -27,6 +27,7 @@
         <a href="estadisticasAdmin.html"><i data-lucide="bar-chart-3"></i> Estadísticas</a>
         <a href="auditoriaAdmin.html"><i data-lucide="scroll-text"></i> Auditoría</a>
         <a href="configuracionAdmin.html"><i data-lucide="settings"></i> Configuración</a>
+        <a href="#" id="adm-salir"><i data-lucide="log-out"></i> Cerrar sesión</a>
     </nav>
 </div>
 
@@ -34,8 +35,8 @@
     <h1>Productos</h1>
 
     <div class="adm-herramientas">
-        <input type="text" id="adm-buscador" placeholder="Buscar por modelo, color o SKU...">
-        <select id="adm-filtro-estado">
+        <input type="text" id="adm-buscador" placeholder="Buscar por modelo, color o SKU..." aria-label="Buscar por modelo, color o SKU">
+        <select id="adm-filtro-estado" aria-label="Filtrar por estado">
             <option value="">Todos los estados</option>
             <option value="activo">activo</option>
             <option value="inactivo">inactivo</option>
@@ -55,36 +56,13 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>NOVA Origin</td>
-                    <td>Negro</td>
-                    <td>42</td>
-                    <td>EJ-ZAMBA-NEG-42</td>
-                    <td>—</td>
-                    <td><span class="adm-estado adm-activo">activo</span></td>
-                </tr>
-                <tr>
-                    <td>NOVA Velocity</td>
-                    <td>Blanco</td>
-                    <td>41</td>
-                    <td>EJ-MAXIMO-BLA-41</td>
-                    <td>—</td>
-                    <td><span class="adm-estado adm-activo">activo</span></td>
-                </tr>
-                <tr>
-                    <td>NOVA Eclipse</td>
-                    <td>Rojo</td>
-                    <td>43</td>
-                    <td>EJ-BARRIO-ROJ-43</td>
-                    <td>—</td>
-                    <td><span class="adm-estado adm-inactivo">inactivo</span></td>
-                </tr>
+                <tr><td colspan="6" class="adm-vacio">Cargando datos…</td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@1.62.0/dist/umd/lucide.min.js" integrity="sha384-KbBG+Cdzk6eN6IszNtkSQeU6IJq84TBpyLQN+W8Fn8y0QNsTNiB+j8vFW5Rn1SGZ" crossorigin="anonymous"></script>
 <script src="script.js"></script>
 
 </body>

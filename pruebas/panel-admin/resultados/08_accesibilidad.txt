@@ -1,0 +1,18 @@
+axe-core 4.12.1, reglas WCAG 2.0/2.1 A y AA, Edge 157, 12 paginas con sesion de administrador
+
+=== ANTES de la limpieza (marcado heredado del prototipo)
+[critical] select-name: Select element must have an accessible name
+   paginas: pedidosAdmin (1), productosAdmin (1), inventarioAdmin (1), clientesAdmin (1), trabajadoresAdmin (1), sugerenciasAdmin (1), auditoriaAdmin (1)
+   - #adm-filtro-estado  | Element does not have an implicit (wrapped) <label>
+[serious] scrollable-region-focusable: Scrollable region must have keyboard access
+   paginas: mejorasAdmin (1)
+   - .adm-kanban  | Element should have focusable content
+[critical] label: Form elements must have labels
+   paginas: configuracionAdmin (3)
+   - #adm-banner-activo  | Element does not have an implicit (wrapped) <label>
+   - #adm-modulo-novedades  | Element does not have an implicit (wrapped) <label>
+   - #adm-modulo-sugerencias  | Element does not have an implicit (wrapped) <label>
+paginas revisadas: 12 | reglas con violaciones: 3 | elementos afectados: 11
+
+=== AHORA
+paginas revisadas: 12 | reglas con violaciones: 0 | elementos afectados: 0

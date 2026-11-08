@@ -5,11 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NOVA Sneakers · Pedidos</title>
-    <link rel="icon" href="img/logo.png">
+    <link rel="icon" href="img/Nova Logo.png">
     <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="adm">
+<body class="adm" data-pagina="pedidos">
 
 <div class="adm-sidebar">
     <div class="adm-marca">
@@ -27,6 +27,7 @@
         <a href="estadisticasAdmin.html"><i data-lucide="bar-chart-3"></i> Estadísticas</a>
         <a href="auditoriaAdmin.html"><i data-lucide="scroll-text"></i> Auditoría</a>
         <a href="configuracionAdmin.html"><i data-lucide="settings"></i> Configuración</a>
+        <a href="#" id="adm-salir"><i data-lucide="log-out"></i> Cerrar sesión</a>
     </nav>
 </div>
 
@@ -34,8 +35,8 @@
     <h1>Pedidos</h1>
 
     <div class="adm-herramientas">
-        <input type="text" id="adm-buscador" placeholder="Buscar por referencia o cliente...">
-        <select id="adm-filtro-estado">
+        <input type="text" id="adm-buscador" placeholder="Buscar por referencia o cliente..." aria-label="Buscar por referencia o cliente">
+        <select id="adm-filtro-estado" aria-label="Filtrar por estado">
             <option value="">Todos los estados</option>
             <option value="pendiente">pendiente</option>
             <option>confirmado</option>
@@ -58,40 +59,13 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>EJEMPLO-001</td>
-                    <td>Cliente de ejemplo A</td>
-                    <td>28/10/2026</td>
-                    <td><span class="adm-estado adm-pendiente">pendiente</span></td>
-                    <td>89,90 €</td>
-                </tr>
-                <tr>
-                    <td>EJEMPLO-002</td>
-                    <td>Cliente de ejemplo B</td>
-                    <td>27/10/2026</td>
-                    <td><span class="adm-estado adm-enviado">enviado</span></td>
-                    <td>120,00 €</td>
-                </tr>
-                <tr>
-                    <td>EJEMPLO-003</td>
-                    <td>Cliente de ejemplo C</td>
-                    <td>25/10/2026</td>
-                    <td><span class="adm-estado adm-entregado">entregado</span></td>
-                    <td>74,50 €</td>
-                </tr>
-                <tr>
-                    <td>EJEMPLO-004</td>
-                    <td>Cliente de ejemplo D</td>
-                    <td>24/10/2026</td>
-                    <td><span class="adm-estado adm-cancelado">cancelado</span></td>
-                    <td>99,00 €</td>
-                </tr>
+                <tr><td colspan="5" class="adm-vacio">Cargando datos…</td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@1.62.0/dist/umd/lucide.min.js" integrity="sha384-KbBG+Cdzk6eN6IszNtkSQeU6IJq84TBpyLQN+W8Fn8y0QNsTNiB+j8vFW5Rn1SGZ" crossorigin="anonymous"></script>
 <script src="script.js"></script>
 
 </body>

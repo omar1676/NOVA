@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="adm">
+<body class="adm" data-pagina="auditoria">
 
 <div class="adm-sidebar">
     <div class="adm-marca">
@@ -27,6 +27,7 @@
         <a href="estadisticasAdmin.html"><i data-lucide="bar-chart-3"></i> Estadísticas</a>
         <a href="auditoriaAdmin.html" class="adm-activo"><i data-lucide="scroll-text"></i> Auditoría</a>
         <a href="configuracionAdmin.html"><i data-lucide="settings"></i> Configuración</a>
+        <a href="#" id="adm-salir"><i data-lucide="log-out"></i> Cerrar sesión</a>
     </nav>
 </div>
 
@@ -34,13 +35,13 @@
     <h1>Auditoría</h1>
 
     <div class="adm-herramientas">
-        <input type="text" id="adm-buscador" placeholder="Buscar por usuario, tabla o detalle...">
-        <select id="adm-filtro-estado">
+        <input type="text" id="adm-buscador" placeholder="Buscar por usuario, tabla o detalle..." aria-label="Buscar por usuario, tabla o detalle">
+        <select id="adm-filtro-estado" aria-label="Filtrar por acción">
             <option value="">Todas las acciones</option>
-            <option value="crear">crear</option>
-            <option value="modificar">modificar</option>
-            <option value="eliminar">eliminar</option>
-            <option value="acceso">acceso</option>
+            <option value="ALTA">ALTA</option>
+            <option value="CAMBIO_ESTADO">CAMBIO_ESTADO</option>
+            <option value="CAMBIO_STOCK">CAMBIO_STOCK</option>
+            <option value="BAJA_LOGICA">BAJA_LOGICA</option>
         </select>
     </div>
 
@@ -57,52 +58,13 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>05/11/2026 09:12</td>
-                    <td>ejemplo.a</td>
-                    <td><span class="adm-estado adm-modificar">modificar</span></td>
-                    <td>pedidos</td>
-                    <td>EJEMPLO-001</td>
-                    <td>Estado cambiado a enviado</td>
-                </tr>
-                <tr>
-                    <td>05/11/2026 09:05</td>
-                    <td>admin</td>
-                    <td><span class="adm-estado adm-crear">crear</span></td>
-                    <td>mejoras</td>
-                    <td>3</td>
-                    <td>Mejora creada desde la sugerencia #003</td>
-                </tr>
-                <tr>
-                    <td>04/11/2026 17:40</td>
-                    <td>ejemplo.b</td>
-                    <td><span class="adm-estado adm-modificar">modificar</span></td>
-                    <td>existencias</td>
-                    <td>12</td>
-                    <td>Stock ajustado: entrada de 20 unidades</td>
-                </tr>
-                <tr>
-                    <td>04/11/2026 12:15</td>
-                    <td>admin</td>
-                    <td><span class="adm-estado adm-eliminar">eliminar</span></td>
-                    <td>sugerencias</td>
-                    <td>8</td>
-                    <td>Sugerencia duplicada eliminada</td>
-                </tr>
-                <tr>
-                    <td>04/11/2026 08:58</td>
-                    <td>admin</td>
-                    <td><span class="adm-estado adm-acceso">acceso</span></td>
-                    <td>usuarios</td>
-                    <td>1</td>
-                    <td>Inicio de sesión en el panel</td>
-                </tr>
+                <tr><td colspan="6" class="adm-vacio">Cargando datos…</td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@1.62.0/dist/umd/lucide.min.js" integrity="sha384-KbBG+Cdzk6eN6IszNtkSQeU6IJq84TBpyLQN+W8Fn8y0QNsTNiB+j8vFW5Rn1SGZ" crossorigin="anonymous"></script>
 <script src="script.js"></script>
 
 </body>
