@@ -1,0 +1,28 @@
+# Dependencias
+node_modules/
+
+# Configuración privada
+.env
+.env.local
+*.env
+!.env.example
+
+# Java y salidas generadas
+*.class
+psp/clases/
+fabricacion_psp.csv
+salidas/
+
+# Copias, volcados, registros y temporales
+*.backup
+*.dump
+*.log
+*.tmp
+*.temp
+*~
+~$*
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+Desktop.ini
