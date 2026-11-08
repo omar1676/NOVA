@@ -48,4 +48,15 @@ ALTER TABLE public.linea_pedido
 ADD CONSTRAINT linea_configuracion_xnova_uq
 UNIQUE (id_configuracion_xnova);
 
+ALTER TABLE public.linea_pedido
+ADD CONSTRAINT linea_stock_descontado_check
+CHECK (
+    stock_descontado = false
+    OR (
+        id_producto_sku IS NOT NULL
+        AND id_nave IS NOT NULL
+        AND id_configuracion_xnova IS NULL
+    )
+);
+
 COMMIT;
