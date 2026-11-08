@@ -420,6 +420,7 @@ public class PruebasPsp {
     /** La linea "Resultado: ..." de la consola del coordinador. */
     private static String ultimaLinea(String consola) {
 
+        // "\r?\n": final de linea de Windows (\r\n) o de Linux (\n)
         for (String linea : consola.split("\r?\n")) {
             if (linea.startsWith("Resultado:")) {
                 return linea;

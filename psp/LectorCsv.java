@@ -4,9 +4,9 @@ import java.util.ArrayList;
  * NOVA Sneakers - PSP - Leer un CSV y separarlo en registros y campos
  *
  * POR QUE EXISTE ESTA CLASE
- *   Los dos hijos necesitan leer el mismo CSV, y leerlo bien no es tan simple
- *   como partir por comas. Tenerlo en un sitio evita escribir dos veces el
- *   mismo codigo y que uno se arregle y el otro no.
+ *   Leer bien un CSV no es tan simple como partir por comas. La usan
+ *   ValidadorPedidoCustom (hijo 1) y el AnalizadorTallas antiguo de esta
+ *   carpeta; asi el codigo esta en un solo sitio.
  *
  * LINEA FISICA NO ES LO MISMO QUE REGISTRO
  *   Esto es lo importante de esta clase. Un registro del CSV puede ocupar
@@ -100,9 +100,7 @@ public class LectorCsv {
                     comillaCerrada = false;
 
                 } else if (letra == '\n') {
-                    /*
-                     * Fuera de comillas, un salto de linea ACABA EL REGISTRO.
-                     */
+                    // Fuera de comillas, un salto de linea ACABA EL REGISTRO.
                     registro.add(campo.toString());
                     campo.setLength(0);
                     comillaCerrada = false;

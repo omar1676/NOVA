@@ -195,8 +195,9 @@ public class UsuarioDAO {
     // ------------------------------------------------------------------
 
     /**
-     * Exporta los usuarios tal y como estan confirmados en la base. Solo se
-     * llama despues de un COMMIT, asi que nunca publica un cambio deshecho.
+     * Exporta los usuarios tal y como estan confirmados en la base. Se llama
+     * despues de cada COMMIT o desde el boton Exportar, nunca a mitad de una
+     * transaccion: asi no publica un cambio deshecho.
      */
     public static File exportarUsuariosJson() throws SQLException, IOException {
         try {

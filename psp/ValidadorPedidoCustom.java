@@ -48,8 +48,7 @@ import java.util.ArrayList;
  */
 public class ValidadorPedidoCustom {
 
-    // Las 8 columnas que tiene que traer el CSV, en este orden.
-    // Son las que escribe de verdad el script 15, no inventadas.
+    // Las 8 columnas que escribe el script 15, en este orden.
     private static final String CABECERA_ESPERADA =
             "referencia,sku,cliente,modelo,color,personalizacion,talla,cantidad";
 
@@ -64,15 +63,9 @@ public class ValidadorPedidoCustom {
         System.setErr(new PrintStream(System.err, true, StandardCharsets.UTF_8));
 
         /*
-         * Leemos TODA la entrada estandar de golpe, no linea a linea.
-         *
-         * Hace falta leerla entera porque un registro del CSV puede ocupar
-         * varias lineas del archivo: si un campo entrecomillado lleva un
-         * salto de linea dentro, PostgreSQL lo escribe asi y partir por
-         * lineas rompería ese registro en dos.
-         *
-         * readAllBytes() nos da los bytes tal cual y los pasamos a texto con
-         * UTF-8, para no cambiar ningun caracter del contenido original.
+         * Leemos TODA la entrada de golpe, no linea a linea: un registro del
+         * CSV puede ocupar varias lineas si un campo entre comillas lleva un
+         * salto de linea dentro (ver LectorCsv).
          */
         String contenido = new String(System.in.readAllBytes(), StandardCharsets.UTF_8);
 
@@ -113,10 +106,7 @@ public class ValidadorPedidoCustom {
             error("El pedido solo trae la cabecera, sin ningun registro de pedido");
         }
 
-        /*
-         * Variables donde iremos acumulando el resultado.
-         * Las declaramos antes del bucle para que sigan existiendo despues.
-         */
+        // Lo que se va acumulando al recorrer los registros.
         String referencia = "";
         String cliente = "";
         String personalizacion = "";
@@ -221,6 +211,7 @@ public class ValidadorPedidoCustom {
         System.out.println("CLIENTE;" + cliente);
 
         // Una linea PERSONALIZACION por cada linea del texto (puede no haber).
+        // El split corta por cualquier final de linea: \r\n (Windows), \n o \r.
         if (!personalizacion.isBlank()) {
             String[] partes = personalizacion.split("\r\n|\n|\r");
 
@@ -256,11 +247,8 @@ public class ValidadorPedidoCustom {
     }
 
     /**
-     * Convierte un texto en numero entero.
-     *
-     * Si el texto no es un numero, no seguimos: avisamos y terminamos, igual
-     * que hace el hijo del ejemplo del profesor cuando recibe algo que no es
-     * un entero.
+     * Convierte un texto en numero entero. Si no es un numero, termina con
+     * error, como el hijo del ejemplo del profesor.
      */
     private static int aNumero(String texto, String queEs, int numeroRegistro) {
 

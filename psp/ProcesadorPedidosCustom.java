@@ -83,7 +83,7 @@ public class ProcesadorPedidosCustom {
         anotar("===== NOVA Sneakers - PSP - " + ahora + " =====");
 
         // =================================================================
-        // 1. El archivo de entrada
+        // Leer el archivo de entrada
         // =================================================================
         if (args.length != 1) {
             terminar(ERROR_ARCHIVO, "Uso: java ProcesadorPedidosCustom <archivo.csv>");
@@ -114,7 +114,7 @@ public class ProcesadorPedidosCustom {
         }
 
         // =================================================================
-        // 2. Paso 1: validar. Le enviamos el CSV entero por su stdin.
+        // Paso 1: validar. Le enviamos el CSV entero por su stdin.
         // =================================================================
         GestorProcesos validador = new GestorProcesos(VALIDADOR, SEGUNDOS_MAXIMOS);
         validador.ejecutar(csv);
@@ -154,7 +154,7 @@ public class ProcesadorPedidosCustom {
         }
 
         // =================================================================
-        // 3. Paso 2: agrupar por variante y talla.
+        // Paso 2: agrupar por variante y talla.
         // =================================================================
         GestorProcesos analizador = new GestorProcesos(ANALIZADOR, SEGUNDOS_MAXIMOS);
         analizador.ejecutar(paraAnalizador.toString());
@@ -185,8 +185,8 @@ public class ProcesadorPedidosCustom {
                 + tallas + " tallas; " + totalAnalizador + " pares");
 
         // =================================================================
-        // 4. Paso 3: la ficha. Le enviamos los datos del pedido y el
-        //    resumen del analizador (sin su primera linea, que es el OK).
+        // Paso 3: la ficha. Le enviamos los datos del pedido y el
+        // resumen del analizador (sin su primera linea, que es el OK).
         // =================================================================
         StringBuilder paraGenerador = new StringBuilder();
         paraGenerador.append("PEDIDO;").append(referencia).append("\n");
@@ -207,7 +207,7 @@ public class ProcesadorPedidosCustom {
         comprobarPaso(3, generador, referencia);
 
         // =================================================================
-        // 5. Guardar la ficha (todo menos la primera linea, que es el OK).
+        // Guardar la ficha (todo menos la primera linea, que es el OK).
         // =================================================================
         ArrayList<String> ficha = new ArrayList<>();
 
@@ -355,9 +355,7 @@ public class ProcesadorPedidosCustom {
         resumen.add(linea);
     }
 
-    /**
-     * Ultima linea del resumen, guardar el registro y salir con el codigo.
-     */
+    /** Escribe la ultima linea del resumen, guarda el registro y sale con el codigo. */
     private static void terminar(int codigo, String mensaje) {
 
         String estado;
@@ -374,7 +372,7 @@ public class ProcesadorPedidosCustom {
 
         anotar("Resultado: " + estado + " (codigo " + codigo + "). " + mensaje);
 
-        // El registro se va alargando: cada ejecucion anade su bloque.
+        // Cada ejecucion anade su bloque al final (APPEND), separado por una linea en blanco.
         resumen.add("");
 
         try {

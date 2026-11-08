@@ -6,6 +6,9 @@ import java.util.ArrayList;
 /**
  * NOVA Sneakers - PSP - Proceso hijo 2: resumir las cantidades por talla
  *
+ * VERSION ANTERIOR: la lanza LanzadorValidacion. El hijo 2 de
+ * ProcesadorPedidosCustom es otra clase, Psp.AnalizadorTallas (ver README).
+ *
  * QUE HACE
  *   Lee por su entrada estandar (stdin) el mismo CSV del pedido Custom y
  *   agrupa las cantidades por talla. Despues escribe el resumen por su

@@ -14,9 +14,10 @@ import java.util.Scanner;
 import javax.swing.table.DefaultTableModel;
 
 /**
- * Pruebas A-J del enunciado, lanzadas desde Java con los MISMOS metodos que
- * usan los botones de la aplicacion. Cada resultado se comprueba despues con
- * una consulta SQL. Escribe PASS o FAIL por cada comprobacion.
+ * Pruebas A-J del enunciado, mas las de inicio de sesion (L) y permisos (P),
+ * lanzadas desde Java con los MISMOS metodos que usan los botones de la
+ * aplicacion. Cada resultado se comprueba despues con una consulta SQL.
+ * Escribe PASS o FAIL por cada comprobacion.
  *
  * Pide por teclado las contrasenas de admin.demo, tienda.demo y taller.demo.
  *

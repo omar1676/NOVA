@@ -244,6 +244,7 @@ public class PedidoDAO {
                     + "p.personalizacion AS \"Personalizacion\" "
                     + "FROM pedidos p JOIN clientes c ON c.id_cliente = p.id_cliente "
                     + "WHERE 1 = 1";
+            // 1 = 1 siempre se cumple: asi cada filtro se puede anadir con " AND ..."
             ArrayList<Object> parametros = new ArrayList<>();
 
             if (idCliente != null) {

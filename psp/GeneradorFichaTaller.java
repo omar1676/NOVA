@@ -79,6 +79,7 @@ public class GeneradorFichaTaller {
             numeroLinea++;
 
             // La primera linea tiene que decir de que pedido es todo.
+            // Si mide 7 es solo "PEDIDO;": falta la referencia.
             if (numeroLinea == 1) {
                 if (!linea.startsWith("PEDIDO;") || linea.length() == 7) {
                     error("La primera linea tiene que ser PEDIDO;referencia");
@@ -92,6 +93,7 @@ public class GeneradorFichaTaller {
                 break;
             }
 
+            // Con -1, split no descarta los campos vacios del final: la cuenta de partes es exacta
             String[] partes = linea.split(";", -1);
             String tipo = partes[0];
 
@@ -111,6 +113,7 @@ public class GeneradorFichaTaller {
                             + " VARIANTE_TALLA;modelo;color;talla;pares");
                 }
                 int pares = aNumero(partes[4], numeroLinea);
+                // %-20s: texto a la izquierda en 20 columnas; %6d: numero en 6 columnas
                 filasVariantes.add(String.format("  %-20s %-12s %5s %6d",
                         partes[1], partes[2], partes[3], pares));
                 sumaVariantes = sumaVariantes + pares;
