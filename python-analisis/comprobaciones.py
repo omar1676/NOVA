@@ -29,8 +29,8 @@ def comprobar_columnas(datos):
     for nombre, definicion in config.ARCHIVOS.items():
         esperadas = list(definicion["tipos"])
         reales = list(datos[nombre].columns)
-        faltan = [c for c in esperadas if c not in reales]
-        sobran = [c for c in reales if c not in esperadas]
+        faltan = [columna for columna in esperadas if columna not in reales]
+        sobran = [columna for columna in reales if columna not in esperadas]
         if faltan:
             diferencias.append(f"{definicion['archivo']} no trae {', '.join(faltan)}")
         if sobran:
@@ -39,7 +39,9 @@ def comprobar_columnas(datos):
             diferencias.append(f"{definicion['archivo']} tiene las columnas en otro orden")
     if diferencias:
         return resultado("Columnas del exportador", "AVISO", "; ".join(diferencias))
-    total = sum(len(d["tipos"]) for d in config.ARCHIVOS.values())
+    total = 0
+    for definicion in config.ARCHIVOS.values():
+        total += len(definicion["tipos"])
     return resultado("Columnas del exportador", "OK", f"las {total} columnas esperadas, en su orden")
 
 
@@ -131,7 +133,8 @@ def comprobar_importes_y_cantidades(datos):
     # Los euros se comparan redondeados a centimos. Un valor que no se pudo
     # convertir da nulo; ya salio en los avisos, asi que aqui no cuenta (fillna).
     calculado = (lineas["cantidad"] * lineas["precio_unitario"]).round(2)
-    distinto = ((calculado - lineas["importe_linea"]).abs() > 0.005).fillna(False)
+    diferencia = (calculado - lineas["importe_linea"]).abs()
+    distinto = (diferencia > config.TOLERANCIA_EUROS).fillna(False)
     mal_calculadas = lineas.loc[distinto, "id_linea"]
     if len(mal_calculadas) > 0:
         problemas.append(f"importe_linea no es cantidad x precio en las líneas {', '.join(mal_calculadas)}")
@@ -140,8 +143,9 @@ def comprobar_importes_y_cantidades(datos):
     suma = lineas.groupby("id_pedido").agg(pares=("cantidad", "sum"), importe=("importe_linea", "sum"))
     cruce = pedidos.merge(suma, how="left", left_on="id_pedido", right_index=True)
     cruce = cruce.fillna({"pares": 0, "importe": 0})
-    distinto = ((cruce["pares"] != cruce["cantidad_total"])
-                | ((cruce["importe"] - cruce["importe_total"]).abs() > 0.005)).fillna(False)
+    pares_distintos = cruce["pares"] != cruce["cantidad_total"]
+    importe_distinto = (cruce["importe"] - cruce["importe_total"]).abs() > config.TOLERANCIA_EUROS
+    distinto = (pares_distintos | importe_distinto).fillna(False)
     no_cuadran = cruce.loc[distinto, "id_pedido"]
     if len(no_cuadran) > 0:
         problemas.append(f"el total no es la suma de sus líneas en los pedidos {', '.join(no_cuadran)}")

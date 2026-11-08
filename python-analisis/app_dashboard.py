@@ -3,13 +3,14 @@ Dashboard de NOVA Sneakers (apartados 6.14 a 6.17). Desde python-analisis:
 
     .venv\\Scripts\\streamlit.exe run app_dashboard.py
 
-Este archivo solo ORQUESTA y MUESTRA. Ningun calculo esta aqui:
+Este archivo solo ORQUESTA y MUESTRA. Las cifras salen de otros modulos (aqui
+solo se agrupan algunos datos para dibujarlos):
 - actualizacion.ciclo: comprobar los CSV, validarlos, recalcular todo y anotarlo;
 - filtros: las tablas y los KPIs del subconjunto filtrado (las mismas funciones de main.py);
 - visualizaciones: los graficos Matplotlib de main.py;
 - informe: las cinco conclusiones.
 
-Refresco cada 60 s: panel() es un st.fragment(run_every="60s"). Streamlit la
+Refresco cada 60 s: panel() es un st.fragment(run_every="60s"). Streamlit lo
 vuelve a ejecutar cada 60 segundos mientras la pagina esta abierta, y si han
 pasado 60 s desde la ultima comprobacion llama a actualizacion.ciclo, que
 RELEE los CSV del disco. No hay time.sleep ni bucles: lo programa Streamlit.
@@ -105,24 +106,35 @@ def elegir_filtros(nombre, estado):
     clave = f"periodo_{sufijo}"
     guardado = st.session_state.get(clave)
     sin_restringir = guardado is None or tuple(guardado) == st.session_state.get(f"rango_{sufijo}")
-    fuera = guardado is not None and any(dia < primero or dia > ultimo for dia in guardado)
+    # Tambien se vuelve al periodo completo si alguna fecha guardada se sale del de la exportacion
+    fuera = False
+    if guardado is not None:
+        for dia in guardado:
+            if dia < primero or dia > ultimo:
+                fuera = True
     if sin_restringir or fuera:
         st.session_state[clave] = (primero, ultimo)
     st.session_state[f"rango_{sufijo}"] = (primero, ultimo)
     periodo = st.date_input("Periodo (fecha del pedido)", min_value=primero, max_value=ultimo, key=clave,
                             format="DD/MM/YYYY")
+    # Las opciones de los filtros de modelo y talla, ordenadas
+    nombres_modelos = sorted(publicado["validos"]["modelos"]["nombre_modelo"])
+    tallas = []
+    for talla in lineas["talla"].dropna().unique():
+        tallas.append(int(talla))
+    tallas.sort()
     elegidos = {
         "desde": None,
         "hasta": None,
-        "modelos": lista_filtro("Modelo", sorted(publicado["validos"]["modelos"]["nombre_modelo"]), f"modelos_{sufijo}"),
-        "tallas": lista_filtro("Talla", sorted(int(talla) for talla in lineas["talla"].dropna().unique()),
-                               f"tallas_{sufijo}"),
+        "modelos": lista_filtro("Modelo", nombres_modelos, f"modelos_{sufijo}"),
+        "tallas": lista_filtro("Talla", tallas, f"tallas_{sufijo}"),
         "tipos": lista_filtro("Tipo de pedido", config.TIPOS_PEDIDO, f"tipos_{sufijo}"),
         "estados": lista_filtro("Estado del pedido", config.ESTADOS_PEDIDO, f"estados_{sufijo}"),
     }
     # El periodo solo filtra si no es el completo (y cuando ya se han elegido las dos fechas)
     if len(periodo) == 2 and (periodo[0] > primero or periodo[1] < ultimo):
-        elegidos["desde"], elegidos["hasta"] = periodo[0].isoformat(), periodo[1].isoformat()
+        elegidos["desde"] = periodo[0].isoformat()
+        elegidos["hasta"] = periodo[1].isoformat()
     elif len(periodo) == 1:
         st.caption("Elige también la fecha final: mientras tanto se usa el periodo completo.")
     st.button("Restablecer filtros", on_click=restablecer_filtros, args=(sufijo, primero, ultimo),
@@ -138,15 +150,23 @@ def elegir_filtros(nombre, estado):
 def texto_kpi(fila):
     """El valor de un KPI para una tarjeta, o N/D si no se puede calcular."""
     valor = fila["valor"]
-    if fila["estado"] != "calculado" or valor is None or (not isinstance(valor, str) and pd.isna(valor)):
+    if fila["estado"] != "calculado" or valor is None:
         return "N/D"
     if isinstance(valor, str):
         return valor
+    if pd.isna(valor):
+        return "N/D"
     # Euros, porcentajes y semanas llevan su unidad; los recuentos ya la dicen en el titulo
     if fila["unidad"].startswith("€"):
         return f"{numero(valor, 2)} €"
-    texto = numero(valor, 0 if float(valor).is_integer() else 1)
-    return f"{texto} {fila['unidad']}" if fila["unidad"] in ["%", "semanas"] else texto
+    if float(valor).is_integer():
+        decimales = 0
+    else:
+        decimales = 1
+    texto = numero(valor, decimales)
+    if fila["unidad"] in ["%", "semanas"]:
+        return f"{texto} {fila['unidad']}"
+    return texto
 
 
 def tarjeta(columna, fila, etiqueta=None):
@@ -180,8 +200,12 @@ def preparar(tabla):
 def tabla(datos, alto="auto"):
     """Una tabla consultable (ordenable y con busqueda), con los euros formateados."""
     datos = preparar(datos)
-    formatos = {columna: st.column_config.NumberColumn(format="%.2f €") for columna in datos.columns
-                if any(palabra in str(columna) for palabra in ["importe", "ticket", "monetary"])}
+    # Las columnas de euros se ensenan con 2 decimales y el simbolo del euro
+    formatos = {}
+    for columna in datos.columns:
+        nombre = str(columna)
+        if "importe" in nombre or "ticket" in nombre or "monetary" in nombre:
+            formatos[columna] = st.column_config.NumberColumn(format="%.2f €")
     st.dataframe(datos, hide_index=True, column_config=formatos, height=alto)
 
 
@@ -194,7 +218,10 @@ def anotar_descarga(archivo, filas, origen, carpeta, version, texto_filtros):
 def descarga(datos, nombre, c, filtrado=True):
     """Boton para descargar la MISMA tabla que se ve, en CSV UTF-8, con su origen y sus filtros."""
     datos = preparar(datos)
-    texto_filtros = c["texto_filtros"] if filtrado else "ninguno (resultado global)"
+    if filtrado:
+        texto_filtros = c["texto_filtros"]
+    else:
+        texto_filtros = "ninguno (resultado global)"
     archivo = f"{nombre}_{c['publicado']['tipo'].lower()}.csv"
     st.download_button(
         f"Descargar {nombre}.csv", pipeline.csv_descarga(datos, c["estado"]["origen"], c["ejecucion"], texto_filtros),
@@ -297,7 +324,10 @@ def pestana_direccion(c):
     for fila in c["publicado"]["informe"].to_dict("records"):
         with st.container(border=True):
             st.markdown(f"**{fila['numero']}. {fila['titulo']}**")
-            color = "blue" if fila["procede_de"].startswith("Predicción") else COLOR_ORIGEN.get(c["publicado"]["tipo"], "gray")
+            if fila["procede_de"].startswith("Predicción"):
+                color = "blue"
+            else:
+                color = COLOR_ORIGEN.get(c["publicado"]["tipo"], "gray")
             st.badge(fila["procede_de"], color=color)
             st.markdown(f"**Evidencia.** {fila['evidencia']}  \n**Interpretación.** {fila['interpretacion']}  \n"
                         f"**Decisión.** {fila['decision']}  \n**Limitación.** {fila['limitacion']}")
@@ -599,17 +629,25 @@ def cabecera(estado):
         st.info("Exportación de PRUEBA de PostgreSQL: sirve para comprobar el sistema; no son ventas reales.",
                 icon=":material/info:")
     publicado = estado["publicado"]
+    # Los textos de la ultima publicacion valida (o lo que se ensena si todavia no hay ninguna)
+    if publicado:
+        hora_actualizacion = f"{publicado['actualizado']:%H:%M:%S}"
+        filas_validas = numero(publicado["filas_validas"])
+        corte = f"{publicado['corte']:%d/%m/%Y %H:%M}"
+        actualizado = f"{publicado['actualizado']:{FORMATO_HORA}}"
+    else:
+        hora_actualizacion = "Ninguna"
+        filas_validas = "0"
+        corte = "-"
+        actualizado = "ninguna"
     fila = st.columns([1.3, 1, 1.3, 0.8])
     fila[0].metric("Estado", estado["estado"].capitalize(), border=True, help=estado["mensaje"])
     # En la tarjeta, la hora; la fecha completa, en la linea de debajo
     fila[1].metric("Última comprobación", f"{estado['comprobado']:%H:%M:%S}", border=True,
                    help=f"Se vuelve a comprobar cada {config.SEGUNDOS_REFRESCO} s mientras la página está abierta")
-    fila[2].metric("Última actualización válida", f"{publicado['actualizado']:%H:%M:%S}" if publicado else "Ninguna",
+    fila[2].metric("Última actualización válida", hora_actualizacion,
                    border=True, help="Momento en que se cargaron por primera vez los datos que se están mostrando")
-    filas_validas = numero(publicado["filas_validas"]) if publicado else "0"
     fila[3].metric("Filas válidas", filas_validas, border=True, help="Suma de las filas válidas de los cinco CSV")
-    corte = f"{publicado['corte']:%d/%m/%Y %H:%M}" if publicado else "-"
-    actualizado = f"{publicado['actualizado']:{FORMATO_HORA}}" if publicado else "ninguna"
     st.caption(f"Última comprobación: {estado['comprobado']:{FORMATO_HORA}} · última actualización válida: "
                f"{actualizado} · fecha de corte: {corte} · versión de los datos: {estado['version']} · procesado en "
                f"{numero(estado['duracion'], 2)} s · próxima comprobación automática en {config.SEGUNDOS_REFRESCO} s")
@@ -646,6 +684,8 @@ def panel(nombre, elegidos):
     cabecera(estado)
     publicado = publicacion_visible(estado)
 
+    # c: lo que necesitan las pestanas (estado, resultado publicado, filtros,
+    # tablas filtradas y pie de los graficos)
     c = {"estado": estado, "publicado": publicado, "filtros": elegidos, "texto_filtros": filtros.describir(elegidos),
          "tablas": None}
     if publicado is not None:
@@ -654,7 +694,12 @@ def panel(nombre, elegidos):
                     f" · Filtros: {c['texto_filtros']} · IVA {config.IVA}")
 
     pestanas = st.tabs(PESTANAS, key="pestana", bind="query-params")
-    abierta = next((nombre_pestana for nombre_pestana, pestana in zip(PESTANAS, pestanas) if pestana.open), PESTANAS[0])
+    # Nombre de la pestana abierta (la primera si no se sabe cual es)
+    abierta = PESTANAS[0]
+    for nombre_pestana, pestana in zip(PESTANAS, pestanas):
+        if pestana.open:
+            abierta = nombre_pestana
+            break
     if publicado is not None and abierta in ["Dirección", "Productos", "Clientes"]:
         # Las tablas filtradas salen de la MISMA version de los datos que todo lo demas
         c["tablas"] = filtros.calcular_filtrado(publicado["datos"], publicado["validos"], elegidos)
@@ -688,7 +733,11 @@ def main():
                                    "datos_sinteticos/limpios/ y datos_sinteticos/con_errores/. Cada origen se lee de "
                                    "su carpeta y nunca se mezcla con los demás.")
         manual = st.button("Actualizar ahora", icon=":material/refresh:", width="stretch", type="primary")
-    actualizar(nombre, "actualización manual" if manual else None)
+    if manual:
+        operacion = "actualización manual"
+    else:
+        operacion = None   # actualizar() decide: carga inicial o comprobacion de 60 s
+    actualizar(nombre, operacion)
     with st.sidebar:
         elegidos = elegir_filtros(nombre, st.session_state["estados"][nombre])
         st.divider()

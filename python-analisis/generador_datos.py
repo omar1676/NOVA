@@ -79,13 +79,21 @@ def codigo_sku(id_modelo, color, talla):
 def generar_clientes():
     filas = []
     for numero in range(1, NUMERO_CLIENTES + 1):
-        empresa = numero <= NUMERO_EMPRESAS
+        # Los primeros NUMERO_EMPRESAS clientes son clubes (empresas)
+        if numero <= NUMERO_EMPRESAS:
+            nombre = f"Club sintético {numero:02d}"
+            tipo = "empresa"
+            telefono = f"600{numero:06d}"
+        else:
+            nombre = f"Cliente sintético {numero:02d}"
+            tipo = "particular"
+            telefono = ""
         filas.append({
             "id_cliente": numero,
-            "nombre": f"Club sintético {numero:02d}" if empresa else f"Cliente sintético {numero:02d}",
-            "tipo": "empresa" if empresa else "particular",
+            "nombre": nombre,
+            "tipo": tipo,
             "correo": f"cliente{numero:02d}@sintetico.example.com",
-            "telefono": f"600{numero:06d}" if empresa else "",
+            "telefono": telefono,
             "activo": "true",
         })
     return pd.DataFrame(filas)
@@ -94,7 +102,8 @@ def generar_clientes():
 def generar_modelos(rng):
     precios = rng.integers(7, 15, size=len(NOMBRES_MODELOS)) * 10 - 0.01   # de 69,99 a 139,99 euros
     filas = []
-    for numero, (nombre, precio) in enumerate(zip(NOMBRES_MODELOS, precios), start=1):
+    for numero, nombre in enumerate(NOMBRES_MODELOS, start=1):
+        precio = precios[numero - 1]
         filas.append({
             "id_modelo": numero,
             "nombre_modelo": f"SINT {nombre}",
@@ -130,13 +139,19 @@ def generar_fechas(rng):
     cada mes, el dia y la hora son al azar.
     """
     meses = pd.period_range(PRIMER_MES, periods=NUMERO_MESES, freq="M")
-    pesos = [PESO_MES_DEL_ANIO[mes.month] * (1 + CRECIMIENTO_MENSUAL) ** numero for numero, mes in enumerate(meses)]
+    pesos = []
+    for numero, mes in enumerate(meses):
+        # El peso de la temporada, multiplicado por el crecimiento de cada mes que pasa
+        pesos.append(PESO_MES_DEL_ANIO[mes.month] * (1 + CRECIMIENTO_MENSUAL) ** numero)
     pedidos_por_mes = rng.multinomial(NUMERO_PEDIDOS, normalizar(pesos))
     fechas = []
     for mes, cuantos in zip(meses, pedidos_por_mes):
         for _ in range(cuantos):
+            # Siempre en este orden (dia, hora, minuto): con la misma semilla salen las mismas fechas
             dia = int(rng.integers(1, mes.days_in_month + 1))
-            fechas.append(pd.Timestamp(mes.year, mes.month, dia, int(rng.integers(9, 21)), int(rng.integers(0, 60))))
+            hora = int(rng.integers(9, 21))
+            minuto = int(rng.integers(0, 60))
+            fechas.append(pd.Timestamp(mes.year, mes.month, dia, hora, minuto))
     return sorted(fechas)
 
 
@@ -149,8 +164,13 @@ def elegir_articulos(rng, custom, ids_modelos, peso_modelos):
         # Un club pide un modelo y un color en varias tallas distintas
         id_modelo = int(rng.choice(ids_modelos, p=peso_modelos))
         color = str(rng.choice(colores_del_modelo(id_modelo)))
-        tallas = rng.choice(TALLAS, size=int(rng.integers(2, 6)), replace=False, p=PESO_TALLAS)
-        return [(id_modelo, color, int(talla), int(rng.integers(5, 21))) for talla in sorted(tallas)]
+        cuantas_tallas = int(rng.integers(2, 6))
+        tallas = rng.choice(TALLAS, size=cuantas_tallas, replace=False, p=PESO_TALLAS)
+        articulos = []
+        for talla in sorted(tallas):
+            cantidad = int(rng.integers(5, 21))
+            articulos.append((id_modelo, color, int(talla), cantidad))
+        return articulos
 
     cuantas = int(rng.choice([1, 2, 3], p=[0.45, 0.40, 0.15]))
     articulos = []
@@ -159,9 +179,11 @@ def elegir_articulos(rng, custom, ids_modelos, peso_modelos):
         id_modelo = int(rng.choice(ids_modelos, p=peso_modelos))
         color = str(rng.choice(colores_del_modelo(id_modelo)))
         talla = int(rng.choice(TALLAS, p=PESO_TALLAS))
-        if codigo_sku(id_modelo, color, talla) not in usados:
-            usados.add(codigo_sku(id_modelo, color, talla))
-            articulos.append((id_modelo, color, talla, int(rng.choice([1, 2, 3], p=[0.65, 0.28, 0.07]))))
+        sku = codigo_sku(id_modelo, color, talla)
+        if sku not in usados:
+            usados.add(sku)
+            cantidad = int(rng.choice([1, 2, 3], p=[0.65, 0.28, 0.07]))
+            articulos.append((id_modelo, color, talla, cantidad))
     return articulos
 
 
@@ -180,18 +202,25 @@ def elegir_estado(rng, fecha, corte):
 
 
 def elegir_estado_pago(rng, estado):
-    """Entregado: pagado. Cancelado: reembolsado o pendiente. Pendiente: pendiente."""
+    """
+    Entregado: pagado. Confirmado, en preparacion o enviado: pagado el 70 % de
+    las veces. Cancelado: reembolsado o pendiente, al 50 %. Pendiente: pendiente.
+    """
     if estado == "entregado":
         return "pagado"
     if estado in ("confirmado", "en_preparacion", "enviado"):
-        return "pagado" if rng.random() < 0.7 else "pendiente"
+        if rng.random() < 0.7:
+            return "pagado"
+        return "pendiente"
     if estado == "cancelado":
-        return "reembolsado" if rng.random() < 0.5 else "pendiente"
+        if rng.random() < 0.5:
+            return "reembolsado"
+        return "pendiente"
     return "pendiente"
 
 
 def precio_en_fecha(precio_actual, fecha, custom):
-    """El catalogo tiene el precio de ahora; antes de la subida era un 5 % mas bajo. Custom: +20 %."""
+    """El catalogo tiene el precio de ahora; antes de la subida era ese precio / 1,05. Custom: +20 %."""
     precio = precio_actual
     if fecha < pd.Timestamp(MES_SUBIDA_PRECIOS + "-01"):
         precio = precio_actual / (1 + SUBIDA_PRECIOS)
@@ -216,14 +245,23 @@ def generar_pedidos(rng, clientes, modelos):
     id_linea = 0
     for id_pedido, fecha in enumerate(generar_fechas(rng), start=1):
         custom = rng.random() < PROPORCION_CUSTOM
-        de_empresa = rng.random() < (0.8 if custom else 0.15)
+        # Un pedido Custom es de un club el 80 % de las veces; uno normal, el 15 %
+        if custom:
+            probabilidad_empresa = 0.8
+        else:
+            probabilidad_empresa = 0.15
+        de_empresa = rng.random() < probabilidad_empresa
         if de_empresa:
             cliente = int(rng.choice(empresas, p=peso_empresas))
         else:
             cliente = int(rng.choice(particulares, p=peso_particulares))
         while True:
             articulos = elegir_articulos(rng, custom, ids_modelos, peso_modelos)
-            huella = (cliente, tuple(sorted((codigo_sku(m, c, t), q) for m, c, t, q in articulos)))
+            # La huella del pedido: su cliente y sus articulos (SKU y cantidad) ordenados
+            lineas_del_pedido = []
+            for id_modelo, color, talla, cantidad in articulos:
+                lineas_del_pedido.append((codigo_sku(id_modelo, color, talla), cantidad))
+            huella = (cliente, tuple(sorted(lineas_del_pedido)))
             if huella not in huellas:
                 huellas.add(huella)
                 break
@@ -248,15 +286,23 @@ def generar_pedidos(rng, clientes, modelos):
             cantidad_total += cantidad
             importe_total += importe
 
+        # Primero el pago y despues la personalizacion: es el orden de siempre de las llamadas al azar
+        estado_pago = elegir_estado_pago(rng, estado)
+        if custom:
+            tipo_pedido = "custom"
+            personalizacion = str(rng.choice(PERSONALIZACIONES))
+        else:
+            tipo_pedido = "normal"
+            personalizacion = ""
         pedidos.append({
             "id_pedido": id_pedido,
             "referencia": f"SINT-{id_pedido:04d}",
             "id_cliente": cliente,
             "fecha_pedido": fecha.strftime(config.FORMATO_FECHA),
-            "tipo_pedido": "custom" if custom else "normal",
+            "tipo_pedido": tipo_pedido,
             "estado_pedido": estado,
-            "estado_pago": elegir_estado_pago(rng, estado),
-            "personalizacion": str(rng.choice(PERSONALIZACIONES)) if custom else "",
+            "estado_pago": estado_pago,
+            "personalizacion": personalizacion,
             "cantidad_total": cantidad_total,
             "importe_total": round(importe_total, 2),
         })
@@ -271,7 +317,11 @@ def generar(semilla=config.SEMILLA):
     stock = generar_stock(rng, modelos)
     pedidos, lineas = generar_pedidos(rng, clientes, modelos)
     datos = {"clientes": clientes, "modelos": modelos, "pedidos": pedidos, "lineas_pedido": lineas, "stock": stock}
-    return {nombre: tabla[list(config.ARCHIVOS[nombre]["tipos"])] for nombre, tabla in datos.items()}
+    ordenados = {}
+    for nombre, tabla in datos.items():
+        columnas = list(config.ARCHIVOS[nombre]["tipos"])   # las columnas en el orden del contrato
+        ordenados[nombre] = tabla[columnas]
+    return ordenados
 
 
 # ---------------------------------------------------------------------
@@ -326,22 +376,30 @@ def introducir_errores(datos):
     def cambiar(regla, tabla, nombre_tabla, fila, columna, valor, se_espera):
         anterior = tabla.at[fila, columna]
         tabla.at[fila, columna] = valor
-        clave = config.ARCHIVOS[nombre_tabla]["tipos"]
-        registro = tabla.at[fila, next(iter(clave))]
+        # El identificador es la primera columna del CSV (id_pedido, id_linea, sku...)
+        columnas = list(config.ARCHIVOS[nombre_tabla]["tipos"])
+        registro = tabla.at[fila, columnas[0]]
         anotar(regla, nombre_tabla, registro, f"{columna}: '{anterior}' pasa a '{valor}'", se_espera)
 
-    entregado = pedidos.index[(pedidos["estado_pedido"] == "entregado") & (pedidos.index > 70)][0]
+    # Un pedido entregado despues de la fila 70: las filas 10, 40, 50 y 60 ya se cambian para otros errores
+    candidatos = (pedidos["estado_pedido"] == "entregado") & (pedidos.index > 70)
+    entregado = pedidos.index[candidatos][0]
+    # Una talla que no es la de su SKU: la siguiente, o la anterior si ya es la 46
     talla = int(lineas.at[60, "talla"])
+    if talla < 46:
+        otra_talla = talla + 1
+    else:
+        otra_talla = talla - 1
     cambiar("04", pedidos, "pedidos", 10, "fecha_pedido", "2026-02-30 10:00:00", "04 recuperable (fecha imposible)")
     cambiar("05", lineas, "lineas_pedido", 20, "cantidad", "0", "05 recuperable; 12 (importe de línea y total)")
     cambiar("06", lineas, "lineas_pedido", 40, "precio_unitario", "-" + lineas.at[40, "precio_unitario"],
             "06 recuperable; 12 (importe de línea)")
     cambiar("07", pedidos, "pedidos", entregado, "estado_pedido", "Entregado", "07 recuperable (mayúscula)")
-    cambiar("08", lineas, "lineas_pedido", 60, "talla", str(talla + 1 if talla < 46 else talla - 1),
-            "08 recuperable (no es la talla de su SKU)")
+    cambiar("08", lineas, "lineas_pedido", 60, "talla", str(otra_talla), "08 recuperable (no es la talla de su SKU)")
     cambiar("09", pedidos, "pedidos", 40, "id_cliente", "", "09 recuperable (pedido sin cliente)")
     cambiar("11", stock, "stock", 10, "stock_disponible", "-5", "11 recuperable (stock negativo)")
-    cambiar("12", pedidos, "pedidos", 50, "importe_total", f"{float(pedidos.at[50, 'importe_total']) + 10:.2f}",
+    importe_cambiado = float(pedidos.at[50, "importe_total"]) + 10   # 10 euros mas que la suma de sus lineas
+    cambiar("12", pedidos, "pedidos", 50, "importe_total", f"{importe_cambiado:.2f}",
             "12 recuperable (el total no es la suma de sus líneas)")
     cambiar("12", pedidos, "pedidos", 60, "fecha_pedido", "2027-01-15 10:00:00",
             "12 recuperable (pedido posterior a la exportación)")

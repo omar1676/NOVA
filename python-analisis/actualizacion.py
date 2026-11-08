@@ -47,7 +47,11 @@ ERROR_CARGA = "ERROR DE CARGA"        # falta un archivo o no se puede leer
 def inspeccionar_archivos(carpeta):
     """Una fila por archivo de la exportacion: si existe, su tamano, su fecha y su huella."""
     carpeta = Path(carpeta)
-    nombres = [definicion["archivo"] for definicion in config.ARCHIVOS.values()] + [config.ARCHIVO_ORIGEN]
+    # Los cinco CSV y, al final, ORIGEN.txt
+    nombres = []
+    for definicion in config.ARCHIVOS.values():
+        nombres.append(definicion["archivo"])
+    nombres.append(config.ARCHIVO_ORIGEN)
     filas = []
     for nombre in nombres:
         ruta = carpeta / nombre
@@ -103,10 +107,13 @@ def estado_conciliacion(carpeta, tablas, tabla_kpis):
     if tabla is None:
         faltan = ", ".join(conciliacion.faltan_resultados(carpeta_sql))
         return f"PENDIENTE: faltan los resultados SQL ({faltan})", None
-    juntas = pd.concat([tabla, kpis.coherencia_con_sql(tabla_kpis, carpeta_sql)], ignore_index=True)
+    coherencia = kpis.coherencia_con_sql(tabla_kpis, carpeta_sql)
+    juntas = pd.concat([tabla, coherencia], ignore_index=True)   # cifras de las tablas y de los KPIs
     iguales = int((juntas["resultado"] == "coincide").sum())
     texto = f"{iguales} de {len(juntas)} cifras coinciden con SQL"
-    return (texto if iguales == len(juntas) else f"NO CUADRA: {texto}"), juntas
+    if iguales == len(juntas):
+        return texto, juntas
+    return f"NO CUADRA: {texto}", juntas
 
 
 def calcular_publicacion(carpeta, resultado, version, momento):
@@ -226,9 +233,19 @@ def carpeta_relativa(carpeta):
 def anotar_ciclo(estado, operacion, archivo_registro=None):
     """Una fila en el registro de eventos con el resultado del ciclo."""
     resultado = estado["calidad"]
-    incidencias = resultado["incidencias"] if resultado is not None else pd.DataFrame(columns=["gravedad"])
-    leidas = sum(len(tabla) for tabla in resultado["datos"].values()) if resultado is not None else 0
-    validas = sum(len(tabla) for tabla in resultado["validos"].values()) if resultado is not None else 0
+    if resultado is None:
+        # El ciclo ha fallado antes de evaluar la calidad: no hay filas ni incidencias
+        incidencias = pd.DataFrame(columns=["gravedad"])
+        leidas = 0
+        validas = 0
+    else:
+        incidencias = resultado["incidencias"]
+        leidas = 0
+        for tabla in resultado["datos"].values():
+            leidas += len(tabla)
+        validas = 0
+        for tabla in resultado["validos"].values():
+            validas += len(tabla)
     registro.anotar(
         archivo_registro or config.ARCHIVO_REGISTRO,
         fecha_hora=estado["comprobado"].strftime(config.FORMATO_FECHA),

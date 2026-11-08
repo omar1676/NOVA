@@ -64,12 +64,21 @@ def describir(valores, variable, grupo, unidad, con_moda):
         return fila
     media = valores.mean()
     mediana = valores.median()
-    desviacion = valores.std() if len(valores) > 1 else np.nan   # desviacion muestral (entre n - 1)
+    if len(valores) > 1:
+        desviacion = valores.std()   # desviacion muestral (entre n - 1)
+    else:
+        desviacion = np.nan
     p10, p25, p75, p90 = np.percentile(valores, [10, 25, 75, 90])
+    moda = None
+    if con_moda:
+        moda = valores.mode().iloc[0]
+    coef_variacion = None
+    if media != 0:
+        coef_variacion = round(desviacion / media, 2)
     fila.update({
         "media": round(media, 2),
         "mediana": round(mediana, 2),
-        "moda": valores.mode().iloc[0] if con_moda else None,
+        "moda": moda,
         "desviacion_tipica": round(desviacion, 2),
         "minimo": round(valores.min(), 2),
         "p10": round(p10, 2),
@@ -78,11 +87,18 @@ def describir(valores, variable, grupo, unidad, con_moda):
         "p90": round(p90, 2),
         "maximo": round(valores.max(), 2),
         "rango_intercuartilico": round(p75 - p25, 2),
-        "coef_variacion": round(desviacion / media, 2) if media else None,
+        "coef_variacion": coef_variacion,
     })
-    separacion = (media - mediana) / mediana if mediana else 0
+    # Cuanto se separa la media de la mediana, en tanto por uno (0,25 = un 25 %)
+    if mediana != 0:
+        separacion = (media - mediana) / mediana
+    else:
+        separacion = 0
     if abs(separacion) > 0.20:
-        lado = "por encima" if separacion > 0 else "por debajo"
+        if separacion > 0:
+            lado = "por encima"
+        else:
+            lado = "por debajo"
         fila["mejor_resumen"] = "mediana"
         fila["motivo"] = (f"la media está un {abs(separacion):.0%} {lado} de la mediana: unos pocos valores "
                           "extremos la arrastran y no representa al caso típico")
@@ -102,7 +118,8 @@ def descriptivos(tablas):
     filas = []
     for grupo in ["todos", "normal", "custom"]:
         if grupo == "todos":
-            de_pedidos, de_lineas = pedidos, lineas
+            de_pedidos = pedidos
+            de_lineas = lineas
         else:
             de_pedidos = pedidos[pedidos["tipo_pedido"] == grupo]
             de_lineas = lineas[lineas["tipo_pedido"] == grupo]
@@ -142,10 +159,13 @@ def bootstrap_media(valores, semilla=config.SEMILLA, remuestreos=config.BOOTSTRA
 def bootstrap_ticket_medio(pedidos_unicos, tipo_origen):
     """Ticket medio (importe medio de los pedidos de venta) con su intervalo bootstrap al 95 %."""
     importes = de_venta(pedidos_unicos)["importe"].astype(float).to_numpy()
+    estimacion = None
+    if len(importes) > 0:
+        estimacion = round(float(importes.mean()), 2)
     fila = {"metrica": "ticket medio: importe medio por pedido de venta (confirmado en adelante)",
             "unidad": "€", "n": len(importes), "remuestreos": config.BOOTSTRAP_REMUESTREOS,
             "semilla": config.SEMILLA, "nivel_confianza_pct": config.NIVEL_CONFIANZA,
-            "estimacion": round(float(importes.mean()), 2) if len(importes) > 0 else None,
+            "estimacion": estimacion,
             "ic_inferior": None, "ic_superior": None}
     if len(importes) < config.MINIMO_MUESTRA_HIPOTESIS:
         fila["resultado"] = "NO CALCULABLE"
@@ -218,7 +238,10 @@ def hipotesis_custom(pedidos_unicos, tipo_origen):
     rng = np.random.default_rng(config.SEMILLA)
     diferencias = []
     for _ in range(config.BOOTSTRAP_REMUESTREOS):
-        diferencias.append(np.median(remuestrear(rng, custom)) - np.median(remuestrear(rng, normal)))
+        # Siempre primero la muestra Custom y despues la estandar: con la misma semilla salen las mismas
+        muestra_custom = remuestrear(rng, custom)
+        muestra_normal = remuestrear(rng, normal)
+        diferencias.append(np.median(muestra_custom) - np.median(muestra_normal))
     inferior, superior = intervalo(diferencias)
     fila.update({"estimacion": round(float(estimacion), 2), "ic_inferior": inferior, "ic_superior": superior,
                  "resultado": veredicto(inferior, superior, 0)})
@@ -256,7 +279,9 @@ def hipotesis_tallas(lineas_enriquecidas, tipo_origen):
     for _ in range(config.BOOTSTRAP_REMUESTREOS):
         indices = rng.integers(0, len(cantidades), size=len(cantidades))   # lineas al azar, con reemplazo
         de_la_muestra = cantidades[indices]
-        proporciones.append(100 * de_la_muestra[centrales[indices]].sum() / de_la_muestra.sum())
+        es_central = centrales[indices]   # True si la linea elegida es de las tallas 41 a 43
+        pares_centrales = de_la_muestra[es_central].sum()
+        proporciones.append(100 * pares_centrales / de_la_muestra.sum())
     inferior, superior = intervalo(proporciones)
     fila.update({"estimacion": round(float(estimacion), 1), "ic_inferior": inferior, "ic_superior": superior,
                  "resultado": veredicto(inferior, superior, 50)})
@@ -286,7 +311,9 @@ def hipotesis_crecimiento(pedidos_unicos, tipo_origen):
         return insuficiente(fila, "no hay pedidos", tipo_origen)
     meses = demanda["fecha_pedido"].dt.to_period("M")
     por_mes = demanda.groupby(meses)["pares"].sum()
-    por_mes = por_mes.reindex(pd.period_range(por_mes.index.min(), por_mes.index.max(), freq="M"), fill_value=0)
+    # Todos los meses entre el primero y el ultimo; un mes sin pedidos queda con 0 pares
+    todos_los_meses = pd.period_range(por_mes.index.min(), por_mes.index.max(), freq="M")
+    por_mes = por_mes.reindex(todos_los_meses, fill_value=0)
     fila["n"] = f"{len(por_mes)} meses"
     if len(por_mes) < 12:
         return insuficiente(fila, f"hacen falta 12 meses seguidos y hay {len(por_mes)}", tipo_origen)
@@ -298,7 +325,10 @@ def hipotesis_crecimiento(pedidos_unicos, tipo_origen):
     rng = np.random.default_rng(config.SEMILLA)
     diferencias = []
     for _ in range(config.BOOTSTRAP_REMUESTREOS):
-        diferencias.append(remuestrear(rng, ultimos).mean() - remuestrear(rng, anteriores).mean())
+        # Siempre primero los ultimos 6 meses y despues los 6 anteriores (mismo orden de azar)
+        muestra_ultimos = remuestrear(rng, ultimos)
+        muestra_anteriores = remuestrear(rng, anteriores)
+        diferencias.append(muestra_ultimos.mean() - muestra_anteriores.mean())
     inferior, superior = intervalo(diferencias)
     resultado = veredicto(inferior, superior, 0)
     fila.update({"estimacion": round(float(estimacion), 1), "ic_inferior": inferior, "ic_superior": superior,

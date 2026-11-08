@@ -6,7 +6,7 @@ Datos de partida (los CSV validos de test_pipeline.py):
   pedido 11  P-2  cliente 2  2026-11-02  custom  cancelado   reembolsado  linea 102 (M2-42 x2): 239.80 €
   stock: M1-40 = 5, M1-41 = 0, M2-42 = 12 (corte 2026-11-09 19:00)
 Con anadir_otro_mes() se anaden dos ventas de noviembre: P-3 (cliente 1, M1-40 x1)
-y P-4 (cliente 2, M2-42 x2), para lo que necesita mas de un mes.
+y P-4 (cliente 2, M2-42 x2), para las pruebas que necesitan mas de un mes.
 """
 import pandas as pd
 

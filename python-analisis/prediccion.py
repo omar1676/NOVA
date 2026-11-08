@@ -54,8 +54,9 @@ def demanda_mensual(lineas_enriquecidas, fecha_corte):
 
     pares = demanda.groupby(["nombre_modelo", "mes"])["cantidad"].sum()
     meses = pd.period_range(demanda["mes"].min(), demanda["mes"].max(), freq="M")
-    todas = pd.MultiIndex.from_product([sorted(demanda["nombre_modelo"].unique()), meses],
-                                       names=["nombre_modelo", "mes"])
+    modelos = sorted(demanda["nombre_modelo"].unique())
+    # Todas las combinaciones modelo x mes; las que no tienen pedidos quedan con 0 pares
+    todas = pd.MultiIndex.from_product([modelos, meses], names=["nombre_modelo", "mes"])
     return pares.reindex(todas, fill_value=0).reset_index(name="pares")
 
 
@@ -66,14 +67,16 @@ def anadir_variables(demanda):
     """
     tabla = demanda.sort_values(["nombre_modelo", "mes"]).reset_index(drop=True)
     pares_del_modelo = tabla.groupby("nombre_modelo")["pares"]
-    tabla["pares_mes_anterior"] = pares_del_modelo.shift(1)
-    tabla["media_3_meses_previos"] = (pares_del_modelo.shift(1) + pares_del_modelo.shift(2)
-                                      + pares_del_modelo.shift(3)) / 3
+    hace_1_mes = pares_del_modelo.shift(1)
+    hace_2_meses = pares_del_modelo.shift(2)
+    hace_3_meses = pares_del_modelo.shift(3)
+    tabla["pares_mes_anterior"] = hace_1_mes
+    tabla["media_3_meses_previos"] = (hace_1_mes + hace_2_meses + hace_3_meses) / 3
     tabla["numero_mes"] = tabla["mes"].dt.month
     tabla["mes_seno"] = np.sin(2 * np.pi * tabla["numero_mes"] / 12)
     tabla["mes_coseno"] = np.cos(2 * np.pi * tabla["numero_mes"] / 12)
-    # drop_first: con las 12 columnas, una siempre se deduce de las otras 11 y
-    # la regresion lineal no tendria una solucion unica. El primer modelo queda
+    # drop_first: con una columna por modelo, una siempre se deduce de las demas
+    # y la regresion lineal no tendria una solucion unica. El primer modelo queda
     # como referencia (su efecto va en la constante).
     columnas_modelo = pd.get_dummies(tabla["nombre_modelo"], prefix="modelo", drop_first=True, dtype=int)
     return pd.concat([tabla, columnas_modelo], axis=1)
@@ -84,8 +87,11 @@ def separar_por_fecha(tabla):
     meses = sorted(tabla["mes"].unique())
     evaluacion = meses[-config.MESES_EVALUACION:]
     tabla = tabla.copy()
-    tabla["conjunto"] = np.where(tabla["mes"].isin(evaluacion), "evaluacion",
-                                 np.where(tabla["media_3_meses_previos"].isna(), "historial", "entrenamiento"))
+    # Por defecto, entrenamiento; sin 3 meses previos, historial; y los ultimos meses,
+    # evaluacion (se asigna la ultima para que mande sobre las otras dos)
+    tabla["conjunto"] = "entrenamiento"
+    tabla.loc[tabla["media_3_meses_previos"].isna(), "conjunto"] = "historial"
+    tabla.loc[tabla["mes"].isin(evaluacion), "conjunto"] = "evaluacion"
     return tabla
 
 
@@ -106,7 +112,9 @@ def rmse(real, prediccion):
 def periodo(meses):
     """'2025-08 a 2026-07' (o '-' si no hay meses)."""
     meses = sorted(meses)
-    return f"{meses[0]} a {meses[-1]}" if meses else "-"
+    if meses:
+        return f"{meses[0]} a {meses[-1]}"
+    return "-"
 
 
 def mejora(mae_regresion, rmse_regresion, mae_baseline, rmse_baseline):
@@ -117,7 +125,9 @@ def mejora(mae_regresion, rmse_regresion, mae_baseline, rmse_baseline):
         return "sí: menos error en MAE y en RMSE"
     if not mejor_mae and not mejor_rmse:
         return "no: más error (o el mismo) en MAE y en RMSE"
-    return "solo en una métrica: " + ("MAE sí, RMSE no" if mejor_mae else "RMSE sí, MAE no")
+    if mejor_mae:
+        return "solo en una métrica: MAE sí, RMSE no"
+    return "solo en una métrica: RMSE sí, MAE no"
 
 
 def predecir_demanda(lineas_enriquecidas, fecha_corte):
@@ -143,12 +153,15 @@ def predecir_demanda(lineas_enriquecidas, fecha_corte):
                 "coeficientes_regresion": no_calculable(motivo)}
 
     tabla = separar_por_fecha(anadir_variables(demanda))
-    columnas = VARIABLES + [c for c in tabla.columns if c.startswith("modelo_")]
+    columnas = VARIABLES + [columna for columna in tabla.columns if columna.startswith("modelo_")]
     entrenamiento = tabla[tabla["conjunto"] == "entrenamiento"]
     evaluacion = tabla[tabla["conjunto"] == "evaluacion"]
 
     # B. Regresion lineal: sin hiperparametros que ajustar, asi nada se elige mirando la evaluacion
     regresion = LinearRegression().fit(entrenamiento[columnas], entrenamiento["pares"])
+    prediccion_regresion = regresion.predict(evaluacion[columnas])
+    # Una recta puede dar pares negativos; no se pueden pedir menos de 0 pares
+    prediccion_regresion = np.clip(prediccion_regresion, 0, None).round(1)
 
     predicciones = pd.DataFrame({
         "nombre_modelo": evaluacion["nombre_modelo"],
@@ -156,43 +169,45 @@ def predecir_demanda(lineas_enriquecidas, fecha_corte):
         "pares_reales": evaluacion["pares"],
         # A. Baseline: los pares del mes anterior, tal cual
         "baseline": evaluacion["pares_mes_anterior"],
-        # Una recta puede dar pares negativos; no se pueden pedir menos de 0 pares
-        "regresion": np.clip(regresion.predict(evaluacion[columnas]), 0, None).round(1),
+        "regresion": prediccion_regresion,
     }).reset_index(drop=True)
     predicciones["error_baseline"] = predicciones["pares_reales"] - predicciones["baseline"]
     predicciones["error_regresion"] = (predicciones["pares_reales"] - predicciones["regresion"]).round(1)
 
     real = predicciones["pares_reales"]
-    errores = {
-        "baseline": (mae(real, predicciones["baseline"]), rmse(real, predicciones["baseline"])),
-        "regresion": (mae(real, predicciones["regresion"]), rmse(real, predicciones["regresion"])),
-    }
+    mae_baseline = mae(real, predicciones["baseline"])
+    rmse_baseline = rmse(real, predicciones["baseline"])
+    mae_regresion = mae(real, predicciones["regresion"])
+    rmse_regresion = rmse(real, predicciones["regresion"])
     metricas = pd.DataFrame([
         {"metodo": "baseline", "descripcion": "pares del mes anterior",
-         "mae": round(errores["baseline"][0], 2), "rmse": round(errores["baseline"][1], 2),
+         "mae": round(mae_baseline, 2), "rmse": round(rmse_baseline, 2),
          "mejora_al_baseline": "es la referencia"},
         {"metodo": "regresion", "descripcion": "LinearRegression: " + ", ".join(VARIABLES) + " y modelo one-hot",
-         "mae": round(errores["regresion"][0], 2), "rmse": round(errores["regresion"][1], 2),
-         "mejora_al_baseline": mejora(*errores["regresion"], *errores["baseline"])},
+         "mae": round(mae_regresion, 2), "rmse": round(rmse_regresion, 2),
+         "mejora_al_baseline": mejora(mae_regresion, rmse_regresion, mae_baseline, rmse_baseline)},
     ])
     metricas["filas_evaluacion"] = len(predicciones)
     metricas["periodo_entrenamiento"] = periodo(entrenamiento["mes"].astype(str).unique())
     metricas["periodo_evaluacion"] = periodo(evaluacion["mes"].astype(str).unique())
     metricas["filas_entrenamiento"] = len(entrenamiento)
 
+    demanda_por_mes = pd.DataFrame({
+        "nombre_modelo": tabla["nombre_modelo"], "anio_mes": tabla["mes"].astype(str),
+        "pares": tabla["pares"], "pares_mes_anterior": tabla["pares_mes_anterior"],
+        "media_3_meses_previos": tabla["media_3_meses_previos"].round(2),
+        "numero_mes": tabla["numero_mes"], "conjunto": tabla["conjunto"]})
+    # La constante (intercept_) y un coeficiente por cada columna de entrada (coef_)
+    coeficientes = [round(float(regresion.intercept_), 3)]
+    for coeficiente in regresion.coef_:
+        coeficientes.append(round(float(coeficiente), 3))
+
     return {
-        "demanda_mensual_modelo": pd.DataFrame({
-            "nombre_modelo": tabla["nombre_modelo"], "anio_mes": tabla["mes"].astype(str),
-            "pares": tabla["pares"], "pares_mes_anterior": tabla["pares_mes_anterior"],
-            "media_3_meses_previos": tabla["media_3_meses_previos"].round(2),
-            "numero_mes": tabla["numero_mes"], "conjunto": tabla["conjunto"]}),
+        "demanda_mensual_modelo": demanda_por_mes,
         "predicciones": predicciones,
         "metricas_prediccion": metricas,
         "errores_por_modelo": errores_por_modelo(predicciones),
-        "coeficientes_regresion": pd.DataFrame({
-            "variable": ["constante"] + columnas,
-            "coeficiente": [round(float(regresion.intercept_), 3)] + [round(float(c), 3) for c in regresion.coef_],
-        }),
+        "coeficientes_regresion": pd.DataFrame({"variable": ["constante"] + columnas, "coeficiente": coeficientes}),
     }
 
 
@@ -203,6 +218,12 @@ def errores_por_modelo(predicciones):
         real = grupo["pares_reales"]
         mae_baseline = mae(real, grupo["baseline"])
         mae_regresion = mae(real, grupo["regresion"])
+        if mae_regresion < mae_baseline:
+            menos_error = "regresion"
+        elif mae_baseline < mae_regresion:
+            menos_error = "baseline"
+        else:
+            menos_error = "empate"
         filas.append({
             "nombre_modelo": nombre,
             "pares_reales_evaluacion": int(real.sum()),
@@ -210,7 +231,7 @@ def errores_por_modelo(predicciones):
             "rmse_baseline": round(rmse(real, grupo["baseline"]), 2),
             "mae_regresion": round(mae_regresion, 2),
             "rmse_regresion": round(rmse(real, grupo["regresion"]), 2),
-            "menos_error": ("regresion" if mae_regresion < mae_baseline
-                            else "baseline" if mae_baseline < mae_regresion else "empate"),
+            "menos_error": menos_error,
         })
-    return pd.DataFrame(filas).sort_values("pares_reales_evaluacion", ascending=False).reset_index(drop=True)
+    tabla = pd.DataFrame(filas)
+    return tabla.sort_values("pares_reales_evaluacion", ascending=False).reset_index(drop=True)

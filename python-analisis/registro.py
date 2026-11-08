@@ -45,4 +45,6 @@ def leer(archivo, ultimas=100):
     if not archivo.exists():
         return pd.DataFrame(columns=COLUMNAS)
     tabla = pd.read_csv(archivo, encoding="utf-8", dtype=str, keep_default_na=False)
-    return tabla.tail(ultimas).iloc[::-1].reset_index(drop=True)
+    ultimas_filas = tabla.tail(ultimas)
+    de_la_mas_reciente = ultimas_filas.iloc[::-1]   # [::-1] da la vuelta al orden de las filas
+    return de_la_mas_reciente.reset_index(drop=True)

@@ -1,5 +1,6 @@
 """
-Los dos DataFrames principales y las variables derivadas (fase 2).
+Los dos DataFrames principales con sus variables derivadas (fase 2) y los
+DataFrames analiticos del apartado 6.15 (fase 3).
 
 Solo usan filas VALIDAS: calidad.evaluar ya ha apartado las rechazadas.
 
@@ -8,7 +9,7 @@ indicator=True que todas las filas encuentran pareja. Si un cruce
 multiplicara filas o perdiera claves, se para con un error: nunca se dan
 cifras con un JOIN silencioso.
 
-No usa Streamlit: el dashboard solo llamara a estas funciones (calcular_tablas).
+No usa Streamlit: main.py y el dashboard llaman a calcular_tablas.
 """
 import numpy as np
 import pandas as pd
@@ -278,7 +279,8 @@ def pedidos_por_estado_pago(pedidos_unicos):
     tabla.index.name = "estado_pago"
     tabla = tabla.reset_index()
     tabla["importe"] = tabla["importe"].round(2)
-    tabla["porcentaje_pedidos"] = [porcentaje(n, tabla["pedidos"].sum()) for n in tabla["pedidos"]]
+    total = tabla["pedidos"].sum()
+    tabla["porcentaje_pedidos"] = [porcentaje(n, total) for n in tabla["pedidos"]]
     return tabla
 
 
@@ -296,13 +298,17 @@ def ventas_por_periodo(pedidos_unicos):
     mes = venta["fecha_pedido"].dt.to_period("M")
     tabla = venta.groupby(mes).agg(pedidos=("id_pedido", "count"), pares=("pares", "sum"),
                                    importe=("importe", "sum"))
-    tabla = tabla.reindex(pd.period_range(tabla.index.min(), tabla.index.max(), freq="M"), fill_value=0)
+    # Todos los meses entre el primero y el ultimo; un mes sin ventas queda con 0
+    todos_los_meses = pd.period_range(tabla.index.min(), tabla.index.max(), freq="M")
+    tabla = tabla.reindex(todos_los_meses, fill_value=0)
     tabla["importe"] = tabla["importe"].round(2)
     tabla["ticket_medio"] = (tabla["importe"] / tabla["pedidos"]).where(tabla["pedidos"] > 0).round(2)
     # Si el mes anterior tuvo 0 euros, la variacion no existe (seria infinita)
     variacion = 100 * tabla["importe"].pct_change()
     tabla["variacion_importe_pct"] = variacion.replace([np.inf, -np.inf], np.nan).round(1)
-    tabla["media_3_meses_previos"] = tabla["importe"].shift(1).rolling(3).mean().round(2)
+    # shift(1) baja cada importe una fila: asi la media de 3 meses no incluye el propio mes
+    importe_mes_anterior = tabla["importe"].shift(1)
+    tabla["media_3_meses_previos"] = importe_mes_anterior.rolling(3).mean().round(2)
     interanual = 100 * tabla["importe"].pct_change(12)
     tabla["variacion_interanual_pct"] = interanual.replace([np.inf, -np.inf], np.nan).round(1)
     tabla.index = tabla.index.astype(str)
@@ -338,8 +344,10 @@ def clasificar_abc(tabla, columna):
         return tabla
     anterior = 100 * (acumulado - tabla[columna]) / total
     anterior = anterior.groupby(tabla[columna]).transform("min")   # empates: misma clase
-    tabla["clase_abc"] = np.where(anterior < config.ABC_LIMITE_A, "A",
-                                  np.where(anterior < config.ABC_LIMITE_B, "B", "C"))
+    # Primero todos C; despues B los que no llegan a ABC_LIMITE_B y A los que no llegan a ABC_LIMITE_A
+    tabla["clase_abc"] = "C"
+    tabla.loc[anterior < config.ABC_LIMITE_B, "clase_abc"] = "B"
+    tabla.loc[anterior < config.ABC_LIMITE_A, "clase_abc"] = "A"
     return tabla
 
 
@@ -365,7 +373,8 @@ def modelos_abc(lineas_enriquecidas, modelos):
     tabla = tabla.sort_values(["pares", "nombre_modelo"], ascending=[False, True]).reset_index(drop=True)
     tabla["ranking_pares"] = tabla["pares"].rank(method="min", ascending=False).astype(int)
     tabla["ranking_importe"] = tabla["importe"].rank(method="min", ascending=False).astype(int)
-    tabla["peso_importe_pct"] = [porcentaje(valor, tabla["importe"].sum()) for valor in tabla["importe"]]
+    total_importe = tabla["importe"].sum()
+    tabla["peso_importe_pct"] = [porcentaje(valor, total_importe) for valor in tabla["importe"]]
     return clasificar_abc(tabla, "pares")
 
 
@@ -375,7 +384,8 @@ def ventas_por_talla(lineas_enriquecidas):
     tabla = demanda.groupby("talla").agg(
         pares=("cantidad", "sum"), pedidos=("id_pedido", "nunique"), lineas=("id_linea", "count")
     ).reset_index()
-    tabla["peso_pct"] = [porcentaje(valor, tabla["pares"].sum()) for valor in tabla["pares"]]
+    total_pares = tabla["pares"].sum()
+    tabla["peso_pct"] = [porcentaje(valor, total_pares) for valor in tabla["pares"]]
     return tabla.sort_values("talla").reset_index(drop=True)
 
 
@@ -431,8 +441,9 @@ def custom_vs_estandar(pedidos_unicos):
 def clientes_actividad(pedidos_unicos, clientes, fecha_corte):
     """
     Una fila por cliente, tambien los que no tienen pedidos (con 0): cuantos
-    pedidos, pares e importe, y cuando fue su ultimo pedido. Es la base del RFM
-    de la fase siguiente. Solo lleva id y tipo de cliente: el nombre no hace
+    pedidos, pares e importe, y cuando fue su ultimo pedido. Sirve para el
+    ranking de clientes; el RFM se calcula aparte (segmentacion.rfm, solo con
+    pedidos de venta). Solo lleva id y tipo de cliente: el nombre no hace
     falta para analizar.
     """
     registrados = pedidos_unicos.groupby("id_cliente").agg(
@@ -471,7 +482,13 @@ def cohortes(pedidos_unicos):
     if meses_distintos < 2:
         return no_calculable(f"hacen falta ventas de al menos 2 meses distintos y hay {meses_distintos}")
     venta["cohorte"] = venta.groupby("id_cliente")["mes"].transform("min")
-    venta["meses_despues"] = (venta["mes"] - venta["cohorte"]).apply(lambda diferencia: diferencia.n)
+    # Meses que han pasado desde el de la cohorte (0 = el mes de la primera compra).
+    # Cada mes se cuenta como anio * 12 + mes, asi la resta da meses enteros
+    meses_compra = venta["mes"].dt.year * 12 + venta["mes"].dt.month
+    meses_cohorte = venta["cohorte"].dt.year * 12 + venta["cohorte"].dt.month
+    venta["meses_despues"] = meses_compra - meses_cohorte
+    # Clientes distintos de cada cohorte que compran en cada mes; al dividir
+    # entre los del mes 0 sale la parte que vuelve a comprar
     clientes = venta.pivot_table(index="cohorte", columns="meses_despues", values="id_cliente",
                                  aggfunc="nunique", fill_value=0)
     tabla = clientes.div(clientes[0], axis=0).round(3)
@@ -514,7 +531,10 @@ def stock_variantes(stock, modelos, lineas_enriquecidas, pedidos_unicos, fecha_c
     tabla["alerta_stock_bajo"] = tabla["stock_disponible"] < umbral
 
     primera = pedidos_unicos["fecha_pedido"].min()
-    historial = (fecha_corte - primera).days if pd.notna(primera) else 0
+    if pd.notna(primera):
+        historial = (fecha_corte - primera).days
+    else:
+        historial = 0
     if historial < config.DIAS_DEMANDA:
         tabla["semanas_cobertura"] = np.nan
         tabla["estado_cobertura"] = (f"{NO_CALCULABLE}: el historial de pedidos cubre {historial} "
@@ -547,7 +567,11 @@ def anomalias_iqr(lineas_enriquecidas):
     filas = []
     for variable, columnas in [("precio_unitario", ["nombre_modelo", "tipo_pedido"]), ("cantidad", ["tipo_pedido"])]:
         for valores_grupo, parte in lineas_enriquecidas.groupby(columnas):
-            descripcion = ", ".join(f"{columna} = {valor}" for columna, valor in zip(columnas, valores_grupo))
+            # Texto del grupo, por ejemplo "nombre_modelo = Runner, tipo_pedido = custom"
+            partes = []
+            for columna, valor in zip(columnas, valores_grupo):
+                partes.append(f"{columna} = {valor}")
+            descripcion = ", ".join(partes)
             valores = parte[variable].astype(float)
             fila = {"variable": variable, "grupo": descripcion, "n": len(valores)}
             if len(valores) < config.MINIMO_MUESTRA_IQR:
@@ -555,8 +579,9 @@ def anomalias_iqr(lineas_enriquecidas):
             else:
                 q1 = valores.quantile(0.25)
                 q3 = valores.quantile(0.75)
-                limite_inferior = q1 - 1.5 * (q3 - q1)
-                limite_superior = q3 + 1.5 * (q3 - q1)
+                iqr = q3 - q1
+                limite_inferior = q1 - 1.5 * iqr
+                limite_superior = q3 + 1.5 * iqr
                 fuera = parte[(valores < limite_inferior) | (valores > limite_superior)]
                 fila.update({"q1": q1, "q3": q3, "limite_inferior": limite_inferior,
                              "limite_superior": limite_superior, "atipicos": len(fuera),
@@ -585,8 +610,8 @@ def precio_y_margen(tabla_abc, modelos):
 def calcular_tablas(datos, validos):
     """
     Todas las tablas de analisis a partir de la misma version de los datos
-    (calidad.evaluar ya ha apartado las filas rechazadas). La consola y el
-    dashboard de la fase siguiente usan esta funcion: una sola formula por tabla.
+    (calidad.evaluar ya ha apartado las filas rechazadas). La consola (main.py)
+    y el dashboard usan esta funcion: una sola formula por tabla.
     """
     corte = datos["stock"]["fecha_corte"].max()
     lineas = df_lineas_enriquecidas(validos, datos["stock"])

@@ -125,12 +125,13 @@ def ejecutar(carpeta, salida, con_graficos=True):
 
     datos = resultado["datos"]
     validos = resultado["validos"]
+    corte = datos["stock"]["fecha_corte"].max()   # momento de la exportacion
 
     # 2. Resumen de la carga (fase 1)
     titulo("Resumen de la carga")
     for nombre, etiqueta in NOMBRES.items():
         print(f"  {etiqueta + ':':22}{len(datos[nombre]):>5}")
-    print(f"  {'Fecha de corte stock:':22}{datos['stock']['fecha_corte'].max()}")
+    print(f"  {'Fecha de corte stock:':22}{corte}")
     print()
     print(pipeline.manifiesto(carpeta, datos).to_string(index=False))
     if resultado["avisos"]:
@@ -138,8 +139,8 @@ def ejecutar(carpeta, salida, con_graficos=True):
         for aviso in resultado["avisos"]:
             print(f"  - {aviso}")
     titulo("Comprobaciones rápidas de la fase 1")
-    for r in comprobaciones.comprobar_todo(datos, resultado["avisos"]):
-        print(f"  [{r['resultado']:5}] {r['comprobacion']}: {r['detalle']}")
+    for comprobacion in comprobaciones.comprobar_todo(datos, resultado["avisos"]):
+        print(f"  [{comprobacion['resultado']:5}] {comprobacion['comprobacion']}: {comprobacion['detalle']}")
 
     # 3. Tablas de analisis (solo filas validas, la misma version de los datos)
     tablas = analiticas.calcular_tablas(datos, validos)
@@ -171,23 +172,23 @@ def ejecutar(carpeta, salida, con_graficos=True):
 
     # 6. Conciliacion con SQL y coherencia de los KPIs con las mismas consultas
     carpeta_sql = carpeta / config.CARPETA_SQL
-    tabla = conciliacion.conciliar(carpeta_sql, tablas["pedidos_unicos"], tablas["lineas_enriquecidas"])
+    tabla_conciliacion = conciliacion.conciliar(carpeta_sql, tablas["pedidos_unicos"], tablas["lineas_enriquecidas"])
     titulo("Conciliación con las consultas SQL P-A, P-B y P-C de Acceso a Datos")
     cuadra = True
     if pipeline.tipo_origen(carpeta) == "SINTETICO":
         print("  NO APLICA: los datos sintéticos no salen de PostgreSQL; no hay consultas con las que compararlos.")
-    elif tabla is None:
+    elif tabla_conciliacion is None:
         faltan = ", ".join(conciliacion.faltan_resultados(carpeta_sql))
         print(f"  PENDIENTE: faltan los resultados SQL en {carpeta_sql} ({faltan}).")
         print("  No se da por buena ninguna cifra sin compararla.")
     else:
         coherencia = kpis.coherencia_con_sql(tabla_kpis, carpeta_sql)
-        guardar(tabla, "conciliacion_sql.csv")
+        guardar(tabla_conciliacion, "conciliacion_sql.csv")
         guardar(coherencia, "coherencia_kpis_sql.csv")
-        for nombre, comparacion in [("tablas", tabla), ("KPIs", coherencia)]:
-            iguales = (comparacion["resultado"] == "coincide").sum()
-            print(f"  {nombre}: {iguales} de {len(comparacion)} cifras coinciden con SQL")
-            distintas = comparacion[comparacion["resultado"] != "coincide"]
+        for nombre, cifras in [("tablas", tabla_conciliacion), ("KPIs", coherencia)]:
+            iguales = (cifras["resultado"] == "coincide").sum()
+            print(f"  {nombre}: {iguales} de {len(cifras)} cifras coinciden con SQL")
+            distintas = cifras[cifras["resultado"] != "coincide"]
             if len(distintas) > 0:
                 cuadra = False
                 print(distintas[["consulta", "indicador", "clave", "valor_sql", "valor_python", "resultado"]]
@@ -195,7 +196,6 @@ def ejecutar(carpeta, salida, con_graficos=True):
 
     # 7. Graficos
     if con_graficos:
-        corte = datos["stock"]["fecha_corte"].max()
         pie = (f"Origen: {origen} · Corte: {corte:%Y-%m-%d %H:%M} · Calculado: {ejecucion} · "
                f"Filtros: ninguno · IVA {config.IVA}")
         rutas = visualizaciones.generar_todos(tablas, salida / "graficos", pie)
@@ -217,23 +217,27 @@ def ejecutar(carpeta, salida, con_graficos=True):
     print()
     print(hipotesis[["codigo", "n", "estimacion", "ic_inferior", "ic_superior", "unidad", "resultado"]]
           .to_string(index=False))
-    fila = ticket.iloc[0]
-    print(f"\n  Ticket medio: {fila['estimacion']} € (IC 95 %: {fila['ic_inferior']} a {fila['ic_superior']} €, "
-          f"n = {fila['n']}) -> {fila['resultado']}")
+    fila_ticket = ticket.iloc[0]
+    print(f"\n  Ticket medio: {fila_ticket['estimacion']} € (IC 95 %: {fila_ticket['ic_inferior']} a "
+          f"{fila_ticket['ic_superior']} €, n = {fila_ticket['n']}) -> {fila_ticket['resultado']}")
 
     # 9. Segmentacion de clientes (RFM y KMeans) y prediccion de la demanda (fase 5)
-    corte = datos["stock"]["fecha_corte"].max()
     tabla_rfm = segmentacion.rfm(tablas["pedidos_unicos"], validos["clientes"], corte)
     resumen_rfm = segmentacion.resumen_segmentos(tabla_rfm)
+    # kmeans_clientes devuelve tres cosas: la eleccion de k, los grupos y la tabla RFM con la columna cluster
     seleccion_k, clusters, tabla_rfm = segmentacion.kmeans_clientes(tabla_rfm)
-    comparacion = segmentacion.comparar_rfm_kmeans(tabla_rfm)
+    rfm_frente_a_kmeans = segmentacion.comparar_rfm_kmeans(tabla_rfm)
     resultados = {"rfm_clientes": tabla_rfm, "rfm_segmentos": resumen_rfm, "kmeans_seleccion_k": seleccion_k,
-                  "kmeans_clusters": clusters, "rfm_frente_a_kmeans": comparacion}
+                  "kmeans_clusters": clusters, "rfm_frente_a_kmeans": rfm_frente_a_kmeans}
     resultados.update(prediccion.predecir_demanda(tablas["lineas_enriquecidas"], corte))
     # Las cinco conclusiones del informe ejecutivo (las mismas que ensena el dashboard)
     resultados["informe_ejecutivo"] = informe.conclusiones(tablas, resumen_rfm, resultados["metricas_prediccion"], tipo)
     titulo(f"Segmentación y predicción (datos de {tipo}; fecha de referencia {corte})")
-    print(estadistica.aviso(tipo).strip() or "Datos de la base del equipo.")
+    texto_aviso = estadistica.aviso(tipo).strip()
+    if texto_aviso:
+        print(texto_aviso)
+    else:
+        print("Datos de la base del equipo.")
     for nombre, tabla in resultados.items():
         if "estado" in tabla.columns and len(tabla) == 1 and tabla["estado"].iloc[0] == analiticas.NO_CALCULABLE:
             print(f"  {nombre:32} NO CALCULABLE: {tabla['motivo'].iloc[0]}")
@@ -263,7 +267,9 @@ def ejecutar(carpeta, salida, con_graficos=True):
     else:
         anotar_estado("NO CUADRA CON SQL", "hay cifras que no coinciden con Acceso a Datos: revisar conciliacion_sql.csv")
     print(f"\nResultados guardados en {salida}")
-    return 0 if cuadra else 1
+    if cuadra:
+        return 0
+    return 1
 
 
 def main():

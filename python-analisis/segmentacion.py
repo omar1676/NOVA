@@ -66,8 +66,13 @@ def quintil(valores, de_mayor_a_menor):
     Puntuacion de 1 a 5 por quintiles. rank(method="first") deshace los
     empates por orden de id_cliente, asi siempre sale lo mismo.
     """
-    etiquetas = [5, 4, 3, 2, 1] if de_mayor_a_menor else [1, 2, 3, 4, 5]
-    return pd.qcut(valores.rank(method="first"), 5, labels=etiquetas).astype(int)
+    if de_mayor_a_menor:
+        etiquetas = [5, 4, 3, 2, 1]
+    else:
+        etiquetas = [1, 2, 3, 4, 5]
+    posiciones = valores.rank(method="first")   # 1, 2, 3... sin empates
+    # qcut reparte las posiciones en 5 grupos del mismo tamano y les pone la etiqueta
+    return pd.qcut(posiciones, 5, labels=etiquetas).astype(int)
 
 
 def puntuar(tabla):
@@ -115,14 +120,28 @@ def resumen_segmentos(tabla_rfm):
     filas = []
     for nombre, significado in segmentos.items():
         del_segmento = tabla_rfm[tabla_rfm["segmento"] == nombre]
+        clientes = len(del_segmento)
+        importe_segmento = del_segmento["monetary"].sum()
+        # Sin clientes (o sin importe) no hay medias ni porcentajes: vacio, no 0
+        porcentaje_clientes = None
+        if len(tabla_rfm) > 0:
+            porcentaje_clientes = round(100 * clientes / len(tabla_rfm), 1)
+        recency_media = None
+        frequency_media = None
+        if clientes > 0:
+            recency_media = round(del_segmento["recency_dias"].mean(), 1)
+            frequency_media = round(del_segmento["frequency"].mean(), 1)
+        porcentaje_importe = None
+        if total_importe != 0:
+            porcentaje_importe = round(100 * importe_segmento / total_importe, 1)
         filas.append({
             "segmento": nombre,
-            "clientes": len(del_segmento),
-            "porcentaje_clientes": round(100 * len(del_segmento) / len(tabla_rfm), 1) if len(tabla_rfm) else None,
-            "recency_media_dias": round(del_segmento["recency_dias"].mean(), 1) if len(del_segmento) else None,
-            "frequency_media": round(del_segmento["frequency"].mean(), 1) if len(del_segmento) else None,
-            "monetary_total": round(del_segmento["monetary"].sum(), 2),
-            "porcentaje_importe": round(100 * del_segmento["monetary"].sum() / total_importe, 1) if total_importe else None,
+            "clientes": clientes,
+            "porcentaje_clientes": porcentaje_clientes,
+            "recency_media_dias": recency_media,
+            "frequency_media": frequency_media,
+            "monetary_total": round(importe_segmento, 2),
+            "porcentaje_importe": porcentaje_importe,
             "significado_y_uso": significado,
         })
     return pd.DataFrame(filas)
@@ -173,17 +192,23 @@ def kmeans_clientes(tabla_rfm):
         if k >= len(compradores):   # el silhouette necesita menos grupos que clientes
             continue
         modelo = KMeans(n_clusters=k, random_state=config.SEMILLA, n_init=10).fit(datos)
-        filas.append({"k": k, "silhouette": round(float(silhouette_score(datos, modelo.labels_)), 3),
+        silhouette = silhouette_score(datos, modelo.labels_)
+        filas.append({"k": k, "silhouette": round(float(silhouette), 3),
                       "inercia": round(float(modelo.inertia_), 2)})
     seleccion = pd.DataFrame(filas)
-    mejor_k = int(seleccion.sort_values(["silhouette", "k"], ascending=[False, True])["k"].iloc[0])
+    # El primero al ordenar: el silhouette mas alto y, si empatan, el k mas pequeno
+    ordenada = seleccion.sort_values(["silhouette", "k"], ascending=[False, True])
+    mejor_k = int(ordenada["k"].iloc[0])
     seleccion["elegido"] = seleccion["k"] == mejor_k
 
     modelo = KMeans(n_clusters=mejor_k, random_state=config.SEMILLA, n_init=10).fit(datos)
     compradores["cluster"] = modelo.labels_
     # Los numeros de KMeans no significan nada: se renumeran de mas a menos importe medio
-    orden = compradores.groupby("cluster")["monetary"].mean().sort_values(ascending=False).index
-    nuevo_numero = {antiguo: numero for numero, antiguo in enumerate(orden, start=1)}
+    importe_medio = compradores.groupby("cluster")["monetary"].mean()
+    orden = importe_medio.sort_values(ascending=False).index   # numeros de KMeans, del mayor importe al menor
+    nuevo_numero = {}
+    for numero, antiguo in enumerate(orden, start=1):
+        nuevo_numero[antiguo] = numero
     compradores["cluster"] = compradores["cluster"].map(nuevo_numero)
     tabla.loc[compradores.index, "cluster"] = compradores["cluster"]
     return seleccion, describir_clusters(compradores), tabla
@@ -205,10 +230,23 @@ def describir_clusters(compradores):
         f = grupo["frequency"].mean()
         m = grupo["monetary"].mean()
         empresas = 100 * (grupo["tipo_cliente"] == "empresa").mean()
-        nombre = (f"{'empresas' if empresas >= 50 else 'particulares'}: "
-                  f"importe {'alto' if m > mediana_m else 'bajo'}, "
-                  f"{'muchos pedidos' if f > mediana_f else 'pocos pedidos'}, "
-                  f"{'compra reciente' if r <= mediana_r else 'sin comprar hace más tiempo'}")
+        if empresas >= 50:
+            tipo = "empresas"
+        else:
+            tipo = "particulares"
+        if m > mediana_m:
+            importe = "alto"
+        else:
+            importe = "bajo"
+        if f > mediana_f:
+            pedidos = "muchos pedidos"
+        else:
+            pedidos = "pocos pedidos"
+        if r <= mediana_r:
+            compra = "compra reciente"
+        else:
+            compra = "sin comprar hace más tiempo"
+        nombre = f"{tipo}: importe {importe}, {pedidos}, {compra}"
         filas.append({
             "cluster": numero,
             "nombre": nombre,
