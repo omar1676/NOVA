@@ -41,7 +41,10 @@ public class IndicadoresDAO {
                 + "LEFT JOIN variantes v ON v.id_variante = s.id_variante "
                 + "LEFT JOIN modelos m ON m.id_modelo = v.id_modelo "
                 + "WHERE p.estado <> 'cancelado' "
-                + "GROUP BY COALESCE(m.nombre, 'X-NOVA') ORDER BY sum(l.cantidad) DESC", null);
+                // Si dos modelos tienen los mismos pares, van por nombre:
+                // asi el orden es siempre el mismo
+                + "GROUP BY COALESCE(m.nombre, 'X-NOVA') "
+                + "ORDER BY sum(l.cantidad) DESC, COALESCE(m.nombre, 'X-NOVA')", null);
     }
 
     public static DefaultTableModel paresPorTalla() throws SQLException {
@@ -55,7 +58,10 @@ public class IndicadoresDAO {
                 + "GROUP BY COALESCE(s.talla, x.talla_referencia) ORDER BY 1", null);
     }
 
-    /** Referencias con menos stock que el umbral, de menos a mas. */
+    /**
+     * Referencias con menos stock que el umbral, de menos a mas. Con el
+     * mismo stock, por modelo, color y talla, para que el orden no cambie.
+     */
     public static DefaultTableModel stockBajo(int umbral) throws SQLException {
         return consultar("SELECT m.nombre AS \"Modelo\", v.color AS \"Color\", s.talla AS \"Talla\", "
                 + "s.sku AS \"SKU\", COALESCE(sum(e.cantidad), 0) AS \"Stock\" "
@@ -65,7 +71,7 @@ public class IndicadoresDAO {
                 + "LEFT JOIN existencias e ON e.id_producto_sku = s.id_producto_sku "
                 + "GROUP BY m.nombre, v.color, s.talla, s.sku "
                 + "HAVING COALESCE(sum(e.cantidad), 0) < ? "
-                + "ORDER BY COALESCE(sum(e.cantidad), 0), m.nombre, s.talla", umbral);
+                + "ORDER BY COALESCE(sum(e.cantidad), 0), m.nombre, v.color, s.talla", umbral);
     }
 
     /** Ejecuta una consulta con un parametro opcional y la pasa a un modelo de JTable. */

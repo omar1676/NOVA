@@ -165,16 +165,27 @@ public class ConexionBD {
             if (texto.startsWith("Acceso denegado")) {
                 return texto;                       // lo ha denegado Java
             }
-            return "Acceso denegado por PostgreSQL: " + texto;
+            // Lo ha denegado PostgreSQL. Entre parentesis va su mensaje original.
+            return "Acceso denegado: la base de datos no permite esta operación a tu rol (" + texto + ")";
         }
         if ("23505".equals(codigo)) {
-            return "Ya existe un registro con ese valor: " + texto;
+            return "Ese dato ya existe y no se puede repetir, por ejemplo la referencia "
+                    + "del pedido o el nombre de usuario (" + texto + ")";
+        }
+        if ("23503".equals(codigo)) {
+            return "El registro elegido no existe o está relacionado con otros datos (" + texto + ")";
+        }
+        if (codigo != null && (codigo.startsWith("22") || codigo.startsWith("23"))) {
+            return "Algún dato no es válido para la base de datos (" + texto + ")";
         }
         if ("28P01".equals(codigo)) {
             return "La contraseña de conexión de conexion.properties no es correcta";
         }
         if (codigo != null && codigo.startsWith("08")) {
-            return "No se puede conectar con la base de datos: " + texto;
+            // El detalle tecnico va en otra linea para que la ventana no sea enorme
+            return "No se puede conectar con la base de datos.\n"
+                    + "Comprueba que PostgreSQL está arrancado y la url de conexion.properties.\n"
+                    + "Detalle: " + texto;
         }
         return texto;
     }

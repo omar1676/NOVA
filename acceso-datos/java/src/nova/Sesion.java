@@ -99,6 +99,9 @@ public class Sesion {
      */
     public static void comprobarPermiso(String operacion) throws SQLException {
         if (!puede(operacion)) {
+            if (rol == null) {
+                throw new SQLException("Acceso denegado: no hay ninguna sesión iniciada", "42501");
+            }
             throw new SQLException("Acceso denegado: el rol " + rol + " no puede " + operacion, "42501");
         }
     }

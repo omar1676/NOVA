@@ -120,7 +120,7 @@ JOIN public.modelos m ON m.id_modelo = v.id_modelo
 LEFT JOIN public.existencias e ON e.id_producto_sku = s.id_producto_sku
 GROUP BY m.nombre, v.color, s.talla, s.sku
 HAVING COALESCE(SUM(e.cantidad), 0) < :umbral_stock
-ORDER BY stock, m.nombre;
+ORDER BY stock, m.nombre, v.color, s.talla;
 
 \echo ''
 \echo '===== PANEL DE INDICADORES ====='
@@ -158,7 +158,7 @@ LEFT JOIN public.variantes v ON v.id_variante = s.id_variante
 LEFT JOIN public.modelos m ON m.id_modelo = v.id_modelo
 WHERE p.estado <> 'cancelado'
 GROUP BY COALESCE(m.nombre, 'X-NOVA')
-ORDER BY pares DESC;
+ORDER BY pares DESC, modelo;
 
 \echo ''
 \echo '--- P-D distribucion por tallas, sin contar los cancelados'
