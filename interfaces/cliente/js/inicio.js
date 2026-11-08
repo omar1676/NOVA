@@ -22,6 +22,8 @@ function mostrarDatosCompra(modelo) {
     datos.descripcion;
   document.querySelector("#detalle-tallas").textContent =
     `Tallas: ${datos.tallas.join(", ")}`;
+  // Tienda (js/tienda.js): precio real, colores, tallas con stock y carrito.
+  if (typeof mostrarCompraEnFicha === "function") mostrarCompraEnFicha(modelo);
 }
 
 function mostrarModelos() {
@@ -127,8 +129,18 @@ function mostrarCatalogo() {
     tarjeta.type = "button";
     tarjeta.className = "catalogo-tarjeta";
     tarjeta.classList.add("c-" + modelo.coleccion);
-    const textoPrecio = formatoPrecio(datosColeccion[modelo.coleccion].precio);
-    tarjeta.setAttribute("aria-label", `Ver ${modelo.nombre}, ${textoPrecio}`);
+    // Tienda (js/tienda.js): si el modelo está en PostgreSQL, su precio real
+    // y si se puede comprar. Sin servidor, el precio orientativo y nada más.
+    const enTienda =
+      typeof datosEnTienda === "function" ? datosEnTienda(modelo) : null;
+    const textoPrecio = formatoPrecio(
+      enTienda?.precio ?? datosColeccion[modelo.coleccion].precio,
+    );
+    const textoEstado = enTienda?.estado ?? "";
+    tarjeta.setAttribute(
+      "aria-label",
+      `Ver ${modelo.nombre}, ${textoPrecio}${textoEstado ? `, ${textoEstado.toLowerCase()}` : ""}`,
+    );
     const imagen = document.createElement("img");
     imagen.src = modelo.imagen;
     imagen.alt = "";
@@ -143,6 +155,12 @@ function mostrarCatalogo() {
     const accion = document.createElement("span");
     accion.textContent = "Ver modelo ↗";
     contenido.append(nombre, accion, precio);
+    if (textoEstado) {
+      const estado = document.createElement("span");
+      estado.className = `catalogo-estado ${enTienda.clase}`;
+      estado.textContent = textoEstado;
+      contenido.append(estado);
+    }
     tarjeta.append(imagen, contenido);
     tarjeta.addEventListener("click", () => abrirDetalle(modelo, tarjeta));
     catalogoGrid.append(tarjeta);
@@ -438,7 +456,12 @@ probador.addEventListener("close", () => {
   if (modeloSeleccionado && !dialogo.open) dialogo.showModal();
 });
 
-// Inicio de sesión (solo interfaz) 
+// ---------------------------------------------------------------------
+// Bloque de Álvaro (commit 52a8800), copiado sin cambios salvo las dos
+// últimas líneas: antes avisaban de que no había servidor; ahora llaman a
+// iniciarSesionCliente (js/tienda.js).
+// ---------------------------------------------------------------------
+// Inicio de sesión (solo interfaz)
 const dialogoAcceso = document.querySelector("#acceso");
 const formularioAcceso = document.querySelector("#formulario-acceso");
 const campoUsuarioAcceso = document.querySelector("#acceso-usuario");
@@ -487,6 +510,6 @@ formularioAcceso.addEventListener("submit", (evento) => {
     return;
   }
 
-  // Omar: aquí se llamará a la API de inicio de sesión.
-  mostrarErrorAcceso("El inicio de sesión todavía no está conectado al servidor.");
+  // Tienda (js/tienda.js): el correo y la contraseña se comprueban en el servidor.
+  iniciarSesionCliente(campoUsuarioAcceso.value.trim(), campoClaveAcceso.value);
 });

@@ -6,7 +6,8 @@
   "main": "servidor.js",
   "scripts": {
     "start": "node --env-file=.env servidor.js",
-    "test": "node --env-file=.env --test pruebas/api.test.js"
+    "test": "node --env-file=.env --test pruebas/api.test.js",
+    "test:tienda": "node --env-file=.env --test pruebas/tienda.test.js"
   },
   "engines": {
     "node": ">=20.6"

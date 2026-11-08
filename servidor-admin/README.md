@@ -1,18 +1,18 @@
-# Servidor del panel de administración
+# Servidor del panel de administración y de la tienda web
 
-Conecta el panel de Álvaro (`interfaces/admin/`) con PostgreSQL.
+Conecta con PostgreSQL el panel de Álvaro (`interfaces/admin/`) y la tienda web (`interfaces/cliente/`).
 
 ```
 Navegador ──► http://127.0.0.1:3000 ──► Node + Express (esta carpeta) ──► PostgreSQL
-  páginas del panel (HTML, CSS, JS)      · entrega las páginas del panel      usuario web_nova
-  script.js pide /api/admin/...          · /api/login y /api/logout           BEGIN ... READ ONLY
-  cookie de sesión HttpOnly              · 8 rutas GET, solo administradores  SET LOCAL ROLE panel_lectura
+  panel: /admin.html                     · páginas del panel y /api/admin/...   usuario web_nova (solo lectura)
+  tienda: /tienda/                       · web cliente y /api/tienda/...        usuario tienda_nova
 ```
 
 - El navegador **nunca** habla con PostgreSQL. Pide datos a este servidor, y es el servidor el que hace las consultas.
-- El mismo servidor entrega las páginas del panel. Así, panel y API tienen el mismo origen y no hace falta CORS.
+- El mismo servidor entrega las páginas del panel y de la tienda. Así, páginas y API tienen el mismo origen y no hace falta CORS.
 - Solo escucha en `127.0.0.1`: no se puede abrir desde otro ordenador.
-- No hay tablas, funciones ni triggers nuevos. Los importes y el stock siguen calculándolos los triggers de PostgreSQL; el servidor solo los lee.
+- **Panel y tienda van separados:** cada uno tiene su usuario de PostgreSQL, su cookie de sesión y sus rutas. El panel sigue sin poder escribir nada.
+- Los importes y el stock los calculan los triggers de PostgreSQL. El panel solo los lee; la tienda escribe únicamente a través de las funciones del script 20 (ver «La tienda web»).
 
 ## Puesta en marcha
 
@@ -36,17 +36,30 @@ Hace falta Node 20.6 o posterior (probado con Node 24.15) y una base con los scr
 
 Si `.env` dice `PGUSER=postgres`, el servidor se niega a arrancar.
 
+**Para la tienda**, además:
+
+6. Después de la batería de pruebas (`09_pruebas.sql`), lanzar el 20, que pide la contraseña de `tienda_nova`, y el 21:
+   ```
+   psql -U postgres -d nova_sneakers -f acceso-datos/sql/20_tienda_web.sql
+   psql -U postgres -d nova_sneakers -f acceso-datos/sql/21_catalogo_web.sql
+   ```
+7. Escribir en `.env` `TIENDA_PGUSER=tienda_nova` y `TIENDA_PGPASSWORD` con la contraseña del paso 6, y volver a arrancar.
+8. Abrir `http://127.0.0.1:3000/tienda/`. Al arrancar, la consola dice si la tienda está configurada. Sin esas dos variables, el panel funciona igual y la tienda enseña el catálogo, pero no deja comprar.
+
 ## Archivos
 
 | Archivo | Qué hace |
 |---|---|
-| `servidor.js` | Arranca Express y entrega las páginas del panel. Tiene el login, el logout y las 8 rutas, y comprueba la sesión y el rol en cada petición |
-| `bd.js` | La conexión con PostgreSQL. `consultarSoloLectura` abre `BEGIN ... READ ONLY` y `SET LOCAL ROLE panel_lectura` |
-| `consultas.js` | Las 8 consultas SQL. Salen de `12_consultas_panel.sql` y de `PedidoDAO.verAuditoria` (Java) |
-| `sesiones.js` | Las sesiones: un token aleatorio en una cookie HttpOnly, guardado en memoria |
-| `intentos.js` | El límite de intentos de login |
-| `pruebas/api.test.js` | Pruebas automáticas (`npm test`) |
-| `../interfaces/admin/login.html` y `login.js` | La página de acceso |
+| `servidor.js` | Arranca Express y entrega las páginas del panel y de la tienda. Tiene el login, el logout y las 8 rutas del panel, y comprueba la sesión y el rol en cada petición |
+| `bd.js` | Las dos conexiones con PostgreSQL. `consultarSoloLectura` (panel) abre `BEGIN ... READ ONLY` y `SET LOCAL ROLE panel_lectura`; `operarEnTienda` (tienda) abre una transacción con `SET LOCAL ROLE tienda_web` |
+| `consultas.js` | Las 8 consultas SQL del panel. Salen de `12_consultas_panel.sql` y de `PedidoDAO.verAuditoria` (Java) |
+| `tienda.js` | Las rutas de la tienda (`/api/tienda/...`): comprueban los datos y llaman a las funciones del script 20 con el cliente de la sesión |
+| `consultas-tienda.js` | El SQL de la tienda: catálogo, cuenta, historial y las llamadas a las funciones de compra |
+| `sesiones.js` | Las sesiones: un token aleatorio en una cookie HttpOnly, guardado en memoria. Dos almacenes separados: `sesion_nova` (panel) y `sesion_tienda` (clientes) |
+| `intentos.js` | El límite de intentos de login (panel y tienda) |
+| `pruebas/api.test.js` | Pruebas automáticas del panel (`npm test`). Solo leen |
+| `pruebas/tienda.test.js` | Pruebas automáticas de la tienda (`npm run test:tienda`). Crean clientes y pedidos: **solo con una base desechable** |
+| `../interfaces/admin/login.html` y `login.js` | La página de acceso del panel |
 
 ## Las rutas
 
@@ -126,6 +139,39 @@ Aunque el código olvidara una, la otra sigue funcionando. `REPEATABLE READ` hac
 - **Librerías de la CDN:** Lucide (1.62.0) y Chart.js (4.4.1) tienen la versión fija y la huella de integridad (`integrity`). Si el archivo de la CDN cambiara, el navegador no lo ejecutaría.
 - **Respuestas:** no llevan hashes, contraseñas, DNI ni direcciones. Los errores internos se apuntan en la consola del servidor y el navegador recibe un mensaje genérico.
 
+## La tienda web
+
+La web cliente (`interfaces/cliente/`) se sirve en `/tienda/`. Su JavaScript (`js/tienda.js`) pide los datos a estas rutas:
+
+| Ruta | Sesión | Qué hace |
+|---|---|---|
+| `GET /api/tienda/catalogo` | No | Modelos a la venta con sus colores, tallas, precio y stock, leídos de PostgreSQL |
+| `POST /api/tienda/registro` | No | `{nombre, email, contrasena, telefono?, direccion?}` → `registrar_cliente`. Abre la sesión |
+| `POST /api/tienda/login` | No | `{email, contrasena}` → `iniciar_sesion_cliente`. Tras 5 fallos, **429** |
+| `POST /api/tienda/logout` | No | Borra la sesión |
+| `GET /api/tienda/sesion` | No | El cliente que ha entrado, o `{cliente: null}` |
+| `POST /api/tienda/pedidos` | Sí | `{clave, lineas: [{sku, cantidad}], telefono, direccion}` → `crear_compra_web`. Devuelve el pedido **pendiente** con el precio de cada línea y el total que ha calculado PostgreSQL |
+| `POST /api/tienda/pedidos/:id/pago` | Sí | `{resultado: "aceptado" \| "rechazado"}`. Aceptado → `confirmar_compra_web`; rechazado → `cancelar_compra_web` |
+| `POST /api/tienda/pedidos/:id/cancelacion` | Sí | `cancelar_compra_web` |
+| `GET /api/tienda/pedidos` y `/pedidos/:id` | Sí | Solo los pedidos de ese cliente. Si es de otro, **404** |
+
+**Quién decide qué:**
+- **Node** comprueba la forma de los datos: tipos, longitudes y cantidades enteras de 1 a 10. Saca el `id_cliente` **de la sesión**, nunca del cuerpo, y no lee ningún precio ni total que mande el navegador.
+- **PostgreSQL** decide lo demás. Las cinco funciones del script 20 comprueban que el cliente está activo, que el pedido es suyo y de la web, y que está pendiente. El precio lo ponen `realizar_compra` y `anadir_linea_pedido` (02), y el stock lo descuenta `trg_descontar_stock_confirmacion` (03) al confirmar. No hay ningún cálculo de importes ni de stock en Node.
+
+**Permisos (script 20):**
+- La tienda se conecta como `tienda_nova`, que solo puede pasar a `tienda_web`.
+- `tienda_web` lee el catálogo, sus columnas de clientes, pedidos y líneas, y **ejecuta las cinco funciones**.
+- No tiene ningún `INSERT`, `UPDATE` ni `DELETE` sobre ninguna tabla, ni puede llamar directamente a `realizar_compra`.
+- `web_nova` (el panel) no puede pasar a `tienda_web`, ni `tienda_nova` a `panel_lectura`.
+
+**El pago es una simulación académica.** No se pide ningún dato bancario y no se cobra nada. El resultado lo elige quien prueba la web; en una tienda real lo mandaría la pasarela de pago al servidor.
+
+**Dobles clics, reintentos y compras a la vez:**
+- **Crear el pedido:** el navegador crea una `clave` aleatoria al abrir el checkout, y de ella sale la referencia `WEB-…`. Si la petición llega dos veces, `crear_compra_web` devuelve el mismo pedido, porque `pedidos_referencia_uq` no deja repetirla.
+- **Pagar:** `confirmar_compra_web` bloquea el pedido (`FOR UPDATE`). El segundo pago ve que ya está pagado y no hace nada.
+- **Los últimos pares:** `descontar_stock` no deja bajar de cero. Si dos clientes pagan a la vez, uno compra y al otro se le deshace todo y se le cancela el pedido.
+
 ## Diferencias con el prototipo, y por qué
 
 | En el prototipo | Ahora | Motivo |
@@ -180,9 +226,33 @@ npm test
 
 Sin esas variables, las pruebas que las necesitan se saltan y lo avisan.
 
+`npm run test:tienda` hace 23 pruebas de la tienda:
+- catálogo frente a PostgreSQL;
+- registro, login, límite de intentos y logout;
+- clientes y administradores separados;
+- datos no válidos y precios manipulados;
+- doble clic al crear y al pagar, y dos clientes comprando los últimos pares a la vez;
+- falta de stock a mitad del pago;
+- historial privado;
+- que la compra sale en el panel.
+
+**Registran clientes y crean pedidos de verdad**, así que solo se ejecutan si se confirma que la base es desechable:
+
+```
+$env:PRUEBA_TIENDA_BASE_DESECHABLE = "si"
+npm run test:tienda
+```
+
 ## Limitaciones conocidas
 
 - **Tiempo de respuesta del login:** tarda algo más si el usuario existe, porque `iniciar_sesion` (script 02) solo calcula el bcrypt en ese caso. El límite de intentos reduce lo que se puede aprovechar.
 - **Límite de intentos:** como cuenta por nombre de usuario, alguien que conozca un nombre puede bloquearlo 5 minutos fallando a propósito.
 - **Al reiniciar el servidor** se olvidan las sesiones y el contador de intentos.
 - **Sin internet:** el panel se queda sin iconos ni gráficos, porque las dos librerías vienen de una CDN.
+
+**De la tienda:**
+- **La identidad del cliente la pone el servidor.** Las funciones de compra reciben el `id_cliente` de la sesión; la base comprueba que el pedido es suyo, pero no sabe quién está al otro lado. Es el mismo límite que ya documenta la prueba G6 de `09_pruebas.sql`.
+- **Pedidos pendientes olvidados:** si alguien cierra el navegador en mitad del pago, su pedido se queda pendiente (sin stock descontado) y cuenta en «Ventas» del dashboard, igual que un pendiente creado desde Java. Si cierra solo la ventana del pedido, la web lo cancela.
+- **La dirección de entrega** se guarda en la ficha del cliente, porque `pedidos` no tiene columna de dirección. Un pedido antiguo enseña la dirección actual.
+- **El registro dice si un correo ya existe**, y no hay verificación por correo.
+- **En la auditoría** las compras web salen con el usuario «(sin sesión)», porque el cliente no es un usuario de la tabla `usuarios`. El detalle dice para qué cliente es.
