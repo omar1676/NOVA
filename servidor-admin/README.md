@@ -1,17 +1,19 @@
-# Servidor del panel de administración y de la tienda web
+# Servidor del panel de administración, del portal del trabajador y de la tienda web
 
-Conecta con PostgreSQL el panel de Álvaro (`interfaces/admin/`) y la tienda web (`interfaces/cliente/`).
+Conecta con PostgreSQL el panel de Álvaro (`interfaces/admin/`), el portal del trabajador de Berme (`interfaces/trabajador/`) y la tienda web (`interfaces/cliente/`). Es el único servidor del proyecto.
 
 ```
 Navegador ──► http://127.0.0.1:3000 ──► Node + Express (esta carpeta) ──► PostgreSQL
-  panel: /admin.html                     · páginas del panel y /api/admin/...   usuario web_nova (solo lectura)
-  tienda: /tienda/                       · web cliente y /api/tienda/...        usuario tienda_nova
+  acceso: /login.html                    · login único del personal (administrador y trabajador)
+  panel: /admin.html                     · páginas del panel y /api/admin/...       usuario web_nova (solo lectura)
+  portal: /trabajador/                   · portal de Berme y /api/trabajador/...    usuario web_nova (rol portal_trabajador)
+  tienda: /tienda/                       · web cliente y /api/tienda/...            usuario tienda_nova
 ```
 
 - El navegador **nunca** habla con PostgreSQL. Pide datos a este servidor, y es el servidor el que hace las consultas.
 - El mismo servidor entrega las páginas del panel y de la tienda. Así, páginas y API tienen el mismo origen y no hace falta CORS.
 - Solo escucha en `127.0.0.1`: no se puede abrir desde otro ordenador.
-- **Panel y tienda van separados:** cada uno tiene su usuario de PostgreSQL, su cookie de sesión y sus rutas. El panel solo lee, con una excepción: el botón «Marcar en reparto», que pasa un pedido confirmado a `enviado` a través de una única función (script 22, ver «La única escritura del panel»).
+- **Personal y clientes van separados:** el panel y el portal comparten el login único y la cookie del personal (`sesion_nova`); la tienda tiene su usuario de PostgreSQL, su cookie (`sesion_tienda`) y sus rutas. El panel solo lee, con una excepción: el botón «Marcar en reparto», que pasa un pedido confirmado a `enviado` a través de una única función (script 22, ver «La única escritura del panel»). El portal lee con su propio rol y solo cambia algo con las dos funciones del script 23 (ver «El portal del trabajador»).
 - Los importes y el stock los calculan los triggers de PostgreSQL. El panel solo los lee; la tienda escribe únicamente a través de las funciones del script 20 (ver «La tienda web»).
 
 ## Puesta en marcha
@@ -52,42 +54,56 @@ Si `.env` dice `PGUSER=postgres`, el servidor se niega a arrancar.
    psql -U postgres -d nova_sneakers -f acceso-datos/sql/22_reparto_panel.sql
    ```
 
+**Para el portal del trabajador**, después del 22 (se puede repetir):
+
+10. ```
+    psql -U postgres -d nova_sneakers -f acceso-datos/sql/23_portal_trabajador.sql
+    ```
+    No pide contraseñas: usa el mismo `web_nova`. Se entra por la misma página, `http://127.0.0.1:3000/login.html`, con `taller.demo`.
+
 **Para el recibo por correo** (opcional):
 
-10. Escribir en `.env` la clave de [Resend](https://resend.com) y el remitente, y volver a arrancar:
+11. Escribir en `.env` la clave de [Resend](https://resend.com) y el remitente, y volver a arrancar:
     ```
     RESEND_API_KEY=re_...
     RESEND_FROM=NOVA Sneakers <onboarding@resend.dev>
     ```
     Mientras no haya un dominio verificado en Resend, solo llegan los correos dirigidos al correo de la propia cuenta de Resend: hay que registrarse en la tienda con ese correo para recibir el recibo. Sin estas variables, la compra funciona igual y la consola dice que el recibo no se ha enviado.
-11. **Solo para desarrollo**, para probar el recibo sin enviar correos reales: `CORREO_PROVEEDOR=ethereal` en `.env` (no necesita claves). En el primer envío, Nodemailer crea una cuenta temporal de [Ethereal](https://ethereal.email): el correo no llega a nadie, la consola escribe `Vista previa del recibo WEB-…: <url>` y en «Mis pedidos», al ver el detalle del pedido, sale el enlace «Ver recibo de prueba (Ethereal)». Con `NODE_ENV=production` se niega y no se envía nada. Sin `CORREO_PROVEEDOR` (o con `resend`) todo sigue como en el paso 10.
+12. **Solo para desarrollo**, para probar el recibo sin enviar correos reales: `CORREO_PROVEEDOR=ethereal` en `.env` (no necesita claves). En el primer envío, Nodemailer crea una cuenta temporal de [Ethereal](https://ethereal.email): el correo no llega a nadie, la consola escribe `Vista previa del recibo WEB-…: <url>` y en «Mis pedidos», al ver el detalle del pedido, sale el enlace «Ver recibo de prueba (Ethereal)». Con `NODE_ENV=production` se niega y no se envía nada. Sin `CORREO_PROVEEDOR` (o con `resend`) todo sigue como en el paso 11.
+
+**El conector de Odoo de Berme** (`odoo.js`) se queda **desactivado** mientras falte alguna de `ODOO_URL`, `ODOO_DB` y `ODOO_API_KEY` en `.env`: no se llama a ningún servidor y la consola lo dice al arrancar. Desde este ordenador no se llega a ningún Odoo, así que no se ha probado contra uno de verdad.
 
 ## Archivos
 
 | Archivo | Qué hace |
 |---|---|
-| `servidor.js` | Arranca Express y entrega las páginas del panel y de la tienda. Tiene el login, el logout, las 8 rutas de lectura del panel y la de «Marcar en reparto», y comprueba la sesión y el rol en cada petición |
-| `bd.js` | Las dos conexiones con PostgreSQL. `consultarSoloLectura` (panel) abre `BEGIN ... READ ONLY` y `SET LOCAL ROLE panel_lectura`; `marcarEnReparto` (solo el botón del panel) abre una transacción aparte con `SET LOCAL ROLE panel_reparto`; `operarEnTienda` (tienda) abre una transacción con `SET LOCAL ROLE tienda_web` |
+| `servidor.js` | Arranca Express y entrega las páginas del panel, del portal y de la tienda. Tiene el login único, el logout, las 8 rutas de lectura del panel y la de «Marcar en reparto», monta las rutas del portal y comprueba la sesión y el rol, contra la base, en cada petición |
+| `bd.js` | Las dos conexiones con PostgreSQL. `consultarSoloLectura` (panel) abre `BEGIN ... READ ONLY` y `SET LOCAL ROLE panel_lectura`; `marcarEnReparto` (solo el botón del panel) abre una transacción aparte con `SET LOCAL ROLE panel_reparto`; `consultarComoTrabajador` y `cambiarComoTrabajador` (portal) hacen lo mismo con `portal_trabajador`; `operarEnTienda` (tienda) abre una transacción con `SET LOCAL ROLE tienda_web` |
 | `consultas.js` | Las 8 consultas SQL del panel. Salen de `12_consultas_panel.sql` y de `PedidoDAO.verAuditoria` (Java) |
 | `tienda.js` | Las rutas de la tienda (`/api/tienda/...`): comprueban los datos y llaman a las funciones del script 20 con el cliente de la sesión |
 | `consultas-tienda.js` | El SQL de la tienda: catálogo, cuenta, historial y las llamadas a las funciones de compra |
 | `correo.js` | El recibo por correo de cada compra pagada: con la API de Resend (`fetch` de Node) o, solo en desarrollo, con Ethereal (Nodemailer) |
-| `sesiones.js` | Las sesiones: un token aleatorio en una cookie HttpOnly, guardado en memoria. Dos almacenes separados: `sesion_nova` (panel) y `sesion_tienda` (clientes) |
+| `rutas-trabajador.js` | **De Berme.** Las rutas del portal (`/api/trabajador/...`). Leen con `portal_trabajador` y sus dos cambios llaman a las funciones del script 23 con el usuario de la sesión |
+| `odoo.js` | **De Berme.** El conector con la API JSON-2 de Odoo. Desactivado sin `ODOO_URL`, `ODOO_DB` y `ODOO_API_KEY` |
+| `pedidos.js` | **De Berme.** Rutas para crear pedidos y enviarlos a Odoo. **No se montan** (ver «Lo que falta del portal») |
+| `sesiones.js` | Las sesiones: un token aleatorio en una cookie HttpOnly, guardado en memoria. Dos almacenes separados: `sesion_nova` (personal: panel y portal) y `sesion_tienda` (clientes) |
 | `intentos.js` | El límite de intentos de login (panel y tienda) |
 | `pruebas/api.test.js` | Pruebas automáticas del panel (`npm test`). Solo leen |
 | `pruebas/tienda.test.js` | Pruebas automáticas de la tienda (`npm run test:tienda`). Crean clientes y pedidos: **solo con una base desechable** |
-| `../interfaces/admin/login.html` y `login.js` | La página de acceso del panel |
+| `pruebas/portal.test.js` | Pruebas del login único y del portal (`npm run test:portal`). Las que cambian algo, **solo con una base desechable** |
+| `../interfaces/admin/login.html` y `login.js` | La página de acceso única del personal |
+| `../interfaces/trabajador/` | **De Berme.** Las cuatro páginas del portal, su `script.js` y su `styles.css` (una copia de la hoja del panel de Álvaro) |
 
 ## Las rutas
 
-Todas devuelven JSON. Las de `/api/admin/` necesitan una sesión de administrador: sin sesión responden **401**, y con otro rol, **403**.
+Todas devuelven JSON. Las de `/api/admin/` necesitan una sesión de administrador, y las de `/api/trabajador/`, una de trabajador: sin sesión responden **401**, y con otro rol, **403**.
 
 | Ruta | Filtros (`?nombre=valor`) | De dónde sale la consulta |
 |---|---|---|
 | `GET /api/estado` | — | Comprueba la conexión. Es pública: no devuelve datos del negocio |
-| `POST /api/login` | JSON `{usuario, contrasena}` | `iniciar_sesion` (02): la contraseña la comprueba PostgreSQL con bcrypt. Tras 5 fallos, **429** |
+| `POST /api/login` | JSON `{usuario, contrasena}` | `iniciar_sesion` (02): la contraseña la comprueba PostgreSQL con bcrypt. Responde con el rol y `destino`, el panel al que ir. **401** si no es correcta (o la cuenta está desactivada), **403** si su rol no tiene panel web (sin sesión). Tras 5 fallos, **429** |
 | `POST /api/logout` | — | Borra la sesión |
-| `GET /api/sesion` | — | Quién ha entrado y con qué rol |
+| `GET /api/sesion` | — | Quién ha entrado, con qué rol y su `destino` |
 | `GET /api/admin/dashboard` | — | P-A (ventas), P-B (pedidos por estado), C8 (stock bajo), los últimos 5 pedidos y las ventas por día (últimos 30 días) |
 | `GET /api/admin/pedidos` | `estado`, `texto` | C5 |
 | `GET /api/admin/productos` | `estado`, `texto` | Los JOIN de `csv_stock` (16). Precio = `precio_base + suplemento_precio`, el mismo que cobra `anadir_linea_pedido` |
@@ -97,6 +113,17 @@ Todas devuelven JSON. Las de `/api/admin/` necesitan una sesión de administrado
 | `GET /api/admin/auditoria` | `accion`, `texto` | `PedidoDAO.verAuditoria`: los últimos 100 eventos |
 | `GET /api/admin/estadisticas` | — | P-A del mes en curso, P-B, P-C y los ingresos por mes |
 | `POST /api/admin/pedidos/:id/reparto` | JSON `{}` | `marcar_pedido_en_reparto` (22): un pedido **confirmado** pasa a `enviado`. **200** con el pedido, **404** si no existe, **409** si no está confirmado, **415** si no llega JSON |
+
+Las del portal del trabajador (`rutas-trabajador.js`, de Berme):
+
+| Ruta | Datos | Qué hace |
+|---|---|---|
+| `GET /api/trabajador/resumen` | — | Pedidos por preparar y en preparación, SKU con menos de 5 pares y pedidos de hoy |
+| `GET /api/trabajador/pedidos` | — | Los pedidos confirmados, en preparación, enviados y entregados, con su cliente (solo el nombre) |
+| `PATCH /api/trabajador/pedidos/:id/estado` | JSON `{estado}` | `avanzar_pedido_trabajador` (23): un paso adelante, `confirmado` → `en_preparacion` → `enviado` → `entregado`. **400** si el paso no vale, **404** si no existe, **415** sin JSON |
+| `GET /api/trabajador/inventario` | — | Las existencias por nave, modelo, color, talla y SKU |
+| `PATCH /api/trabajador/inventario/:idSku/:idNave` | JSON `{cantidad}` | `ajustar_existencias_trabajador` (23): la cantidad nueva, de 0 a 99999. **400**, **404** o **415** igual que arriba |
+| `GET /api/trabajador/personalizados` | — | Los pedidos personalizados y las configuraciones X-Nova |
 
 - Los filtros siempre van como parámetros (`$1`, `$2`…), nunca pegados al SQL.
 - Un valor que no está en la lista permitida da **400**, por ejemplo `?estado=borrado`. También lo da un byte nulo.
@@ -132,11 +159,38 @@ Es una prueba: el administrador pulsa el botón en un pedido confirmado y el cli
 - **El rol** `panel_reparto` no tiene login ni puede leer o escribir ninguna tabla: **solo ejecuta esa función**. `web_nova` pasa a él con `SET LOCAL ROLE` (sin heredar), igual que a `panel_lectura`. Nadie más puede llamarla: ni `PUBLIC`, ni `panel_lectura`, ni `tienda_web` o `tienda_nova`, ni los roles de Java.
 - **El servidor** la llama en una transacción de escritura aparte, solo para esta ruta, detrás de `soloAdministrador` (que vuelve a mirar el rol en la base). El usuario sale de la sesión, nunca del navegador, y solo acepta `Content-Type: application/json`, así que un formulario de otra web no puede lanzarla. Las demás rutas siguen con `READ ONLY` y `panel_lectura`.
 
+### El portal del trabajador (script 23)
+
+- **El rol** `portal_trabajador` no tiene login. `web_nova` pasa a él con `SET LOCAL ROLE` (sin heredar), igual que a `panel_lectura` y a `panel_reparto`.
+- **Lee solo lo que enseña el portal:** algunas columnas de pedidos, el nombre de los clientes, las existencias, las naves, los SKU, los colores, los modelos y las configuraciones X-Nova. No ve `password_hash`, `dni`, `email`, `telefono`, `direccion_entrega` ni la auditoría.
+- **No escribe en ninguna tabla por su cuenta.** Sus dos cambios van por funciones `SECURITY DEFINER` con `search_path` fijo:
+  - `avanzar_pedido_trabajador(usuario, pedido, estado)`: bloquea el pedido (`FOR UPDATE`) y solo deja avanzar un paso. Con dos clics a la vez, uno avanza y el otro recibe 400. No toca el stock;
+  - `ajustar_existencias_trabajador(usuario, sku, nave, cantidad)`: pone la cantidad nueva, de 0 a 99999.
+- **Las dos comprueban** que el usuario existe, está activo y es **trabajador**, y dejan el cambio en `log_eventos` a su nombre (`CAMBIO_ESTADO` o `CAMBIO_STOCK`), con el mismo mecanismo de `nova.id_usuario` que el 22.
+- **El servidor** lee en transacciones `READ ONLY` y hace cada cambio en una transacción aparte. El usuario sale de la sesión, nunca del cuerpo de la petición, y los cambios solo aceptan `Content-Type: application/json`.
+- Nadie más puede llamar a esas funciones: ni `PUBLIC`, ni `web_nova` sin `SET ROLE`, ni `panel_lectura`, `panel_reparto` o `tienda_web`.
+
+### Login único y roles
+
+Hay **una sola página de acceso** para el personal, `login.html`. El servidor decide adónde va cada uno según el rol de la tabla `roles`, siguiendo la matriz de permisos de `acceso-datos/java/README.md`:
+
+| Rol | Cuenta de demostración | Al entrar | Por qué |
+|---|---|---|---|
+| `administrador` | `admin.demo` | Panel de administración (`/admin.html`) | Ve todo, también la auditoría, y es el único que marca pedidos en reparto desde el panel |
+| `trabajador` | `taller.demo` | Portal del trabajador (`/trabajador/`) | Prepara pedidos y controla el almacén: avanza el estado de los pedidos y corrige el stock. No vende ni ve la auditoría |
+| `comercial` | `tienda.demo` | **Acceso denegado** (403, sin sesión) | Vende desde la aplicación Java. Ninguna página web es suya |
+
+- **Cada uno solo entra en su panel.** El administrador no entra en el portal (ya tiene su panel) y el trabajador no entra en el panel: sus páginas le llevan a `login.html` y todas las rutas `/api/admin/` le responden 403.
+- **Contraseña mal, usuario que no existe o cuenta desactivada:** 401 con el mismo mensaje, «Usuario o contraseña incorrectos». Así no se sabe qué cuentas existen ni cuáles están desactivadas.
+- **Rol sin panel** (comercial): la contraseña es buena, pero no se crea ninguna sesión y la página dice «Acceso denegado: el usuario … (comercial) no tiene ningún panel web.».
+- **El rol nunca sale del navegador.** Lo guarda la sesión, en la memoria del servidor, y en cada petición se vuelve a mirar en la base. No hay nada que cambiar en el JavaScript, la cookie o la petición para tener otro rol.
+- **Clientes y personal no se mezclan:** las cuentas de la tienda (`cuentas_cliente`) no sirven en `login.html`, ni las del personal en la tienda, y cada cookie solo vale en su almacén de sesiones.
+
 ### Login y sesiones
 
 - **Login:**
   - la contraseña la comprueba PostgreSQL;
-  - el mensaje de error es el mismo exista o no el usuario.
+  - el mensaje de error es el mismo exista o no el usuario, y esté o no desactivado.
 - **Límite de intentos** (`intentos.js`):
   - tras 5 fallos seguidos con un mismo nombre de usuario, el servidor responde 429 durante 5 minutos, aunque la contraseña sea la buena;
   - cuenta igual exista o no la cuenta, así que no delata qué usuarios hay;
@@ -146,8 +200,8 @@ Es una prueba: el administrador pulsa el botón en un pedido confirmado y el cli
   - es un token aleatorio de 32 bytes en una cookie `HttpOnly` y `SameSite=Strict`;
   - caduca a las 2 horas y se pierde al reiniciar el servidor;
   - la contraseña no se guarda.
-- **En cada petición a `/api/admin/`** se vuelve a mirar en la base si la cuenta sigue activa y sigue siendo administradora:
-  - si se ha desactivado, la sesión se borra y la respuesta es 401;
+- **En cada petición a `/api/admin/` y a `/api/trabajador/`, y en cada página del panel y del portal,** se vuelve a mirar en la base si la cuenta sigue activa y sigue teniendo ese rol:
+  - si se ha desactivado, la sesión se borra y la respuesta es 401 (las páginas llevan a `login.html`);
   - si ha cambiado de rol, también se borra, y la respuesta es 403.
 
 ### Servidor y navegador
@@ -160,7 +214,7 @@ Es una prueba: el administrador pulsa el botón en un pedido confirmado y el cli
   - sin `X-Powered-By`;
   - con `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY` y `Referrer-Policy: same-origin`;
   - la API, además, con `Cache-Control: no-store`.
-- **Páginas:** sin sesión de administrador solo se entregan `login.html`, `login.js`, `styles.css` y las imágenes. Cualquier otra página lleva a `login.html`.
+- **Páginas:** sin sesión de administrador solo se entregan `login.html`, `login.js`, `styles.css` y las imágenes del panel. Las páginas del portal (`/trabajador/...`), incluidos su CSS, su JavaScript y sus imágenes, solo se entregan con una sesión de trabajador. Cualquier otra página lleva a `login.html`.
 - **Botón «Atrás»:** después de cerrar sesión, una página que el navegador tuviera guardada se vuelve a pedir al servidor, que manda al login.
 - **Datos:** el panel pinta con `textContent`, no con `innerHTML`. Un dato que contenga HTML se ve como texto y no se ejecuta.
 - **Librerías de la CDN:** Lucide (1.62.0) y Chart.js (4.4.1) tienen la versión fija y la huella de integridad (`integrity`). Si el archivo de la CDN cambiara, el navegador no lo ejecutaría.
@@ -242,6 +296,17 @@ La web cliente (`interfaces/cliente/`) se sirve en `/tienda/`. Su JavaScript (`j
   - `styles.css`: al final, el tamaño del botón, su foco y los colores del aviso.
 - **`pedidosAdmin.html` y `productosAdmin.html`:** el icono de la pestaña apuntaba a una imagen que no existe. Se corrigió igual que lo hizo Berme en su rama.
 
+## Cambios en los archivos de Berme (los tiene que revisar él)
+
+Sus commits (`67d6cf0` y `9cb42c7`, del 11/11) se han traído con `git cherry-pick -x`, así que siguen a su nombre. Después:
+
+- **`servidor/` pasa a `servidor-admin/`**, sin cambios en ese commit: sus rutas necesitan Express y un pool de PostgreSQL, y el único servidor es este.
+- **`rutas-trabajador.js`:** las mismas rutas, consultas, mensajes y reglas. Cambia cómo llegan a la base: en lugar de `pool.query` con permisos de quien se conectara, lee con `portal_trabajador` y sus dos `UPDATE` pasan a las funciones del script 23 (que comprueban el usuario y dejan la auditoría). Además, los cambios solo aceptan JSON (415) y los ids, como mucho 9 cifras (un número mayor daba un error 500 en PostgreSQL).
+- **`odoo.js`:** sin configuración ya no llama a `http://localhost:8069` por defecto: se queda desactivado y lo dice.
+- **`pedidos.js`:** igual que lo dejó, con un comentario al principio que explica por qué no se monta.
+- **Páginas del portal:** el enlace «Cerrar sesión»; Lucide fijado en la 1.62.0 con `integrity` (como el panel) en lugar de `lucide@latest`; nombres accesibles en el buscador, los desplegables y los campos de cantidad. El diseño no cambia.
+- **`script.js`:** si la CDN de Lucide no carga, el portal sigue funcionando; con un 401 o un 403 vuelve a `login.html`; y el botón «Atrás» no enseña datos después de cerrar sesión.
+
 ## Pruebas
 
 `npm test` arranca el servidor en un puerto libre y comprueba, en 23 pruebas:
@@ -287,17 +352,39 @@ $env:PRUEBA_TIENDA_BASE_DESECHABLE = "si"
 npm run test:tienda
 ```
 
+`npm run test:portal` hace 24 pruebas del login único y del portal: el login del administrador y del trabajador, contraseña mal, cuenta desactivada y rol cambiado con la sesión abierta, logout, caducidad a las 2 horas (adelantando el reloj), el trabajador fuera del panel y de las 8 rutas `/api/admin/`, las lecturas y los dos cambios del portal (también con doble clic), parámetros, cookies y roles manipulados, los permisos de `portal_trabajador` en PostgreSQL, la auditoría a nombre del trabajador, clientes y personal separados en los dos sentidos, y el conector de Odoo desactivado.
+
+```
+$env:PRUEBA_ADMIN_USUARIO = "admin.demo";  $env:PRUEBA_ADMIN_CLAVE = "..."
+$env:PRUEBA_OTRO_USUARIO  = "taller.demo"; $env:PRUEBA_OTRO_CLAVE  = "..."
+$env:PRUEBA_COMERCIAL_USUARIO = "tienda.demo"; $env:PRUEBA_COMERCIAL_CLAVE = "..."
+$env:PRUEBA_TIENDA_BASE_DESECHABLE = "si"
+$env:PRUEBA_SUPERUSUARIO = "postgres"   # y PRUEBA_SUPERUSUARIO_CLAVE si la pide
+npm run test:portal
+```
+
+Las que avanzan pedidos, cambian el stock o registran un cliente solo se lanzan con `PRUEBA_TIENDA_BASE_DESECHABLE=si`. Las que desactivan una cuenta o le cambian el rol necesitan además `PRUEBA_SUPERUSUARIO`, porque `web_nova` no puede tocar la tabla `usuarios`; crean su propia cuenta de trabajador (`prueba.portal.<hora>`) y la dejan desactivada.
+
 ## Limitaciones conocidas
 
 - **Tiempo de respuesta del login:** tarda algo más si el usuario existe, porque `iniciar_sesion` (script 02) solo calcula el bcrypt en ese caso. El límite de intentos reduce lo que se puede aprovechar.
 - **Límite de intentos:** como cuenta por nombre de usuario, alguien que conozca un nombre puede bloquearlo 5 minutos fallando a propósito.
 - **Al reiniciar el servidor** se olvidan las sesiones y el contador de intentos.
-- **Sin internet:** el panel se queda sin iconos ni gráficos, porque las dos librerías vienen de una CDN.
+- **Sin internet:** el panel se queda sin iconos ni gráficos, porque las dos librerías vienen de una CDN. El portal, sin iconos.
+- **Una sesión del personal por navegador:** el panel y el portal usan la misma cookie, así que entrar con otro usuario en el mismo navegador cierra la sesión anterior.
+
+**Del portal del trabajador (ver también «Lo que falta del portal»):**
+- **El stock se puede poner a mano** a cualquier cantidad de 0 a 99999, como lo diseñó Berme. Queda en la auditoría, pero no se comprueba la capacidad de la nave.
+- **Avanzar no vuelve atrás:** si un trabajador se equivoca, el estado no se puede deshacer desde la web.
+
+**Lo que falta del portal:**
+- **`pedidos.js` no se monta.** Crearía pedidos sin login ni rol, escribe directamente en `pedidos` y `log_eventos` (y `web_nova` no tiene esos permisos) y necesita un Odoo. Según la matriz, el trabajador no crea pedidos. Para usarlo habría que decidir quién lo usa, darle una función como las del 23 y un Odoo de verdad.
+- **Odoo:** `odoo.js` no se ha podido probar contra ningún Odoo. Faltan la URL, la base y la clave de la API, y saber qué productos de Odoo corresponden a cada SKU.
 
 **De la tienda:**
 - **La identidad del cliente la pone el servidor.** Las funciones de compra reciben el `id_cliente` de la sesión; la base comprueba que el pedido es suyo, pero no sabe quién está al otro lado. Es el mismo límite que ya documenta la prueba G6 de `09_pruebas.sql`.
 - **Pedidos pendientes olvidados:** si alguien cierra el navegador en mitad del pago, su pedido se queda pendiente (sin stock descontado) y cuenta en «Ventas» del dashboard, igual que un pendiente creado desde Java. Si cierra solo la ventana del pedido, la web lo cancela.
 - **La dirección de entrega** se guarda en la ficha del cliente, porque `pedidos` no tiene columna de dirección. Un pedido antiguo enseña la dirección actual.
 - **El registro dice si un correo ya existe**, y no hay verificación por correo.
-- **Nodemailer 7.0.13** (la última 7.x) tiene avisos de `npm audit` que se arreglan en la 10.x. Solo se usa con `CORREO_PROVEEDOR=ethereal`, en desarrollo, para mandar un correo sin adjuntos a un buzón falso que no entrega nada.
+- **Nodemailer** (10.5.0, la versión exacta de `package.json`) solo se usa con `CORREO_PROVEEDOR=ethereal`, en desarrollo, para mandar un correo sin adjuntos a un buzón falso que no entrega nada.
 - **En la auditoría** las compras web salen con el usuario «(sin sesión)», porque el cliente no es un usuario de la tabla `usuarios`. El detalle dice para qué cliente es.
