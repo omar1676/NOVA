@@ -181,7 +181,7 @@
             </button>
             <button
               type="button"
-              class="catalogo-filtro"
+              class="catalogo-filtro c-street"
               data-coleccion="street"
               aria-pressed="false"
             >
@@ -189,7 +189,7 @@
             </button>
             <button
               type="button"
-              class="catalogo-filtro"
+              class="catalogo-filtro c-luxe"
               data-coleccion="luxe"
               aria-pressed="false"
             >
@@ -197,7 +197,7 @@
             </button>
             <button
               type="button"
-              class="catalogo-filtro"
+              class="catalogo-filtro c-casual"
               data-coleccion="casual"
               aria-pressed="false"
             >
@@ -205,7 +205,7 @@
             </button>
             <button
               type="button"
-              class="catalogo-filtro"
+              class="catalogo-filtro c-hombre"
               data-coleccion="hombre"
               aria-pressed="false"
             >
@@ -213,7 +213,7 @@
             </button>
             <button
               type="button"
-              class="catalogo-filtro"
+              class="catalogo-filtro c-mujer"
               data-coleccion="mujer"
               aria-pressed="false"
             >
@@ -221,7 +221,7 @@
             </button>
             <button
               type="button"
-              class="catalogo-filtro"
+              class="catalogo-filtro c-unisex"
               data-coleccion="unisex"
               aria-pressed="false"
             >
@@ -243,8 +243,8 @@
           filtros.
         </p>
         <p class="nota">
-          Precios orientativos por colección. El precio final y la
-          disponibilidad se confirman en el presupuesto.
+          Precios y disponibilidad de la tienda online de NOVA. Si la tienda no
+          responde, se ven los precios orientativos de cada colección.
         </p>
       </section>
       <section class="historia" id="historia">
@@ -423,46 +423,89 @@
           <div class="repisa-grande" aria-hidden="true"></div>
         </div>
         <div class="modal-info">
-          <span id="detalle-etiqueta-precio">PRECIO ORIENTATIVO</span
-          ><strong id="detalle-precio"></strong>
+          <div class="ficha-precio">
+            <span id="detalle-etiqueta-precio">PRECIO ORIENTATIVO</span
+            ><strong id="detalle-precio"></strong>
+            <p id="detalle-nota-precio">
+              El precio final se confirma en el presupuesto.
+            </p>
+          </div>
           <p id="detalle-tallas"></p>
-          <p id="detalle-nota-precio">
-            El precio final se confirma en el presupuesto.
-          </p>
-          <!-- Compra (js/tienda.js): color, talla y cantidad con datos de PostgreSQL. -->
+          <!-- Compra (js/tienda.js): color, talla y cantidad con datos de
+               PostgreSQL. Cada error sale junto a su campo. -->
           <p class="compra-aviso" id="compra-aviso" hidden></p>
           <div class="compra" id="compra" hidden>
             <fieldset class="compra-grupo">
-              <legend>Color</legend>
-              <div class="compra-opciones" id="compra-colores"></div>
+              <legend>
+                Color: <span id="compra-color-nombre"></span>
+              </legend>
+              <div class="compra-colores" id="compra-colores"></div>
             </fieldset>
-            <fieldset class="compra-grupo">
-              <legend>Talla</legend>
-              <div class="compra-opciones compra-tallas" id="compra-tallas"></div>
+            <fieldset
+              class="compra-grupo"
+              id="compra-grupo-talla"
+              aria-describedby="compra-error-talla"
+            >
+              <legend>Talla (EU)</legend>
+              <div class="compra-tallas" id="compra-tallas"></div>
+              <p class="compra-error" id="compra-error-talla" role="alert"></p>
             </fieldset>
             <p class="compra-stock" id="compra-stock"></p>
-            <label class="compra-cantidad" for="compra-cantidad"
-              >Cantidad
-              <input
-                id="compra-cantidad"
-                type="number"
-                min="1"
-                max="10"
-                step="1"
-                value="1"
-                inputmode="numeric"
-            /></label>
-            <button class="boton" type="button" id="compra-anadir">
-              AÑADIR AL CARRITO <span aria-hidden="true">↗</span>
+            <div class="compra-cantidad">
+              <label for="compra-cantidad">Cantidad</label>
+              <div class="cantidad-control">
+                <button
+                  type="button"
+                  id="compra-menos"
+                  aria-label="Un par menos"
+                  aria-controls="compra-cantidad"
+                >
+                  −
+                </button>
+                <input
+                  id="compra-cantidad"
+                  type="number"
+                  min="1"
+                  max="10"
+                  step="1"
+                  value="1"
+                  inputmode="numeric"
+                  aria-describedby="compra-error-cantidad"
+                />
+                <button
+                  type="button"
+                  id="compra-mas"
+                  aria-label="Un par más"
+                  aria-controls="compra-cantidad"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <p class="compra-error" id="compra-error-cantidad" role="alert"></p>
+            <button class="boton compra-boton" type="button" id="compra-anadir">
+              AÑADIR AL CARRITO
             </button>
-            <p class="compra-mensaje" id="compra-mensaje" role="status"></p>
+            <div class="compra-hecho">
+              <p class="compra-mensaje" id="compra-mensaje" role="status"></p>
+              <button
+                type="button"
+                class="enlace-boton"
+                id="compra-ver-carrito"
+                hidden
+              >
+                Ver el carrito
+              </button>
+            </div>
           </div>
-          <button class="boton abrir-probador" type="button">
-            VER EN EL PROBADOR <span aria-hidden="true">↗</span>
-          </button>
-          <button class="boton cerrar-secundario" type="button">
-            SEGUIR EXPLORANDO <span aria-hidden="true">↗</span>
-          </button>
+          <div class="ficha-acciones">
+            <button class="boton abrir-probador" type="button">
+              VER EN EL PROBADOR <span aria-hidden="true">↗</span>
+            </button>
+            <button class="boton cerrar-secundario" type="button">
+              SEGUIR EXPLORANDO <span aria-hidden="true">↗</span>
+            </button>
+          </div>
         </div>
       </div>
     </dialog>
@@ -479,7 +522,7 @@
           <img
             class="modelo-base"
             src="images/probador/modelo-base.png"
-            alt="Modelo conceptual con ropa oscura"
+            alt="Figura de complexión media"
           />
           <img id="escena-completa" class="escena-completa" alt="" hidden />
           <img id="zapatilla-escena" class="zapatilla-escena" alt="" hidden />
@@ -513,6 +556,7 @@
                 max="220"
                 step="5"
                 value="175"
+                aria-describedby="nota-medidas"
               />
             </label>
             <label class="probador-campo" for="peso-modelo"
@@ -524,56 +568,40 @@
                 max="200"
                 step="5"
                 value="75"
+                aria-describedby="nota-medidas"
               />
             </label>
           </div>
-          <fieldset id="modelo-unisex" class="modelo-unisex" hidden>
-            <legend>Ver este modelo unisex en</legend>
-            <button
-              type="button"
-              data-modelo-unisex="hombre"
-              aria-pressed="false"
-            >
-              Hombre
-            </button>
-            <button
-              type="button"
-              data-modelo-unisex="mujer"
-              aria-pressed="false"
-            >
-              Mujer
-            </button>
-          </fieldset>
+          <!-- Las vistas «puesta» solo se ofrecen con su zapatilla (campo
+               probador de modelos.js); las tres figuras, con todas. -->
           <label class="probador-campo" for="tipo-modelo"
-            >Pose, ropa y complexión aproximadas
+            >Vista y complexión
             <select id="tipo-modelo">
-              <option value="persona01">Modelo 1 · conjunto casual</option>
-              <option value="persona02">Modelo 2 · chaqueta y vaqueros</option>
-              <option value="persona03">Modelo 3 · sudadera deportiva</option>
-              <option value="persona04">Modelo 4 · conjunto urbano</option>
-              <option value="base">De frente · complexión media</option>
-              <option value="delgado">De lado · complexión delgada</option>
-              <option value="ancho">De lado · complexión amplia</option>
-              <option value="urbano">Urbano · sobrecamisa y vaqueros</option>
-              <option value="deportivo">
-                Deportivo · caminando con sudadera
+              <option value="street01" data-puesta>
+                Con esta zapatilla puesta · urbano
               </option>
-              <option value="street01">
-                Ejemplo con NOVA Street 01 puesta
+              <option value="casual01-urbano" data-puesta>
+                Con esta zapatilla puesta · urbano
               </option>
-              <option value="casual01-urbano">Casual 01 puesta · urbano</option>
-              <option value="casual01-deportivo">
-                Casual 01 puesta · deportivo
+              <option value="casual01-deportivo" data-puesta>
+                Con esta zapatilla puesta · deportivo
               </option>
-              <option value="casual02-escena">
-                Casual 02 puesta · escena fija
+              <option value="casual02-escena" data-puesta>
+                Con esta zapatilla puesta · escena fija
               </option>
-              <option value="casual03-escena">
-                Casual 03 puesta · escena fija
+              <option value="casual03-escena" data-puesta>
+                Con esta zapatilla puesta · escena fija
               </option>
-              <option value="producto">Zapatilla sola · sin foto puesta</option>
+              <option value="delgado">Figura · complexión delgada</option>
+              <option value="base">Figura · complexión media</option>
+              <option value="ancho">Figura · complexión amplia</option>
+              <option value="producto">Zapatilla sola</option>
             </select>
           </label>
+          <p class="probador-nota" id="nota-medidas">
+            Al cambiar la estatura o el peso se elige la figura más parecida
+            (delgada, media o amplia).
+          </p>
           <p id="aviso-escena" class="probador-nota" hidden>
             Esta imagen tiene escenario y pose fijos; para cambiar de fondo,
             elige «Zapatilla sola».
@@ -589,14 +617,13 @@
           </fieldset>
           <p class="probador-nota">
             Las opciones con «puesta» son imágenes generadas aproximadas de ese
-            producto. Si un modelo aún no tiene foto con la zapatilla puesta, se
-            muestra la zapatilla sola sobre el escenario. Esta vista no sirve
-            para elegir talla.
+            producto. Las figuras llevan un calzado genérico: tu zapatilla se
+            ve a su lado. Esta vista no sirve para elegir talla.
           </p>
           <p class="probador-nota">
-            La altura cambia la escala visual y el peso no determina la
-            complexión. Cada opción es una imagen completa: pose, ropa y cuerpo
-            no se cambian por separado. Pelo y tono de piel pendientes.
+            La estatura cambia la escala visual. Cada figura es una imagen
+            completa: pose, ropa y cuerpo no se cambian por separado. Pelo y
+            tono de piel pendientes.
           </p>
           <button class="boton cerrar-probador-secundario" type="button">
             VOLVER A LA ZAPATILLA <span aria-hidden="true">↗</span>

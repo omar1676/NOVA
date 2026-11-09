@@ -130,20 +130,73 @@ function datosEnTienda(modelo) {
 const bloqueCompra = document.querySelector("#compra");
 const avisoCompra = document.querySelector("#compra-aviso");
 const opcionesColor = document.querySelector("#compra-colores");
+const nombreColor = document.querySelector("#compra-color-nombre");
+const grupoTalla = document.querySelector("#compra-grupo-talla");
 const opcionesTalla = document.querySelector("#compra-tallas");
+const errorTalla = document.querySelector("#compra-error-talla");
 const textoStock = document.querySelector("#compra-stock");
 const campoCantidad = document.querySelector("#compra-cantidad");
+const botonMenos = document.querySelector("#compra-menos");
+const botonMas = document.querySelector("#compra-mas");
+const errorCantidad = document.querySelector("#compra-error-cantidad");
 const botonAnadir = document.querySelector("#compra-anadir");
 const mensajeAnadir = document.querySelector("#compra-mensaje");
+const botonVerCarrito = document.querySelector("#compra-ver-carrito");
 const etiquetaPrecio = document.querySelector("#detalle-etiqueta-precio");
 const notaPrecio = document.querySelector("#detalle-nota-precio");
+const tallasOrientativas = document.querySelector("#detalle-tallas");
+
+// Tono de cada palabra de los colores de la base, para pintar las muestras.
+// Si un color no está aquí, la muestra sale gris (su nombre se ve igual).
+const TONOS = {
+  blanco: "#f5f5f2",
+  negro: "#1c1c1e",
+  gris: "#8d9096",
+  coral: "#ef7b62",
+  verde: "#3f8a5c",
+  crema: "#efe3c9",
+  "azul marino": "#1f2d56",
+  azul: "#3a68b8",
+  cuero: "#8b5a34",
+  oliva: "#6f7537",
+  rosa: "#e8a5b5",
+  granate: "#7a2236",
+  arena: "#d7c29d",
+  rojo: "#c4302b",
+  beige: "#d8c5a4",
+  lima: "#b6d43a",
+  morado: "#6b3fa0",
+  lila: "#b9a2d6",
+  malva: "#b98aa6",
+  "verde salvia": "#9db39a",
+  "verde azulado": "#1f6f6b",
+  plata: "#c3c6cb",
+  "gris perla": "#d4d4d2",
+  "gris oscuro": "#4a4c50",
+  burdeos: "#6b1e2c",
+  naranja: "#e2762b",
+  mostaza: "#d3a12c",
+  dorado: "#c9a54b",
+};
+
+// "Gris y coral" -> una muestra partida en dos tonos
+function fondoMuestra(color) {
+  const tonos = color
+    .toLowerCase()
+    .split(" y ")
+    .map((parte) => TONOS[parte] || "#9b928d");
+  return tonos.length === 1
+    ? tonos[0]
+    : `linear-gradient(135deg, ${tonos[0]} 50%, ${tonos[1]} 50%)`;
+}
 
 // Llamada desde mostrarDatosCompra (inicio.js) cada vez que se abre la ficha.
 function mostrarCompraEnFicha(modelo) {
   modeloEnFicha = catalogoTienda?.get(modelo.nombre) || null;
-  avisarEnFicha("");
+  limpiarAvisos();
   if (!modeloEnFicha) {
     bloqueCompra.hidden = true;
+    tallasOrientativas.hidden = false;
     avisoCompra.hidden = false;
     avisoCompra.textContent = catalogoTienda
       ? "No disponible: este modelo todavía no está a la venta en la tienda online."
@@ -155,18 +208,38 @@ function mostrarCompraEnFicha(modelo) {
   }
   avisoCompra.hidden = true;
   bloqueCompra.hidden = false;
+  tallasOrientativas.hidden = true; // las tallas ya se ven en la cuadrícula
   etiquetaPrecio.textContent = "PRECIO";
   notaPrecio.textContent = "Precio de la tienda online de NOVA.";
   opcionesColor.replaceChildren();
   modeloEnFicha.variantes.forEach((variante, indice) => {
-    opcionesColor.append(
-      crearOpcion("color", String(indice), variante.color, false, indice === 0),
-    );
+    opcionesColor.append(crearMuestra(variante.color, indice, indice === 0));
   });
   pintarTallas();
 }
 
-// Una opción de radio con su texto, para los colores y las tallas
+// Una muestra de color: un radio transparente sobre un círculo del color. El
+// nombre del color es el texto de la etiqueta (solo para el lector de
+// pantalla); a la vista sale en la leyenda, «Color: ...».
+function crearMuestra(color, indice, marcada) {
+  const etiqueta = document.createElement("label");
+  etiqueta.className = "compra-muestra";
+  const radio = document.createElement("input");
+  radio.type = "radio";
+  radio.name = "color";
+  radio.value = String(indice);
+  radio.checked = marcada;
+  const circulo = document.createElement("span");
+  circulo.className = "muestra-color";
+  circulo.style.background = fondoMuestra(color);
+  const nombre = document.createElement("span");
+  nombre.className = "solo-lector";
+  nombre.textContent = color;
+  etiqueta.append(radio, circulo, nombre);
+  return etiqueta;
+}
+
+// Una talla: un radio transparente sobre su número (un botón de la cuadrícula)
 function crearOpcion(grupo, valor, texto, desactivada, marcada, descripcion) {
   const etiqueta = document.createElement("label");
   etiqueta.className = "compra-opcion";
@@ -191,6 +264,7 @@ function varianteElegida() {
 function pintarTallas() {
   const variante = varianteElegida();
   document.querySelector("#detalle-precio").textContent = formatoPrecio(variante.precio);
+  nombreColor.textContent = variante.color;
   opcionesTalla.replaceChildren();
   for (const talla of variante.tallas) {
     const agotada = talla.stock === 0;
@@ -206,12 +280,13 @@ function pintarTallas() {
     );
   }
   const hayStock = variante.tallas.some((t) => t.stock > 0);
-  textoStock.textContent = hayStock
-    ? "Elige una talla. Las tachadas están agotadas."
-    : "Agotado: no queda ninguna talla de este color.";
+  if (hayStock) avisarStock("Elige una talla. Las tachadas están agotadas.", "");
+  else avisarStock("Agotado: no queda ninguna talla de este color.", "agotado");
   botonAnadir.disabled = !hayStock;
+  campoCantidad.disabled = !hayStock;
   campoCantidad.value = 1;
   campoCantidad.max = MAXIMO_POR_TALLA;
+  actualizarBotonesCantidad();
 }
 
 function tallaElegida() {
@@ -219,38 +294,105 @@ function tallaElegida() {
   return marcada ? Number(marcada.value) : null;
 }
 
+// El aviso de stock: estado "" (sin talla), "quedan", "pocos" o "agotado"
+function avisarStock(texto, estado) {
+  textoStock.textContent = texto;
+  textoStock.className = estado ? `compra-stock ${estado}` : "compra-stock";
+}
+
+// Stock de la talla elegida (y lo que ya hay en el carrito) y el máximo de pares
+function revisarTallaElegida() {
+  const sku = tallaElegida();
+  if (!sku) return;
+  const producto = productosTienda.get(sku);
+  const enCarrito = cantidadEnCarrito(sku);
+  const pocos = producto.stock <= 3;
+  avisarStock(
+    (pocos
+      ? `Últimos ${producto.stock} pares de la talla ${producto.talla}.`
+      : `Quedan ${producto.stock} pares de la talla ${producto.talla}.`) +
+      (enCarrito ? ` Ya tienes ${enCarrito} en el carrito.` : ""),
+    pocos ? "pocos" : "quedan",
+  );
+  campoCantidad.max = Math.max(1, Math.min(MAXIMO_POR_TALLA, producto.stock) - enCarrito);
+  actualizarBotonesCantidad();
+}
+
 opcionesColor.addEventListener("change", () => {
-  avisarEnFicha("");
+  limpiarAvisos();
   pintarTallas();
 });
 
 opcionesTalla.addEventListener("change", () => {
-  avisarEnFicha("");
-  const producto = productosTienda.get(tallaElegida());
-  const enCarrito = cantidadEnCarrito(tallaElegida());
-  textoStock.textContent =
-    (producto.stock <= 3
-      ? `Últimos ${producto.stock} pares de la talla ${producto.talla}.`
-      : `Quedan ${producto.stock} pares de la talla ${producto.talla}.`) +
-    (enCarrito ? ` Ya tienes ${enCarrito} en el carrito.` : "");
-  campoCantidad.max = Math.max(1, Math.min(MAXIMO_POR_TALLA, producto.stock) - enCarrito);
+  limpiarAvisos();
+  revisarTallaElegida();
 });
+
+// Botones − y +: no bajan de 1 ni pasan del máximo. Se marcan con
+// aria-disabled (y no con disabled) para que el foco no se pierda en el tope.
+function actualizarBotonesCantidad() {
+  const valor = Number(campoCantidad.value);
+  const sinCompra = campoCantidad.disabled;
+  botonMenos.setAttribute("aria-disabled", String(sinCompra || !(valor > 1)));
+  botonMas.setAttribute(
+    "aria-disabled",
+    String(sinCompra || !(valor < Number(campoCantidad.max))),
+  );
+}
+
+function cambiarCantidad(paso) {
+  if (campoCantidad.disabled) return;
+  const valor = Number(campoCantidad.value);
+  const actual = Number.isInteger(valor) ? valor : 1;
+  campoCantidad.value = Math.min(Number(campoCantidad.max), Math.max(1, actual + paso));
+  limpiarAvisos();
+  actualizarBotonesCantidad();
+}
+
+botonMenos.addEventListener("click", () => cambiarCantidad(-1));
+botonMas.addEventListener("click", () => cambiarCantidad(1));
+campoCantidad.addEventListener("input", () => {
+  limpiarAvisos();
+  actualizarBotonesCantidad();
+});
+
+// Cada error sale junto a su campo; el mensaje de debajo del botón es para
+// lo demás (añadido al carrito o carrito lleno).
+function errorEnTalla(texto) {
+  errorTalla.textContent = texto;
+  grupoTalla.classList.add("con-error");
+}
+
+function errorEnCantidad(texto) {
+  errorCantidad.textContent = texto;
+  campoCantidad.setAttribute("aria-invalid", "true");
+}
 
 function avisarEnFicha(texto, esError = false) {
   mensajeAnadir.textContent = texto;
   mensajeAnadir.classList.toggle("error", esError);
+  botonVerCarrito.hidden = !texto || esError;
+}
+
+function limpiarAvisos() {
+  errorTalla.textContent = "";
+  grupoTalla.classList.remove("con-error");
+  errorCantidad.textContent = "";
+  campoCantidad.removeAttribute("aria-invalid");
+  avisarEnFicha("");
 }
 
 botonAnadir.addEventListener("click", () => {
+  limpiarAvisos();
   const sku = tallaElegida();
   if (!sku) {
-    avisarEnFicha("Elige una talla.", true);
+    errorEnTalla("Elige una talla.");
     opcionesTalla.querySelector("input:not(:disabled)")?.focus();
     return;
   }
   const cantidad = Number(campoCantidad.value);
   if (!Number.isInteger(cantidad) || cantidad < 1) {
-    avisarEnFicha("La cantidad tiene que ser un número entero, de 1 en adelante.", true);
+    errorEnCantidad("La cantidad tiene que ser un número entero, de 1 en adelante.");
     campoCantidad.focus();
     return;
   }
@@ -258,11 +400,11 @@ botonAnadir.addEventListener("click", () => {
   const enCarrito = cantidadEnCarrito(sku);
   const maximo = Math.min(MAXIMO_POR_TALLA, producto.stock);
   if (enCarrito + cantidad > maximo) {
-    avisarEnFicha(
+    errorEnCantidad(
       `Como mucho puedes llevar ${maximo} pares de esta talla` +
         (enCarrito ? ` y ya tienes ${enCarrito} en el carrito.` : "."),
-      true,
     );
+    campoCantidad.focus();
     return;
   }
   const linea = carrito.find((l) => l.sku === sku);
@@ -276,10 +418,14 @@ botonAnadir.addEventListener("click", () => {
   }
   guardarCarrito();
   pintarContador();
+  campoCantidad.value = 1;
+  revisarTallaElegida(); // ahora cuenta lo que ya hay en el carrito
   avisarEnFicha(
     `Añadido al carrito: ${producto.modelo}, talla ${producto.talla} (${cantidad} ${cantidad === 1 ? "par" : "pares"}).`,
   );
 });
+
+botonVerCarrito.addEventListener("click", () => abrirCarrito());
 
 // ---------------------------------------------------------------------
 // 3. El carrito (localStorage)

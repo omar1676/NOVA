@@ -417,14 +417,14 @@ dialog::backdrop {
   align-self: end;
   font-size: 0.8rem;
 }
-.modal-info span {
+#detalle-etiqueta-precio {
   display: block;
   font-size: 0.62rem;
   letter-spacing: 0.15em;
   color: #d7a381;
   margin-bottom: 15px;
 }
-.modal-info strong {
+#detalle-precio {
   display: block;
 }
 .boton {
@@ -1047,31 +1047,6 @@ dialog::backdrop {
   opacity: 0.45;
   cursor: not-allowed;
 }
-/* Elección de persona en los artículos de la colección unisex. */
-.modelo-unisex {
-  border: 0;
-  padding: 0;
-  margin: 18px 0;
-}
-.modelo-unisex legend {
-  font-size: 0.8rem;
-  font-weight: bold;
-  margin-bottom: 9px;
-}
-.modelo-unisex button {
-  padding: 9px 18px;
-  background: transparent;
-  border: 1px solid #b4a69c;
-  color: #322b28;
-}
-.modelo-unisex button[aria-pressed="true"] {
-  background: #2d2624;
-  border-color: #2d2624;
-  color: white;
-}
-.modelo-unisex[hidden] {
-  display: none;
-}
 /* Las escenas completas rellenan el panel y conservan al modelo entero. */
 @media (min-width: 761px) {
   .probador-vista.escena-fija {
@@ -1211,6 +1186,28 @@ dialog::backdrop {
   font-size: 0.62rem;
   letter-spacing: 0.08em;
 }
+/* Con una figura (delgada, media o amplia): la figura algo a la izquierda y
+   la zapatilla elegida en una tarjeta blanca a su derecha. */
+.probador-vista.con-figura .modelo-base,
+.probador-vista.con-figura::after {
+  left: 38%;
+}
+.probador-vista.con-figura .aviso-sin-foto {
+  top: 14px;
+  bottom: auto;
+}
+.probador-vista.con-figura .zapatilla-escena {
+  left: auto;
+  right: 4%;
+  bottom: 5%;
+  width: 40%;
+  max-height: 24%;
+  padding: 6px;
+  border-radius: 6px;
+  background: #fffffff0;
+  transform: none;
+  filter: drop-shadow(0 8px 10px #0007);
+}
 
 /* Precio orientativo en el catálogo y en la ficha. */
 .catalogo-datos {
@@ -1223,9 +1220,95 @@ dialog::backdrop {
   font-size: 0.8rem;
   font-weight: bold;
 }
+/* Ficha: el nombre y la compra van sobre un panel oscuro liso; en escritorio,
+   la foto a la izquierda y el panel a la derecha, como en una tienda. */
+.modal-texto,
+.modal-info {
+  background: #1c1a1d;
+}
+.modal-texto {
+  padding: 26px 26px 6px;
+}
+.modal-info {
+  padding: 6px 26px 26px;
+}
+.ficha-precio {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 14px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #ffffff24;
+}
+.ficha-precio #detalle-etiqueta-precio {
+  width: 100%;
+  margin-bottom: 2px;
+}
 #detalle-precio {
-  font-size: 1.5rem;
-  margin-bottom: 8px;
+  color: #fff;
+  font-size: 2.1rem;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.modal-info #detalle-nota-precio {
+  margin: 0;
+  font-size: 0.75rem;
+}
+.ficha-acciones {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+}
+/* Los dos botones de abajo son secundarios: el principal es «Añadir al carrito». */
+.ficha-acciones .boton,
+.ficha-acciones .abrir-probador {
+  margin: 0;
+  border-color: #ffffff8c;
+  background: transparent;
+  color: #f4ece4;
+}
+.ficha-acciones .boton:hover {
+  background: #ffffff14;
+}
+@media (min-width: 761px) {
+  .modal {
+    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "imagen texto"
+      "imagen info";
+    gap: 0 40px;
+    align-items: start;
+    padding: 44px;
+  }
+  .modal-texto {
+    grid-area: texto;
+  }
+  .modal-texto h2 {
+    font-size: clamp(2rem, 3.2vw, 3.2rem);
+  }
+  .modal-imagen {
+    grid-area: imagen;
+    align-self: center;
+  }
+  .modal-info {
+    grid-area: info;
+    align-self: stretch;
+  }
+}
+@media (max-width: 760px) {
+  .modal {
+    padding: 55px 4% 24px;
+    gap: 16px;
+  }
+  .modal-texto {
+    padding: 18px 18px 6px;
+  }
+  .modal-info {
+    margin-top: 0;
+    padding: 18px;
+  }
 }
 
 /* Servicio Custom: sección clara, como el catálogo. */
@@ -1460,16 +1543,49 @@ dialog.acceso {
   margin: 0 0 14px;
 }
 
-/* Restyle de las tarjetas de Álvaro (commit 5f0ce57): partes conservadas en la
-   integración. Los degradados por colección, la etiqueta de colección, la banda
-   oscura, los textos blancos y el contorno de foco claro quedan fuera porque
-   el precio y esos textos no llegan al contraste mínimo (pendiente de Álvaro). */
+/* Tarjetas del catálogo con los colores de cada colección: el rediseño de
+   Álvaro (commit 5f0ce57) con su misma paleta, adaptado para que el texto
+   llegue a 4,5:1 y el foco a 3:1 (medido en Edge):
+   - Sus degradados van en la zona de la foto. Allí no hay texto.
+   - Su etiqueta de colección va en una pastilla del tono oscuro de su
+     degradado (en su versión, texto blanco sobre el tono claro: 2,9:1).
+   - Su banda de datos es opaca, del tono oscuro (en su versión, negro
+     translúcido sobre el degradado): nombre, precio y estado en claro.
+   - El foco: su contorno claro (#f6c696) pegado a la tarjeta y otro oscuro
+     por fuera, que es el que contrasta con el fondo claro del catálogo. */
+.c-street {
+  --col-claro: #3d5a73;
+  --col-oscuro: #16222d;
+}
+.c-luxe {
+  --col-claro: #4a3d1f;
+  --col-oscuro: #0e0d0a;
+}
+.c-casual {
+  --col-claro: #c98a5e;
+  --col-oscuro: #7a4a30;
+}
+.c-hombre {
+  --col-claro: #3a4f8a;
+  --col-oscuro: #141b30;
+}
+.c-mujer {
+  --col-claro: #9a4a5c;
+  --col-oscuro: #3a1722;
+}
+.c-unisex {
+  --col-claro: #5f7a6a;
+  --col-oscuro: #1c2622;
+}
 .catalogo-tarjeta {
   position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  border: 1px solid var(--col-oscuro);
   border-radius: 4px;
+  background: var(--col-oscuro);
+  color: #fff;
   transition:
     transform 0.3s,
     box-shadow 0.3s;
@@ -1478,13 +1594,96 @@ dialog.acceso {
   transform: translateY(-6px);
   box-shadow: 0 22px 40px #0005;
 }
+.catalogo-tarjeta:focus-visible {
+  outline: 3px solid #201e1d;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px #f6c696;
+}
+.catalogo-foto {
+  position: relative;
+  display: block;
+  background: linear-gradient(160deg, var(--col-claro), var(--col-oscuro));
+}
+.catalogo-etiqueta {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1;
+  padding: 4px 8px;
+  border-radius: 2px;
+  background: var(--col-oscuro);
+  color: #fff;
+  font-size: 0.64rem;
+  font-weight: bold;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
 .catalogo-tarjeta img {
-  background: none;
   aspect-ratio: 1.15;
+  padding: 40px 10px 6px;
+  background: none;
   object-fit: contain;
   filter: drop-shadow(0 20px 16px #0007);
 }
 .catalogo-tarjeta:hover img {
   filter: drop-shadow(0 20px 16px #0007);
   transform: scale(1.05) translateY(-4px);
+}
+.catalogo-datos {
+  flex: 1;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding: 14px 16px 16px;
+  background: var(--col-oscuro);
+  color: #fff;
+  font-size: 0.85rem;
+}
+.catalogo-datos strong {
+  width: 100%;
+}
+.catalogo-tarjeta:hover .catalogo-datos strong {
+  color: #fff;
+  text-decoration: underline;
+}
+.catalogo-datos .catalogo-precio {
+  order: 2;
+  width: auto;
+  color: #fff;
+  font-size: 0.85rem;
+}
+.catalogo-datos .catalogo-accion {
+  order: 3;
+  margin-left: auto;
+  color: #f3ebe6;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+/* Un punto con el color de la colección en cada filtro del catálogo */
+.catalogo-filtro[class*="c-"]::before {
+  content: "";
+  display: inline-block;
+  width: 0.75em;
+  height: 0.75em;
+  margin-right: 7px;
+  border: 1px solid var(--col-oscuro);
+  border-radius: 50%;
+  background: linear-gradient(160deg, var(--col-claro), var(--col-oscuro));
+  vertical-align: -1px;
+}
+.catalogo-filtro.activo::before,
+.catalogo-filtro:hover::before {
+  border-color: #fff;
+}
+@media (max-width: 760px) {
+  .catalogo-tarjeta img {
+    padding: 36px 6px 4px;
+  }
+  .catalogo-datos {
+    justify-content: flex-start;
+    padding: 12px;
+  }
+  .catalogo-datos .catalogo-accion {
+    margin-left: 0;
+  }
 }
