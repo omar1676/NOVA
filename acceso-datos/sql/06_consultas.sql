@@ -28,19 +28,32 @@ ORDER BY importe_acumulado DESC;
 
 
 
+-- Consulta 3 (HAVING). Pregunta: que referencias se quedaran con menos de
+-- 10 pares cuando se sirvan los pedidos pendientes? Son las que hay que
+-- reponer antes de confirmarlos, porque el stock baja al confirmar. HAVING
+-- filtra despues de sumar las existencias de todas las naves.
 SELECT
     m.nombre AS modelo,
     v.color,
     s.talla,
     s.sku,
-    COALESCE(SUM(e.cantidad), 0) AS stock
+    COALESCE(SUM(e.cantidad), 0) AS stock,
+    COALESCE(pendiente.pares, 0) AS pares_pendientes,
+    COALESCE(SUM(e.cantidad), 0) - COALESCE(pendiente.pares, 0) AS stock_previsto
 FROM public.producto_sku s
 JOIN public.variantes v ON v.id_variante = s.id_variante
 JOIN public.modelos m ON m.id_modelo = v.id_modelo
 LEFT JOIN public.existencias e ON e.id_producto_sku = s.id_producto_sku
-GROUP BY m.nombre, v.color, s.talla, s.sku
-HAVING COALESCE(SUM(e.cantidad), 0) < 10
-ORDER BY stock ASC, m.nombre;
+LEFT JOIN (
+    SELECT l.id_producto_sku, SUM(l.cantidad) AS pares
+    FROM public.linea_pedido l
+    JOIN public.pedidos p ON p.id_pedido = l.id_pedido
+    WHERE p.estado = 'pendiente'
+    GROUP BY l.id_producto_sku
+) AS pendiente ON pendiente.id_producto_sku = s.id_producto_sku
+GROUP BY m.nombre, v.color, s.talla, s.sku, pendiente.pares
+HAVING COALESCE(SUM(e.cantidad), 0) - COALESCE(pendiente.pares, 0) < 10
+ORDER BY stock_previsto ASC, m.nombre;
 
 
 

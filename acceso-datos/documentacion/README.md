@@ -669,13 +669,19 @@ Están en `06_consultas.sql`, en este orden:
 
 1. **Ventas por modelo.** Unidades e importe de cada modelo. Incluye X-NOVA y excluye los pedidos cancelados.
 2. **Ranking de clientes.** Número de pedidos e importe acumulado. Excluye cancelados pero sigue mostrando a los clientes que no han comprado nada.
-3. **Productos con stock bajo.** SKU con menos de 10 unidades. Es la consulta
-   con `HAVING` que pide el enunciado, y su utilidad es de reposición: el
-   `HAVING` filtra **después** de agrupar, que es la única forma de preguntar
-   "dame las referencias cuya suma de existencias en todos los almacenes es
-   menor que X". Con `WHERE` se filtraría almacén por almacén y una referencia
-   repartida entre dos naves parecería baja sin serlo. La versión con umbral
-   configurable está en `12_consultas_panel.sql` (consulta `C8`).
+3. **Stock bajo previsto.** Responde a «¿qué referencias se quedarán con menos
+   de 10 pares cuando se sirvan los pedidos pendientes?». El stock baja al
+   confirmar, así que son las que hay que reponer antes de confirmar lo que ya
+   está pedido. Para cada SKU resta a sus existencias los pares de sus pedidos
+   pendientes (una subconsulta agrupada por SKU). Es la consulta con `HAVING`
+   que pide el enunciado: el `HAVING` filtra **después** de agrupar, que es la
+   única forma de preguntar por la suma de existencias de todos los almacenes.
+   Con `WHERE` se filtraría almacén por almacén y una referencia repartida entre
+   dos naves parecería baja sin serlo. Con los datos de prueba devuelve una
+   fila: `NOVA-4-43` (NOVA Velocity rojo, talla 43) tiene 20 pares y 11
+   pendientes (los 10 de `NOVA-0011` y uno más), así que se quedaría en 9. El
+   stock bajo de hoy, con el umbral que se quiera, es la consulta `C8` de
+   `12_consultas_panel.sql`.
 4. **Pedidos personalizados.** Los que tienen la marca `personalizado`, incluidos los X-NOVA.
 5. **Inventario por almacén.** Productos distintos y pares disponibles de cada nave.
 6. **Tallas más solicitadas.** Incluye la talla de referencia de los X-NOVA.
