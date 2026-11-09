@@ -26,3 +26,9 @@ salidas/
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Acceso a Datos: credenciales de conexion de Java (ver conexion.properties.ejemplo)
+acceso-datos/java/conexion.properties
+
+# Driver JDBC descargado localmente (ver acceso-datos/java/README.md)
+acceso-datos/java/lib/*.jar

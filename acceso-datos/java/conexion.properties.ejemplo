@@ -1,0 +1,11 @@
+# Copia este archivo como conexion.properties (en esta misma carpeta) y
+# pon la contrasena de java_nova que elegiste al lanzar 17_usuario_java.sql.
+# conexion.properties NO se sube al repositorio: esta en el .gitignore.
+
+url=jdbc:postgresql://localhost:5432/nova_sneakers
+usuario=java_nova
+contrasena=
+
+# Carpeta donde se guardan actividad_sneaker.txt, usuarios_sneaker.json
+# y el CSV de las consultas
+carpeta_salida=salidas
