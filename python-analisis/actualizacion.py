@@ -108,7 +108,11 @@ def estado_conciliacion(carpeta, tablas, tabla_kpis):
         faltan = ", ".join(conciliacion.faltan_resultados(carpeta_sql))
         return f"PENDIENTE: faltan los resultados SQL ({faltan})", None
     coherencia = kpis.coherencia_con_sql(tabla_kpis, carpeta_sql)
-    juntas = pd.concat([tabla, coherencia], ignore_index=True)   # cifras de las tablas y de los KPIs
+    partes = [tabla, coherencia]
+    caso_n = conciliacion.contrastar_caso_n(carpeta_sql, tablas)   # None si faltan N-1, N-2 o N-3
+    if caso_n is not None:
+        partes.append(caso_n)
+    juntas = pd.concat(partes, ignore_index=True)   # cifras de las tablas, de los KPIs y del caso N
     iguales = int((juntas["resultado"] == "coincide").sum())
     texto = f"{iguales} de {len(juntas)} cifras coinciden con SQL"
     if iguales == len(juntas):

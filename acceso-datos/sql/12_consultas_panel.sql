@@ -241,4 +241,49 @@ JOIN public.roles r ON r.id_rol = u.id_rol
 ORDER BY u.id_usuario;
 
 \echo ''
+\echo '===== CASO N: CONTRASTE CON PYTHON ====='
+\echo 'Tres cifras que Python vuelve a calcular con pandas. Se usan los mismos'
+\echo 'criterios que el dashboard: venta = confirmado en adelante; demanda ='
+\echo 'pedidos no cancelados. Su resultado, con psql --csv, va a'
+\echo 'python-analisis/entrada_acc/conciliacion_sql/ (N-1.csv, N-2.csv y N-3.csv).'
+
+\set mes_contraste '2026-11'
+
+\echo ''
+\echo '--- N-1 ingresos de un mes: pedidos, pares e importe de venta del mes'
+SELECT
+    :'mes_contraste' AS anio_mes,
+    count(*) AS pedidos,
+    COALESCE(sum(cantidad_total), 0) AS pares,
+    COALESCE(sum(importe_total), 0) AS importe
+FROM public.pedidos
+WHERE estado IN ('confirmado', 'en_preparacion', 'enviado', 'entregado')
+  AND to_char(fecha_pedido, 'YYYY-MM') = :'mes_contraste';
+
+\echo ''
+\echo '--- N-2 matriz talla x modelo: pares de los pedidos no cancelados'
+SELECT
+    COALESCE(m.nombre, 'X-NOVA') AS modelo,
+    COALESCE(s.talla, x.talla_referencia) AS talla,
+    SUM(l.cantidad) AS pares
+FROM public.linea_pedido l
+JOIN public.pedidos p ON p.id_pedido = l.id_pedido
+LEFT JOIN public.producto_sku s ON s.id_producto_sku = l.id_producto_sku
+LEFT JOIN public.variantes v ON v.id_variante = s.id_variante
+LEFT JOIN public.modelos m ON m.id_modelo = v.id_modelo
+LEFT JOIN public.configuraciones_xnova x ON x.id_configuracion = l.id_configuracion_xnova
+WHERE p.estado <> 'cancelado'
+GROUP BY COALESCE(m.nombre, 'X-NOVA'), COALESCE(s.talla, x.talla_referencia)
+ORDER BY modelo, talla;
+
+\echo ''
+\echo '--- N-3 clientes unicos: con algun pedido, con demanda y con venta'
+SELECT
+    count(DISTINCT id_cliente) AS clientes_con_pedidos,
+    count(DISTINCT id_cliente) FILTER (WHERE estado <> 'cancelado') AS clientes_con_demanda,
+    count(DISTINCT id_cliente) FILTER (
+        WHERE estado IN ('confirmado', 'en_preparacion', 'enviado', 'entregado')) AS clientes_con_venta
+FROM public.pedidos;
+
+\echo ''
 \echo '===== FIN DE LAS CONSULTAS DEL PANEL ====='

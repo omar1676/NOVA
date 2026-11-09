@@ -227,3 +227,57 @@ class PruebasConciliacion(PruebaAnalisis):
         carpeta_sql = self.carpeta / "no_existe"
         self.assertIsNone(conciliacion.conciliar(carpeta_sql, pedidos, lineas))
         self.assertEqual(conciliacion.faltan_resultados(carpeta_sql), ["P-A.csv", "P-B.csv", "P-C.csv"])
+
+# Resultados SQL del caso N (N-1 a N-3 de 12_consultas_panel.sql) que corresponden a los CSV validos
+SQL_CASO_N = {
+    "N-1.csv": "anio_mes,pedidos,pares,importe\n2026-10,1,3,239.97\n",
+    "N-2.csv": "modelo,talla,pares\nModelo Uno,40,1\nModelo Uno,41,2\n",
+    "N-3.csv": "clientes_con_pedidos,clientes_con_demanda,clientes_con_venta\n2,1,1\n",
+}
+
+
+class PruebasCasoN(PruebaAnalisis):
+    """Caso N: ingresos de un mes, matriz talla x modelo y clientes unicos, SQL frente a pandas."""
+
+    def tablas(self):
+        resultado = calidad.evaluar(self.carpeta)
+        return analiticas.calcular_tablas(resultado["datos"], resultado["validos"])
+
+    def contrastar(self, cambios=None):
+        carpeta_sql = self.carpeta / "conciliacion_sql"
+        carpeta_sql.mkdir(exist_ok=True)
+        for archivo, texto in {**SQL_CASO_N, **(cambios or {})}.items():
+            (carpeta_sql / archivo).write_text(texto, encoding="utf-8")
+        return conciliacion.contrastar_caso_n(carpeta_sql, self.tablas())
+
+    def test_las_tres_cifras_coinciden(self):
+        tabla = self.contrastar()
+        # N-1: pedidos, pares e importe; N-2: 2 celdas con pares; N-3: 3 criterios
+        self.assertEqual(tabla["consulta"].value_counts().to_dict(), {"N-1": 3, "N-2": 2, "N-3": 3})
+        self.assertEqual(set(tabla["resultado"]), {"coincide"})
+        importe = tabla[(tabla["consulta"] == "N-1") & (tabla["indicador"] == "importe")].iloc[0]
+        self.assertEqual((importe["clave"], importe["valor_python"]), ("2026-10", 239.97))
+
+    def test_mes_sin_ventas_es_cero_en_los_dos_lados(self):
+        # En noviembre solo hay un pedido cancelado, que no es venta
+        tabla = self.contrastar({"N-1.csv": "anio_mes,pedidos,pares,importe\n2026-11,0,0,0.00\n"})
+        mes = tabla[tabla["consulta"] == "N-1"]
+        self.assertEqual(set(mes["clave"]), {"2026-11"})
+        self.assertEqual(set(mes["resultado"]), {"coincide"})
+
+    def test_discrepancias_detectadas(self):
+        # Una consulta que olvida quitar los cancelados: sobra una celda y un cliente con demanda
+        tabla = self.contrastar({
+            "N-2.csv": SQL_CASO_N["N-2.csv"] + "Modelo Dos,42,2\n",
+            "N-3.csv": "clientes_con_pedidos,clientes_con_demanda,clientes_con_venta\n2,2,1\n",
+        })
+        celda = tabla[tabla["clave"] == "Modelo Dos · 42"].iloc[0]
+        self.assertEqual(celda["resultado"], "falta en Python")
+        demanda = tabla[tabla["indicador"] == "clientes_con_demanda"].iloc[0]
+        self.assertEqual((demanda["resultado"], demanda["diferencia"]), ("NO COINCIDE", -1.0))
+
+    def test_sin_resultados_queda_pendiente(self):
+        carpeta_sql = self.carpeta / "no_existe"
+        self.assertIsNone(conciliacion.contrastar_caso_n(carpeta_sql, self.tablas()))
+        self.assertEqual(conciliacion.faltan_resultados(carpeta_sql, conciliacion.CONSULTAS_CASO_N),
+                         ["N-1.csv", "N-2.csv", "N-3.csv"])

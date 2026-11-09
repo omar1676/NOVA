@@ -7,6 +7,12 @@ acceso-datos/sql/12_consultas_panel.sql, sin cambiar nada:
   P-B  pedidos, pares e importe por estado
   P-C  pares y pedidos por modelo, sin cancelados
 
+Caso N de la rubrica: tres contrastes mas, con las consultas N-1, N-2 y N-3
+del mismo archivo:
+  N-1  ingresos de un mes: pedidos, pares e importe de venta de ese mes
+  N-2  matriz talla x modelo: pares de los pedidos no cancelados
+  N-3  clientes unicos: con algun pedido, con demanda y con venta
+
 Acceso a Datos las ejecuta con psql y deja el resultado en CSV en
 entrada_acc/conciliacion_sql/ (los pasos estan en conciliacion_sql.md).
 Python no se conecta a PostgreSQL: lee esos CSV y los compara con lo que
@@ -42,12 +48,44 @@ CONSULTAS = {
     },
 }
 
+# Caso N: van aparte para que la conciliacion P-A a P-C no dependa de ellas
+CONSULTAS_CASO_N = {
+    "N-1": {
+        "archivo": "N-1.csv",
+        "sql": "count(*), sum(cantidad_total) y sum(importe_total) de los pedidos confirmados en adelante "
+               "cuyo fecha_pedido es del mes pedido (to_char(fecha_pedido, 'YYYY-MM'))",
+        "python": "la fila de ese mes en ventas_por_periodo (venta = confirmados en adelante); si el mes no "
+                  "tiene ventas, 0",
+    },
+    "N-2": {
+        "archivo": "N-2.csv",
+        "sql": "por COALESCE(modelo, 'X-NOVA') y COALESCE(talla del SKU, talla de la configuración X-NOVA): "
+               "sum(cantidad) de las líneas de pedidos no cancelados",
+        "python": "cada celda distinta de 0 de matriz_modelo_talla (pares de demanda por modelo y talla)",
+    },
+    "N-3": {
+        "archivo": "N-3.csv",
+        "sql": "count(DISTINCT id_cliente) de pedidos: todos, no cancelados y confirmados en adelante",
+        "python": "id_cliente distintos (nunique) de df_pedidos_unicos con los mismos tres criterios",
+    },
+}
 
-def faltan_resultados(carpeta_sql):
-    """Lista de los CSV de resultados SQL que no estan."""
+# Columnas de texto de los resultados SQL; el resto son cifras
+COLUMNAS_TEXTO = ["estado", "modelo", "anio_mes"]
+
+
+def definicion(consulta):
+    """Lo que dice CONSULTAS (o CONSULTAS_CASO_N) de una consulta."""
+    if consulta in CONSULTAS:
+        return CONSULTAS[consulta]
+    return CONSULTAS_CASO_N[consulta]
+
+
+def faltan_resultados(carpeta_sql, consultas=CONSULTAS):
+    """Lista de los CSV de resultados SQL que no estan (por defecto, los de P-A, P-B y P-C)."""
     carpeta_sql = Path(carpeta_sql)
     faltan = []
-    for consulta in CONSULTAS.values():
+    for consulta in consultas.values():
         if not (carpeta_sql / consulta["archivo"]).exists():
             faltan.append(consulta["archivo"])
     return faltan
@@ -55,9 +93,9 @@ def faltan_resultados(carpeta_sql):
 
 def leer_resultado(carpeta_sql, consulta):
     """Lee el CSV que ha dejado psql para una consulta. Las cifras se convierten a numero."""
-    tabla = pd.read_csv(Path(carpeta_sql) / CONSULTAS[consulta]["archivo"], encoding="utf-8", dtype=str)
+    tabla = pd.read_csv(Path(carpeta_sql) / definicion(consulta)["archivo"], encoding="utf-8", dtype=str)
     for columna in tabla.columns:
-        if columna not in ("estado", "modelo"):
+        if columna not in COLUMNAS_TEXTO:
             tabla[columna] = pd.to_numeric(tabla[columna])
     return tabla
 
@@ -83,8 +121,8 @@ def comparar(consulta, indicador, clave, valor_sql, valor_python, euros=False):
     return {"consulta": consulta, "indicador": indicador, "clave": clave,
             "valor_sql": valor_sql, "valor_python": valor_python,
             "diferencia": diferencia, "resultado": resultado,
-            "definicion_sql": CONSULTAS[consulta]["sql"],
-            "definicion_python": CONSULTAS[consulta]["python"]}
+            "definicion_sql": definicion(consulta)["sql"],
+            "definicion_python": definicion(consulta)["python"]}
 
 
 def comparar_por_grupos(consulta, sql, python, clave, indicadores):
@@ -131,4 +169,55 @@ def conciliar(carpeta_sql, pedidos_unicos, lineas_enriquecidas):
     python = por_modelo.reset_index().rename(columns={"nombre_modelo": "modelo"})   # el nombre de SQL
     filas += comparar_por_grupos("P-C", leer_resultado(carpeta_sql, "P-C"), python, "modelo",
                                  [("pares", False), ("pedidos", False)])
+    return pd.DataFrame(filas)
+
+
+def contrastar_caso_n(carpeta_sql, tablas):
+    """
+    Caso N: ingresos de un mes, matriz talla x modelo y clientes unicos, SQL
+    frente a pandas. tablas son las de analiticas.calcular_tablas. Devuelve
+    un DataFrame como el de conciliar, o None si faltan N-1, N-2 o N-3.
+    """
+    if faltan_resultados(carpeta_sql, CONSULTAS_CASO_N):
+        return None
+    filas = []
+
+    # N-1: el mes lo elige Acceso a Datos al lanzar la consulta (viene en el CSV)
+    sql = leer_resultado(carpeta_sql, "N-1").iloc[0]
+    mes = sql["anio_mes"]
+    meses = tablas["ventas_por_periodo"]
+    del_mes = pd.DataFrame()
+    if "anio_mes" in meses.columns:   # sin ninguna venta, la tabla es NO CALCULABLE
+        del_mes = meses[meses["anio_mes"] == mes]
+    for indicador, euros in [("pedidos", False), ("pares", False), ("importe", True)]:
+        if len(del_mes) == 0:
+            valor = 0   # un mes sin ventas: 0 pedidos, 0 pares y 0 euros
+        else:
+            valor = del_mes[indicador].iloc[0]
+        filas.append(comparar("N-1", indicador, mes, sql[indicador], valor, euros))
+
+    # N-2: cada celda de la matriz con pares, como "modelo · talla"
+    matriz = tablas["matriz_modelo_talla"]
+    if len(matriz) == 0:
+        python = pd.DataFrame(columns=["celda", "pares"])
+    else:
+        celdas = matriz.reset_index().melt(id_vars="nombre_modelo", var_name="talla", value_name="pares")
+        celdas = celdas[celdas["pares"] > 0]
+        python = pd.DataFrame({"celda": celdas["nombre_modelo"] + " · " + celdas["talla"].astype(str),
+                               "pares": celdas["pares"]})
+    resultado_sql = leer_resultado(carpeta_sql, "N-2")
+    sql = pd.DataFrame({"celda": resultado_sql["modelo"] + " · " + resultado_sql["talla"].astype(str),
+                        "pares": resultado_sql["pares"]})
+    filas += comparar_por_grupos("N-2", sql, python, "celda", [("pares", False)])
+
+    # N-3: clientes distintos con cada criterio
+    sql = leer_resultado(carpeta_sql, "N-3").iloc[0]
+    pedidos = tablas["pedidos_unicos"]
+    python = {
+        "clientes_con_pedidos": pedidos["id_cliente"].nunique(),
+        "clientes_con_demanda": pedidos.loc[~pedidos["es_cancelado"], "id_cliente"].nunique(),
+        "clientes_con_venta": pedidos.loc[pedidos["es_confirmado"], "id_cliente"].nunique(),
+    }
+    for indicador, valor in python.items():
+        filas.append(comparar("N-3", indicador, "clientes únicos", sql[indicador], valor))
     return pd.DataFrame(filas)

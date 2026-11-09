@@ -45,7 +45,7 @@ cuándo se escribió cada uno.
 | 9 | `09_pruebas.sql` | La batería de pruebas. Opcional | no |
 | 10 | `10_caso_custom.sql` | El caso del club deportivo: 40 pares en varias tallas, de principio a fin. Opcional | no |
 | 11 | `11_dml_ejemplos.sql` | Ejemplos de INSERT, UPDATE y DELETE, y casos rechazados por las restricciones. Opcional | no |
-| 12 | `12_consultas_panel.sql` | Consultas parametrizadas de búsqueda e indicadores para el panel Java. Opcional | no |
+| 12 | `12_consultas_panel.sql` | Consultas parametrizadas de búsqueda e indicadores para el panel Java, y las tres del caso N de Python (N-1 a N-3). Opcional | no |
 | 13 | `13_activar_usuarios.sql` | **Pone las contraseñas de las tres cuentas de demostración.** Pregunta por teclado; no guarda nada en el repositorio | **sí** |
 | 14 | `14_caso_custom_persistente.sql` | **Deja el pedido `CUSTOM-40` guardado de verdad**, con 40 pares en cuatro tallas. Va al final, después de las pruebas. Opcional | no |
 | 15 | `15_exportar_fabricacion.sql` | Exporta a un CSV para PSP la orden de fabricación de un pedido Custom confirmado de 40 pares: `CUSTOM-40` por defecto (necesita el 14) u otro con `-v referencia=SO024`. Opcional | no |
