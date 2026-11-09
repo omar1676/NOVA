@@ -48,10 +48,13 @@ cuándo se escribió cada uno.
 | 13 | `13_activar_usuarios.sql` | **Pone las contraseñas de las tres cuentas de demostración.** Pregunta por teclado; no guarda nada en el repositorio | **sí** |
 | 14 | `14_caso_custom_persistente.sql` | **Deja el pedido `CUSTOM-40` guardado de verdad**, con 40 pares en cuatro tallas. Va al final, después de las pruebas. Opcional | no |
 | 15 | `15_exportar_fabricacion.sql` | Exporta la orden de fabricación de `CUSTOM-40` a un CSV para PSP. Necesita que el 14 se haya ejecutado. Opcional | no |
+| 16 | `16_exportar_csv_dashboard.sql` | Exporta los cinco CSV del contrato (clientes, modelos, pedidos, líneas y stock) para el dashboard. Solo lee. Opcional | no |
+| 17 | `17_usuario_java.sql` | **Crea `java_nova`, el usuario con el que se conecta la aplicación Java**, y deja al comercial marcar pedidos Custom. Pide la contraseña por teclado. Se puede lanzar después del 7 o al final | **sí** |
 
-**Los dos últimos van al final, y el orden importa.** El orden correcto es:
+**Los tres últimos van al final, y el orden importa.** El orden correcto es:
 instalación (1–7) → pruebas (8–12) → contraseñas (13) → `CUSTOM-40` (14) →
-exportación (15).
+exportaciones (15 y 16). El 17 puede ir en cualquier momento después del 7:
+la batería `09_pruebas.sql` da 91 de 91 con él instalado.
 
 Dos razones, las dos comprobadas ejecutándolo:
 
@@ -361,7 +364,7 @@ y luego `RESET ROLE`.
 |---|---|---|---|---|
 | Catálogo (modelos, variantes, SKU) | ver | ver | ver | ver, crear, modificar |
 | Clientes | no | ver | ver | ver, crear, modificar |
-| Pedidos | no | ver y cambiar `estado` | ver, y cambiar `estado` y `fecha_objetivo` | ver, crear, modificar |
+| Pedidos | no | ver, cambiar `estado` y marcar Custom (`personalizado`, `personalizacion`, script 17) | ver, y cambiar `estado` y `fecha_objetivo` | ver, crear, modificar |
 | Líneas de pedido | no | ver | ver | **solo ver** |
 | Existencias | no | ver | ver y cambiar `cantidad` | ver, crear, modificar |
 | Configuraciones X-NOVA | no | ver y crear | ver | ver y crear |
@@ -1044,8 +1047,17 @@ usa `SELECT *`, pero sí importaría si el código Java leyera por posición.
 
 ## 13. Relación con Java/JDBC
 
-A día de hoy no hay código Java en el repositorio, así que esto es el contrato
-que la parte Java puede dar por bueno.
+Esto es el contrato que la parte Java puede dar por bueno. La aplicación ya
+existe: está en `acceso-datos/java` y su README explica cómo se ejecuta. Así
+cumple los cuatro controles de más abajo:
+
+1. Se conecta con `java_nova` (script 17), que es `NOINHERIT`: sin rol no lee
+   nada. Después del login hace `SET ROLE` al rol que toca.
+2. No aplica: la usan empleados que registran pedidos de cualquier cliente.
+   Este control es para una aplicación en la que entren los propios clientes.
+3. `ConexionBD.empezarTransaccion()` llama a `iniciar_sesion` al principio de
+   cada transacción que escribe.
+4. No guarda el testigo: lo vuelve a pedir en cada transacción.
 
 **Funciones que debe llamar la aplicación:**
 
@@ -1341,6 +1353,124 @@ hay ningún identificador de Odoo acordado ni comprobado.
 fabricación de un pedido concreto y se mantiene aparte, hasta que se acuerde el
 formato definitivo de los cinco.
 
+### Exportación de los cinco CSV del contrato (dashboard)
+
+`16_exportar_csv_dashboard.sql` genera los cinco archivos del apartado 7 del
+contrato, que son los que pide el enunciado de Ampliación de Python para su
+dashboard: `clientes.csv`, `modelos.csv`, `pedidos.csv`, `lineas_pedido.csv` y
+`stock.csv`. Solo lee; no cambia ninguna tabla.
+
+```
+mkdir salidas
+cd salidas
+psql -U postgres -d nova_sneakers -f ..\acceso-datos\sql\16_exportar_csv_dashboard.sql
+```
+
+**Es una propuesta de Acceso a Datos.** El contrato deja las columnas sin
+cerrar (apartado 8). Aquí se usan sus nombres (`id_pedido`, `fecha_pedido`,
+`tipo_pedido`, `estado_pedido`, `importe_linea`…) más los campos mínimos que
+pide Python (`id_modelo` en las líneas, `stock_disponible` y `fecha_corte` en el
+stock). El equipo tiene que aprobarla.
+
+#### Cómo funciona
+
+- Una **vista temporal por archivo** (`csv_clientes`, `csv_pedidos`…): cada
+  vista es la consulta exacta de su CSV y desaparece al cerrar psql.
+- Todo va en una transacción **`REPEATABLE READ`**: los cinco archivos son la
+  misma foto de la base, aunque otra conexión esté creando pedidos a la vez.
+- **Antes de abrir ningún archivo** comprueba que el total de cada pedido es
+  la suma de sus líneas y que todas las líneas tienen modelo y talla. Si algo
+  falla, o el rol no puede leer alguna tabla, psql se detiene y los CSV
+  anteriores no se tocan.
+- Al final enseña el pedido `CUSTOM-40` reconstruido uniendo las cinco vistas,
+  igual que tendrá que hacerlo el dashboard.
+
+Si `psql` termina con error, no se copian los archivos al dashboard: se
+corrige y se vuelve a lanzar. Si se cortara a mitad de los `\copy`, algunos
+archivos serían nuevos y otros viejos (la misma limitación que el 15).
+
+#### Formato
+
+UTF-8, separador coma, primera fila con los nombres de columna, punto decimal
+(`119.90`) y sin símbolo de moneda (todo en euros). Fechas `AAAA-MM-DD HH:MM:SS`.
+Los campos lógicos salen como `true` / `false`, y un campo vacío es un valor nulo.
+Un texto con comas, comillas o saltos de línea va entre comillas dobles (CSV
+estándar). Las filas salen siempre en el mismo orden, así que dos exportaciones
+de los mismos datos dan archivos idénticos, salvo `fecha_corte`.
+
+#### Diccionario de datos
+
+| Archivo | Columna | Origen | Significado y valores |
+|---|---|---|---|
+| clientes | `id_cliente` | `clientes.id_cliente` | Clave. Es un identificador, no una cantidad |
+| clientes | `nombre` | `clientes.nombre` | Nombre del cliente o del club |
+| clientes | `tipo` | `clientes.tipo` | `particular` o `empresa` |
+| clientes | `correo` | `clientes.email` | Correo ficticio (`@example.com`) |
+| clientes | `telefono` | `clientes.telefono` | Puede estar vacío |
+| clientes | `activo` | `clientes.activo` | `true` / `false` |
+| modelos | `id_modelo` | `modelos.id_modelo` | Clave |
+| modelos | `nombre_modelo` | `modelos.nombre` | Único |
+| modelos | `descripcion` | `modelos.descripcion` | Puede estar vacía |
+| modelos | `precio_base` | `modelos.precio_base` | Euros, precio de catálogo |
+| modelos | `activo` | `modelos.activo` | `true` / `false` |
+| pedidos | `id_pedido` | `pedidos.id_pedido` | Clave |
+| pedidos | `referencia` | `pedidos.referencia` | Única. Es la que se ve en pantalla (`CUSTOM-40`) |
+| pedidos | `id_cliente` | `pedidos.id_cliente` | Une con `clientes.csv` |
+| pedidos | `fecha_pedido` | `pedidos.fecha_pedido` | Fecha y hora de alta |
+| pedidos | `tipo_pedido` | `pedidos.personalizado` | `normal` o `custom` |
+| pedidos | `estado_pedido` | `pedidos.estado` | `pendiente`, `confirmado`, `en_preparacion`, `enviado`, `entregado`, `cancelado` |
+| pedidos | `estado_pago` | `pedidos.estado_pago` | `pendiente`, `pagado`, `reembolsado` |
+| pedidos | `personalizacion` | `pedidos.personalizacion` | Texto libre. Vacío si el pedido es `normal` |
+| pedidos | `cantidad_total` | `pedidos.cantidad_total` | Pares. Lo calcula el trigger: suma de sus líneas |
+| pedidos | `importe_total` | `pedidos.importe_total` | Euros. Lo calcula el trigger: suma de sus líneas |
+| lineas_pedido | `id_linea` | `linea_pedido.id_linea` | Clave |
+| lineas_pedido | `id_pedido` | `linea_pedido.id_pedido` | Une con `pedidos.csv` |
+| lineas_pedido | `sku` | `producto_sku.sku` | Une con `stock.csv`. Vacío en una línea X-NOVA |
+| lineas_pedido | `id_modelo` | `variantes.id_modelo` | Une con `modelos.csv`. En X-NOVA, el modelo X-NOVA |
+| lineas_pedido | `talla` | `producto_sku.talla` | Entre 20 y 55. En X-NOVA, la talla de la configuración |
+| lineas_pedido | `cantidad` | `linea_pedido.cantidad` | Pares, mayor que 0 |
+| lineas_pedido | `precio_unitario` | `linea_pedido.precio_unitario` | Euros por par en el momento del pedido |
+| lineas_pedido | `importe_linea` | `linea_pedido.subtotal` | Euros, cantidad × precio_unitario |
+| stock | `sku` | `producto_sku.sku` | Clave: una fila por SKU |
+| stock | `id_modelo` | `variantes.id_modelo` | Une con `modelos.csv` |
+| stock | `color` | `variantes.color` | Color de la variante |
+| stock | `talla` | `producto_sku.talla` | Talla del SKU |
+| stock | `activo` | `producto_sku.activo` | `true` / `false` |
+| stock | `stock_disponible` | `SUM(existencias.cantidad)` | Pares, suma de todas las naves. 0 si no hay existencias |
+| stock | `fecha_corte` | `now()` | Momento de la exportación. Es una foto, no un histórico |
+
+**Ventas.** El panel de Acceso a Datos (`P-A`) cuenta como venta todo pedido
+que no esté `cancelado`. El CSV trae todos los pedidos con su estado; quien lo
+lea decide qué estados cuenta, y tiene que decirlo.
+
+**Un pedido con varias líneas es un solo pedido.** Para contar pedidos se
+cuenta en `pedidos.csv`, nunca en `lineas_pedido.csv`.
+
+**Lo que no se exporta, y por qué:** `direccion_entrega` (dato personal que no
+hace falta para analizar y además está vacío en todos los clientes), la nave
+(solo hay una, `NOVA Central`), el suplemento de precio por color (es 0 en
+todas las variantes) y la categoría del modelo (no existe en el esquema).
+
+#### Comprobado
+
+Sobre una base reconstruida desde cero con los scripts 1–16:
+
+- Las tres cifras del panel cuadran con lo que sale de los CSV: `P-A` (12
+  pedidos no cancelados, 90 pares, 10.686,45 €), `P-B` (11 pendientes y 1
+  confirmado) y `P-C` (pares por modelo).
+- `CUSTOM-40` se reconstruye solo con los CSV: Club Atletico NOVA, NOVA
+  Velocity rojo, 10 pares de cada talla de la 40 a la 43, a 119,90 €, total
+  4.796,00 €, `confirmado`, `custom`. Las líneas suman exactamente el total del
+  pedido, y el stock de esas cuatro tallas baja de 20 a 10.
+- Lanzado dos veces seguidas, los archivos salen idénticos (salvo `fecha_corte`).
+- Funciona con `nova_admin`, `nova_trabajador` y `nova_comercial`. Con
+  `nova_cliente` se detiene por permisos y no toca los CSV que ya había.
+- Con un pedido descuadrado a propósito (en una base de pruebas) se detiene
+  antes de escribir y los CSV anteriores no cambian.
+- Una personalización con coma, comillas, salto de línea y tilde se lee de
+  vuelta igual. Una línea X-NOVA sale con el modelo X-NOVA y la talla de su
+  configuración.
+
 ### Última corrección (7 de noviembre de 2026)
 
 Tres cambios, los tres salidos de una auditoría que encontró un fallo que
@@ -1425,3 +1555,10 @@ parte de Java/JDBC**: a 7 de noviembre de 2026 no hay ni un archivo `.java` en
 ninguna rama del repositorio, así que el login, el panel, los filtros, el TXT
 de actividad, el JSON de usuarios y las pruebas de extremo a extremo siguen sin
 empezar. La base de datos ya tiene preparado todo lo que esa parte necesita.
+
+### Parte Java (9 de noviembre de 2026)
+
+La aplicación Swing + JDBC ya está en `acceso-datos/java`: login, pedidos,
+consultas con filtros, indicadores, usuarios, TXT, JSON y CSV. Las pruebas
+A–J se lanzan con `pruebas.bat`, y sobre una base reconstruida desde cero con
+los scripts 1–17 dieron 47 PASS y 0 FAIL. El detalle está en su README.
