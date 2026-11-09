@@ -20,6 +20,8 @@ const intentos = require('./intentos');
 const consultas = require('./consultas');
 const tienda = require('./tienda');
 const correo = require('./correo');
+const crearRutasTrabajador = require('./rutas-trabajador'); // portal del trabajador (Berme)
+const odoo = require('./odoo'); // conector de Berme: desactivado sin configuracion
 
 const PUERTO = Number(process.env.PUERTO) || 3000;
 const HOST = '127.0.0.1'; // solo este ordenador: el servidor no se abre a la red
@@ -221,6 +223,10 @@ const soloTrabajador = soloRol(ROL_PORTAL, 'Tu usuario no tiene permiso para el 
 
 app.use('/api/admin', soloAdministrador);
 app.use('/api/trabajador', soloTrabajador);
+
+// Las rutas del portal del trabajador (rutas-trabajador.js, de Berme). Van
+// detras de soloTrabajador y usan el rol portal_trabajador (script 23).
+app.use(crearRutasTrabajador(bd, sesiones));
 
 // Lee un filtro de la URL, por ejemplo /api/admin/pedidos?estado=pendiente.
 // Si no viene, devuelve '' (sin filtro). Si viene un valor que no esta en la
@@ -463,6 +469,8 @@ if (require.main === module) {
       ? `Tienda web en http://${HOST}:${PUERTO}/tienda/`
       : 'Tienda web sin configurar (faltan TIENDA_PGUSER y TIENDA_PGPASSWORD en .env)');
     console.log(correo.resumen()); // Resend, Ethereal (solo desarrollo) o sin correo
+    console.log(`Portal del trabajador en http://${HOST}:${PUERTO}/trabajador/ (script 23)`);
+    console.log(odoo.resumen()); // las rutas de pedidos.js (crear pedidos y Odoo) no se montan
   });
 }
 

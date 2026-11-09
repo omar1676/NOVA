@@ -1,4 +1,23 @@
-lucide.createIcons();
+// Dibuja los iconos de Lucide (si la CDN no carga, el portal sigue funcionando sin iconos)
+if (window.lucide) {
+  lucide.createIcons();
+}
+
+// Si el navegador ensena la pagina desde su memoria (boton Atras), se vuelve a
+// pedir al servidor. Asi, despues de cerrar sesion no quedan datos a la vista.
+window.addEventListener("pageshow", function (evento) {
+  if (evento.persisted) window.location.reload();
+});
+
+// ===== Cerrar sesion (la misma sesion que el panel: login unico) =====
+const botonSalir = document.getElementById("adm-salir");
+if (botonSalir) {
+  botonSalir.addEventListener("click", async function (evento) {
+    evento.preventDefault();
+    await fetch("/api/logout", { method: "POST" }).catch(function () {});
+    window.location.href = "/login.html";
+  });
+}
 
 const buscador = document.getElementById("adm-buscador");
 const filtroEstado = document.getElementById("adm-filtro-estado");
@@ -77,6 +96,12 @@ function pintarFilaVacia(cuerpo, columnas, mensaje) {
 
 async function pedirDatos(url, opciones) {
   const respuesta = await fetch(url, opciones);
+  // Sin sesion (401) o con otro rol (403): a la pagina de acceso. El servidor
+  // lo comprueba en cada peticion; esto solo evita ensenar una pagina vacia.
+  if (respuesta.status === 401 || respuesta.status === 403) {
+    window.location.href = "/login.html";
+    throw new Error("Sin sesión de trabajador");
+  }
   const datos = await respuesta.json();
   if (!respuesta.ok) {
     throw new Error(datos.error || "Error del servidor");
@@ -119,6 +144,7 @@ async function cargarPedidos() {
         const boton = document.createElement("button");
         boton.className = "adm-boton";
         boton.textContent = "Avanzar estado";
+        boton.setAttribute("aria-label", "Avanzar estado del pedido " + pedido.referencia + " a " + siguienteEstado[pedido.estado]);
         boton.addEventListener("click", function () {
           avanzarEstado(pedido.id_pedido, siguienteEstado[pedido.estado]);
         });
@@ -188,10 +214,12 @@ async function cargarInventario() {
       campo.min = "0";
       campo.value = existencia.cantidad;
       campo.style.width = "70px";
+      campo.setAttribute("aria-label", "Cantidad de " + existencia.sku + " en " + existencia.nave);
 
       const boton = document.createElement("button");
       boton.className = "adm-boton";
       boton.textContent = "Guardar";
+      boton.setAttribute("aria-label", "Guardar la cantidad de " + existencia.sku);
       boton.addEventListener("click", function () {
         guardarCantidad(existencia.id_producto_sku, existencia.id_nave, campo.value);
       });

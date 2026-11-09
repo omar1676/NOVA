@@ -1,3 +1,15 @@
+// pedidos.js — rutas de Berme para crear pedidos y enviarlos a Odoo.
+//
+// NO SE MONTAN en servidor.js, a proposito:
+//   - crearian pedidos sin login ni rol (segun la matriz de permisos, el
+//     trabajador no crea pedidos; lo hacen el administrador y el comercial
+//     desde la aplicacion Java);
+//   - escriben en pedidos y log_eventos directamente, y web_nova no tiene
+//     (ni debe tener) esos permisos;
+//   - necesitan un Odoo, que no esta: odoo.js queda desactivado.
+// Se guardan tal como los escribio Berme para cuando el equipo decida
+// como integrarlos.
+
 const express = require('express');
 const { crearPedidoOdoo } = require('./odoo');
 
