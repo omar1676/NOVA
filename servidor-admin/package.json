@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node --env-file=.env servidor.js",
     "test": "node --env-file=.env --test pruebas/api.test.js",
-    "test:tienda": "node --env-file=.env --test pruebas/tienda.test.js"
+    "test:tienda": "node --env-file=.env --test pruebas/tienda.test.js",
+    "test:portal": "node --env-file=.env --test pruebas/portal.test.js"
   },
   "engines": {
     "node": ">=20.6"
