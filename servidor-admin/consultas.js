@@ -113,14 +113,19 @@ async function dashboard(cliente) {
 
 // ---------------------------------------------------------------------
 // 2. Pedidos (C5: estado y texto; un filtro vacio no excluye nada)
+//    El id lo usa el boton "Marcar en reparto" (POST /api/admin/pedidos/:id/reparto).
 // ---------------------------------------------------------------------
+const COLUMNAS_PEDIDO = `
+    p.id_pedido AS id,
+    p.referencia,
+    c.nombre AS cliente,
+    to_char(p.fecha_pedido, 'DD/MM/YYYY') AS fecha,
+    p.estado,
+    p.importe_total AS total`;
+
 async function pedidos(cliente, estado, texto) {
   const resultado = await cliente.query(`
-    SELECT p.referencia,
-           c.nombre AS cliente,
-           to_char(p.fecha_pedido, 'DD/MM/YYYY') AS fecha,
-           p.estado,
-           p.importe_total AS total
+    SELECT ${COLUMNAS_PEDIDO}
     FROM public.pedidos p
     JOIN public.clientes c ON c.id_cliente = p.id_cliente
     WHERE ($1::text = '' OR p.estado = $1)
@@ -128,6 +133,17 @@ async function pedidos(cliente, estado, texto) {
                          OR c.nombre ILIKE '%' || $2 || '%')
     ORDER BY p.fecha_pedido DESC, p.id_pedido DESC`, [estado, texto]);
   return { filas: resultado.rows };
+}
+
+// Un pedido con las mismas columnas que la lista (o null si no existe):
+// lo que devuelve la ruta de reparto despues del cambio
+async function pedido(cliente, idPedido) {
+  const resultado = await cliente.query(`
+    SELECT ${COLUMNAS_PEDIDO}
+    FROM public.pedidos p
+    JOIN public.clientes c ON c.id_cliente = p.id_cliente
+    WHERE p.id_pedido = $1`, [idPedido]);
+  return resultado.rows[0] || null;
 }
 
 // ---------------------------------------------------------------------
@@ -329,6 +345,7 @@ module.exports = {
   ACCIONES_AUDITORIA,
   dashboard,
   pedidos,
+  pedido,
   productos,
   inventario,
   clientes,

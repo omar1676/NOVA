@@ -60,6 +60,28 @@ async function consultarSoloLectura(trabajo) {
   }
 }
 
+// La UNICA escritura del panel: el boton "Marcar en reparto" (script 22).
+// Va en una transaccion aparte, solo para esta llamada, con el rol
+// panel_reparto: no puede leer ni escribir ninguna tabla, solo ejecutar
+// marcar_pedido_en_reparto, que vuelve a comprobar que el usuario es
+// administrador y que el pedido esta confirmado. Todas las demas consultas
+// del panel siguen yendo por consultarSoloLectura.
+async function marcarEnReparto(idUsuario, idPedido) {
+  const cliente = await pool.connect();
+  let conexionRota = false;
+  try {
+    await cliente.query('BEGIN');
+    await cliente.query('SET LOCAL ROLE panel_reparto');
+    await cliente.query('SELECT public.marcar_pedido_en_reparto($1, $2)', [idUsuario, idPedido]);
+    await cliente.query('COMMIT');
+  } catch (error) {
+    await cliente.query('ROLLBACK').catch(() => { conexionRota = true; });
+    throw error;
+  } finally {
+    cliente.release(conexionRota);
+  }
+}
+
 // Para /api/estado: comprueba que la base responde y con que usuario.
 async function comprobarConexion() {
   const resultado = await pool.query('SELECT current_user AS usuario, current_database() AS base');
@@ -125,4 +147,4 @@ async function operarEnTienda(trabajo) {
   }
 }
 
-module.exports = { consultarSoloLectura, comprobarConexion, pool, operarEnTienda, poolTienda };
+module.exports = { consultarSoloLectura, marcarEnReparto, comprobarConexion, pool, operarEnTienda, poolTienda };

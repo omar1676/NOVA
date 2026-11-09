@@ -204,8 +204,8 @@ function errorDePeticion(mensaje) {
   return error;
 }
 
-// Las ocho rutas del panel. Cada una lee sus filtros y llama a su consulta
-// de consultas.js dentro de una transaccion de solo lectura.
+// Las ocho rutas de lectura del panel. Cada una lee sus filtros y llama a su
+// consulta de consultas.js dentro de una transaccion de solo lectura.
 app.get('/api/admin/dashboard', async (req, res) => {
   res.json(await bd.consultarSoloLectura((cliente) => consultas.dashboard(cliente)));
 });
@@ -248,6 +248,49 @@ app.get('/api/admin/auditoria', async (req, res) => {
 
 app.get('/api/admin/estadisticas', async (req, res) => {
   res.json(await bd.consultarSoloLectura((cliente) => consultas.estadisticas(cliente)));
+});
+
+// ---------------------------------------------------------------------
+// La unica ruta del panel que cambia algo: el boton "Marcar en reparto".
+// Pasa un pedido confirmado a "enviado" con marcar_pedido_en_reparto
+// (script 22), en una transaccion de escritura aparte (bd.marcarEnReparto).
+// La funcion vuelve a comprobar que el usuario es administrador y la
+// auditoria apunta el cambio a su nombre. Respuestas:
+//   401 / 403  como las demas rutas del panel (soloAdministrador)
+//   415        si no llega JSON
+//   404        el pedido no existe
+//   409        el pedido no esta confirmado (pendiente, cancelado, ya enviado...)
+//   200        el pedido, ya en "enviado"
+// ---------------------------------------------------------------------
+const ERRORES_REPARTO = {
+  'Usuario no autorizado': [403, 'Tu usuario no tiene permiso para el panel de administración'],
+  'El pedido no existe': [404, 'Ese pedido no existe'],
+  'Solo se puede pasar a reparto un pedido confirmado':
+    [409, 'Solo se puede marcar en reparto un pedido confirmado (puede que este ya haya cambiado de estado).']
+};
+
+app.post('/api/admin/pedidos/:id/reparto', async (req, res) => {
+  // Solo JSON, como manda el panel: un formulario de otra web no puede
+  // enviar este tipo de datos sin que el servidor lo permita (CORS)
+  if (!req.is('application/json')) {
+    return res.status(415).json({ error: 'Los datos tienen que ir en JSON' });
+  }
+  if (!/^[1-9][0-9]{0,8}$/.test(req.params.id)) {
+    return res.status(404).json({ error: 'Ese pedido no existe' });
+  }
+  const idPedido = Number(req.params.id);
+  const sesion = sesiones.leerSesion(req); // soloAdministrador ya ha comprobado que existe
+
+  try {
+    await bd.marcarEnReparto(sesion.idUsuario, idPedido);
+  } catch (error) {
+    const conocido = error.code === 'P0001' && ERRORES_REPARTO[error.message];
+    if (!conocido) throw error; // cualquier otro: 500 sin detalles
+    return res.status(conocido[0]).json({ error: conocido[1] });
+  }
+
+  // El pedido ya cambiado, leido con la conexion de solo lectura de siempre
+  res.json(await bd.consultarSoloLectura((cliente) => consultas.pedido(cliente, idPedido)));
 });
 
 // La tienda web: sus rutas estan en tienda.js. Usa su propia sesion (cookie
