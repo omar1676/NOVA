@@ -7,7 +7,9 @@
 // El navegador nunca habla con PostgreSQL: pide /api/... a este servidor, que
 // hace las consultas. El mismo servidor entrega los archivos del panel y de la
 // tienda, asi que paginas y API tienen el mismo origen (sin CORS).
+//   http://127.0.0.1:3000/login.html   acceso unico del personal
 //   http://127.0.0.1:3000/admin.html   panel (solo administradores)
+//   http://127.0.0.1:3000/trabajador/  portal del trabajador (solo trabajadores)
 //   http://127.0.0.1:3000/tienda/      tienda web (rutas en tienda.js)
 
 const path = require('node:path');
@@ -24,8 +26,18 @@ const HOST = '127.0.0.1'; // solo este ordenador: el servidor no se abre a la re
 const CARPETA_PANEL = path.join(__dirname, '..', 'interfaces', 'admin');
 const CARPETA_TIENDA = path.join(__dirname, '..', 'interfaces', 'cliente');
 
-// El panel es solo para el rol "administrador" de la tabla roles.
+// Login unico para el personal: cada rol de la tabla roles entra en su panel.
+//   administrador -> panel de administracion (interfaces/admin)
+//   trabajador    -> portal del trabajador (interfaces/trabajador, de Berme)
+// Un rol que no esta aqui (comercial) no tiene panel web: trabaja con la
+// aplicacion Java, asi que el login le deniega el acceso.
 const ROL_PANEL = 'administrador';
+const ROL_PORTAL = 'trabajador';
+const PANELES = {
+  administrador: '/admin.html',
+  trabajador: '/trabajador/trabajador.html'
+};
+const CARPETA_PORTAL = path.join(__dirname, '..', 'interfaces', 'trabajador');
 
 const app = express();
 app.disable('x-powered-by'); // no anunciar en cada respuesta que el servidor es Express
@@ -118,8 +130,18 @@ app.post('/api/login', async (req, res) => {
     });
 
     intentos.borrarFallos(usuario);
+
+    // Contrasena correcta, pero su rol no tiene ningun panel web: acceso
+    // denegado y sin sesion
+    const destino = PANELES[datos.rol];
+    if (!destino) {
+      return res.status(403).json({
+        error: `Acceso denegado: el usuario ${datos.usuario} (${datos.rol}) no tiene ningún panel web.`
+      });
+    }
+
     sesiones.crearSesion(req, res, datos);
-    res.json({ usuario: datos.usuario, rol: datos.rol, accesoPanel: datos.rol === ROL_PANEL });
+    res.json({ usuario: datos.usuario, rol: datos.rol, accesoPanel: datos.rol === ROL_PANEL, destino });
   } catch (error) {
     if (error.code === 'P0001') {
       // El mismo mensaje para todo: no se dice si el usuario existe o no
@@ -141,40 +163,64 @@ app.get('/api/sesion', (req, res) => {
   if (!sesion) {
     return res.status(401).json({ error: 'No has iniciado sesión' });
   }
-  res.json({ usuario: sesion.usuario, rol: sesion.rol, accesoPanel: sesion.rol === ROL_PANEL });
+  res.json({
+    usuario: sesion.usuario, rol: sesion.rol,
+    accesoPanel: sesion.rol === ROL_PANEL, destino: PANELES[sesion.rol]
+  });
 });
 
 // ---------------------------------------------------------------------
-// Rutas del panel: solo para administradores
+// Rutas del panel (solo administradores) y del portal (solo trabajadores)
 //   401 = no sabemos quien eres (no hay sesion): hay que entrar
 //   403 = sabemos quien eres, pero tu rol no tiene permiso
 //
 // En cada peticion se vuelve a mirar en la base si la cuenta sigue activa y
-// sigue siendo de administrador. Si se desactiva o se le cambia el rol, su
-// sesion deja de valer en ese mismo momento (y se borra).
+// sigue teniendo ese rol. Si se desactiva o se le cambia el rol, su sesion
+// deja de valer en ese mismo momento (y se borra). El rol nunca sale del
+// navegador: solo de la sesion (en memoria) y de la base.
 // ---------------------------------------------------------------------
-async function soloAdministrador(req, res, next) {
+
+// Devuelve 0 si la sesion es de un usuario activo con ese rol, o el codigo
+// de error: 401 (sin sesion, o la cuenta ya no esta activa) o 403 (otro rol).
+async function comprobarRol(req, res, rol) {
   const sesion = sesiones.leerSesion(req);
-  if (!sesion) {
-    return res.status(401).json({ error: 'No has iniciado sesión' });
-  }
-  if (sesion.rol !== ROL_PANEL) {
-    return res.status(403).json({ error: 'Tu usuario no tiene permiso para el panel de administración' });
-  }
+  if (!sesion) return 401;
+  if (sesion.rol !== rol) return 403;
 
   const rolActual = await bd.consultarSoloLectura((cliente) => rolDeUsuarioActivo(cliente, sesion.idUsuario));
   if (rolActual === null) {
     sesiones.cerrarSesion(req, res);
-    return res.status(401).json({ error: 'Tu sesión ya no es válida. Vuelve a entrar.' });
+    return 401;
   }
-  if (rolActual !== ROL_PANEL) {
+  if (rolActual !== rol) {
     sesiones.cerrarSesion(req, res);
-    return res.status(403).json({ error: 'Tu usuario no tiene permiso para el panel de administración' });
+    return 403;
   }
-  next();
+  return 0;
 }
 
+// Crea la comprobacion de una zona de la API: soloRol('administrador', ...)
+function soloRol(rol, mensajeSinPermiso) {
+  return async (req, res, next) => {
+    const teniaSesion = Boolean(sesiones.leerSesion(req));
+    const codigo = await comprobarRol(req, res, rol);
+    if (codigo === 401) {
+      return res.status(401).json({
+        error: teniaSesion ? 'Tu sesión ya no es válida. Vuelve a entrar.' : 'No has iniciado sesión'
+      });
+    }
+    if (codigo === 403) {
+      return res.status(403).json({ error: mensajeSinPermiso });
+    }
+    next();
+  };
+}
+
+const soloAdministrador = soloRol(ROL_PANEL, 'Tu usuario no tiene permiso para el panel de administración');
+const soloTrabajador = soloRol(ROL_PORTAL, 'Tu usuario no tiene permiso para el portal del trabajador');
+
 app.use('/api/admin', soloAdministrador);
+app.use('/api/trabajador', soloTrabajador);
 
 // Lee un filtro de la URL, por ejemplo /api/admin/pedidos?estado=pendiente.
 // Si no viene, devuelve '' (sin filtro). Si viene un valor que no esta en la
@@ -319,31 +365,59 @@ app.use('/tienda', express.static(CARPETA_TIENDA));
 app.use('/tienda', (req, res) => res.status(404).send('No encontrado')); // y no al login del panel
 
 // ---------------------------------------------------------------------
-// Archivos del panel
+// Archivos del panel y del portal del trabajador
 //
-// Sin sesion de administrador solo se entrega lo que necesita la pagina de
-// login. Cualquier otra pagina redirige a login.html.
+// La pagina de acceso (login.html) es la misma para los dos. Sin sesion, o
+// con la sesion de otro rol, solo se entrega lo que necesita esa pagina, y
+// cualquier otra lleva a login.html. Como en la API, el rol se vuelve a
+// mirar en la base en cada peticion.
 // ---------------------------------------------------------------------
 const ARCHIVOS_PUBLICOS = ['/login.html', '/login.js', '/styles.css'];
 
-function protegerPanel(req, res, next) {
+// La ruta pedida, en minusculas, o null si no vale (mal codificada o con ..)
+function leerRuta(req) {
   let ruta;
   try {
     ruta = decodeURIComponent(req.path).toLowerCase();
   } catch {
-    return res.status(400).end(); // una ruta mal codificada, como /%E0
+    return null; // una ruta mal codificada, como /%E0
   }
   if (ruta.includes('..') || ruta.includes('\\')) {
-    return res.status(400).end(); // nada de salir de la carpeta del panel
+    return null; // nada de salir de la carpeta
   }
+  return ruta;
+}
+
+async function protegerPanel(req, res, next) {
+  const ruta = leerRuta(req);
+  if (ruta === null) return res.status(400).end();
 
   const esPublico = ARCHIVOS_PUBLICOS.includes(ruta) || ruta.startsWith('/img/');
-  const sesion = sesiones.leerSesion(req);
-  if (esPublico || (sesion && sesion.rol === ROL_PANEL)) {
+  if (esPublico || await comprobarRol(req, res, ROL_PANEL) === 0) {
     return next();
   }
   res.redirect('/login.html');
 }
+
+async function protegerPortal(req, res, next) {
+  const ruta = leerRuta(req);
+  if (ruta === null) return res.status(400).end();
+
+  if (await comprobarRol(req, res, ROL_PORTAL) === 0) {
+    return next();
+  }
+  res.redirect('/login.html');
+}
+
+// El portal: /trabajador lleva a su pagina de inicio
+app.use((req, res, next) => {
+  const ruta = req.path.toLowerCase();
+  if (ruta === '/trabajador' || ruta === '/trabajador/') return res.redirect(PANELES[ROL_PORTAL]);
+  next();
+});
+app.use('/trabajador', protegerPortal);
+app.use('/trabajador', express.static(CARPETA_PORTAL, { index: false }));
+app.use('/trabajador', (req, res) => res.status(404).send('No encontrado'));
 
 app.get('/', (req, res) => res.redirect('/admin.html'));
 app.use(protegerPanel);

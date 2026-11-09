@@ -1,6 +1,8 @@
-// login.js — pagina de acceso al panel.
+// login.js — pagina de acceso del personal (la misma para todos los paneles).
 // Envia el usuario y la contrasena a /api/login. Si son correctos, el servidor
-// responde con una cookie de sesion (HttpOnly) y se pasa al dashboard.
+// responde con una cookie de sesion (HttpOnly) y dice a que panel ir segun el
+// rol: el administrador, al panel de administracion; el trabajador, a su
+// portal. Lo decide el servidor: aqui solo se sigue su respuesta.
 
 const formulario = document.getElementById("adm-login");
 const aviso = document.getElementById("adm-login-aviso");
@@ -23,22 +25,15 @@ formulario.addEventListener("submit", async function (evento) {
     });
     const cuerpo = await respuesta.json();
 
+    // 401 credenciales mal, 403 sin panel web, 429 demasiados intentos...
     if (!respuesta.ok) {
       aviso.textContent = cuerpo.error;
       campoContrasena.value = "";
       return;
     }
 
-    // Usuario correcto, pero sin permiso para el panel: se cierra su sesion
-    if (!cuerpo.accesoPanel) {
-      await fetch("/api/logout", { method: "POST" });
-      aviso.textContent = "El usuario " + cuerpo.usuario + " (" + cuerpo.rol + ") no tiene permiso para el panel.";
-      campoContrasena.value = "";
-      return;
-    }
-
-    window.location.href = "admin.html";
+    window.location.href = cuerpo.destino;
   } catch (error) {
-    aviso.textContent = "No se puede conectar con el servidor del panel.";
+    aviso.textContent = "No se puede conectar con el servidor.";
   }
 });
