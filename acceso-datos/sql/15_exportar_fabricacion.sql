@@ -17,13 +17,13 @@
 --   crea 14_caso_custom_persistente.sql; SO024 se crea desde la
 --   aplicacion Java.
 --
--- ESTE CSV NO ES NINGUNO DE LOS CINCO DEL CONTRATO
---   El contrato de integracion (integracion/contrato-pedido.md, apartado
---   7) pide clientes.csv, modelos.csv, pedidos.csv, lineas_pedido.csv y
---   stock.csv, y sus columnas estan todavia sin acordar (apartado 8).
---   Este archivo es distinto: es la orden de fabricacion de un pedido
---   concreto. Se mantiene aparte hasta que PSP y Odoo acuerden el
---   formato definitivo de los cinco.
+-- ESTE CSV NO ES NINGUNO DE LOS CINCO DEL DASHBOARD
+--   Los cinco CSV del dashboard de Python (clientes.csv, modelos.csv,
+--   pedidos.csv, lineas_pedido.csv y stock.csv) los exporta
+--   16_exportar_csv_dashboard.sql, con una propuesta de columnas que el
+--   equipo aun tiene que aprobar. Este archivo es distinto: es la orden
+--   de fabricacion de un pedido concreto, para PSP. Su formato esta
+--   descrito en integracion/contrato-fabricacion.md.
 --
 -- SI ALGO FALLA, FALLA DE VERDAD
 --   Con ON_ERROR_STOP, cualquier error detiene psql y devuelve un codigo
@@ -72,6 +72,9 @@
 --
 --   Para exportar otro pedido, se le pasa su referencia:
 --     psql -U postgres -d nova_sneakers -v referencia=SO024 -f 15_exportar_fabricacion.sql
+--
+--   Cada ejecucion sobrescribe fabricacion_psp.csv. Para guardar la orden
+--   de CUSTOM-40 y la de SO024, lanzalo desde dos carpetas distintas.
 --
 --   Ni \copy ni los bloques DO ven las variables de psql. Por eso la
 --   referencia se guarda en una tabla temporal (pedido_a_exportar) y las
@@ -160,8 +163,8 @@ $$;
 -- 2. Lo que se va a escribir, en pantalla, antes de escribirlo.
 --
 --    Las ocho columnas son datos reales de PostgreSQL. Los precios no
---    van aqui: la fabricacion no los necesita y su sitio es
---    lineas_pedido.csv, cuando se acuerde.
+--    van aqui: la fabricacion no los necesita, y ya salen en
+--    lineas_pedido.csv (16_exportar_csv_dashboard.sql).
 -- ---------------------------------------------------------------------
 \echo ''
 \echo '--- Filas que se van a exportar'

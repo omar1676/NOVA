@@ -11,8 +11,9 @@
 --     - un SKU por talla, con el formato del resto del catalogo
 --       (NOVA-<variante>-<talla>, como 05_datos_prueba.sql);
 --     - 5 pares de cada talla en la nave NOVA Central.
---   En total: 12 modelos, 12 variantes, 106 SKU y 530 pares. La nave pasa
---   de 1200 a 1730 pares (su capacidad es 2000).
+--   En total: 12 modelos, 12 variantes, 106 SKU y 530 pares. En una base
+--   recien instalada la nave pasa de 1200 a 1730 pares (su capacidad es
+--   2000); si ya se ha confirmado algun pedido, como CUSTOM-40, seran menos.
 --
 --   Los otros 88 modelos de la web no estan en la base: la web los ensena,
 --   pero como "No disponible".
