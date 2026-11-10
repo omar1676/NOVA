@@ -1,0 +1,33 @@
+===== Catalogo de la tienda web: 100 modelos =====
+BEGIN
+CREATE TABLE
+INSERT 0 6
+CREATE TABLE
+INSERT 0 100
+UPDATE 0
+INSERT 0 100
+INSERT 0 100
+INSERT 0 880
+INSERT 0 880
+
+--- Comprobacion: 100 modelos, 100 variantes, 880 SKU y 16010 pares (con las ventas descontadas)
+ catalogo_web | modelos | variantes | sku | pares 
+--------------+---------+-----------+-----+-------
+ PASS         |     100 |       100 | 880 | 16010
+(1 fila)
+
+COMMIT
+
+--- El catalogo de la tienda, por coleccion
+ coleccion | modelos | precio | tallas | sku | pares 
+-----------+---------+--------+--------+-----+-------
+ Casual    |      20 |  89.90 | 38-46  | 180 |  3330
+ Hombre    |      20 |  99.90 | 40-46  | 140 |  2590
+ Luxe      |      10 | 139.90 | 38-46  |  90 |  1530
+ Mujer     |      20 |  99.90 | 35-42  | 160 |  2960
+ Street    |      10 | 109.90 | 38-46  |  90 |  1530
+ Unisex    |      20 |  94.90 | 36-46  | 220 |  4070
+(6 filas)
+
+
+===== FIN =====

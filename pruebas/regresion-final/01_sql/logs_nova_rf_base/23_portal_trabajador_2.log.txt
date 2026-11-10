@@ -1,0 +1,62 @@
+===== Portal del trabajador =====
+BEGIN
+CREATE FUNCTION
+CREATE FUNCTION
+REVOKE
+REVOKE
+REVOKE
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+psql:<repo>/acceso-datos/sql/23_portal_trabajador.sql:242: NOTICE:  role "web_nova" has already been granted membership in role "portal_trabajador" by role "postgres"
+GRANT ROLE
+COMMIT
+
+--- Comprobacion: web_nova pasa a panel_lectura, panel_reparto y portal_trabajador, sin heredar
+        rol        | hereda_permisos | puede_set_role 
+-------------------+-----------------+----------------
+ panel_lectura     | f               | t
+ panel_reparto     | f               | t
+ portal_trabajador | f               | t
+(3 filas)
+
+
+--- Comprobacion: quien puede usar las funciones del portal (solo portal_trabajador: t)
+                                  funcion                                  | portal_trabajador | web_nova_sin_set_role | panel_lectura | panel_reparto | tienda_web | cualquiera 
+---------------------------------------------------------------------------+-------------------+-----------------------+---------------+---------------+------------+------------
+ public.avanzar_pedido_trabajador(integer, integer, character varying)     | t                 | f                     | f             | f             | f          | f
+ public.ajustar_existencias_trabajador(integer, integer, integer, integer) | t                 | f                     | f             | f             | f          | f
+(2 filas)
+
+
+--- Comprobacion: portal_trabajador no escribe en ninguna tabla (se espera 0)
+ tablas_en_las_que_escribe 
+---------------------------
+                         0
+(1 fila)
+
+
+--- Comprobacion: portal_trabajador no ve datos sensibles ni la auditoria (se esperan seis f)
+ lee_hash | lee_dni | lee_email | lee_direccion | lee_auditoria | lee_cuentas_tienda 
+----------+---------+-----------+---------------+---------------+--------------------
+ f        | f       | f         | f             | f             | f
+(1 fila)
+
+
+--- Comprobacion: las funciones son SECURITY DEFINER y fijan el search_path (se esperan dos filas t, t)
+            funcion             | security_definer | fija_search_path 
+--------------------------------+------------------+------------------
+ ajustar_existencias_trabajador | t                | t
+ avanzar_pedido_trabajador      | t                | t
+(2 filas)
+
+
+===== FIN =====

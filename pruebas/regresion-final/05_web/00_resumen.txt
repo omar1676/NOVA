@@ -1,0 +1,41 @@
+== Web en Edge (todo). Inicio: 13/11/2026 01:14:01. Edge: 157.0.4341.46 | Playwright 1.65.0
+servidor 3301 PID 29868 | Resend simulado 3398 PID 27120
+-- mejoras (13/11/2026 01:14:06)
+mejoras: 81 de 81 comprobaciones correctas
+-- interfaces (13/11/2026 01:16:05)
+interfaces: 136 de 136 comprobaciones correctas
+-- web completa (13/11/2026 01:18:51)
+web: 114 de 114 comprobaciones correctas
+parado 3301 (PID 29868)
+parado 3398 (PID 27120)
+servidor 3301 PID 13948 | Resend simulado 3398 PID 5116
+-- compra en Edge (13/11/2026 01:22:34)
+compra Edge: === compra en Edge: 139 PASS, 0 FAIL
+correos en el Resend simulado: 4 | pedidos web pagados: 4
+parado 3301 (PID 13948)
+parado 3398 (PID 5116)
+servidor 3301 PID 35496 | Resend simulado 3398 PID 2892
+-- reparto en Edge (13/11/2026 01:24:29)
+reparto Edge: === recorrido reparto y correo en Edge: 29 PASS, 0 FAIL
+parado 3301 (PID 35496)
+parado 3398 (PID 2892)
+servidor 3301 PID 32072 | Resend simulado 3398 PID 17224
+-- login unico, roles y portal en Edge (13/11/2026 01:25:46)
+portal Edge: === login unico y portal en Edge: 82 PASS, 0 FAIL
+parado 3301 (PID 32072)
+parado 3398 (PID 17224)
+servidor 3301 PID 31008 | Resend simulado 3398 PID 
+-- Ethereal REAL con datos ficticios (13/11/2026 01:32:01)
+Ethereal real: RESULTADO: 16/16 PASS
+parado 3301 (PID 31008)
+-- Ethereal simulado sin red (13/11/2026 01:32:18)
+servidor 3301 PID 33760 | Resend simulado 3398 PID 
+Ethereal sin red: PASS 5 FAIL 0
+parado 3301 (PID 33760)
+-- Ethereal simulado mudo (13/11/2026 01:32:24)
+servidor 3301 PID 31096 | Resend simulado 3398 PID 
+Ethereal mudo: PASS 5 FAIL 0
+parado 3301 (PID 31096)
+3301 y 3398 libres
+3000 sigue con el PID 31460 (no se ha tocado)
+== Fin: 13/11/2026 01:32:41

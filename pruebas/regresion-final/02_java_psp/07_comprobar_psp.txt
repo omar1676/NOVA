@@ -1,0 +1,1 @@
+ERROR: El validador no reconoce los cuatro registros CSV multilínea.

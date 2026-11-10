@@ -1,0 +1,71 @@
+# Manual de instalacion, parte 2. Inicio: 13/11/2026 01:32:52
+
+## 6. Python: entorno nuevo con requirements.txt (13/11/2026 01:32:52)
+venv -> salida 0
+pip install -r requirements.txt -> salida 0
+
+matplotlib==3.11.2
+numpy==2.5.4
+pandas==3.1.1
+scikit-learn==1.9.1
+streamlit==1.67.0
+main.py (real) -> salida 0 | Conciliación con las consultas SQL P-A, P-B y P-C de Acceso a Datos (y caso N: N-1, N-2 y N-3)   caso N: 17 de 17 cifras coinciden con SQL
+generador_datos.py -> salida 0
+main.py --modo sintetico -> salida 0
+main.py --modo sintetico-errores -> salida 1 (se espera 1) | DATOS BLOQUEADOS: hay incidencias bloqueantes. No se publica ninguna cifra.
+streamlit run app_dashboard.py (puerto 3301) responde: False | health: ok
+git status tras Python: 10 cambios (outputs, logs y .venv estan en el .gitignore; datos_sinteticos los vuelve a escribir el generador)
+ M python-analisis/datos_sinteticos/con_errores/clientes.csv
+ M python-analisis/datos_sinteticos/con_errores/lineas_pedido.csv
+ M python-analisis/datos_sinteticos/con_errores/modelos.csv
+ M python-analisis/datos_sinteticos/con_errores/pedidos.csv
+ M python-analisis/datos_sinteticos/con_errores/stock.csv
+ M python-analisis/datos_sinteticos/limpios/clientes.csv
+ M python-analisis/datos_sinteticos/limpios/lineas_pedido.csv
+ M python-analisis/datos_sinteticos/limpios/modelos.csv
+ M python-analisis/datos_sinteticos/limpios/pedidos.csv
+ M python-analisis/datos_sinteticos/limpios/stock.csv
+
+## 7. Solo la web, con un servidor estatico (13/11/2026 08:43:28)
+http.server: /interfaces/cliente/ -> 200
+
+## 7. Panel, portal y tienda con servidor-admin (13/11/2026 08:43:34)
+npm ci -> salida 0 | added 80 packages, and audited 81 packages in 3s found 0 vulnerabilities
+git status con el .env creado: 10 cambios (.env y node_modules en el .gitignore)
+npm start -> consola:
+   
+   > nova-servidor-admin@1.0.0 start
+   > node --env-file=.env servidor.js
+   
+   Panel de NOVA en http://127.0.0.1:3301
+   Tienda web en http://127.0.0.1:3301/tienda/
+   Recibos por correo sin configurar (faltan RESEND_API_KEY y RESEND_FROM en .env): no se envian
+   Portal del trabajador en http://127.0.0.1:3301/trabajador/ (script 23)
+   Conector de Odoo desactivado (faltan ODOO_URL, ODOO_DB y ODOO_API_KEY en .env): no se envía nada a Odoo
+login admin.demo -> 200 | rol administrador | destino /admin.html
+   /api/admin/dashboard con su sesion -> 200
+login taller.demo -> 200 | rol trabajador | destino /trabajador/trabajador.html
+   /api/trabajador/resumen con su sesion -> 200
+login tienda.demo -> 403 | Acceso denegado: el usuario tienda.demo (comercial) no tiene ningún panel web.
+tienda: /tienda/ -> 200 | catalogo: 106 modelos
+login.html -> 200
+parado el proceso 25164 del 3301
+
+## 9. npm test con el .env del manual (base desechable copia de nova_rf_manual) (13/11/2026 08:43:43)
+NOTICE:  database "nova_rf_manual_test" does not exist, skipping
+npm test -> salida 0 | ℹ tests 23 ℹ pass 23 ℹ fail 0 ℹ skipped 0
+git status final del clon: 10 cambios
+ M python-analisis/datos_sinteticos/con_errores/clientes.csv
+ M python-analisis/datos_sinteticos/con_errores/lineas_pedido.csv
+ M python-analisis/datos_sinteticos/con_errores/modelos.csv
+ M python-analisis/datos_sinteticos/con_errores/pedidos.csv
+ M python-analisis/datos_sinteticos/con_errores/stock.csv
+ M python-analisis/datos_sinteticos/limpios/clientes.csv
+ M python-analisis/datos_sinteticos/limpios/lineas_pedido.csv
+ M python-analisis/datos_sinteticos/limpios/modelos.csv
+ M python-analisis/datos_sinteticos/limpios/pedidos.csv
+ M python-analisis/datos_sinteticos/limpios/stock.csv
+# Fin parte 2: 13/11/2026 08:43:54
+
+13/11 08:44:22 repeticion del paso de Streamlit: / responde True en 3 s | health: ok | ultimo error: 
+Nota: la primera comprobacion de Streamlit dio False justo despues de una pausa de unas siete horas del ordenador, probablemente suspendido (los archivos de la seccion 6 saltan de las 01:40 a las 08:39 y Streamlit arranco a las 08:40); el servidor si arranco (health: ok). Repetida a las 08:44: responde en 3 s.

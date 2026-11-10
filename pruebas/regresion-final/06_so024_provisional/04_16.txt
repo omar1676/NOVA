@@ -1,0 +1,44 @@
+===== Exportacion de los cinco CSV para el dashboard =====
+BEGIN
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+
+--- Comprobaciones previas
+psql:<repo>/acceso-datos/sql/16_exportar_csv_dashboard.sql:149: NOTICE:  PASS: el total de cada pedido coincide con la suma de sus lineas.
+DO
+psql:<repo>/acceso-datos/sql/16_exportar_csv_dashboard.sql:169: NOTICE:  PASS: todas las lineas tienen modelo y talla.
+DO
+
+--- Filas que se van a exportar
+      archivo      | filas 
+-------------------+-------
+ clientes.csv      |     7
+ modelos.csv       |   108
+ pedidos.csv       |    13
+ lineas_pedido.csv |    27
+ stock.csv         |   949
+(5 filas)
+
+
+--- Exportacion
+COPY 7
+COPY 108
+COPY 13
+COPY 27
+COPY 949
+
+--- Pedido de prueba reconstruido a partir de los CSV
+ referencia |      cliente       |    modelo     | color | talla | cantidad | precio_unitario | importe_linea | total_pedido | estado_pedido 
+------------+--------------------+---------------+-------+-------+----------+-----------------+---------------+--------------+---------------
+ CUSTOM-40  | Club Atletico NOVA | NOVA Velocity | Rojo  |    40 |       10 |          119.90 |       1199.00 |      4796.00 | confirmado
+ CUSTOM-40  | Club Atletico NOVA | NOVA Velocity | Rojo  |    41 |       10 |          119.90 |       1199.00 |      4796.00 | confirmado
+ CUSTOM-40  | Club Atletico NOVA | NOVA Velocity | Rojo  |    42 |       10 |          119.90 |       1199.00 |      4796.00 | confirmado
+ CUSTOM-40  | Club Atletico NOVA | NOVA Velocity | Rojo  |    43 |       10 |          119.90 |       1199.00 |      4796.00 | confirmado
+(4 filas)
+
+COMMIT
+
+Exportacion terminada.

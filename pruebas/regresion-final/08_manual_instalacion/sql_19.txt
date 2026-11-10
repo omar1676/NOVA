@@ -1,0 +1,54 @@
+===== Usuario de conexion para el servidor del panel de administracion =====
+
+Contrasena para web_nova (la que ira en servidor-admin/.env): GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+ALTER ROLE
+GRANT ROLE
+psql:acceso-datos/sql/19_usuario_web.sql:111: NOTICE:  role "web_nova" has already been granted membership in role "panel_lectura" by role "postgres"
+
+--- Comprobacion: web_nova solo puede pasar a panel_lectura y no hereda
+        rol        | hereda_permisos | puede_set_role 
+-------------------+-----------------+----------------
+ panel_lectura     | f               | t
+ panel_reparto     | f               | t
+ portal_trabajador | f               | t
+(3 filas)
+
+
+--- Comprobacion: sin SET ROLE, web_nova no lee nada ni puede hacer login
+    (se esperan tres f)
+ lee_pedidos | lee_clientes | hace_login 
+-------------+--------------+------------
+ f           | f            | f
+(1 fila)
+
+
+--- Comprobacion: panel_lectura lee lo que necesita el panel (se esperan tres t)
+ lee_pedidos | lee_existencias | hace_login 
+-------------+-----------------+------------
+ t           | t               | t
+(1 fila)
+
+
+--- Comprobacion: panel_lectura no puede escribir en ninguna tabla de public
+    (se espera 0)
+ tablas_en_las_que_puede_escribir 
+----------------------------------
+                                0
+(1 fila)
+
+
+--- Comprobacion: panel_lectura no ve datos sensibles (se esperan cuatro f)
+ lee_hash | lee_dni | lee_direccion | lee_personalizacion 
+----------+---------+---------------+---------------------
+ f        | f       | f             | f
+(1 fila)
+
+
+===== FIN =====
