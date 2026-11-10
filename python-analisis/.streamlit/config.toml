@@ -1,0 +1,23 @@
+# Aspecto del dashboard (solo tema nativo de Streamlit, sin CSS propio).
+# Colores de la web de NOVA: tinta oscura y cobre, sobre fondo claro para leer bien las cifras.
+[theme]
+base = "light"
+primaryColor = "#9b6343"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f4f0ea"
+textColor = "#201e1d"
+borderColor = "#e5dfdc"
+headingFont = "serif"
+
+[client]
+# Sin el boton "Deploy": es un panel interno, no se publica en la nube
+toolbarMode = "viewer"
+
+[browser]
+# No enviar estadisticas de uso a Streamlit
+gatherUsageStats = false
+
+[server]
+# Solo se abre en este ordenador. Para verlo desde un movil de la misma red:
+#   streamlit run app_dashboard.py --server.address 0.0.0.0
+address = "localhost"

@@ -1,0 +1,13 @@
+regla,tabla,registro,cambio,se_espera
+02,pedidos,6,fila añadida con un id_pedido que ya existe,02 bloqueante en las dos filas; 12 advertencia de posible pedido repetido
+03,lineas_pedido,999999,"línea añadida del pedido 99999, que no existe",03 bloqueante
+10,lineas_pedido,999998,copia de la línea 81 (mismo pedido y SKU),10 advertencia en las dos líneas; 12 porque el total del pedido ya no es la suma
+04,pedidos,11,fecha_pedido: '2025-05-04 16:55:00' pasa a '2026-02-30 10:00:00',04 recuperable (fecha imposible)
+05,lineas_pedido,21,cantidad: '8' pasa a '0',05 recuperable; 12 (importe de línea y total)
+06,lineas_pedido,41,precio_unitario: '66.66' pasa a '-66.66',06 recuperable; 12 (importe de línea)
+07,pedidos,72,estado_pedido: 'entregado' pasa a 'Entregado',07 recuperable (mayúscula)
+08,lineas_pedido,61,talla: '42' pasa a '43',08 recuperable (no es la talla de su SKU)
+09,pedidos,41,id_cliente: '9' pasa a '',09 recuperable (pedido sin cliente)
+11,stock,S01-AZU-39,stock_disponible: '44' pasa a '-5',11 recuperable (stock negativo)
+12,pedidos,51,importe_total: '209.50' pasa a '219.50',12 recuperable (el total no es la suma de sus líneas)
+12,pedidos,61,fecha_pedido: '2025-06-03 09:03:00' pasa a '2027-01-15 10:00:00',12 recuperable (pedido posterior a la exportación)

@@ -1,0 +1,13 @@
+id_pedido,referencia,id_cliente,fecha_pedido,tipo_pedido,estado_pedido,estado_pago,personalizacion,cantidad_total,importe_total
+1,NOVA-0008,3,2026-11-09 19:12:52,normal,pendiente,pendiente,,1,119.90
+2,NOVA-0007,2,2026-11-09 19:12:52,normal,pendiente,pendiente,,1,79.99
+3,NOVA-0005,5,2026-11-09 19:12:52,normal,pendiente,pendiente,,1,99.99
+4,NOVA-0004,4,2026-11-09 19:12:52,normal,pendiente,pendiente,,1,109.90
+5,NOVA-0006,1,2026-11-09 19:12:52,custom,pendiente,pendiente,Colores personalizados,1,114.90
+6,NOVA-0003,3,2026-11-09 19:12:52,custom,pendiente,pendiente,Cordones personalizados,1,129.99
+7,NOVA-0002,2,2026-11-09 19:12:52,normal,pendiente,pendiente,,1,119.90
+8,NOVA-0001,1,2026-11-09 19:12:52,normal,pendiente,pendiente,,1,79.99
+9,NOVA-0010,5,2026-11-09 19:12:52,normal,pendiente,pendiente,,1,109.90
+10,NOVA-0009,4,2026-11-09 19:12:52,custom,pendiente,pendiente,Iniciales personalizadas,1,129.99
+11,NOVA-0011,6,2026-11-09 19:12:52,custom,pendiente,pendiente,Pedido de club: 40 pares repartidos en cuatro tallas,40,4796.00
+46,CUSTOM-40,6,2026-11-09 19:12:54,custom,confirmado,pendiente,Club Atletico NOVA: logo bordado y numeracion en el talon,40,4796.00
