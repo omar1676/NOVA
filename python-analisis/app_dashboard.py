@@ -25,6 +25,7 @@ import actualizacion
 import config
 import filtros
 import kpis
+import metadatos
 import pipeline
 import registro
 import visualizaciones
@@ -215,16 +216,19 @@ def anotar_descarga(archivo, filas, origen, carpeta, version, texto_filtros):
                     detalle=f"filtros: {texto_filtros}")
 
 
-def descarga(datos, nombre, c, filtrado=True):
-    """Boton para descargar la MISMA tabla que se ve, en CSV UTF-8, con su origen y sus filtros."""
+def descarga(datos, nombre, c):
+    """
+    Boton para descargar la MISMA tabla que se ve, en CSV UTF-8, con su origen, sus filtros y sus metadatos
+    (fecha de corte, funcion, reglas y filas de origen). Los filtros son solo los que se le aplican (metadatos.py).
+    """
     datos = preparar(datos)
-    if filtrado:
-        texto_filtros = c["texto_filtros"]
-    else:
-        texto_filtros = "ninguno (resultado global)"
-    archivo = f"{nombre}_{c['publicado']['tipo'].lower()}.csv"
+    publicado = c["publicado"]
+    datos_meta = metadatos.del_dashboard(nombre, len(datos), publicado["datos"], publicado["validos"], c["filtros"])
+    texto_filtros = datos_meta["filtros"]
+    archivo = f"{nombre}_{publicado['tipo'].lower()}.csv"
     st.download_button(
-        f"Descargar {nombre}.csv", pipeline.csv_descarga(datos, c["estado"]["origen"], c["ejecucion"], texto_filtros),
+        f"Descargar {nombre}.csv",
+        pipeline.csv_descarga(datos, c["estado"]["origen"], c["ejecucion"], texto_filtros, datos_meta),
         file_name=archivo, mime="text/csv", key=f"descarga_{nombre}", icon=":material/download:",
         on_click=anotar_descarga,
         args=(archivo, len(datos), c["estado"]["origen"], actualizacion.carpeta_relativa(c["estado"]["carpeta"]),
@@ -403,7 +407,7 @@ def pestana_clientes(c):
     with izquierda:
         tabla(resumen[["segmento", "clientes", "porcentaje_clientes", "recency_media_dias", "frequency_media",
                        "monetary_total", "porcentaje_importe", "significado_y_uso"]])
-        descarga(rfm, "rfm_clientes", c, filtrado=False)
+        descarga(rfm, "rfm_clientes", c)
     with derecha:
         if segmentable:
             st.markdown("**Clientes por recencia e importe**")
@@ -544,9 +548,11 @@ def pestana_calidad(c):
         tabla(afectadas)
         st.subheader("Incidencias")
         tabla(incidencias)
+        datos_meta = metadatos.fila("incidencias", len(incidencias), metadatos.fecha_corte(resultado["datos"]),
+                                    metadatos.contar(resultado["datos"]), "leídas", "ninguno")
         st.download_button("Descargar incidencias.csv",
                            pipeline.csv_descarga(incidencias, estado["origen"],
-                                                 f"{estado['comprobado']:%Y-%m-%d %H:%M:%S}", "ninguno"),
+                                                 f"{estado['comprobado']:%Y-%m-%d %H:%M:%S}", "ninguno", datos_meta),
                            file_name=f"incidencias_{estado['tipo'].lower()}.csv", mime="text/csv",
                            key="descarga_incidencias", icon=":material/download:")
     if len(resultado["rechazadas"]) > 0:
@@ -615,7 +621,7 @@ def pestana_prediccion(c):
         tabla(resultados["errores_por_modelo"])
     st.markdown("**Predicciones de los meses de evaluación**")
     tabla(resultados["predicciones"])
-    descarga(resultados["predicciones"], "predicciones", c, filtrado=False)
+    descarga(resultados["predicciones"], "predicciones", c)
     with st.expander("Coeficientes de la regresión"):
         tabla(resultados["coeficientes_regresion"])
 

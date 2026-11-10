@@ -11,8 +11,10 @@ Ejecucion por consola (fases 1 a 6).
 
 El dashboard (app_dashboard.py) usa estas mismas funciones.
 
-Cada ejecucion deja estado_ejecucion.csv con su resultado. Solo LEE la carpeta
-de entrada; los resultados van a la carpeta de salida (graficos en graficos/).
+Cada ejecucion deja estado_ejecucion.csv con su resultado y
+metadatos_dataframes.csv con la fecha de corte, las reglas, los filtros, las
+filas de origen y la funcion de cada CSV. Solo LEE la carpeta de entrada; los
+resultados van a la carpeta de salida (graficos en graficos/).
 
 Tres modos, cada uno con su entrada y su salida, para no mezclar nunca datos:
     real               entrada_acc/                     -> outputs/real/
@@ -42,6 +44,7 @@ import config
 import estadistica
 import informe
 import kpis
+import metadatos
 import pipeline
 import prediccion
 import segmentacion
@@ -89,14 +92,20 @@ def ejecutar(carpeta, salida, con_graficos=True):
     print(f"Origen:             {origen}")
     print(f"Ejecución:          {ejecucion}")
 
+    guardados = []   # (archivo, filas) de cada CSV guardado: para metadatos_dataframes.csv
+
     def guardar(tabla, archivo):
         # Una tabla con indice con nombre (una matriz) lo pasa a columna
         if tabla.index.name is not None:
             tabla = tabla.reset_index()
+        guardados.append((archivo, len(tabla)))
         return pipeline.guardar_salida(tabla, archivo, salida, carpeta, origen, ejecucion)
 
     def anotar_estado(estado, detalle):
+        # Es lo ultimo que se guarda: despues van los metadatos de todos los CSV de esta ejecucion
         guardar(pd.DataFrame([{"estado": estado, "detalle": detalle}]), "estado_ejecucion.csv")
+        pipeline.guardar_salida(metadatos.tabla(guardados, resultado["datos"], resultado["validos"]),
+                                "metadatos_dataframes.csv", salida, carpeta, origen, ejecucion)
 
     # 1. Doce reglas de calidad
     resultado = calidad.evaluar(carpeta)

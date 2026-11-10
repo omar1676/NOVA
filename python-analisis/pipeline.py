@@ -228,14 +228,19 @@ def sin_datos_personales(tabla):
     return tabla.drop(columns=[columna for columna in COLUMNAS_PERSONALES if columna in tabla.columns])
 
 
-def csv_descarga(tabla, origen, ejecucion, filtros):
+def csv_descarga(tabla, origen, ejecucion, filtros, metadatos=None):
     """
     El CSV (UTF-8, con cabecera) de una tabla del dashboard. Lleva el mismo
     linaje que guardar_salida (origen y momento del calculo) y ademas los
-    filtros con los que se ha calculado. Devuelve los bytes del archivo.
+    filtros con los que se ha calculado. Si se pasan sus metadatos (los de
+    metadatos.py), tambien la fecha de corte, la funcion, las reglas de
+    negocio y las filas de origen. Devuelve los bytes del archivo.
     """
     salida = sin_datos_personales(tabla).copy()
     salida.insert(0, "origen", origen)
     salida.insert(1, "ejecucion", ejecucion)
     salida.insert(2, "filtros", filtros)
+    if metadatos is not None:
+        for posicion, columna in enumerate(["fecha_corte", "funcion", "reglas_de_negocio", "filas_origen"], start=3):
+            salida.insert(posicion, columna, metadatos[columna])
     return salida.to_csv(index=False).encode("utf-8")

@@ -95,6 +95,16 @@ def filtrar_validos(validos, filtros):
     return filtrados
 
 
+def filtrar_stock(validos, filtros):
+    """El stock de los modelos y tallas elegidos (el periodo, el tipo, el estado y el cliente no lo cambian)."""
+    stock = validos["stock"]
+    if filtros.get("modelos"):
+        stock = stock[stock["id_modelo"].isin(ids_de_modelos(validos["modelos"], filtros["modelos"]))]
+    if filtros.get("tallas"):
+        stock = stock[stock["talla"].isin(filtros["tallas"])]
+    return stock
+
+
 def calcular_filtrado(datos, validos, filtros):
     """
     Todas las tablas de analiticas.calcular_tablas y los 20 KPIs del
@@ -116,13 +126,11 @@ def tablas_inventario(validos, tablas_completas, corte, filtros, umbral=config.U
     tablas_completas son las tablas sin filtrar (analiticas.calcular_tablas) y
     corte, la fecha de corte de la exportacion.
     """
-    stock = validos["stock"]
+    stock = filtrar_stock(validos, filtros)
     lineas = tablas_completas["lineas_enriquecidas"]
     if filtros.get("modelos"):
-        stock = stock[stock["id_modelo"].isin(ids_de_modelos(validos["modelos"], filtros["modelos"]))]
         lineas = lineas[lineas["nombre_modelo"].isin(filtros["modelos"])]
     if filtros.get("tallas"):
-        stock = stock[stock["talla"].isin(filtros["tallas"])]
         lineas = lineas[lineas["talla"].isin(filtros["tallas"])]
     # El historial (para saber si hay 28 dias de pedidos) es el de toda la exportacion
     tabla = analiticas.stock_variantes(stock, validos["modelos"], lineas, tablas_completas["pedidos_unicos"],
