@@ -48,3 +48,14 @@ Todas son del panel con los datos de la base de prueba:
 - **Bloqueo a propósito.** Como el límite cuenta por nombre de usuario, alguien que conozca un nombre puede bloquearlo 5 minutos fallando adrede.
 - **Reinicios.** Al reiniciar el servidor se olvidan las sesiones y los intentos.
 - **Lucide 1.62.0.** El cambio de versión lo tiene que revisar Álvaro.
+
+## Regresión del 13/11/2026 (árbol final)
+
+Con el código final (login único, portal del trabajador y «Marcar en reparto»), sobre bases desechables montadas desde cero con los scripts 01–23 (`../regresion-final/README.md`):
+
+- `npm test`: **23 de 23** con base desechable (22 y 1 saltada sin ella) — `../regresion-final/03_node/`.
+- Login único y roles en Edge: el administrador entra al panel, el trabajador no (403 en `/api/admin/`), el comercial no tiene panel web — **82 de 82** junto con el portal (`../regresion-final/05_web/06_edge_portal.txt`; capturas en `../portal-trabajador/capturas/`, por ejemplo `admin_tras_login.png`).
+- El panel con las compras web (dashboard, pedidos y auditoría): `../tienda/capturas-2026-11-13/panel_13_*.png` a `panel_15_*.png`.
+- «Marcar en reparto»: `../reparto-y-correo/`.
+
+Las baterías largas de este README (autenticación, seguridad, API frente a PostgreSQL, navegador) son del 11/11 y **no se han repetido**. Desde entonces han cambiado `servidor.js`, `bd.js`, `consultas.js`, `login.js` y `script.js` (login único, portal, reparto y recibos). Lo que toca al panel —el login, los roles, el botón de reparto y las páginas con las compras web— se ha probado hoy con las pruebas de arriba.

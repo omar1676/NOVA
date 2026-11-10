@@ -1,0 +1,15 @@
+Asunto: Recibo de tu pedido WEB-F056179325EF497FB9E4 · NOVA Sneakers
+Para: reparto.1794529476@example.com
+De: NOVA Sneakers <onboarding@resend.dev>
+
+Hola, Lucía Reparto:
+
+Gracias por tu compra. Este es el recibo del pedido WEB-F056179325EF497FB9E4 (13/11/2026 01:24).
+
+- NOVA Mujer Luna · Crema y rosa · talla 38 · 1 × 99,90 € = 99,90 €
+- NOVA Street Metro · Crema y azul marino · talla 41 · 1 × 109,90 € = 109,90 €
+
+Total: 209,80 €
+Dirección de entrega: Calle del Reparto 5, 3º A, Madrid
+
+Pago simulado: NOVA Sneakers es un proyecto académico y no se ha cobrado nada.

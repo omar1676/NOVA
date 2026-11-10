@@ -57,3 +57,16 @@ Escritorio a 1440×900 y móvil a 390×844, con los datos de la base de prueba:
 - Con un móvil real, con un lector de pantalla y con usuarios reales: las pruebas usan Edge simulando un móvil.
 - Firefox y Safari.
 - Una base real con historial de meses. Python avisa de que con los datos de prueba no hay meses suficientes para las series mensuales, igual que antes de la tienda.
+
+## Regresión del 13/11/2026 (árbol final)
+
+Con el código final de la rama (`integracion/candidata-2`: 100 modelos a la venta, recibo por correo, reparto y login único), sobre una base desechable montada desde cero con los scripts 01–23 (`../regresion-final/README.md`):
+
+| Prueba | Resultado | Archivo |
+|---|---|---|
+| SQL de la tienda (`tienda_web`, 100 modelos y 880 SKU) | 55 de 55 | `../regresion-final/01_sql/05_sql_tienda.txt` |
+| `npm run test:tienda` (ahora con recibos por Resend simulado y Ethereal) | 39 de 39 | `../regresion-final/03_node/03_test_tienda.txt` |
+| Compra completa en Edge, escritorio y móvil, contrastada con PostgreSQL y con el panel | 139 de 139; 4 recibos en el Resend simulado y 4 pedidos pagados | `../regresion-final/05_web/04_compra_edge.txt` |
+| Mejoras de la web (100 fichas, teclado, 11 anchos, probador, axe) | 81 de 81 | `../regresion-final/05_web/01_mejoras.txt` |
+
+Las capturas de esa compra están en `capturas-2026-11-13/` (reducidas para el repositorio): catálogo con disponibilidad, ficha, carrito, el diálogo de login de Álvaro, registro, entrega, pago simulado aceptado y rechazado, «Mis pedidos», talla agotada, compra de modelos nuevos, y el panel con las compras web (`panel_13` a `panel_15`). Las capturas de `capturas/` son del 11/11, anteriores a la integración.
