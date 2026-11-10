@@ -1,0 +1,12 @@
+===== NOVA Sneakers - PSP - 2026-11-13 00:39:12 =====
+Archivo: datos\SO024_PROVISIONAL_fabricacion.csv
+Paso 1 ValidadorPedidoCustom: codigo 0 en 0,38 s
+  OK;SO024;9;40
+Paso 2 Psp.AnalizadorTallas: codigo 0 en 0,34 s
+  OK;SO024
+  9 combinaciones de modelo, color y talla; 9 tallas; 40 pares
+Paso 3 GeneradorFichaTaller: codigo 0 en 0,41 s
+  OK;SO024
+Ficha para el taller: salidas\ficha_taller_SO024.txt
+Resultado: CORRECTO (codigo 0). Pedido SO024 procesado
+
