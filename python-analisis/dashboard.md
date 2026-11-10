@@ -101,15 +101,17 @@ En todas, el título dice qué se ve y una etiqueta indica si es **Filtrado** o
 
 ## Filtros combinados
 
-Hay cinco: **periodo** (fecha del pedido), **modelo**, **talla**, **tipo de
-pedido** y **estado del pedido**. Se combinan con Y, y un filtro vacío no
-restringe nada. «Restablecer filtros» los deja todos vacíos. Cada origen
-recuerda sus filtros, y el refresco de 60 s no los borra.
+Hay seis: **periodo** (fecha del pedido), **modelo**, **talla**, **tipo de
+pedido**, **estado del pedido** y **cliente**. El cliente se elige por su
+`id_cliente` y su tipo: el nombre no hace falta para filtrar. Se combinan con Y,
+y un filtro vacío no restringe nada. «Restablecer filtros» los deja todos
+vacíos, también el de cliente. Cada origen recuerda sus filtros, y el refresco
+de 60 s no los borra ni cambia de pestaña.
 
 Cómo se aplican (`filtros.filtrar_validos`):
 
-1. **Periodo, tipo y estado son del pedido.** Se quedan los pedidos que los
-   cumplen, con todas sus líneas. El periodo incluye el último día entero.
+1. **Periodo, tipo, estado y cliente son del pedido.** Se quedan los pedidos que
+   los cumplen, con todas sus líneas. El periodo incluye el último día entero.
 2. **Modelo y talla son de la línea.** Se quedan solo las líneas que los cumplen.
    Un pedido con líneas de varios modelos:
    - aporta solo las del modelo elegido (sus pares y su importe);
@@ -144,6 +146,16 @@ Comprobado con pruebas:
   confirmados y un ticket de 1.810,76 €. Son las cifras de
   `filtros.calcular_filtrado` en la consola, y la tabla `pedidos_unicos`
   descargada suma lo mismo.
+- **R6 · filtrado cruzado** (`test_filtrado_cruzado_R6`). Con el mismo periodo,
+  modelo y talla, se abren Dirección, Productos y Clientes. Las tarjetas, las
+  tablas de los gráficos y los CSV que se descargan en las tres pestañas suman lo
+  mismo que un filtro hecho a mano con pandas. Todas las descargas llevan la misma
+  ejecución y la misma fecha de corte: son del mismo snapshot.
+- **Los filtros y la pestaña sobreviven al refresco**
+  (`test_filtros_y_pestana_se_mantienen_al_refrescar`). Con la pestaña Productos
+  abierta y los filtros de cliente y talla puestos, llega una exportación nueva:
+  al minuto sigue la misma pestaña, con los mismos filtros, sin nada duplicado y
+  con las cifras nuevas.
 
 ## Refresco cada 60 segundos
 
@@ -220,8 +232,14 @@ Hay 10 botones con 10 tablas distintas:
 Cada archivo:
 - está en **UTF-8, con cabecera**;
 - es la **misma tabla que se ve** en pantalla, con los mismos filtros;
-- empieza por tres columnas de linaje: `origen`, `ejecucion` (momento y versión de
-  los datos) y `filtros` (o «ninguno (resultado global)»);
+- empieza por siete columnas de linaje y metadatos (`metadatos.py`):
+  - `origen` y `ejecucion` (momento y versión de los datos);
+  - `filtros`: solo los que se le aplican. El stock solo usa modelo y talla, y
+    RFM y la predicción dicen «ninguno (resultado global)»;
+  - `fecha_corte` de la exportación, `funcion` que lo genera y
+    `reglas_de_negocio`;
+  - `filas_origen`: las filas válidas de cada tabla de entrada que quedan con
+    esos filtros;
 - lleva el origen en el nombre, como `modelos_abc_sintetico.csv`;
 - **nunca lleva nombres, correos ni teléfonos de clientes**
   (`pipeline.sin_datos_personales`).
@@ -253,9 +271,9 @@ minuto.
 
 | Archivo | Pruebas | Qué cubren |
 |---|---|---|
-| `test_filtros.py` | 14 | cada filtro y los cuatro combinados contra un filtro a mano; sin filtros no cambia nada; sin duplicar pedidos ni importes; KPIs filtrados coherentes con sus tablas; filtro sin resultados; inventario con umbral; CSV descargado (UTF-8, cabecera, linaje, sin datos personales); estado de pagos |
-| `test_actualizacion.py` | 20 | primer ciclo; R1 a R5; volver a exportar lo mismo no es un cambio; CSV ausente y recuperación; CSV corrupto; clave huérfana; sin ninguna venta; avisos de exportación antigua o incompleta; no escribe en la entrada; cambio de origen sin mezclar; sintéticos con errores bloqueados; registro (un archivo, una fila por ciclo, sin rutas ni datos personales); las cinco conclusiones y su procedencia |
-| `test_dashboard.py` | 11 | `AppTest` de Streamlit ejecuta la aplicación de verdad: arranca con la exportación ACC rotulada PRUEBA; seis pestañas, todas sin errores con los tres orígenes; al menos cinco descargas; NO CALCULABLE con pocos datos; bloqueo sin cifras; cambio de origen; relectura a los 60 s (y antes no); botón «Actualizar ahora»; CSV que falta; cuatro filtros combinados que cambian las tarjetas, y restablecer |
+| `test_filtros.py` | 18 | cada filtro (también el de cliente) y los cuatro combinados contra un filtro a mano; sin filtros no cambia nada; sin duplicar pedidos ni importes; KPIs filtrados coherentes con sus tablas; filtro sin resultados; inventario con umbral; CSV descargado (UTF-8, cabecera, linaje, metadatos, sin datos personales); el stock solo con modelo y talla; cada DataFrame dice una función que existe; estado de pagos |
+| `test_actualizacion.py` | 22 | primer ciclo; R1 a R5; volver a exportar lo mismo no es un cambio; CSV ausente y recuperación; CSV corrupto; clave huérfana; sin ninguna venta; avisos de exportación antigua o incompleta; no escribe en la entrada; cambio de origen sin mezclar; sintéticos con errores bloqueados; registro (un archivo, una fila por ciclo, sin rutas ni datos personales); las cinco conclusiones y su procedencia; su prioridad, impacto esperado y sustento |
+| `test_dashboard.py` | 14 | `AppTest` de Streamlit ejecuta la aplicación de verdad: arranca con la exportación ACC rotulada PRUEBA; seis pestañas, todas sin errores con los tres orígenes; al menos cinco descargas; NO CALCULABLE con pocos datos; bloqueo sin cifras; cambio de origen; relectura a los 60 s (y antes no); botón «Actualizar ahora»; CSV que falta; cuatro filtros combinados que cambian las tarjetas, y restablecer; el filtro de cliente combinado y restablecido; filtros y pestaña que se mantienen al refrescar; R6 en tres pestañas |
 
 Para estas pruebas, `test_dashboard.py` cambia en `config` las tres carpetas y el
 registro por carpetas temporales. Al terminar las deja como estaban, así que
