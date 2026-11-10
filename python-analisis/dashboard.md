@@ -177,6 +177,10 @@ Comprobado con pruebas:
   también las opciones de los filtros. Si el periodo era el completo, se amplía
   con las fechas nuevas, para que los pedidos nuevos no queden fuera.
 - **«Actualizar ahora».** El botón de la barra lateral lanza el ciclo en el acto.
+- **Caso K: tres ciclos seguidos.** Con el dashboard abierto en Edge y sin tocar
+  nada, se ven la carga inicial y tres comprobaciones automáticas: cambia la hora
+  de cada una, el estado es «Sin cambios» y las cifras son las mismas. El registro
+  de eventos tiene una fila por ciclo (`evidencias/dashboard/caso_k_*`).
 
 ### Estados
 
