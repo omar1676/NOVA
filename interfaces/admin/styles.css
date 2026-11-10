@@ -647,3 +647,99 @@
 .adm-historial {
   margin-top: 24px;
 }
+
+.adm-contenido {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .adm {
+    flex-direction: column;
+  }
+
+  .adm-sidebar {
+    width: 100%;
+    min-height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--adm-borde);
+    padding: 12px 16px;
+  }
+
+  .adm-marca {
+    margin-bottom: 10px;
+  }
+
+  .adm-marca img {
+    max-width: 120px;
+  }
+
+  .adm-menu {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+  }
+
+  .adm-menu a {
+    flex-shrink: 0;
+    margin-bottom: 0;
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  .adm-contenido {
+    padding: 16px;
+  }
+
+  .adm-contenido h1 {
+    font-size: 24px;
+  }
+
+  .adm-tarjetas,
+  .adm-resumen {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .adm-fila,
+  .adm-fila-igual,
+  .adm-ajustes {
+    grid-template-columns: 1fr;
+  }
+
+  .adm-panel {
+    overflow-x: auto;
+  }
+
+  .adm-tabla {
+    min-width: 560px;
+  }
+
+  .adm-herramientas {
+    flex-direction: column;
+  }
+
+  .adm-kanban {
+    grid-template-columns: 1fr;
+  }
+
+  .adm-acciones {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .adm-tarjeta {
+    padding: 14px;
+  }
+
+  .adm-tarjeta strong {
+    font-size: 22px;
+  }
+
+  .adm-barra-nombre {
+    width: 110px;
+  }
+
+  .adm-boton {
+    flex: 1;
+  }
+} 
