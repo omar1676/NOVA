@@ -1,12 +1,13 @@
 """
 Filtros combinables (apartados 6.12 y 6.16), para el dashboard y la consola.
 
-Cinco filtros: periodo, modelo, talla, tipo de pedido y estado del pedido.
-Un filtro vacio (None o lista vacia) no restringe nada.
+Seis filtros: periodo, modelo, talla, tipo de pedido, estado del pedido y
+cliente (su id_cliente). Un filtro vacio (None o lista vacia) no restringe nada.
 
 Como se aplican:
-- El periodo, el tipo y el estado son datos del PEDIDO: se quedan los pedidos
-  que los cumplen, con todas sus lineas. El periodo incluye el dia final entero.
+- El periodo, el tipo, el estado y el cliente son datos del PEDIDO: se quedan
+  los pedidos que los cumplen, con todas sus lineas. El periodo incluye el dia
+  final entero.
 - El modelo y la talla son datos de la LINEA: se quedan solo las lineas que
   los cumplen. Un pedido con lineas de varios modelos aporta solo las del
   modelo elegido (sus pares y su importe) y cuenta UNA vez si tiene al menos
@@ -25,7 +26,7 @@ import analiticas
 import config
 import kpis
 
-SIN_FILTROS = {"desde": None, "hasta": None, "modelos": [], "tallas": [], "tipos": [], "estados": []}
+SIN_FILTROS = {"desde": None, "hasta": None, "modelos": [], "tallas": [], "tipos": [], "estados": [], "clientes": []}
 
 
 def hay_filtros(filtros):
@@ -43,7 +44,7 @@ def describir(filtros):
         desde = filtros.get("desde") or "inicio"
         hasta = filtros.get("hasta") or "fin"
         partes.append(f"periodo {desde} a {hasta}")
-    nombres = {"modelos": "modelo", "tallas": "talla", "tipos": "tipo", "estados": "estado"}
+    nombres = {"modelos": "modelo", "tallas": "talla", "tipos": "tipo", "estados": "estado", "clientes": "cliente"}
     for clave, nombre in nombres.items():
         if filtros.get(clave):
             valores = [str(valor) for valor in filtros[clave]]
@@ -77,6 +78,8 @@ def filtrar_validos(validos, filtros):
         pedidos = pedidos[pedidos["tipo_pedido"].isin(filtros["tipos"])]
     if filtros.get("estados"):
         pedidos = pedidos[pedidos["estado_pedido"].isin(filtros["estados"])]
+    if filtros.get("clientes"):
+        pedidos = pedidos[pedidos["id_cliente"].isin(filtros["clientes"])]
     lineas = lineas[lineas["id_pedido"].isin(pedidos["id_pedido"])]
 
     # 2. Condiciones de la linea

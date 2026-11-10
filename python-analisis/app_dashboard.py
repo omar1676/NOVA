@@ -79,18 +79,18 @@ def actualizar(nombre, operacion=None):
 
 def restablecer_filtros(sufijo, primero, ultimo):
     st.session_state[f"periodo_{sufijo}"] = (primero, ultimo)
-    for nombre in ["modelos", "tallas", "tipos", "estados"]:
+    for nombre in ["modelos", "tallas", "tipos", "estados", "clientes"]:
         st.session_state[f"{nombre}_{sufijo}"] = []
 
 
-def lista_filtro(etiqueta, opciones, clave):
+def lista_filtro(etiqueta, opciones, clave, format_func=str):
     """Un filtro de varias opciones. Quita de lo elegido lo que ya no existe (tras una exportacion nueva)."""
     st.session_state[clave] = [valor for valor in st.session_state.get(clave, []) if valor in opciones]
-    return st.multiselect(etiqueta, opciones, key=clave, placeholder="Todos")
+    return st.multiselect(etiqueta, opciones, key=clave, placeholder="Todos", format_func=format_func)
 
 
 def elegir_filtros(nombre, estado):
-    """Los cinco filtros. Cada origen recuerda los suyos (clave con su numero)."""
+    """Los seis filtros. Cada origen recuerda los suyos (clave con su numero)."""
     st.subheader("Filtros")
     publicado = estado["publicado"]
     if publicado is None or len(publicado["validos"]["pedidos"]) == 0:
@@ -124,6 +124,11 @@ def elegir_filtros(nombre, estado):
     for talla in lineas["talla"].dropna().unique():
         tallas.append(int(talla))
     tallas.sort()
+    # Clientes con algun pedido, por su id y su tipo: el nombre no hace falta para filtrar.
+    # Los id son texto: ordenar por longitud y despues por texto pone el 2 antes que el 10
+    clientes = publicado["validos"]["clientes"]
+    tipo_cliente = dict(zip(clientes["id_cliente"], clientes["tipo"]))
+    ids_clientes = sorted(pedidos["id_cliente"].dropna().unique(), key=lambda valor: (len(valor), valor))
     elegidos = {
         "desde": None,
         "hasta": None,
@@ -131,6 +136,8 @@ def elegir_filtros(nombre, estado):
         "tallas": lista_filtro("Talla", tallas, f"tallas_{sufijo}"),
         "tipos": lista_filtro("Tipo de pedido", config.TIPOS_PEDIDO, f"tipos_{sufijo}"),
         "estados": lista_filtro("Estado del pedido", config.ESTADOS_PEDIDO, f"estados_{sufijo}"),
+        "clientes": lista_filtro("Cliente", ids_clientes, f"clientes_{sufijo}",
+                                 format_func=lambda valor: f"{valor} · {tipo_cliente.get(valor, '')}"),
     }
     # El periodo solo filtra si no es el completo (y cuando ya se han elegido las dos fechas)
     if len(periodo) == 2 and (periodo[0] > primero or periodo[1] < ultimo):

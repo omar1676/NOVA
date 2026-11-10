@@ -8,11 +8,15 @@ estas pruebas se cambian en config (AppTest ejecuta la app en este mismo
 proceso) y al terminar se dejan como estaban. Nunca se tocan entrada_acc/,
 datos_sinteticos/ ni logs/.
 """
+import io
 import tempfile
 import unittest
 from datetime import date, timedelta
 from pathlib import Path
+from unittest import mock
 
+import pandas as pd
+import streamlit as st
 from streamlit.testing.v1 import AppTest
 
 import calidad
@@ -212,6 +216,147 @@ class PruebasFiltros(PruebaApp):
 
         app.sidebar.button[1].click().run()                          # Restablecer filtros
         self.assertEqual(self.tarjetas(app)["Pedidos registrados"], "900")
+
+    def test_filtro_de_cliente_combinado_y_restablecer(self):
+        resultado = calidad.evaluar(self.limpios)
+        pedidos = resultado["validos"]["pedidos"]
+        cliente = pedidos.loc[pedidos["tipo_pedido"] == "custom", "id_cliente"].value_counts().index[0]
+        app = self.abrir("sinteticos")
+        app.sidebar.multiselect(key="clientes_1").set_value([cliente])
+        app.sidebar.multiselect(key="tipos_1").set_value(["custom"])
+        app.run()
+        elegidos = {**filtros.SIN_FILTROS, "clientes": [cliente], "tipos": ["custom"]}
+        esperados = filtros.calcular_filtrado(resultado["datos"], resultado["validos"], elegidos)["kpis"]
+        valor = dict(zip(esperados["codigo"], esperados["valor"]))
+        suyos = pedidos[(pedidos["id_cliente"] == cliente) & (pedidos["tipo_pedido"] == "custom")]
+        self.assertEqual(valor["K01"], len(suyos))
+        self.assertEqual(self.tarjetas(app)["Pedidos registrados"], numero(len(suyos)))
+        self.assertEqual(self.tarjetas(app)["Importe confirmado"], f"{numero(valor['K07'], 2)} €")
+        self.assertIn(f"{len(suyos)} de 900 pedidos registrados", self.textos(app.caption))
+
+        app.sidebar.button[1].click().run()                          # Restablecer filtros: tambien el cliente
+        self.assertEqual(app.sidebar.multiselect(key="clientes_1").value, [])
+        self.assertEqual(app.sidebar.multiselect(key="tipos_1").value, [])
+        self.assertEqual(self.tarjetas(app)["Pedidos registrados"], "900")
+
+    def test_filtros_y_pestana_se_mantienen_al_refrescar(self):
+        app = self.abrir("acc", "Productos")
+        app.sidebar.multiselect(key="clientes_0").set_value(["1"])
+        app.sidebar.multiselect(key="tallas_0").set_value([40])
+        app.run()
+        self.assertEqual(self.pares_abc(app), {"Modelo Uno": 1, "Modelo Dos": 0})    # P-1, talla 40
+        # Acceso a Datos exporta un pedido nuevo del cliente 1 con el dashboard abierto
+        (self.acc / "pedidos.csv").write_text(VALIDOS["pedidos.csv"] + PEDIDO_NUEVO, encoding="utf-8", newline="")
+        (self.acc / "lineas_pedido.csv").write_text(VALIDOS["lineas_pedido.csv"] + LINEAS_NUEVAS, encoding="utf-8",
+                                                     newline="")
+        self.pasar_un_minuto(app)
+        app.run()                                                    # refresco de 60 s con datos nuevos
+        self.assertEqual(self.tarjetas(app)["Estado"], "Correcto")
+        # La misma pestana y los mismos filtros, y las cifras ya son las de la exportacion nueva
+        self.assertEqual(app.session_state["pestana"], "Productos")
+        titulos = [titulo.value for titulo in app.subheader]
+        self.assertIn("Ranking de modelos y clasificación ABC", titulos)
+        self.assertNotIn("Indicadores principales", titulos)
+        self.assertEqual(app.sidebar.multiselect(key="clientes_0").value, ["1"])
+        self.assertEqual(app.sidebar.multiselect(key="tallas_0").value, [40])
+        self.assertEqual(self.pares_abc(app), {"Modelo Uno": 2, "Modelo Dos": 0})    # P-1 y P-3
+        # Sin duplicar nada: un solo ranking y un solo boton de restablecer
+        self.assertEqual(titulos.count("Ranking de modelos y clasificación ABC"), 1)
+        self.assertEqual([boton.label for boton in app.sidebar.button].count("Restablecer filtros"), 1)
+
+    def pares_abc(self, app):
+        """Pares por modelo de la tabla ABC de la pestana Productos."""
+        for tabla in app.dataframe:
+            datos = tabla.value
+            if "clase_abc" in datos.columns:
+                return dict(zip(datos["nombre_modelo"], datos["pares"]))
+        self.fail("no está la tabla ABC")
+
+    def test_filtrado_cruzado_R6(self):
+        """
+        R6: mismo periodo, modelo y talla en varias vistas (Direccion, Productos y Clientes). Las tarjetas, las
+        tablas de los graficos, los CSV descargados y su suma dicen lo mismo, y todo es del mismo snapshot.
+        """
+        app = self.abrir("sinteticos")
+        app.sidebar.date_input(key="periodo_1").set_value((date(2026, 1, 1), date(2026, 6, 30)))
+        app.sidebar.multiselect(key="modelos_1").set_value(["SINT Runner"])
+        app.sidebar.multiselect(key="tallas_1").set_value([42])
+        # Se guarda lo que el dashboard entrega en cada boton de descarga
+        descargas = {}
+        boton_real = st.download_button
+
+        def boton_que_guarda(etiqueta, datos, *args, **opciones):
+            descargas[opciones["file_name"]] = pd.read_csv(io.BytesIO(datos), encoding="utf-8")
+            return boton_real(etiqueta, datos, *args, **opciones)
+
+        tablas_graficos = {}
+        with mock.patch.object(st, "download_button", boton_que_guarda):
+            app.run()                                                # Direccion
+            tarjetas = self.tarjetas(app)
+            for pestana in ["Productos", "Clientes"]:
+                tablas_graficos.update(self.tablas_de_graficos(app))
+                app.session_state["pestana"] = pestana
+                app.run()
+                self.assertEqual(len(app.exception), 0)
+                self.assertEqual(app.session_state["pestana"], pestana)
+            tablas_graficos.update(self.tablas_de_graficos(app))
+
+        # Lo que tiene que salir, calculado aparte con pandas sobre las lineas validas
+        resultado = calidad.evaluar(self.limpios)
+        lineas = filtros.calcular_filtrado(resultado["datos"], resultado["validos"], filtros.SIN_FILTROS)[
+            "lineas_enriquecidas"]
+        elegidas = lineas[(lineas["fecha_pedido"] >= "2026-01-01") & (lineas["fecha_pedido"] < "2026-07-01")
+                          & (lineas["nombre_modelo"] == "SINT Runner") & (lineas["talla"] == 42)]
+        pares = int(elegidas.loc[~elegidas["es_cancelado"], "cantidad"].sum())
+        venta = elegidas[elegidas["estado_pedido"].isin(config.ESTADOS_CONFIRMADOS)]
+        importe = round(float(venta["importe_linea"].sum()), 2)
+        pedidos = elegidas["id_pedido"].nunique()
+        self.assertGreater(pares, 0)
+
+        # 1. Tarjetas de Direccion
+        self.assertEqual(tarjetas["Pedidos registrados"], numero(pedidos))
+        self.assertEqual(tarjetas["Pares solicitados"], numero(pares))
+        self.assertEqual(tarjetas["Importe confirmado"], f"{numero(importe, 2)} €")
+        # 2. Tablas de los graficos (lo que dibuja cada uno)
+        self.assertEqual(int(tablas_graficos["evolucion"].drop(columns="nombre_modelo").to_numpy().sum()), pares)
+        self.assertEqual(int(tablas_graficos["tallas"]["pares"].sum()), pares)
+        self.assertEqual(set(tablas_graficos["tallas"]["talla"]), {42})
+        self.assertAlmostEqual(float(tablas_graficos["meses"]["importe"].sum()), importe, places=2)
+        # 3. CSV descargados en las tres pestanas y su suma
+        ventas = descargas["ventas_por_periodo_sintetico.csv"]
+        self.assertAlmostEqual(float(ventas["importe"].sum()), importe, places=2)
+        unicos = descargas["pedidos_unicos_sintetico.csv"]
+        self.assertEqual(len(unicos), pedidos)
+        self.assertEqual(int(unicos.loc[unicos["estado_pedido"] != "cancelado", "pares"].sum()), pares)
+        abc = descargas["modelos_abc_sintetico.csv"].set_index("nombre_modelo")
+        self.assertEqual(int(abc["pares"].sum()), pares)
+        self.assertEqual(int(abc.loc["SINT Runner", "pares"]), pares)
+        matriz = descargas["matriz_modelo_talla_sintetico.csv"]
+        self.assertEqual(int(matriz["42"].sum()), pares)
+        clientes = descargas["clientes_actividad_sintetico.csv"]
+        self.assertEqual(int(clientes["pares_demanda"].sum()), pares)
+        self.assertAlmostEqual(float(clientes["importe_venta"].sum()), importe, places=2)
+        self.assertEqual(int(clientes["pedidos_registrados"].sum()), pedidos)
+        # 4. Todas las descargas son del mismo snapshot; las filtradas llevan los mismos filtros y RFM dice que es global
+        juntas = pd.concat(descargas.values())
+        self.assertEqual(juntas["ejecucion"].nunique(), 1)
+        self.assertEqual(juntas["fecha_corte"].nunique(), 1)
+        for tabla in [ventas, unicos, descargas["modelos_abc_sintetico.csv"], matriz, clientes]:
+            self.assertEqual(set(tabla["filtros"]), {"periodo 2026-01-01 a 2026-06-30 · modelo: SINT Runner · talla: 42"})
+        self.assertEqual(set(descargas["rfm_clientes_sintetico.csv"]["filtros"]), {"ninguno (resultado global)"})
+
+    def tablas_de_graficos(self, app):
+        """Las tablas que hay debajo de los graficos de la pestana abierta, reconocidas por sus columnas."""
+        encontradas = {}
+        for tabla in app.dataframe:
+            datos = tabla.value
+            if "nombre_modelo" in datos.columns and any(str(columna).startswith("20") for columna in datos.columns):
+                encontradas["evolucion"] = datos                     # matriz modelo x mes del grafico de evolucion
+            elif list(datos.columns[:2]) == ["talla", "pares"]:
+                encontradas["tallas"] = datos                        # grafico de pares por talla
+            elif list(datos.columns[:2]) == ["anio_mes", "pedidos"]:
+                encontradas["meses"] = datos                         # importe confirmado por mes
+        return encontradas
 
 
 if __name__ == "__main__":
