@@ -14,7 +14,7 @@ PASS 2 Nuevo pedido: clientes y modelo-color -> 6 clientes, 12 modelo-color (SQL
 PASS 3 sin filtros salen todos -> 12 filas, SQL 12 | etiqueta: 12 pedidos.
 PASS 3 filtros cliente + estado -> 2 filas, SQL 2 (cliente 1, pendiente)
 PASS 6 CSV = tabla filtrada (cabecera y celdas) -> 2 filas exportadas a N:\NOVA\salidas\consulta_pedidos.csv
-PASS 3 tres filtros: modelo + desde + hasta -> 4 filas, SQL 4 (2026-11-09 a 2026-11-09)
+PASS 3 tres filtros: modelo + desde + hasta -> 4 filas, SQL 4 (2026-11-13 a 2026-11-13)
 PASS 3 consulta sin resultados -> 0 filas | etiqueta: No hay pedidos con esos filtros.
 PASS 3 Limpiar filtros vacía los filtros y vuelve a buscar -> 12 filas, SQL 12
 PASS 7 fecha mal escrita -> Las fechas se escriben AAAA-MM-DD, por ejemplo 2026-11-09
@@ -42,7 +42,7 @@ PASS 2 Nuevo pedido: clientes y modelo-color -> 6 clientes, 12 modelo-color (SQL
 PASS 3 sin filtros salen todos -> 12 filas, SQL 12 | etiqueta: 12 pedidos.
 PASS 3 filtros cliente + estado -> 2 filas, SQL 2 (cliente 1, pendiente)
 PASS 6 CSV = tabla filtrada (cabecera y celdas) -> 2 filas exportadas a N:\NOVA\salidas\consulta_pedidos.csv
-PASS 3 tres filtros: modelo + desde + hasta -> 4 filas, SQL 4 (2026-11-09 a 2026-11-09)
+PASS 3 tres filtros: modelo + desde + hasta -> 4 filas, SQL 4 (2026-11-13 a 2026-11-13)
 PASS 3 consulta sin resultados -> 0 filas | etiqueta: No hay pedidos con esos filtros.
 PASS 3 Limpiar filtros vacía los filtros y vuelve a buscar -> 12 filas, SQL 12
 PASS 7 fecha mal escrita -> Las fechas se escriben AAAA-MM-DD, por ejemplo 2026-11-09
@@ -66,7 +66,7 @@ PASS 2 filtro Modelo: (todos) + modelos -> 8 elementos, SQL 7 + 1
 PASS 3 sin filtros salen todos -> 12 filas, SQL 12 | etiqueta: 12 pedidos.
 PASS 3 filtros cliente + estado -> 2 filas, SQL 2 (cliente 1, pendiente)
 PASS 6 CSV = tabla filtrada (cabecera y celdas) -> 2 filas exportadas a N:\NOVA\salidas\consulta_pedidos.csv
-PASS 3 tres filtros: modelo + desde + hasta -> 4 filas, SQL 4 (2026-11-09 a 2026-11-09)
+PASS 3 tres filtros: modelo + desde + hasta -> 4 filas, SQL 4 (2026-11-13 a 2026-11-13)
 PASS 3 consulta sin resultados -> 0 filas | etiqueta: No hay pedidos con esos filtros.
 PASS 3 Limpiar filtros vacía los filtros y vuelve a buscar -> 12 filas, SQL 12
 PASS 7 fecha mal escrita -> Las fechas se escriben AAAA-MM-DD, por ejemplo 2026-11-09
@@ -84,16 +84,16 @@ PASS 1 cerrar sesión vuelve al login -> ventana de login abierta
 --- TXT de actividad
 PASS TXT registra lo hecho en las ventanas -> 51 líneas nuevas
 PASS TXT sin contraseñas -> ninguna contraseña escrita
-   2026-11-09 19:16:07 | admin.demo | administrador | INDICADORES | correcto | umbral de stock 10, 0 referencias bajo el umbral
-   2026-11-09 19:16:08 | admin.demo | administrador | INDICADORES | correcto | umbral de stock 25, 60 referencias bajo el umbral
-   2026-11-09 19:16:10 | admin.demo | administrador | INDICADORES | correcto | umbral de stock 0, 0 referencias bajo el umbral
-   2026-11-09 19:16:13 | admin.demo | administrador | CREAR PEDIDO | rechazado | referencia GUI-TALLA-72992, 1 lineas; No existe la talla 38 para ese modelo y color
-   2026-11-09 19:16:22 | tienda.demo | comercial | INDICADORES | correcto | umbral de stock 10, 0 referencias bajo el umbral
-   2026-11-09 19:16:22 | tienda.demo | comercial | INDICADORES | correcto | umbral de stock 25, 60 referencias bajo el umbral
-   2026-11-09 19:16:25 | tienda.demo | comercial | INDICADORES | correcto | umbral de stock 0, 0 referencias bajo el umbral
-   2026-11-09 19:16:33 | taller.demo | trabajador | INDICADORES | correcto | umbral de stock 10, 0 referencias bajo el umbral
-   2026-11-09 19:16:33 | taller.demo | trabajador | INDICADORES | correcto | umbral de stock 25, 60 referencias bajo el umbral
-   2026-11-09 19:16:35 | taller.demo | trabajador | INDICADORES | correcto | umbral de stock 0, 0 referencias bajo el umbral
+   2026-11-13 00:37:09 | admin.demo | administrador | INDICADORES | correcto | umbral de stock 10, 0 referencias bajo el umbral
+   2026-11-13 00:37:09 | admin.demo | administrador | INDICADORES | correcto | umbral de stock 25, 60 referencias bajo el umbral
+   2026-11-13 00:37:12 | admin.demo | administrador | INDICADORES | correcto | umbral de stock 0, 0 referencias bajo el umbral
+   2026-11-13 00:37:15 | admin.demo | administrador | CREAR PEDIDO | rechazado | referencia GUI-TALLA-34540, 1 lineas; No existe la talla 38 para ese modelo y color
+   2026-11-13 00:37:24 | tienda.demo | comercial | INDICADORES | correcto | umbral de stock 10, 0 referencias bajo el umbral
+   2026-11-13 00:37:25 | tienda.demo | comercial | INDICADORES | correcto | umbral de stock 25, 60 referencias bajo el umbral
+   2026-11-13 00:37:27 | tienda.demo | comercial | INDICADORES | correcto | umbral de stock 0, 0 referencias bajo el umbral
+   2026-11-13 00:37:35 | taller.demo | trabajador | INDICADORES | correcto | umbral de stock 10, 0 referencias bajo el umbral
+   2026-11-13 00:37:36 | taller.demo | trabajador | INDICADORES | correcto | umbral de stock 25, 60 referencias bajo el umbral
+   2026-11-13 00:37:38 | taller.demo | trabajador | INDICADORES | correcto | umbral de stock 0, 0 referencias bajo el umbral
 
 RESULTADO PRUEBA VISUAL: 76 PASS, 0 FAIL. Capturas: 17
 

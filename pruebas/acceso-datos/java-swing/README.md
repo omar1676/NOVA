@@ -1,15 +1,21 @@
 # Evidencias de la aplicación Java Swing (Acceso a Datos)
 
-Capturas de la aplicación de `acceso-datos/java` tomadas el 9 de noviembre de 2026.
+Capturas de la aplicación de `acceso-datos/java` tomadas el 9 de noviembre de 2026 y
+**repetidas el 13 de noviembre de 2026 sobre la versión candidata** (rama
+`integracion/candidata-2`): 76 PASS y 0 FAIL con la base, más 1 PASS sin conexión.
+Las capturas de ahora sustituyen a las del 9/11; solo cambian la 06 y la 10, por la
+fecha de los pedidos y de la auditoría. Se añade la 19 (la tabla después de «Limpiar
+filtros»).
 
-- **Base de datos:** una base de prueba reconstruida desde cero con los scripts de
-  `acceso-datos/sql`, no la base real. Los usuarios son los de demostración
+- **Base de datos:** una base de prueba reconstruida desde cero con los scripts 1–17
+  de `acceso-datos/sql`, no la base real. Los usuarios son los de demostración
   (`admin.demo`, `tienda.demo` y `taller.demo`) y los clientes son los ficticios de
   `05_datos_prueba.sql`.
 - **Cómo se hicieron:** un programa de prueba abrió la aplicación real
   (`VentanaLogin`), escribió en los campos y pulsó los botones con los tres roles.
   Comparó lo que salía en pantalla con consultas SQL: 77 comprobaciones, todas PASS
-  (`resultado-prueba-ventanas.txt`).
+  (`resultado-prueba-ventanas.txt`). El programa de prueba no está en el repositorio:
+  es una herramienta de la prueba, no de la aplicación.
 - **Qué se ve:** cada captura es la ventana de la aplicación, sin la barra de Windows.
 - **La ruta `N:\NOVA`** es una unidad virtual que solo se usó para la prueba, para que
   la captura del CSV no enseñe carpetas personales.
@@ -23,6 +29,7 @@ Capturas de la aplicación de `acceso-datos/java` tomadas el 9 de noviembre de 2
 | 3.7 Mensaje comprensible cuando la base rechaza una operación | 14 (talla que no existe), 16 (permiso denegado) |
 | 3.7 Consulta visual con «Buscar / Consultar» y tabla legible | 06 |
 | 3.7 Tres filtros combinables | 06 (cliente + estado), 08 (modelo + desde + hasta) |
+| 3.7 «Limpiar filtros» y consulta sin filtros | 19 (los filtros vacíos y los 12 pedidos) |
 | 3.7 Resultado vacío | 08 («No hay pedidos con esos filtros.») |
 | 3.7 Error de conexión | 18 |
 | 3.7 Consulta incorrecta | 09 (fecha mal escrita) |
@@ -31,12 +38,13 @@ Capturas de la aplicación de `acceso-datos/java` tomadas el 9 de noviembre de 2
 | 3.8 Un usuario de prueba por rol | 04 (administrador), 15 (comercial), 17 (trabajador) |
 | 3.8 Operación denegada | 16 |
 | 3.8 Usuario y hora en `log_eventos` | 10 (auditoría vista por el administrador) |
-| 3.9 Prueba E (sin filtros, filtros combinados) | 06, 08 |
+| 3.9 Prueba E (sin filtros, filtros combinados) | 19, 06, 08 |
 | 3.9 Prueba F (búsqueda sin resultados y perfil sin permiso) | 08, 16 |
 | 3.12 Panel de indicadores calculado en PostgreSQL | 11 |
 | 3.12 Análisis por modelo y talla | 11 («Modelos más solicitados» y «Pares por talla») |
 | 3.12 Stock bajo con umbral configurable, ordenado | 11 (umbral 10, sin resultados y con aviso), 12 (umbral 25), 13 (umbral negativo rechazado) |
-| 3.12 CSV de la consulta filtrada | 06 (2 pedidos en la tabla) y 07 (2 filas exportadas) |
+| 3.12 CSV de la consulta filtrada | 06 (2 pedidos en la tabla), 07 (2 filas exportadas) y el propio CSV, `consulta_pedidos-exportada-captura-07.csv` |
+| 3.10 TXT de actividad: las líneas nuevas | `actividad_sneaker-prueba-ventanas.txt`: las 52 líneas que escribió la aplicación durante la prueba (inicios de sesión, consultas, «Limpiar filtros», indicadores, rechazos y cierres de sesión), sin ninguna contraseña |
 | 3.13 Prueba J (indicadores y CSV comparados con SQL) | 11, 12 y 07; la comparación está en `resultado-prueba-ventanas.txt` |
 
 ## Lista de capturas
@@ -61,6 +69,7 @@ Capturas de la aplicación de `acceso-datos/java` tomadas el 9 de noviembre de 2
 | 16-auditoria-denegada-comercial | El comercial pulsa «Ver auditoría» y recibe «Acceso denegado» |
 | 17-taller.demo-inicio | Trabajador: solo Consultas e Indicadores |
 | 18-error-conexion | Sin PostgreSQL: mensaje de error de conexión |
+| 19-admin.demo-tras-limpiar-filtros | Después de «Limpiar filtros»: los filtros vacíos y los 12 pedidos (13/11) |
 
 ## Lo que todavía no tiene captura
 
@@ -71,8 +80,8 @@ hacerlas a mano en la demostración:
   pares), ver su detalle y confirmarlo.
 - **Pruebas B y C:** confirmar sin stock y cancelar un pedido confirmado.
 - **Prueba D:** el ROLLBACK, que se enseña con SQL.
-- **«Limpiar filtros»:** la tabla después de pulsarlo.
-- **3.10 y prueba G:** `actividad_sneaker.txt` con las líneas nuevas después de tres consultas.
+- **3.10 y prueba G:** la captura de `actividad_sneaker.txt` abierto. El archivo de la
+  prueba está en esta carpeta, y el de `PruebasRubrica`, en `../java-pruebas-rubrica/`.
 - **3.11 y prueba I:** la pestaña Usuarios (crear y desactivar), `usuarios_sneaker.json` y la
   exportación denegada al comercial.
-- **El CSV abierto,** para ver su contenido.
+- **El CSV abierto** en un editor. El archivo exportado está en esta carpeta.
