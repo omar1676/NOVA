@@ -239,6 +239,38 @@ class PruebasInforme(PruebaCiclo):
         metricas = publicado["prediccion"]["metricas_prediccion"].set_index("metodo")
         self.assertIn(f"MAE {informe.numero(metricas.loc['baseline', 'mae'], 2)}", conclusiones["evidencia"][4])
 
+    def test_prioridad_impacto_y_sustento(self):
+        with tempfile.TemporaryDirectory() as temporal:
+            sinteticos = generador_datos.guardar(generador_datos.generar(config.SEMILLA), Path(temporal), "test")
+            publicado = actualizacion.ciclo(sinteticos, None, "prueba", self.archivo_registro)["publicado"]
+        conclusiones = publicado["informe"]
+        # Las columnas de antes no cambian de sitio; las nuevas van al final
+        self.assertEqual(list(conclusiones.columns)[-4:], ["prioridad", "urgencia", "impacto_esperado", "sustento"])
+        self.assertEqual(sorted(conclusiones["prioridad"]), [1, 2, 3, 4, 5])
+        # Criterio: primero la urgencia (alta, media, baja) y, con la misma, el numero
+        orden = conclusiones.sort_values("prioridad")
+        claves = [(informe.URGENCIAS[urgencia], numero_) for urgencia, numero_ in zip(orden["urgencia"], orden["numero"])]
+        self.assertEqual(claves, sorted(claves))
+        por_numero = conclusiones.set_index("numero")
+        stock = publicado["tablas"]["stock_variantes"]
+        en_riesgo = stock[stock["alerta_stock_bajo"] & (stock["demanda_28d"] > 0)]
+        self.assertGreater(len(en_riesgo), 0)
+        self.assertEqual(por_numero.loc[4, "urgencia"], "alta")       # hay SKU que se pueden agotar
+        self.assertIn(f"{len(en_riesgo)} SKU", por_numero.loc[4, "impacto_esperado"])
+        custom = publicado["tablas"]["custom_vs_estandar"].set_index("tipo_pedido").loc["custom"]
+        self.assertIn(f"{informe.numero(custom['cuota_pares_pct'], 1)} % de los pares", por_numero.loc[2, "impacto_esperado"])
+        for _, fila in por_numero.iterrows():
+            self.assertGreater(len(fila["impacto_esperado"]), 20)
+            self.assertIn(".csv", fila["sustento"])                     # la tabla que la sustenta
+
+    def test_sin_datos_la_urgencia_es_baja(self):
+        self.escribir(config.ARCHIVO_ORIGEN, "Tipo: PRUEBA\nbase de prueba\n")
+        conclusiones = self.ciclo()["publicado"]["informe"].set_index("numero")
+        sin_datos = conclusiones[~conclusiones["calculable"]]
+        self.assertGreater(len(sin_datos), 0)
+        self.assertEqual(set(sin_datos["urgencia"]), {"baja"})
+        self.assertTrue(sin_datos["impacto_esperado"].str.startswith("Ninguno todavía").all())
+
     def test_datos_de_prueba_se_dicen_de_prueba(self):
         self.escribir(config.ARCHIVO_ORIGEN, "Tipo: PRUEBA\nbase de prueba\n")
         conclusiones = self.ciclo()["publicado"]["informe"]
