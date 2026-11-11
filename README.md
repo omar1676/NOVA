@@ -13,27 +13,65 @@ Proyecto intermodular de 2.º DAM (Omar, Álvaro y Berme): una marca de zapatill
 | Odoo | **PENDIENTE (Berme).** No hay ninguna evidencia en el repositorio |
 | SO024 | **PROVISIONAL.** Faltan los 7 datos que tienen que acordar los tres (`06_Intermodular/SO024/caso-comun-SO024.md`) |
 
-## Estructura
+## Estructura: una carpeta por asignatura
 
-| Carpeta | Contenido |
+Cada asignatura tiene su carpeta con su código, sus pruebas, sus evidencias y su memoria, y un `README.md` que explica qué hace, con qué se hace, qué necesita, cómo se arranca, qué pruebas tiene, qué requisitos de la rúbrica cubre, cómo se conecta con las demás y dónde están sus evidencias. Lo que comparten varias asignaturas está una sola vez, sin copias.
+
+```
+NOVA/
+├── 01_Interfaces/        Web de la marca y tienda (cliente/), panel de administración (admin/), portal del trabajador (trabajador/)
+├── 02_Acceso_Datos/      PostgreSQL (sql/, documentacion/, modelo/, modelo-er/) y aplicación Java Swing + JDBC (java/)
+├── 03_PSP/               Procesador de pedidos Custom con tres procesos hijos (y el analizador de tallas en src/Psp/)
+├── 04_Python/            Calidad de datos, KPIs, estadística, segmentación, predicción y dashboard Streamlit
+├── 05_Odoo/              PENDIENTE: lista de tareas, borrador del recorrido y plantilla del README
+├── 06_Intermodular/      SO024, memoria común, manuales, matrices de rúbricas, defensa y regresión completa
+├── servidor-admin/       Servidor Node + Express, COMPARTIDO: da servicio a la tienda, al panel y al portal
+├── scripts/              Comprobaciones rápidas de la web y de PSP
+├── README.md
+└── .gitignore
+```
+
+Dentro de cada asignatura: `evidencias/` guarda los resultados y las capturas de sus pruebas, y `memoria/` su documento de entrega.
+
+### Mapa de rutas y componentes
+
+| Qué buscas | Dónde está |
 | --- | --- |
-| `02_Acceso_Datos/sql/` | Los 23 scripts de PostgreSQL: esquema, funciones, triggers, datos de demostración, seguridad, auditoría, pruebas, exportaciones a CSV y ampliaciones |
-| `02_Acceso_Datos/documentacion/` | Instalación de la base, decisiones de diseño, seguridad y pruebas (`README.md`) y modelo relacional |
-| `02_Acceso_Datos/modelo/`, `02_Acceso_Datos/modelo-er/` | Modelo de pgModeler (`.dbm`) y diagrama entidad-relación (`.drawio`) |
-| `02_Acceso_Datos/java/` | Aplicación Swing + JDBC: login, pedidos, consultas con filtros, indicadores, usuarios y archivos TXT, JSON y CSV |
-| `03_PSP/` | `ProcesadorPedidosCustom`, que lee el CSV de fabricación y lanza tres procesos hijos para generar la ficha del taller. Pruebas en `03_PSP/pruebas/` |
-| `03_PSP/src/Psp/` | Analizador de tallas de Álvaro, con protocolo de líneas; el coordinador lo usa como segundo hijo |
-| `04_Python/` | Calidad de datos, KPIs, gráficos, estadística, segmentación, predicción y dashboard Streamlit |
-| `01_Interfaces/cliente/` | Web de la marca: escaparate, catálogo de 100 modelos con precios, ficha, probador, formulario Custom, contacto, inicio de sesión y tienda |
-| `01_Interfaces/admin/` | Panel de administración (Álvaro) y página de acceso única del personal |
-| `01_Interfaces/trabajador/` | Portal del trabajador (Berme): resumen, pedidos, inventario y personalizados |
-| `servidor-admin/` | Servidor Node + Express que conecta el panel, el portal del trabajador y la tienda con PostgreSQL |
-| `06_Intermodular/` | Caso común SO024, formato del CSV de fabricación y borrador del recorrido con Odoo |
-| `docs/entrega/` | Documentación de entrega: memoria, memoria de Acceso a Datos, informe técnico de Python, PSP, estrategia de pruebas y usabilidad de Interfaces, manuales de instalación y de demostración, matrices de evidencias y de rúbricas, lista de Odoo para Berme y datos de SO024 |
-| `06_Intermodular/defensa/` | Guía y simulación de la defensa, presentación (`.md` y `.pptx`) |
-| `pruebas/` | Resultados y capturas de las pruebas de cada parte. `06_Intermodular/evidencias/regresion-final/` tiene la regresión completa del 13/11 |
-| `scripts/` | Comprobaciones rápidas de la web y de PSP |
-| `05_Odoo/` | Vacía: solo tiene `.gitkeep` (Odoo, PENDIENTE) |
+| Memoria técnica común (9 puntos) | `06_Intermodular/memoria/MEMORIA.md` |
+| Memoria de Acceso a Datos | `02_Acceso_Datos/memoria/MEMORIA_ACCESO_DATOS.md` |
+| Documentación de PSP | `03_PSP/memoria/DOCUMENTACION_PSP.md` |
+| Informe técnico de Python | `04_Python/memoria/INFORME_TECNICO_PYTHON.md` |
+| Estrategia de pruebas y usabilidad de Interfaces | `01_Interfaces/memoria/` |
+| Estado de cada requisito de cada rúbrica | `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` |
+| Qué enseñar para cada bloque | `06_Intermodular/rubricas/MATRIZ_EVIDENCIAS.md` |
+| Instalación paso a paso y guion de la demostración | `06_Intermodular/manuales/` |
+| Caso común SO024 y los 7 datos pendientes | `06_Intermodular/SO024/` |
+| Defensa y presentación | `06_Intermodular/defensa/` |
+| Regresión completa del 13/11 | `06_Intermodular/evidencias/regresion-final/README.md` |
+| Odoo (lo que falta) | `05_Odoo/CHECKLIST_ODOO_BERME.md` |
+
+```
+                     Web (01_Interfaces/cliente)  ─┐
+ Panel (01_Interfaces/admin) y portal (…/trabajador) ─┼─► servidor-admin (Node) ─► PostgreSQL (02_Acceso_Datos/sql)
+                                                    ┘                                   │
+ Aplicación Java (02_Acceso_Datos/java) ──── JDBC ──────────────────────────────────────┤
+                                                                                        ├─ script 15 ─► CSV ─► PSP (03_PSP) ─► ficha del taller
+                                                                                        └─ script 16 ─► 5 CSV ─► Python (04_Python) ─► dashboard
+ Odoo (05_Odoo, PENDIENTE) ◄── mismos identificadores de SO024 (06_Intermodular/SO024) ──► PostgreSQL
+```
+
+En todas las asignaturas hemos trabajado los tres: quién hizo cada cambio se ve con `git log --follow <archivo>`.
+
+### Si vienes de la estructura anterior
+
+Hasta el 13/11 las carpetas eran `interfaces/`, `acceso-datos/`, `psp/`, `python-analisis/`, `odoo/`, `integracion/`, `docs/` y `pruebas/`. Se movieron con `git mv`, así que la historia y los autores siguen con `git log --follow`. En un clon que ya existía:
+
+- Git mueve los archivos versionados, pero **no** lo que está ignorado. Hay que pasar a mano: `acceso-datos/java/conexion.properties` y `acceso-datos/java/lib/*.jar` a `02_Acceso_Datos/java/`, y el entorno de Python (`python-analisis/.venv`) a `04_Python/.venv` (o crearlo de nuevo). `servidor-admin/.env` no cambia de sitio.
+- Las carpetas viejas que se queden con esos restos están en el `.gitignore`, para que no se suban por error. Cuando estén vacías, se pueden borrar.
+- Una rama empezada antes de la reorganización se puede fusionar (se probó el 13/11 con una rama de ejemplo):
+  - Los cambios en archivos que ya existían se aplican en su ruta nueva.
+  - Los archivos **nuevos** dentro de una carpeta que se movió entera (`interfaces/`, `acceso-datos/`, `psp/`, `python-analisis/` o una subcarpeta de `pruebas/`) Git los pone en la carpeta nueva y lo marca como conflicto de ubicación (*file location*): se revisa y se confirma con `git add`.
+  - Los archivos **nuevos** en `odoo/` o en `docs/` se quedan en la carpeta vieja (la de Odoo estaba vacía y la de documentación se repartió entre varias): hay que moverlos a mano antes del commit de la fusión, por ejemplo `git mv odoo/README.md 05_Odoo/README.md`.
 
 ## Requisitos
 
@@ -128,7 +166,7 @@ Todas sobre una base de **prueba**, nunca la del equipo: la batería Java deja p
 | Login único y portal | En `servidor-admin`: `npm run test:portal`, con `PRUEBA_TIENDA_BASE_DESECHABLE=si` y `PRUEBA_SUPERUSUARIO` | 24 de 24 | 24 / 24 |
 | Web en Edge | Scripts de Playwright y axe (fuera del repositorio: solo sus resultados) | Interfaces, web completa, mejoras, compra, reparto, login y portal, Ethereal | Ver `06_Intermodular/evidencias/regresion-final/README.md` |
 
-Los scripts de `package.json` leen `servidor-admin/.env` (`--env-file`): tiene que existir. Los resultados guardados y las capturas están en `pruebas/` y en `04_Python/evidencias/`. **La regresión completa del 13/11, con la fecha, el entorno y el resultado de cada batería, está en `06_Intermodular/evidencias/regresion-final/`.**
+Los scripts de `package.json` leen `servidor-admin/.env` (`--env-file`): tiene que existir. Los resultados guardados y las capturas están en la carpeta `evidencias/` de cada asignatura. **La regresión completa del 13/11, con la fecha, el entorno y el resultado de cada batería, está en `06_Intermodular/evidencias/regresion-final/`.**
 
 Hay además dos comprobaciones rápidas, desde la raíz:
 
@@ -147,7 +185,7 @@ Mientras tanto, el recorrido se ha probado de principio a fin con **datos PROVIS
 
 ## Odoo: PENDIENTE
 
-**No hay ninguna evidencia de Odoo en el repositorio (Berme).** `05_Odoo/` está vacía, `05_Odoo/recorrido-manual-odoo.md` es un borrador de cómo se haría el recorrido a mano y el conector `servidor-admin/odoo.js` no se ha probado contra ningún Odoo. Lo que falta está en `05_Odoo/CHECKLIST_ODOO_BERME.md`.
+**No hay ninguna evidencia de Odoo en el repositorio (Berme).** `05_Odoo/` solo tiene la lista de tareas, la plantilla de su `README.md` y `05_Odoo/recorrido-manual-odoo.md`, un borrador de cómo se haría el recorrido a mano y el conector `servidor-admin/odoo.js` no se ha probado contra ningún Odoo. Lo que falta está en `05_Odoo/CHECKLIST_ODOO_BERME.md`.
 
 ## Ampliaciones
 

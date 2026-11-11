@@ -667,7 +667,7 @@ Las 209 filas obligatorias y las 5 condicionales de la rúbrica de Python. Todas
 ### 2.5 Sistemas de Gestión Empresarial: Odoo (módulo 0491, IM §4.2 y RA1–RA4)
 
 No hay **ninguna evidencia** de Odoo:
-- `05_Odoo/` solo tiene `.gitkeep`;
+- `05_Odoo/` solo tiene la lista de tareas, el borrador del recorrido y la plantilla de su `README.md`;
 - no hay exportaciones, capturas ni backup;
 - `05_Odoo/recorrido-manual-odoo.md` es un borrador de cómo se haría a mano, no una prueba;
 - el conector `servidor-admin/odoo.js` de Berme está **desactivado** sin `ODOO_URL`, `ODOO_DB` y `ODOO_API_KEY`, y no se ha probado contra ningún Odoo. Lo dice el arranque del servidor (R24). Además, las rutas de `pedidos.js` no se montan.

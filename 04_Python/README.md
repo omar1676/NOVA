@@ -9,7 +9,19 @@ dashboard Streamlit que vuelve a leer, validar y calcular los CSV cada 60 segund
 
 Esta carpeta es la equivalente a `sneaker-data-lab/` del apartado 9 de la rúbrica.
 Se llama `04_Python` para seguir el estilo de las demás carpetas del
-repositorio (`02_Acceso_Datos`, `01_Interfaces`, `03_PSP`).
+repositorio (`01_Interfaces`, `02_Acceso_Datos`, `03_PSP`…).
+
+## En resumen
+
+| | |
+|---|---|
+| **Tecnologías** | Python 3.12 o superior con pandas, numpy, matplotlib, scikit-learn y Streamlit (versiones exactas en `requirements.txt`) |
+| **Qué necesita** | Un entorno virtual con `requirements.txt` y los CSV de `entrada_acc/` (los genera `02_Acceso_Datos/sql/16_exportar_csv_dashboard.sql`) |
+| **Cómo se inicia** | `main.py` por consola y `streamlit run app_dashboard.py` para el dashboard (apartado «Instalación» de este README) |
+| **Pruebas** | `python -m unittest discover -s tests -v`: 265 pruebas. Además, las 93 salidas de `main.py` se comparan con una referencia guardada |
+| **Rúbrica** | 214 requisitos, 200 cumplidos; falta sobre todo la exportación REAL. Detalle en `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` (§2.4) |
+| **Conexión con otras asignaturas** | Lee lo que exporta Acceso a Datos y concilia sus cifras con las consultas de `02_Acceso_Datos/sql/12_consultas_panel.sql`. El pedido SO024 aparece como un pedido más cuando se exporta |
+| **Evidencias y memoria** | `evidencias/dashboard/` (casos del dashboard y refresco de 60 s) y `memoria/INFORME_TECNICO_PYTHON.md` (el informe técnico que pide la rúbrica) |
 
 ## Estado
 
