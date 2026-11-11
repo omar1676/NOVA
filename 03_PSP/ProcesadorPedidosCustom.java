@@ -47,7 +47,7 @@ import java.util.ArrayList;
  *   3  un hijo ha fallado: no arranca, codigo inesperado, tiempo agotado,
  *      respuesta que no se entiende o resultados que no cuadran
  *
- * COMO SE EJECUTA (desde la carpeta psp)
+ * COMO SE EJECUTA (desde la carpeta 03_PSP)
  *   java -cp clases ProcesadorPedidosCustom datos\custom40_fabricacion_psp.csv
  */
 public class ProcesadorPedidosCustom {

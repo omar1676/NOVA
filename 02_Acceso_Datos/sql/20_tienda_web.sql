@@ -36,7 +36,7 @@
 --   usuario con LOGIN   pasa con SET ROLE a                    lo usa
 --   java_nova   (17)    nova_admin, nova_comercial o           la aplicacion Java
 --                       nova_trabajador
---   web_nova    (19)    panel_lectura                          el panel de administracion
+--   web_nova    (19)    panel_lectura (y los roles del 22 y 23) el panel y el portal
 --   tienda_nova (20)    tienda_web                             la tienda web
 --   admin.demo, taller.demo y tienda.demo no son roles de PostgreSQL: son
 --   usuarios de la aplicacion (tabla usuarios).
