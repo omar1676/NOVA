@@ -25,7 +25,7 @@ Todas las pruebas del proyecto, repetidas sobre el árbol final de la rama `inte
 | Python `unittest` | 00:59–01:12 | **Ran 265 tests, OK** | `04_python/02_unittest.txt` |
 | Python, las 93 salidas de `main.py` frente a la referencia | 01:12 | 91 idénticas; 2 con 4 columnas nuevas a propósito (`informe_ejecutivo.csv`: prioridad, urgencia, impacto esperado y sustento; las 10 de antes, iguales); 4 archivos nuevos a propósito (caso N y metadatos). «caso N: 17 de 17 cifras coinciden con SQL» | `04_python/03_salidas_93.txt` |
 | Web: mejoras | 01:14 | 81 de 81 | `05_web/01_mejoras.txt` |
-| Web: Interfaces | 01:16 | 136 de 136 | `05_web/02_interfaces.txt` |
+| Web: Interfaces | 01:16 | 136 de 136 | `05_web/02_interfaces.txt`; capturas (catálogo con precios, ficha, contacto y Custom simulado, en escritorio y móvil) en `05_web/capturas_interfaces/` |
 | Web completa | 01:18 | 114 de 114 | `05_web/03_web.txt` |
 | Compra en Edge (escritorio y móvil, con PostgreSQL y el panel) | 01:22 | 139 de 139; 4 recibos y 4 pedidos pagados | `05_web/04_compra_edge.txt`; capturas en `../tienda/capturas-2026-11-13/` |
 | Reparto en Edge | 01:24 | 29 de 29 | `05_web/05_recorrido_reparto.txt`; capturas en `../reparto-y-correo/` |
@@ -34,7 +34,7 @@ Todas las pruebas del proyecto, repetidas sobre el árbol final de la rama `inte
 | Ethereal sin red y sin respuesta (simulados) | 01:32 | 5 de 5 y 5 de 5 | `05_web/08_*.txt`, `09_*.txt` |
 | SO024 **PROVISIONAL** de principio a fin | 01:06 | 18 → Java («Nuevo pedido») → 40 pares y 3.996,00 € → 15 → PSP código 0 → 16 → Python: un solo pedido | `06_so024_provisional/00_cadena.txt` |
 | Ventanas Swing (`ProbarVentanas`) | 01:08 | 76 PASS, 0 FAIL; sin conexión, 1 de 1 (las capturas del 13/11 están en `../acceso-datos/java-swing/`) | `07_ventanas_swing/` |
-| Manual de instalación (`docs/entrega/MANUAL_INSTALACION.md`), seguido sobre un clon nuevo y una base vacía | 01:19–08:44 | Reproducible. Base: los 23 scripts con salida 0 y 123/0/1; Java 47/47; PSP 27/27; Python con un entorno nuevo (`pip install -r requirements.txt`, versiones exactas), `main.py` en los tres modos (el de errores, código 1) y el dashboard; servidor estático; `npm ci` (0 vulnerabilidades); `npm start` con el login único de las tres cuentas (200, 200 y 403); `npm test` 23/23. Se corrigieron dos pasos del manual (ver abajo) | `08_manual_instalacion/00_parte1.txt`, `00_parte2.txt` |
+| Manual de instalación (`docs/entrega/MANUAL_INSTALACION.md`), seguido sobre un clon nuevo y una base vacía | 01:19–08:44 | Reproducible. Base: los 23 scripts con salida 0 y 123/0/1; Java 47/47; PSP 27/27; Python con un entorno nuevo (`pip install -r requirements.txt`, versiones exactas), `main.py` en los tres modos (el de errores, código 1) y el dashboard; servidor estático; `npm ci` (0 vulnerabilidades); `npm start` con el login único de las tres cuentas (200, 200 y 403) y la tienda (la API lista 106 modelos: los 100 de la web y 6 de los datos de demostración del 05 que usa Java; la web solo enseña sus 100); `npm test` 23/23. Se corrigieron dos pasos del manual (ver abajo) | `08_manual_instalacion/00_parte1.txt`, `00_parte2.txt` |
 
 ## Lo que se corrigió en el manual al seguirlo
 
