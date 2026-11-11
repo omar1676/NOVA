@@ -336,9 +336,17 @@ h1 span {
   color: #a8a09b;
   margin-top: 35px;
 }
+/* Pie de página único: arriba el contacto (.contacto, más abajo) y debajo
+   una línea final con la marca. La raya va dentro del mismo bloque. */
 footer {
+  max-width: 1500px;
+  margin: auto;
+  padding: 100px 6% 40px;
+}
+.pie-final {
+  margin-top: 60px;
+  padding-top: 28px;
   border-top: 1px solid #ffffff25;
-  padding: 40px 6%;
   display: flex;
   gap: 24px;
   align-items: center;
@@ -347,13 +355,13 @@ footer {
   color: #b9bab5;
   font-size: 0.75rem;
 }
-footer p {
+.pie-final p {
   margin: 0;
 }
-footer .marca {
+.pie-final .marca {
   color: white;
 }
-footer a:not(.marca) {
+.pie-final a:not(.marca) {
   text-decoration: none;
 }
 dialog {
@@ -531,9 +539,6 @@ dialog::backdrop {
   }
   .modal-info {
     margin-top: 10px;
-  }
-  footer {
-    padding: 35px 5%;
   }
 }
 @media (max-width: 370px) {
@@ -1418,14 +1423,11 @@ dialog::backdrop {
   font-weight: bold;
 }
 
-/* Contacto: sección oscura, como «Nuestra visión». */
+/* Contacto, dentro del pie: oscuro, como «Nuestra visión». */
 .contacto {
-  padding: 100px 6%;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px 40px;
-  max-width: 1500px;
-  margin: auto;
 }
 .contacto h2 span {
   color: #e6a26e;
@@ -1449,10 +1451,6 @@ dialog::backdrop {
 .contacto-datos dd {
   margin: 4px 0 0;
 }
-.contacto .nota {
-  grid-column: 1 / -1;
-  margin-top: 0;
-}
 
 @media (max-width: 760px) {
   /* En el móvil caben tres enlaces: «Nuestra visión» se ve bajando por la página. */
@@ -1466,8 +1464,16 @@ dialog::backdrop {
   .custom,
   .contacto {
     grid-template-columns: 1fr;
-    padding: 70px 5%;
     gap: 30px;
+  }
+  .custom {
+    padding: 70px 5%;
+  }
+  footer {
+    padding: 70px 5% 35px;
+  }
+  .pie-final {
+    margin-top: 45px;
   }
   .custom-campos {
     grid-template-columns: 1fr;
