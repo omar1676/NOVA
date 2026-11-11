@@ -21,7 +21,7 @@ class References(HTMLParser):
 
 
 def main():
-    base = ROOT / 'interfaces'
+    base = ROOT / '01_Interfaces'
     htmls = sorted(base.rglob('*.html'))
     if not htmls:
         raise RuntimeError('No hay interfaces. Ejecuta esto desde la rama integrada.')
@@ -53,7 +53,7 @@ def main():
             check(source, match[1].strip())
     catalog = base / 'cliente/js/modelos.js'
     if not catalog.is_file():
-        errors.append('Falta interfaces/cliente/js/modelos.js')
+        errors.append('Falta 01_Interfaces/cliente/js/modelos.js')
     else:
         for url in re.findall(r'imagen(?:Catalogo)?\s*:\s*"([^"]+)"',
                               catalog.read_text(encoding='utf-8')):

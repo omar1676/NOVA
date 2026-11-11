@@ -1,6 +1,6 @@
 # Servidor del panel de administración, del portal del trabajador y de la tienda web
 
-Conecta con PostgreSQL el panel de Álvaro (`interfaces/admin/`), el portal del trabajador de Berme (`interfaces/trabajador/`) y la tienda web (`interfaces/cliente/`). Es el único servidor del proyecto.
+Conecta con PostgreSQL el panel de Álvaro (`01_Interfaces/admin/`), el portal del trabajador de Berme (`01_Interfaces/trabajador/`) y la tienda web (`01_Interfaces/cliente/`). Es el único servidor del proyecto.
 
 ```
 Navegador ──► http://127.0.0.1:3000 ──► Node + Express (esta carpeta) ──► PostgreSQL
@@ -22,7 +22,7 @@ Hace falta Node 20.6 o posterior (probado con Node 24.15) y una base con los scr
 
 1. Crear el rol de solo lectura y el usuario de conexión. Pide una contraseña:
    ```
-   psql -U postgres -d nova_sneakers -f acceso-datos/sql/19_usuario_web.sql
+   psql -U postgres -d nova_sneakers -f 02_Acceso_Datos/sql/19_usuario_web.sql
    ```
 2. Instalar las dos dependencias, `express` y `pg`, con las versiones exactas de `package-lock.json`:
    ```
@@ -42,8 +42,8 @@ Si `.env` dice `PGUSER=postgres`, el servidor se niega a arrancar.
 
 6. Después de la batería de pruebas (`09_pruebas.sql`), lanzar el 20, que pide la contraseña de `tienda_nova`, y el 21:
    ```
-   psql -U postgres -d nova_sneakers -f acceso-datos/sql/20_tienda_web.sql
-   psql -U postgres -d nova_sneakers -f acceso-datos/sql/21_catalogo_web.sql
+   psql -U postgres -d nova_sneakers -f 02_Acceso_Datos/sql/20_tienda_web.sql
+   psql -U postgres -d nova_sneakers -f 02_Acceso_Datos/sql/21_catalogo_web.sql
    ```
 7. Escribir en `.env` `TIENDA_PGUSER=tienda_nova` y `TIENDA_PGPASSWORD` con la contraseña del paso 6, y volver a arrancar.
 8. Abrir `http://127.0.0.1:3000/tienda/`. Al arrancar, la consola dice si la tienda está configurada. Sin esas dos variables, el panel funciona igual y la tienda enseña el catálogo, pero no deja comprar.
@@ -51,13 +51,13 @@ Si `.env` dice `PGUSER=postgres`, el servidor se niega a arrancar.
 **Para el botón «Marcar en reparto»** del panel, después del 09, el 19 y el 20 (se puede repetir):
 
 9. ```
-   psql -U postgres -d nova_sneakers -f acceso-datos/sql/22_reparto_panel.sql
+   psql -U postgres -d nova_sneakers -f 02_Acceso_Datos/sql/22_reparto_panel.sql
    ```
 
 **Para el portal del trabajador**, después del 22 (se puede repetir):
 
 10. ```
-    psql -U postgres -d nova_sneakers -f acceso-datos/sql/23_portal_trabajador.sql
+    psql -U postgres -d nova_sneakers -f 02_Acceso_Datos/sql/23_portal_trabajador.sql
     ```
     No pide contraseñas: usa el mismo `web_nova`. Se entra por la misma página, `http://127.0.0.1:3000/login.html`, con `taller.demo`.
 
@@ -91,8 +91,8 @@ Si `.env` dice `PGUSER=postgres`, el servidor se niega a arrancar.
 | `pruebas/api.test.js` | Pruebas automáticas del panel (`npm test`). Solo leen |
 | `pruebas/tienda.test.js` | Pruebas automáticas de la tienda (`npm run test:tienda`). Crean clientes y pedidos: **solo con una base desechable** |
 | `pruebas/portal.test.js` | Pruebas del login único y del portal (`npm run test:portal`). Las que cambian algo, **solo con una base desechable** |
-| `../interfaces/admin/login.html` y `login.js` | La página de acceso única del personal |
-| `../interfaces/trabajador/` | **De Berme.** Las cuatro páginas del portal, su `script.js` y su `styles.css` (una copia de la hoja del panel de Álvaro) |
+| `../01_Interfaces/admin/login.html` y `login.js` | La página de acceso única del personal |
+| `../01_Interfaces/trabajador/` | **De Berme.** Las cuatro páginas del portal, su `script.js` y su `styles.css` (una copia de la hoja del panel de Álvaro) |
 
 ## Las rutas
 
@@ -172,7 +172,7 @@ Es una prueba: el administrador pulsa el botón en un pedido confirmado y el cli
 
 ### Login único y roles
 
-Hay **una sola página de acceso** para el personal, `login.html`. El servidor decide adónde va cada uno según el rol de la tabla `roles`, siguiendo la matriz de permisos de `acceso-datos/java/README.md`:
+Hay **una sola página de acceso** para el personal, `login.html`. El servidor decide adónde va cada uno según el rol de la tabla `roles`, siguiendo la matriz de permisos de `02_Acceso_Datos/java/README.md`:
 
 | Rol | Cuenta de demostración | Al entrar | Por qué |
 |---|---|---|---|
@@ -222,7 +222,7 @@ Hay **una sola página de acceso** para el personal, `login.html`. El servidor d
 
 ## La tienda web
 
-La web cliente (`interfaces/cliente/`) se sirve en `/tienda/`. Su JavaScript (`js/tienda.js`) pide los datos a estas rutas:
+La web cliente (`01_Interfaces/cliente/`) se sirve en `/tienda/`. Su JavaScript (`js/tienda.js`) pide los datos a estas rutas:
 
 | Ruta | Sesión | Qué hace |
 |---|---|---|
@@ -321,7 +321,7 @@ Sus commits (`67d6cf0` y `9cb42c7`, del 11/11) se han traído con `git cherry-pi
 - «Marcar en reparto»: 401, 403, 404, 409, 415, Host ajeno y `no-store`; que el resto del panel no puede llamar a la función y que `panel_reparto` no lee ni escribe ninguna tabla;
 - y, **solo con `PRUEBA_TIENDA_BASE_DESECHABLE=si`**, el 200: un pedido confirmado pasa a `enviado`, el stock no cambia y la auditoría apunta un `CAMBIO_ESTADO` con `admin.demo`. Es la única prueba de `npm test` que cambia algo; sin esa variable se salta.
 
-La desactivación de una cuenta con la sesión abierta se prueba aparte. Necesita cambiar un usuario en la base, y `web_nova` no tiene permiso para hacerlo. Los resultados de todas las pruebas, también las del navegador, están en `pruebas/panel-admin/`.
+La desactivación de una cuenta con la sesión abierta se prueba aparte. Necesita cambiar un usuario en la base, y `web_nova` no tiene permiso para hacerlo. Los resultados de todas las pruebas, también las del navegador, están en `01_Interfaces/evidencias/panel-admin/`.
 
 Las contraseñas de las cuentas de prueba se dan al ejecutar, nunca en el código. En PowerShell:
 

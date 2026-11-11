@@ -22,11 +22,11 @@ def run(command, data=None, code=0):
 def main():
     if not shutil.which('java') or not shutil.which('javac'):
         raise RuntimeError('Instala un JDK 17 o posterior con java y javac en PATH.')
-    csv_path = ROOT / 'pruebas/fixtures/custom40.csv'
+    csv_path = ROOT / '03_PSP/pruebas/custom40.csv'
     data = csv_path.read_text(encoding='utf-8')
-    csv_sources = [ROOT / 'psp' / (name + '.java') for name in
+    csv_sources = [ROOT / '03_PSP' / (name + '.java') for name in
                    ('AnalizadorTallas', 'LanzadorValidacion', 'LectorCsv', 'ValidadorPedidoCustom')]
-    packaged = sorted((ROOT / 'psp/src/Psp').glob('*.java'))
+    packaged = sorted((ROOT / '03_PSP/src/Psp').glob('*.java'))
     if not all(p.is_file() for p in csv_sources) or not packaged:
         raise RuntimeError('Faltan fuentes PSP. Ejecuta esto desde la rama integrada.')
     with tempfile.TemporaryDirectory(prefix='nova-psp-') as folder:

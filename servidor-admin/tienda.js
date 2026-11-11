@@ -1,6 +1,6 @@
 // tienda.js — las rutas de la tienda web: /api/tienda/...
 //
-//   web cliente (interfaces/cliente)  -->  estas rutas  -->  PostgreSQL (tienda_nova)
+//   web cliente (01_Interfaces/cliente)  -->  estas rutas  -->  PostgreSQL (tienda_nova)
 //
 // Este archivo hace tres cosas:
 //   1. Comprueba que los datos que llegan tienen la forma correcta (tipos,

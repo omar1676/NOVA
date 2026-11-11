@@ -6,7 +6,7 @@
 //
 // Salen de las que ya tenia el proyecto, para que el panel, Java y los
 // informes den las mismas cifras:
-//   - acceso-datos/sql/12_consultas_panel.sql: C5 (filtros), C8 (stock bajo),
+//   - 02_Acceso_Datos/sql/12_consultas_panel.sql: C5 (filtros), C8 (stock bajo),
 //     P-A (ventas), P-B (pedidos por estado) y P-C (modelos mas solicitados).
 //   - PedidoDAO.verAuditoria (Java): la auditoria.
 //
