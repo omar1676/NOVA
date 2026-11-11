@@ -181,32 +181,13 @@ Probado con el **JDK 17.0.12**, sin Maven ni librerías. En este ordenador `java
 y `java` no están en el PATH, así que se usa la ruta de `JAVA_HOME`. Las
 carpetas `clases/` y `salidas/` no se suben al repositorio (`.gitignore`).
 
-### 1. Conseguir el analizador de Álvaro
+### 1. El analizador de Álvaro
 
-**Cuando su rama esté integrada,** sus archivos estarán en `03_PSP\src\Psp` y no
-hace falta este paso.
-
-**Mientras tanto,** se pueden sacar de su rama sin cambiar de rama y sin
-mezclar nada. `git archive` solo lee:
-
-```powershell
-cd psp    # desde la carpeta del repositorio
-git archive -o $env:TEMP\analizador_alvaro.zip origin/feature/AlvaroBaz src/Psp
-Expand-Archive $env:TEMP\analizador_alvaro.zip $env:TEMP\analizador_alvaro -Force
-```
-
-Desde dentro de `03_PSP`, la ruta es `src/Psp`: `git archive` la toma relativa a la
-carpeta actual (con `03_PSP/src/Psp` da «did not match any files»).
+Ya está integrado, con su autoría, en `src/Psp`: no hace falta sacarlo de su rama.
 
 ### 2. Compilar
 
-Todo en la carpeta `clases`. Mientras su rama no esté integrada:
-
-```powershell
-& "$env:JAVA_HOME\bin\javac.exe" -encoding UTF-8 -d clases *.java pruebas\*.java $env:TEMP\analizador_alvaro\src\Psp\*.java
-```
-
-Con su rama ya integrada:
+Desde esta carpeta (`03_PSP`), todo en la carpeta `clases`:
 
 ```powershell
 & "$env:JAVA_HOME\bin\javac.exe" -encoding UTF-8 -d clases *.java pruebas\*.java src\Psp\*.java
