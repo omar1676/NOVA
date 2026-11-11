@@ -9,7 +9,7 @@ todo lo que sale de ellos va etiquetado como SINTÉTICO.
 ## Cómo se generan
 
 ```
-cd python-analisis
+cd 04_Python
 .venv\Scripts\python.exe generador_datos.py
 ```
 

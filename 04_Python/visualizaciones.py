@@ -20,6 +20,7 @@ import pandas as pd   # noqa: E402
 from matplotlib.patches import Patch   # noqa: E402
 
 import config   # noqa: E402
+from analiticas import de_demanda, es_no_calculable, rellenar_meses   # noqa: E402
 
 AZUL = "#1f5fa8"
 GRIS = "#9e9e9e"
@@ -128,14 +129,14 @@ def grafico_pares_por_talla(tabla_tallas, carpeta, pie):
 
 
 def grafico_evolucion(pedidos, carpeta, pie):
-    demanda = pedidos[~pedidos["es_cancelado"]]
+    demanda = de_demanda(pedidos)
     meses = demanda["fecha_pedido"].dt.to_period("M")
     if meses.nunique() >= 2:
         # Con varios meses, por mes: por dia seria una nube de puntos ilegible
         fig, ax = nueva_figura("¿Cómo evoluciona la demanda en el tiempo?",
                                "Pares de demanda por mes (pedidos no cancelados). Un mes sin pedidos dentro del periodo sale con 0")
         por_mes = demanda.groupby(meses)["pares"].sum()
-        por_mes = por_mes.reindex(pd.period_range(por_mes.index.min(), por_mes.index.max(), freq="M"), fill_value=0)
+        por_mes = rellenar_meses(por_mes)
         etiquetas = [str(mes) for mes in por_mes.index]
         ax.plot(etiquetas, por_mes.values, color=AZUL, marker="o")
         for etiqueta, pares in zip(etiquetas, por_mes.values):
@@ -259,7 +260,7 @@ def grafico_stock(tabla_stock, carpeta, pie, umbral=config.UMBRAL_STOCK_BAJO):
 def grafico_importe_por_tipo(pedidos, carpeta, pie):
     fig, ax = nueva_figura("¿Cuánto vale un pedido según su tipo?",
                            "Importe de cada pedido no cancelado según su tipo; cada punto es un pedido (escala logarítmica)")
-    demanda = pedidos[~pedidos["es_cancelado"]]
+    demanda = de_demanda(pedidos)
     # Los importes de cada tipo de pedido que tenga algun pedido
     grupos = []
     for tipo in config.TIPOS_PEDIDO:
@@ -287,7 +288,7 @@ def grafico_pares_frente_a_importe(pedidos, carpeta, pie):
     fig, ax = nueva_figura("¿El importe crece con los pares? ¿Hay pedidos raros?",
                            "Cada punto es un pedido no cancelado; si es más grande, junta varios pedidos iguales. "
                            "Importe en escala logarítmica")
-    demanda = pedidos[~pedidos["es_cancelado"]]
+    demanda = de_demanda(pedidos)
     if len(demanda) == 0:
         sin_datos(ax)
     else:
@@ -311,7 +312,7 @@ def grafico_real_frente_a_prediccion(predicciones, carpeta, pie):
     """Pares reales (eje x) frente a pares predichos (eje y) por los dos metodos, en los meses de evaluacion."""
     carpeta = Path(carpeta)
     carpeta.mkdir(parents=True, exist_ok=True)
-    if "estado" in predicciones.columns:
+    if es_no_calculable(predicciones):
         fig, ax = nueva_figura(GRAFICO_PREDICCION[2], "Pares reales frente a pares predichos")
         # El motivo se recorta a 110 caracteres para que quepa en el grafico
         sin_datos(ax, f"No se puede predecir: {predicciones['motivo'].iloc[0]}"[:110])

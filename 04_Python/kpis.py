@@ -18,7 +18,7 @@ import pandas as pd
 
 import config
 import conciliacion
-from analiticas import NO_CALCULABLE, de_demanda, de_venta, dividir, porcentaje
+from analiticas import NO_CALCULABLE, de_demanda, de_venta, dividir, es_no_calculable, porcentaje
 
 COLUMNAS = ["codigo", "nombre", "valor", "unidad", "detalle", "formula", "poblacion", "tabla_origen", "estado"]
 
@@ -133,9 +133,9 @@ def calcular_kpis(pedidos, tabla_abc, tabla_tallas, tabla_stock, tabla_meses):
 def variacion_mensual(tabla_meses):
     """Variacion del importe de venta del ultimo mes frente al anterior. Hacen falta 2 meses."""
     formula = "(importe del último mes / importe del mes anterior - 1) x 100"
-    if "estado" in tabla_meses.columns or len(tabla_meses) < 2:
-        if "estado" in tabla_meses.columns:
-            meses = 0   # la tabla es NO CALCULABLE: no hay ningun mes con ventas
+    if es_no_calculable(tabla_meses) or len(tabla_meses) < 2:
+        if es_no_calculable(tabla_meses):
+            meses = 0   # no hay ningun mes con ventas
         else:
             meses = len(tabla_meses)
         return kpi_no_calculable("K19", "Variación mensual del importe", "%", formula, "venta",

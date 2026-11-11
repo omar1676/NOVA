@@ -5,7 +5,7 @@ Cada prueba escribe sus propios CSV pequenos en una carpeta temporal que se
 borra al terminar. NUNCA usan entrada_acc/ ni la base de datos: son datos
 de prueba inventados, no datos reales.
 
-Se ejecutan desde la carpeta python-analisis:
+Se ejecutan desde la carpeta 04_Python:
     python -m unittest discover -s tests -v
 """
 import hashlib

@@ -130,6 +130,31 @@ def mejora(mae_regresion, rmse_regresion, mae_baseline, rmse_baseline):
     return "solo en una métrica: RMSE sí, MAE no"
 
 
+def calcular_metricas(predicciones, entrenamiento, evaluacion):
+    """
+    MAE y RMSE de los dos metodos en los meses de evaluacion, si la regresion
+    mejora al baseline y con que meses se ha entrenado y evaluado.
+    """
+    real = predicciones["pares_reales"]
+    mae_baseline = mae(real, predicciones["baseline"])
+    rmse_baseline = rmse(real, predicciones["baseline"])
+    mae_regresion = mae(real, predicciones["regresion"])
+    rmse_regresion = rmse(real, predicciones["regresion"])
+    metricas = pd.DataFrame([
+        {"metodo": "baseline", "descripcion": "pares del mes anterior",
+         "mae": round(mae_baseline, 2), "rmse": round(rmse_baseline, 2),
+         "mejora_al_baseline": "es la referencia"},
+        {"metodo": "regresion", "descripcion": "LinearRegression: " + ", ".join(VARIABLES) + " y modelo one-hot",
+         "mae": round(mae_regresion, 2), "rmse": round(rmse_regresion, 2),
+         "mejora_al_baseline": mejora(mae_regresion, rmse_regresion, mae_baseline, rmse_baseline)},
+    ])
+    metricas["filas_evaluacion"] = len(predicciones)
+    metricas["periodo_entrenamiento"] = periodo(entrenamiento["mes"].astype(str).unique())
+    metricas["periodo_evaluacion"] = periodo(evaluacion["mes"].astype(str).unique())
+    metricas["filas_entrenamiento"] = len(entrenamiento)
+    return metricas
+
+
 def predecir_demanda(lineas_enriquecidas, fecha_corte):
     """
     Construye la demanda mensual, entrena la regresion y compara los dos
@@ -174,24 +199,6 @@ def predecir_demanda(lineas_enriquecidas, fecha_corte):
     predicciones["error_baseline"] = predicciones["pares_reales"] - predicciones["baseline"]
     predicciones["error_regresion"] = (predicciones["pares_reales"] - predicciones["regresion"]).round(1)
 
-    real = predicciones["pares_reales"]
-    mae_baseline = mae(real, predicciones["baseline"])
-    rmse_baseline = rmse(real, predicciones["baseline"])
-    mae_regresion = mae(real, predicciones["regresion"])
-    rmse_regresion = rmse(real, predicciones["regresion"])
-    metricas = pd.DataFrame([
-        {"metodo": "baseline", "descripcion": "pares del mes anterior",
-         "mae": round(mae_baseline, 2), "rmse": round(rmse_baseline, 2),
-         "mejora_al_baseline": "es la referencia"},
-        {"metodo": "regresion", "descripcion": "LinearRegression: " + ", ".join(VARIABLES) + " y modelo one-hot",
-         "mae": round(mae_regresion, 2), "rmse": round(rmse_regresion, 2),
-         "mejora_al_baseline": mejora(mae_regresion, rmse_regresion, mae_baseline, rmse_baseline)},
-    ])
-    metricas["filas_evaluacion"] = len(predicciones)
-    metricas["periodo_entrenamiento"] = periodo(entrenamiento["mes"].astype(str).unique())
-    metricas["periodo_evaluacion"] = periodo(evaluacion["mes"].astype(str).unique())
-    metricas["filas_entrenamiento"] = len(entrenamiento)
-
     demanda_por_mes = pd.DataFrame({
         "nombre_modelo": tabla["nombre_modelo"], "anio_mes": tabla["mes"].astype(str),
         "pares": tabla["pares"], "pares_mes_anterior": tabla["pares_mes_anterior"],
@@ -205,7 +212,7 @@ def predecir_demanda(lineas_enriquecidas, fecha_corte):
     return {
         "demanda_mensual_modelo": demanda_por_mes,
         "predicciones": predicciones,
-        "metricas_prediccion": metricas,
+        "metricas_prediccion": calcular_metricas(predicciones, entrenamiento, evaluacion),
         "errores_por_modelo": errores_por_modelo(predicciones),
         "coeficientes_regresion": pd.DataFrame({"variable": ["constante"] + columnas, "coeficiente": coeficientes}),
     }

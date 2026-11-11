@@ -134,9 +134,7 @@ def calcular_publicacion(carpeta, resultado, version, momento):
     tablas = analiticas.calcular_tablas(datos, validos)
     tabla_kpis = kpis.calcular_kpis(tablas["pedidos_unicos"], tablas["modelos_abc"], tablas["ventas_por_talla"],
                                     tablas["stock_variantes"], tablas["ventas_por_periodo"])
-    tabla_rfm = segmentacion.rfm(tablas["pedidos_unicos"], validos["clientes"], corte)
-    resumen_rfm = segmentacion.resumen_segmentos(tabla_rfm)
-    seleccion_k, clusters, tabla_rfm = segmentacion.kmeans_clientes(tabla_rfm)
+    segmentos = segmentacion.segmentar_clientes(tablas["pedidos_unicos"], validos["clientes"], corte)
     resultados_prediccion = prediccion.predecir_demanda(tablas["lineas_enriquecidas"], corte)
     texto_conciliacion, tabla_conciliacion = estado_conciliacion(carpeta, tablas, tabla_kpis)
     return {
@@ -148,17 +146,12 @@ def calcular_publicacion(carpeta, resultado, version, momento):
         "validos": validos,
         "tablas": tablas,
         "kpis": tabla_kpis,
-        "segmentacion": {
-            "rfm_clientes": tabla_rfm,
-            "rfm_segmentos": resumen_rfm,
-            "kmeans_seleccion_k": seleccion_k,
-            "kmeans_clusters": clusters,
-            "rfm_frente_a_kmeans": segmentacion.comparar_rfm_kmeans(tabla_rfm),
-        },
+        "segmentacion": segmentos,
         "prediccion": resultados_prediccion,
         "conciliacion": texto_conciliacion,
         "tabla_conciliacion": tabla_conciliacion,
-        "informe": informe.conclusiones(tablas, resumen_rfm, resultados_prediccion["metricas_prediccion"], tipo),
+        "informe": informe.conclusiones(tablas, segmentos["rfm_segmentos"], resultados_prediccion["metricas_prediccion"],
+                                        tipo),
         "filas_validas": sum(len(tabla) for tabla in validos.values()),
     }
 
@@ -227,7 +220,7 @@ def ciclo(carpeta, anterior=None, operacion="comprobación automática", archivo
 
 
 def carpeta_relativa(carpeta):
-    """La carpeta vista desde python-analisis (no la ruta completa del ordenador)."""
+    """La carpeta vista desde 04_Python (no la ruta completa del ordenador)."""
     try:
         return Path(carpeta).resolve().relative_to(config.CARPETA_PROYECTO).as_posix()
     except ValueError:

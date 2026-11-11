@@ -27,7 +27,7 @@ copia con errores introducidos a proposito (errores_introducidos.csv dice cuales
 
 Con la misma semilla salen siempre exactamente los mismos datos.
 
-En Windows, desde la carpeta python-analisis:
+En Windows, desde la carpeta 04_Python:
     .venv\\Scripts\\python.exe generador_datos.py
 """
 import sys

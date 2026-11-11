@@ -23,7 +23,7 @@ Se calculan con el conjunto completo, sin filtros.
 import pandas as pd
 
 import config
-from analiticas import NO_CALCULABLE
+from analiticas import NO_CALCULABLE, es_no_calculable
 from segmentacion import SIN_COMPRAS
 
 # Orden de las urgencias para la prioridad
@@ -57,11 +57,6 @@ def numero(valor, decimales=0):
     return texto.replace("_", ".")              # 1.234,5 (punto de miles)
 
 
-def no_calculable(tabla):
-    """True si la tabla es la fila 'NO CALCULABLE' de analiticas.no_calculable."""
-    return "estado" in tabla.columns and len(tabla) == 1 and tabla["estado"].iloc[0] == NO_CALCULABLE
-
-
 def conclusion(numero_, titulo, procede_de, evidencia, interpretacion, decision, limitacion, calculable=True,
                urgencia="baja", impacto="Ninguno todavía: no hay datos para decidir."):
     """
@@ -75,7 +70,7 @@ def conclusion(numero_, titulo, procede_de, evidencia, interpretacion, decision,
 
 
 def concentracion_modelos(abc, procede_de, limite):
-    if no_calculable(abc) or abc["pares"].sum() == 0:
+    if es_no_calculable(abc) or abc["pares"].sum() == 0:
         return conclusion(1, "La demanda se concentra en pocos modelos", procede_de,
                           f"{NO_CALCULABLE}: no hay pares de demanda.", "-", "Esperar a tener pedidos.", limite, False)
     clase_a = abc[abc["clase_abc"] == "A"]
@@ -188,7 +183,7 @@ def riesgo_stock(stock, procede_de, limite):
 
 def prediccion_frente_a_baseline(metricas, tipo, limite):
     procede_de = f"Predicción · {PROCEDENCIA.get(tipo, 'Origen desconocido')}"
-    if no_calculable(metricas):
+    if es_no_calculable(metricas):
         return conclusion(
             5, "La predicción de demanda todavía no se puede evaluar", procede_de,
             f"{NO_CALCULABLE}: {metricas['motivo'].iloc[0]}.",

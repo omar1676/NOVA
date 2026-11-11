@@ -66,10 +66,8 @@ def comprobar_codificacion(datos):
 
 def comprobar_claves_unicas(datos):
     """Cada identificador aparece una sola vez en su tabla."""
-    claves = [("clientes", "id_cliente"), ("modelos", "id_modelo"), ("pedidos", "id_pedido"),
-              ("pedidos", "referencia"), ("lineas_pedido", "id_linea"), ("stock", "sku")]
     repetidas = []
-    for nombre, columna in claves:
+    for nombre, columna in config.CLAVES_UNICAS:
         valores = datos[nombre][columna]
         duplicados = valores[valores.duplicated()].unique()
         if len(duplicados) > 0:
@@ -87,21 +85,14 @@ def sin_pareja(hijos, columna, padres, columna_padre):
 
 def comprobar_relaciones(datos):
     """Las claves que unen las tablas apuntan a algo que existe."""
-    relaciones = [
-        ("pedidos", "id_cliente", "clientes", "id_cliente"),
-        ("lineas_pedido", "id_pedido", "pedidos", "id_pedido"),
-        ("lineas_pedido", "id_modelo", "modelos", "id_modelo"),
-        ("lineas_pedido", "sku", "stock", "sku"),
-        ("stock", "id_modelo", "modelos", "id_modelo"),
-    ]
     huerfanas = []
-    for hijos, columna, padres, columna_padre in relaciones:
+    for hijos, columna, padres, columna_padre in config.RELACIONES:
         perdidas = sin_pareja(datos[hijos], columna, datos[padres], columna_padre)
         if len(perdidas) > 0:
             huerfanas.append(f"{hijos}.{columna} sin pareja en {padres}: {', '.join(map(str, perdidas))}")
     if huerfanas:
         return resultado("Relaciones entre tablas", "ERROR", "; ".join(huerfanas))
-    return resultado("Relaciones entre tablas", "OK", f"las {len(relaciones)} relaciones encuentran su pareja")
+    return resultado("Relaciones entre tablas", "OK", f"las {len(config.RELACIONES)} relaciones encuentran su pareja")
 
 
 def comprobar_pedidos_con_lineas(datos):
