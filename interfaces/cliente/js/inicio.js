@@ -8,6 +8,22 @@ let filtro = "casual";
 let ultimoBoton = null;
 let modeloSeleccionado = null;
 
+// Precio con formato español: 109.9 -> "109,90 €".
+function formatoPrecio(precio) {
+  return precio.toLocaleString("es-ES", { style: "currency", currency: "EUR" });
+}
+// Escribe en la ficha el precio, la descripción y las tallas de la colección.
+function mostrarDatosCompra(modelo) {
+  const datos = datosColeccion[modelo.coleccion];
+  document.querySelector("#detalle-precio").textContent = formatoPrecio(
+    datos.precio,
+  );
+  document.querySelector("#detalle-descripcion").textContent =
+    datos.descripcion;
+  document.querySelector("#detalle-tallas").textContent =
+    `Tallas: ${datos.tallas.join(", ")}`;
+}
+
 function mostrarModelos() {
   const consulta = busqueda.value.trim().toLocaleLowerCase("es");
   const visibles = modelos.filter(
@@ -57,6 +73,7 @@ function abrirDetalle(modelo, boton) {
   const imagen = document.querySelector("#detalle-imagen");
   imagen.src = modelo.imagen;
   imagen.alt = `Vista de ${modelo.nombre}`;
+  mostrarDatosCompra(modelo);
   dialogo.showModal();
 }
 document.querySelectorAll(".filtro").forEach((boton) =>
@@ -111,7 +128,8 @@ function mostrarCatalogo() {
     tarjeta.className = "catalogo-tarjeta";
     // Las fotos con fondo de estudio llenan el hueco; las recortadas se muestran enteras.
     if (modelo.catalogoConFondo) tarjeta.classList.add("con-fondo");
-    tarjeta.setAttribute("aria-label", `Ver ${modelo.nombre}`);
+    const textoPrecio = formatoPrecio(datosColeccion[modelo.coleccion].precio);
+    tarjeta.setAttribute("aria-label", `Ver ${modelo.nombre}, ${textoPrecio}`);
     const imagen = document.createElement("img");
     imagen.src = modelo.imagenCatalogo;
     imagen.alt = "";
@@ -120,9 +138,12 @@ function mostrarCatalogo() {
     contenido.className = "catalogo-datos";
     const nombre = document.createElement("strong");
     nombre.textContent = modelo.nombre;
+    const precio = document.createElement("span");
+    precio.className = "catalogo-precio";
+    precio.textContent = textoPrecio;
     const accion = document.createElement("span");
     accion.textContent = "Ver modelo ↗";
-    contenido.append(nombre, accion);
+    contenido.append(nombre, accion, precio);
     tarjeta.append(imagen, contenido);
     tarjeta.addEventListener("click", () => abrirDetalle(modelo, tarjeta));
     catalogoGrid.append(tarjeta);
@@ -253,6 +274,7 @@ elegirZapatilla.addEventListener("change", () => {
   const imagen = document.querySelector("#detalle-imagen");
   imagen.src = modeloSeleccionado.imagen;
   imagen.alt = `Vista de ${modeloSeleccionado.nombre}`;
+  mostrarDatosCompra(modeloSeleccionado);
 });
 // Se redondea a intervalos de 5 y se limita al rango visual disponible.
 function redondearMedida(campo, minimo, maximo, valorInicial) {
