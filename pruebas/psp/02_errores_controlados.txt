@@ -1,0 +1,24 @@
+> java -cp "clases;clases_alvaro" ProcesadorPedidosCustom datos\no_existe.csv
+===== NOVA Sneakers - PSP - 2026-11-10 14:52:31 =====
+Archivo: datos\no_existe.csv
+Resultado: ERROR EN EL ARCHIVO (codigo 1). No existe el archivo: datos\no_existe.csv
+(codigo de salida del padre: 1)
+
+> java -cp "clases;clases_alvaro" ProcesadorPedidosCustom datos\prueba_cantidad_cero.csv
+===== NOVA Sneakers - PSP - 2026-11-10 14:52:31 =====
+Archivo: datos\prueba_cantidad_cero.csv
+Paso 1 ValidadorPedidoCustom: codigo 2 en 0,14 s
+  ERROR;La cantidad del registro 2 tiene que ser mayor que cero, y es 0
+Resultado: PEDIDO RECHAZADO (codigo 2). El paso 1 ha rechazado los datos del pedido
+(codigo de salida del padre: 2)
+
+# Mismo pedido correcto, pero SIN el analizador de Alvaro en el classpath:
+> java -cp clases ProcesadorPedidosCustom datos\custom40_fabricacion_psp.csv
+===== NOVA Sneakers - PSP - 2026-11-10 14:52:32 =====
+Archivo: datos\custom40_fabricacion_psp.csv
+Paso 1 ValidadorPedidoCustom: codigo 0 en 0,17 s
+  OK;CUSTOM-40;4;40
+Paso 2 Psp.AnalizadorTallas: codigo 1 en 0,15 s
+  Error: Could not find or load main class Psp.AnalizadorTallas
+Resultado: FALLO DE UN PROCESO (codigo 3). El paso 2 ha fallado con codigo 1. No se encuentra la clase Psp.AnalizadorTallas: hay que compilarla (ver README)
+(codigo de salida del padre: 3)

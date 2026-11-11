@@ -1,3 +1,4 @@
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
@@ -10,16 +11,32 @@ import java.util.ArrayList;
  *   comprueba que los datos son correctos antes de que nadie los use.
  *
  * COMO CONTESTA
- *   Si todo esta bien, escribe UNA linea en su salida estandar:
+ *   Si todo esta bien, escribe en su salida estandar una primera linea con
+ *   el resumen y, debajo, los datos del pedido ya NORMALIZADOS:
  *
- *       OK;CUSTOM-40;4;40
- *          referencia  lineas  pares
+ *       OK;CUSTOM-40;4;40                     <- referencia, lineas, pares
+ *       CLIENTE;Club Atletico NOVA
+ *       PERSONALIZACION;Club Atletico NOVA: logo bordado y ...
+ *       PEDIDO;CUSTOM-40
+ *       LINEA;NOVA-4-40;NOVA Velocity;Rojo;40;10
+ *       LINEA;NOVA-4-41;NOVA Velocity;Rojo;41;10
+ *       ...
+ *       FIN
  *
  *   y termina con codigo de salida 0.
  *
- *   Si algo esta mal, escribe el motivo en la salida de error:
+ *   El bloque PEDIDO / LINEA / FIN es justo lo que lee por su stdin el
+ *   AnalizadorTallas de Alvaro (paquete Psp), con su formato
+ *   LINEA;sku;modelo;color;talla;cantidad. Asi el padre se lo puede pasar
+ *   tal cual, sin volver a leer el CSV.
  *
- *       ERROR;La cantidad tiene que ser un numero entero: diez
+ *   Si la personalizacion ocupa varias lineas, sale una linea
+ *   PERSONALIZACION por cada una, en el mismo orden: no se pierde texto.
+ *
+ *   Si algo esta mal, NO escribe nada en la salida estandar. Escribe el
+ *   motivo en la salida de error:
+ *
+ *       ERROR;La cantidad del registro 2 tiene que ser un numero entero, y es: diez
  *
  *   y termina con codigo de salida 2.
  *
@@ -27,7 +44,7 @@ import java.util.ArrayList;
  *   EstadisticasHijo2.java (mini_reto_1_lanzador_estadisticas).
  *
  * COMO SE PRUEBA SUELTO
- *   type custom40.csv | java -cp . ValidadorPedidoCustom
+ *   type datos\custom40_fabricacion_psp.csv | java -cp clases ValidadorPedidoCustom
  */
 public class ValidadorPedidoCustom {
 
@@ -37,6 +54,14 @@ public class ValidadorPedidoCustom {
             "referencia,sku,cliente,modelo,color,personalizacion,talla,cantidad";
 
     public static void main(String[] args) throws Exception {
+
+        /*
+         * Escribimos en UTF-8, que es como lee el proceso padre. Si no, una
+         * letra con tilde de un cliente o de una personalizacion le llegaria
+         * cambiada.
+         */
+        System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
+        System.setErr(new PrintStream(System.err, true, StandardCharsets.UTF_8));
 
         /*
          * Leemos TODA la entrada estandar de golpe, no linea a linea.
@@ -93,8 +118,13 @@ public class ValidadorPedidoCustom {
          * Las declaramos antes del bucle para que sigan existiendo despues.
          */
         String referencia = "";
+        String cliente = "";
+        String personalizacion = "";
         int totalPares = 0;
         int totalRegistros = 0;
+
+        // Las lineas LINEA;... ya normalizadas, para escribirlas al final.
+        ArrayList<String> lineasNormalizadas = new ArrayList<>();
 
         // --- Recorremos los registros de pedido, saltando la cabecera ----
         for (int i = 1; i < registros.size(); i++) {
@@ -108,26 +138,54 @@ public class ValidadorPedidoCustom {
             }
 
             String referenciaFila = campos.get(0);
+            String sku = campos.get(1);
+            String clienteFila = campos.get(2);
+            String modelo = campos.get(3);
+            String color = campos.get(4);
             String textoTalla = campos.get(6);
             String textoCantidad = campos.get(7);
 
-            // --- Comprobacion 5: la referencia no puede estar vacia ------
-            if (referenciaFila.isEmpty()) {
-                error("El registro " + i + " no tiene referencia de pedido");
+            /*
+             * --- Comprobacion 5: no falta ningun dato de la linea ---------
+             *
+             * Ademas, estos textos van despues en lineas separadas por ";",
+             * asi que no pueden llevar un ";" ni un salto de linea dentro.
+             */
+            comprobarTexto(referenciaFila, "la referencia", i);
+            comprobarTexto(sku, "el SKU", i);
+            comprobarTexto(clienteFila, "el cliente", i);
+            comprobarTexto(modelo, "el modelo", i);
+            comprobarTexto(color, "el color", i);
+
+            if (textoTalla.isBlank()) {
+                error("Falta la talla en el registro " + i);
+            }
+
+            if (textoCantidad.isBlank()) {
+                error("Falta la cantidad en el registro " + i);
             }
 
             /*
              * --- Comprobacion 6: todas las lineas, del mismo pedido ------
              *
-             * La primera linea de datos fija la referencia. Las demas tienen
-             * que coincidir: una orden de fabricacion es de UN pedido.
+             * La primera linea de datos fija la referencia y el cliente. Las
+             * demas tienen que coincidir: una orden de fabricacion es de UN
+             * pedido, y un pedido es de UN cliente.
              */
             if (referencia.isEmpty()) {
                 referencia = referenciaFila;
+                cliente = clienteFila;
+                personalizacion = campos.get(5);
+
             } else if (!referencia.equals(referenciaFila)) {
                 error("El registro " + i + " es del pedido " + referenciaFila
                         + " pero las anteriores son del pedido " + referencia
                         + ": un pedido por archivo");
+
+            } else if (!cliente.equals(clienteFila)) {
+                error("El registro " + i + " es del cliente " + clienteFila
+                        + " pero las anteriores son de " + cliente
+                        + ": un pedido es de un solo cliente");
             }
 
             // --- Comprobacion 7: la talla tiene que ser un numero --------
@@ -146,16 +204,55 @@ public class ValidadorPedidoCustom {
                         + " que cero, y es " + cantidad);
             }
 
-            // Si hemos llegado aqui, la linea es correcta: la sumamos.
+            // Si hemos llegado aqui, la linea es correcta: la guardamos.
+            lineasNormalizadas.add("LINEA;" + sku + ";" + modelo + ";" + color
+                    + ";" + talla + ";" + cantidad);
+
             totalPares = totalPares + cantidad;
             totalRegistros = totalRegistros + 1;
         }
 
         /*
          * Todo correcto. Contestamos por la salida estandar con el formato
-         * acordado, para que el proceso padre lo pueda leer y partir por ";".
+         * acordado. La primera linea es la misma de siempre, para que el
+         * padre la pueda partir por ";".
          */
         System.out.println("OK;" + referencia + ";" + totalRegistros + ";" + totalPares);
+        System.out.println("CLIENTE;" + cliente);
+
+        // Una linea PERSONALIZACION por cada linea del texto (puede no haber).
+        if (!personalizacion.isBlank()) {
+            String[] partes = personalizacion.split("\r\n|\n|\r");
+
+            for (String parte : partes) {
+                System.out.println("PERSONALIZACION;" + parte);
+            }
+        }
+
+        System.out.println("PEDIDO;" + referencia);
+
+        for (String linea : lineasNormalizadas) {
+            System.out.println(linea);
+        }
+
+        System.out.println("FIN");
+    }
+
+    /**
+     * Comprueba un texto obligatorio de un registro: que no este vacio y que
+     * no lleve ";" ni saltos de linea, porque romperian las lineas que se
+     * envian a los otros procesos.
+     */
+    private static void comprobarTexto(String texto, String queEs, int numeroRegistro) {
+
+        if (texto.isBlank()) {
+            error("Falta " + queEs + " en el registro " + numeroRegistro);
+        }
+
+        if (texto.contains(";") || texto.contains("\n") || texto.contains("\r")) {
+            error("En el registro " + numeroRegistro + ", " + queEs
+                    + " no puede llevar ';' ni saltos de linea: " + texto);
+        }
     }
 
     /**
