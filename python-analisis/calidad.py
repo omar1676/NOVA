@@ -258,6 +258,8 @@ def regla_08_tallas(datos, textos):
         lista += por_filas("08", nombre, datos, textos, fuera_de_rango, "talla", RECUPERABLE,
                            f"talla fuera del rango de la base ({config.TALLA_MINIMA}-{config.TALLA_MAXIMA})")
 
+    # Talla de cada SKU en stock.csv. Un SKU repetido ya lo apunta la regla 02;
+    # aqui se usa su primera fila, porque map necesita una sola talla por SKU
     lineas = datos["lineas_pedido"]
     stock = datos["stock"].drop_duplicates("sku")
     talla_del_sku = lineas["sku"].map(stock.set_index("sku")["talla"])
@@ -270,6 +272,7 @@ def regla_08_tallas(datos, textos):
 def regla_09_ausencia_cliente_modelo(datos, textos):
     """Un pedido sin cliente o una linea sin modelo no se pueden analizar. Un cliente o modelo sin nombre, se avisa."""
     lista = []
+    # columna[3:] quita el prefijo "id_" para el mensaje: id_cliente -> cliente
     for nombre, columna in [("pedidos", "id_cliente"), ("lineas_pedido", "id_modelo"), ("stock", "id_modelo")]:
         lista += por_filas("09", nombre, datos, textos, datos[nombre][columna].isna(), columna, RECUPERABLE,
                            f"{columna} vacío: no se sabe de qué {columna[3:]} es")
@@ -315,7 +318,9 @@ def regla_11_stock(datos, textos):
 
 def huella_de_pedidos(lineas):
     """Para cada pedido, sus articulos y cantidades ordenados: 'NOVA-4-40 x10 | NOVA-4-41 x10 ...'."""
-    articulo = lineas["sku"].fillna("modelo " + lineas["id_modelo"].fillna("?") + " talla " + lineas["talla"].astype(str))
+    # Una linea sin SKU (X-NOVA) se identifica por su modelo y su talla
+    sin_sku = "modelo " + lineas["id_modelo"].fillna("?") + " talla " + lineas["talla"].astype(str)
+    articulo = lineas["sku"].fillna(sin_sku)
     partes = articulo + " x" + lineas["cantidad"].astype(str)
     # Una linea con algun dato vacio (ya rechazada por otra regla) no rompe la huella
     partes = partes.fillna("línea incompleta")
@@ -366,7 +371,8 @@ def regla_12_coherencia(datos, textos):
             # Sin lineas: 0 pares y 0 euros. Si su cabecera dice otra cosa, tampoco cuadra
             lista.append(incidencia("12", "pedidos", ADVERTENCIA, "pedido sin ninguna línea",
                                     registro=pedido["id_pedido"], fila=indice + 1))
-            pares, importe = 0, 0.0
+            pares = 0
+            importe = 0.0
         if pd.notna(pedido["cantidad_total"]) and pedido["cantidad_total"] != pares:
             lista.append(incidencia("12", "pedidos", RECUPERABLE,
                                     f"cantidad_total {pedido['cantidad_total']} y sus líneas suman {pares} pares",
@@ -390,11 +396,14 @@ def regla_12_coherencia(datos, textos):
 
     # Posibles pedidos repetidos: mismo cliente y exactamente las mismas lineas
     huellas = huella_de_pedidos(lineas)
-    con_huella = pedidos.assign(huella=pedidos["id_pedido"].map(huellas)).dropna(subset=["huella"])
+    con_huella = pedidos.copy()
+    con_huella["huella"] = pedidos["id_pedido"].map(huellas)
+    con_huella = con_huella.dropna(subset=["huella"])
     for (cliente, huella), grupo in con_huella.groupby(["id_cliente", "huella"]):
         if len(grupo) > 1:
             for indice, pedido in grupo.iterrows():
-                otros = ", ".join(grupo.loc[grupo.index != indice, "referencia"].fillna("?"))
+                otras_referencias = grupo.loc[grupo.index != indice, "referencia"].fillna("?")
+                otros = ", ".join(otras_referencias)
                 lista.append(incidencia("12", "pedidos", ADVERTENCIA,
                                         f"mismo cliente y mismas líneas que {otros}: posible pedido repetido "
                                         f"(no se elimina; confirmar con Acceso a Datos)",
@@ -428,16 +437,21 @@ def separar(datos, incidencias):
     """
     motivos = {nombre: {} for nombre in datos}   # nombre -> {indice de fila: motivo}
     de_fila = incidencias[(incidencias["gravedad"] != ADVERTENCIA) & (incidencias["fila"] != "")]
+    # setdefault: si una fila tiene varias incidencias, se queda el motivo de la primera
     for _, fila in de_fila.iterrows():
         motivos[fila["tabla"]].setdefault(fila["fila"] - 1, f"regla {fila['regla']}: {fila['detalle']}")
 
     pedidos = datos["pedidos"]
     lineas = datos["lineas_pedido"]
-    pedidos_fuera = set(pedidos.loc[list(motivos["pedidos"]), "id_pedido"].dropna())
-    pedidos_fuera |= set(lineas.loc[list(motivos["lineas_pedido"]), "id_pedido"].dropna())
-    for indice in pedidos.index[pedidos["id_pedido"].isin(list(pedidos_fuera))]:
+    # Pedidos que salen enteros: los rechazados y los que tienen alguna linea rechazada
+    filas_pedidos = list(motivos["pedidos"])
+    filas_lineas = list(motivos["lineas_pedido"])
+    pedidos_fuera = set(pedidos.loc[filas_pedidos, "id_pedido"].dropna())
+    pedidos_fuera.update(lineas.loc[filas_lineas, "id_pedido"].dropna())
+    lista_fuera = list(pedidos_fuera)
+    for indice in pedidos.index[pedidos["id_pedido"].isin(lista_fuera)]:
         motivos["pedidos"].setdefault(indice, "tiene una línea rechazada")
-    for indice in lineas.index[lineas["id_pedido"].isin(list(pedidos_fuera))]:
+    for indice in lineas.index[lineas["id_pedido"].isin(lista_fuera)]:
         motivos["lineas_pedido"].setdefault(indice, "su pedido se ha rechazado")
 
     validos = {}
@@ -459,21 +473,35 @@ def resumen_calidad(datos, validos, incidencias):
         bloqueantes = int((de_la_tabla["gravedad"] == BLOQUEANTE).sum())
         if nombre not in validos:
             # El archivo no se ha podido cargar, o falta otro y no se ha evaluado
-            estado = "no cargado" if nombre not in datos else "sin evaluar"
-            entrada = len(datos[nombre]) if nombre in datos else 0
+            if nombre in datos:
+                estado = "sin evaluar"
+                entrada = len(datos[nombre])
+            else:
+                estado = "no cargado"
+                entrada = 0
             buenas = None
         else:
             entrada = len(datos[nombre])
             buenas = len(validos[nombre])
-            estado = "bloqueado" if bloqueantes > 0 else "correcto"
+            if bloqueantes > 0:
+                estado = "bloqueado"
+            else:
+                estado = "correcto"
+        # Sin evaluar no hay filas rechazadas ni porcentaje (vacio, no 0)
+        rechazadas = None
+        porcentaje_calidad = None
+        if buenas is not None:
+            rechazadas = entrada - buenas
+            if entrada > 0:
+                porcentaje_calidad = round(100 * buenas / entrada, 1)
         filas.append({
             "tabla": nombre,
             "archivo": definicion["archivo"],
             "estado": estado,
             "filas_entrada": entrada,
             "filas_validas": buenas,
-            "filas_rechazadas": entrada - buenas if buenas is not None else None,
-            "porcentaje_calidad": round(100 * buenas / entrada, 1) if buenas is not None and entrada > 0 else None,
+            "filas_rechazadas": rechazadas,
+            "porcentaje_calidad": porcentaje_calidad,
             "bloqueantes": bloqueantes,
             "recuperables": int((de_la_tabla["gravedad"] == RECUPERABLE).sum()),
             "advertencias": int((de_la_tabla["gravedad"] == ADVERTENCIA).sum()),
@@ -494,7 +522,7 @@ def evaluar(carpeta):
         for regla in REGLAS_CON_DATOS:
             lista += regla(datos, textos)
 
-    # Las incidencias salen en orden de regla y, dentro de cada regla, de fila
+    # Las incidencias quedan en el orden en que se aplican las reglas, de la 01 a la 12
     incidencias = pd.DataFrame(lista, columns=COLUMNAS_INCIDENCIA)
     bloqueado = (not cargados) or bool((incidencias["gravedad"] == BLOQUEANTE).any())
 
@@ -523,11 +551,14 @@ def nulos_por_columna(datos):
     for nombre, tabla in datos.items():
         for columna in tabla.columns:
             nulos = int(tabla[columna].isna().sum())
+            porcentaje_nulos = None
+            if len(tabla) > 0:
+                porcentaje_nulos = round(100 * nulos / len(tabla), 1)
             filas.append({
                 "tabla": nombre,
                 "columna": columna,
                 "obligatoria": columna in config.ARCHIVOS[nombre]["obligatorias"],
                 "nulos": nulos,
-                "porcentaje_nulos": round(100 * nulos / len(tabla), 1) if len(tabla) > 0 else None,
+                "porcentaje_nulos": porcentaje_nulos,
             })
     return pd.DataFrame(filas)

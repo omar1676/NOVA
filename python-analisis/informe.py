@@ -29,8 +29,10 @@ LIMITE_ORIGEN = {
 
 def numero(valor, decimales=0):
     """Numero al estilo espanol: 1.234,5"""
-    texto = f"{float(valor):,.{decimales}f}"
-    return texto.replace(",", "_").replace(".", ",").replace("_", ".")
+    texto = f"{float(valor):,.{decimales}f}"   # formato ingles: 1,234.5
+    texto = texto.replace(",", "_")             # 1_234.5 (los miles, aparte un momento)
+    texto = texto.replace(".", ",")             # 1_234,5 (coma decimal)
+    return texto.replace("_", ".")              # 1.234,5 (punto de miles)
 
 
 def no_calculable(tabla):
@@ -39,6 +41,7 @@ def no_calculable(tabla):
 
 
 def conclusion(numero_, titulo, procede_de, evidencia, interpretacion, decision, limitacion, calculable=True):
+    """Una conclusion del informe. numero_ lleva "_" para no tapar la funcion numero()."""
     return {"numero": numero_, "titulo": titulo, "procede_de": procede_de, "calculable": calculable,
             "evidencia": evidencia, "interpretacion": interpretacion, "decision": decision,
             "limitacion": limitacion.strip()}
@@ -50,9 +53,13 @@ def concentracion_modelos(abc, procede_de, limite):
                           f"{NO_CALCULABLE}: no hay pares de demanda.", "-", "Esperar a tener pedidos.", limite, False)
     clase_a = abc[abc["clase_abc"] == "A"]
     primero = abc.iloc[0]
+    if len(clase_a) == 1:
+        verbo = "suma"
+    else:
+        verbo = "suman"
     return conclusion(
         1, "La demanda se concentra en pocos modelos", procede_de,
-        f"{len(clase_a)} de {len(abc)} modelos (clase A) {'suma' if len(clase_a) == 1 else 'suman'} el "
+        f"{len(clase_a)} de {len(abc)} modelos (clase A) {verbo} el "
         f"{numero(clase_a['peso_pct'].sum(), 1)} % de los "
         f"pares solicitados. El más pedido, {primero['nombre_modelo']}, aporta el {numero(primero['peso_pct'], 1)} % "
         f"({numero(primero['pares'])} pares).",
@@ -71,7 +78,10 @@ def peso_custom(tabla, procede_de, limite):
     tickets = []
     for nombre, fila in [("Custom", custom), ("estándar", normal)]:
         ticket = fila["ticket_medio_venta"]
-        tickets.append(f"{nombre} {numero(ticket, 2)} €" if pd.notna(ticket) else f"{nombre} sin ventas confirmadas")
+        if pd.notna(ticket):
+            tickets.append(f"{nombre} {numero(ticket, 2)} €")
+        else:
+            tickets.append(f"{nombre} sin ventas confirmadas")
     return conclusion(
         2, "Los pedidos Custom mueven la mayor parte del volumen", procede_de,
         f"Los Custom son el {numero(custom['cuota_pedidos_pct'], 1)} % de los pedidos de demanda, pero el "
@@ -145,18 +155,24 @@ def prediccion_frente_a_baseline(metricas, tipo, limite):
     baseline = por_metodo.loc["baseline"]
     regresion = por_metodo.loc["regresion"]
     mejora = regresion["mejora_al_baseline"].startswith("sí")
+    if mejora:
+        titulo = "La predicción mejora al método sencillo"
+        interpretacion = "La regresión aprende algo que el mes anterior no recoge."
+        decision = "Usar la regresión como apoyo y compararla cada mes con el baseline."
+    else:
+        titulo = "La predicción no mejora al método sencillo"
+        interpretacion = ("La demanda depende de pedidos Custom que llegan a saltos: ni el mes anterior ni la "
+                          "regresión los anticipan bien.")
+        decision = ("No usar la regresión para planificar: seguir con el dato del mes anterior y revisar a mano "
+                    "los pedidos Custom confirmados.")
     return conclusion(
-        5, "La predicción " + ("mejora" if mejora else "no mejora") + " al método sencillo", procede_de,
+        5, titulo, procede_de,
         f"Evaluación {baseline['periodo_evaluacion']} ({int(baseline['filas_evaluacion'])} predicciones): baseline "
         f"(mes anterior) MAE {numero(baseline['mae'], 2)} y RMSE {numero(baseline['rmse'], 2)} pares; regresión "
         f"lineal MAE {numero(regresion['mae'], 2)} y RMSE {numero(regresion['rmse'], 2)}. ¿Mejora? "
         f"{regresion['mejora_al_baseline']}.",
-        ("La regresión aprende algo que el mes anterior no recoge." if mejora else
-         "La demanda depende de pedidos Custom que llegan a saltos: ni el mes anterior ni la regresión los "
-         "anticipan bien."),
-        ("Usar la regresión como apoyo y compararla cada mes con el baseline." if mejora else
-         "No usar la regresión para planificar: seguir con el dato del mes anterior y revisar a mano los "
-         "pedidos Custom confirmados."),
+        interpretacion,
+        decision,
         f"Solo {int(baseline['filas_evaluacion'])} predicciones de 3 meses; el resultado podría cambiar con otros "
         f"meses. {limite}")
 

@@ -7,7 +7,7 @@ DataFrame de analiticas.py: nunca con cifras escritas a mano. Lleva titulo
 hace falta y un pie con el origen, la fecha de corte, el momento del calculo
 y los filtros. Si no hay datos, el grafico lo dice en vez de fallar.
 
-No usa Streamlit: el dashboard de la fase siguiente podra reutilizarlas.
+No usa Streamlit: el dashboard (app_dashboard.py) usa estas mismas funciones.
 """
 from pathlib import Path
 
@@ -101,11 +101,14 @@ def grafico_pareto_modelos(tabla_abc, carpeta, pie):
         acumulado.axhline(config.ABC_LIMITE_B, color="black", linestyle=":", linewidth=0.8)
         acumulado.set_ylim(0, 105)
         acumulado.set_ylabel("% acumulado de pares")
-        ax.legend(handles=[Patch(color=COLOR_CLASE[c], label=f"clase {c}") for c in "ABC"]
-                  + [plt.Line2D([], [], color="black", marker="o", label="% acumulado"),
-                     plt.Line2D([], [], color="black", linestyle="--", label=f"límite A ({config.ABC_LIMITE_A} %)"),
-                     plt.Line2D([], [], color="black", linestyle=":", label=f"límite B ({config.ABC_LIMITE_B} %)")],
-                  loc="center right")
+        # Leyenda: un cuadro por clase y una linea por cada marca del eje de la derecha
+        leyenda = []
+        for clase in "ABC":
+            leyenda.append(Patch(color=COLOR_CLASE[clase], label=f"clase {clase}"))
+        leyenda.append(plt.Line2D([], [], color="black", marker="o", label="% acumulado"))
+        leyenda.append(plt.Line2D([], [], color="black", linestyle="--", label=f"límite A ({config.ABC_LIMITE_A} %)"))
+        leyenda.append(plt.Line2D([], [], color="black", linestyle=":", label=f"límite B ({config.ABC_LIMITE_B} %)"))
+        ax.legend(handles=leyenda, loc="center right")
     return guardar(fig, carpeta, GRAFICOS[1][0], pie)
 
 
@@ -115,7 +118,10 @@ def grafico_pares_por_talla(tabla_tallas, carpeta, pie):
         sin_datos(ax)
     else:
         barras = ax.bar(tabla_tallas["talla"].astype(str), tabla_tallas["pares"], color=AZUL)
-        ax.bar_label(barras, labels=[f"{p} ({w} %)" for p, w in zip(tabla_tallas["pares"], tabla_tallas["peso_pct"])])
+        etiquetas = []
+        for pares, peso in zip(tabla_tallas["pares"], tabla_tallas["peso_pct"]):
+            etiquetas.append(f"{pares} ({peso} %)")
+        ax.bar_label(barras, labels=etiquetas)
         ax.set_xlabel("Talla (EU)")
         ax.set_ylabel("Pares (nº)")
     return guardar(fig, carpeta, GRAFICOS[2][0], pie)
@@ -197,6 +203,7 @@ def grafico_custom_vs_estandar(tabla, carpeta, pie):
     else:
         posiciones = np.arange(3)
         ancho = 0.38
+        # Una barra por tipo en cada grupo, desplazada media barra a cada lado
         for numero, tipo in enumerate(cuotas.index):
             barras = ax.bar(posiciones + (numero - 0.5) * ancho, cuotas.loc[tipo].fillna(0), ancho,
                             label=tipo, color=COLOR_TIPO.get(tipo, GRIS))
@@ -236,6 +243,7 @@ def grafico_stock(tabla_stock, carpeta, pie, umbral=config.UMBRAL_STOCK_BAJO):
         sin_datos(ax)
     else:
         valores = tabla_stock["stock_disponible"].astype(float)
+        # Bordes en los medios enteros (-0,5, 0,5...): una barra por cada numero de pares
         bordes = np.arange(0, valores.max() + 2) - 0.5
         ax.hist(valores, bins=bordes, color=AZUL)
         ax.axvline(umbral - 0.5, color="red", linestyle="--",
@@ -252,14 +260,21 @@ def grafico_importe_por_tipo(pedidos, carpeta, pie):
     fig, ax = nueva_figura("¿Cuánto vale un pedido según su tipo?",
                            "Importe de cada pedido no cancelado según su tipo; cada punto es un pedido (escala logarítmica)")
     demanda = pedidos[~pedidos["es_cancelado"]]
-    grupos = [(tipo, demanda.loc[demanda["tipo_pedido"] == tipo, "importe"].astype(float))
-              for tipo in config.TIPOS_PEDIDO]
-    grupos = [(tipo, valores) for tipo, valores in grupos if len(valores) > 0]
+    # Los importes de cada tipo de pedido que tenga algun pedido
+    grupos = []
+    for tipo in config.TIPOS_PEDIDO:
+        valores = demanda.loc[demanda["tipo_pedido"] == tipo, "importe"].astype(float)
+        if len(valores) > 0:
+            grupos.append((tipo, valores))
     if not grupos:
         sin_datos(ax)
     else:
-        ax.boxplot([valores for _, valores in grupos],
-                   tick_labels=[f"{tipo} (n = {len(valores)})" for tipo, valores in grupos])
+        cajas = []
+        etiquetas = []
+        for tipo, valores in grupos:
+            cajas.append(valores)
+            etiquetas.append(f"{tipo} (n = {len(valores)})")
+        ax.boxplot(cajas, tick_labels=etiquetas)
         for posicion, (tipo, valores) in enumerate(grupos, start=1):
             ax.scatter(np.full(len(valores), posicion), valores, color=COLOR_TIPO.get(tipo, GRIS), alpha=0.6, zorder=3)
         ax.set_yscale("log")
@@ -298,6 +313,7 @@ def grafico_real_frente_a_prediccion(predicciones, carpeta, pie):
     carpeta.mkdir(parents=True, exist_ok=True)
     if "estado" in predicciones.columns:
         fig, ax = nueva_figura(GRAFICO_PREDICCION[2], "Pares reales frente a pares predichos")
+        # El motivo se recorta a 110 caracteres para que quepa en el grafico
         sin_datos(ax, f"No se puede predecir: {predicciones['motivo'].iloc[0]}"[:110])
         return guardar(fig, carpeta, GRAFICO_PREDICCION[0], pie)
 

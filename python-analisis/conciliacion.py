@@ -8,9 +8,9 @@ acceso-datos/sql/12_consultas_panel.sql, sin cambiar nada:
   P-C  pares y pedidos por modelo, sin cancelados
 
 Acceso a Datos las ejecuta con psql y deja el resultado en CSV en
-entrada_acc/conciliacion_sql/ (como lo hace aqui conciliacion_sql.md).
+entrada_acc/conciliacion_sql/ (los pasos estan en conciliacion_sql.md).
 Python no se conecta a PostgreSQL: lee esos CSV y los compara con lo que
-calcula el con pandas. Si faltan, la conciliacion queda PENDIENTE: nunca
+calcula con pandas. Si faltan, la conciliacion queda PENDIENTE: nunca
 se da por buena sin haberla hecho.
 """
 from pathlib import Path
@@ -46,7 +46,11 @@ CONSULTAS = {
 def faltan_resultados(carpeta_sql):
     """Lista de los CSV de resultados SQL que no estan."""
     carpeta_sql = Path(carpeta_sql)
-    return [c["archivo"] for c in CONSULTAS.values() if not (carpeta_sql / c["archivo"]).exists()]
+    faltan = []
+    for consulta in CONSULTAS.values():
+        if not (carpeta_sql / consulta["archivo"]).exists():
+            faltan.append(consulta["archivo"])
+    return faltan
 
 
 def leer_resultado(carpeta_sql, consulta):
@@ -61,13 +65,21 @@ def leer_resultado(carpeta_sql, consulta):
 def comparar(consulta, indicador, clave, valor_sql, valor_python, euros=False):
     """Una fila de la conciliacion. Los euros se dan por iguales con medio centimo de diferencia."""
     if pd.isna(valor_sql):
-        resultado, diferencia = "falta en SQL", None
+        resultado = "falta en SQL"
+        diferencia = None
     elif pd.isna(valor_python):
-        resultado, diferencia = "falta en Python", None
+        resultado = "falta en Python"
+        diferencia = None
     else:
         diferencia = round(float(valor_python) - float(valor_sql), 2)
-        tolerancia = config.TOLERANCIA_EUROS if euros else 0
-        resultado = "coincide" if abs(diferencia) <= tolerancia else "NO COINCIDE"
+        if euros:
+            tolerancia = config.TOLERANCIA_EUROS
+        else:
+            tolerancia = 0   # pedidos y pares tienen que coincidir exactamente
+        if abs(diferencia) <= tolerancia:
+            resultado = "coincide"
+        else:
+            resultado = "NO COINCIDE"
     return {"consulta": consulta, "indicador": indicador, "clave": clave,
             "valor_sql": valor_sql, "valor_python": valor_python,
             "diferencia": diferencia, "resultado": resultado,
@@ -107,17 +119,16 @@ def conciliar(carpeta_sql, pedidos_unicos, lineas_enriquecidas):
                           round(no_cancelados["importe"].sum(), 2), euros=True))
 
     # P-B: por estado, todos los pedidos
-    python = pedidos_unicos.groupby("estado_pedido").agg(
-        pedidos=("id_pedido", "count"), pares=("pares", "sum"), importe=("importe", "sum")
-    ).reset_index().rename(columns={"estado_pedido": "estado"})
+    por_estado = pedidos_unicos.groupby("estado_pedido").agg(
+        pedidos=("id_pedido", "count"), pares=("pares", "sum"), importe=("importe", "sum"))
+    python = por_estado.reset_index().rename(columns={"estado_pedido": "estado"})   # el nombre de SQL
     filas += comparar_por_grupos("P-B", leer_resultado(carpeta_sql, "P-B"), python, "estado",
                                  [("pedidos", False), ("pares", False), ("importe", True)])
 
     # P-C: por modelo, lineas de pedidos no cancelados
     lineas = lineas_enriquecidas[~lineas_enriquecidas["es_cancelado"]]
-    python = lineas.groupby("nombre_modelo").agg(
-        pares=("cantidad", "sum"), pedidos=("id_pedido", "nunique")
-    ).reset_index().rename(columns={"nombre_modelo": "modelo"})
+    por_modelo = lineas.groupby("nombre_modelo").agg(pares=("cantidad", "sum"), pedidos=("id_pedido", "nunique"))
+    python = por_modelo.reset_index().rename(columns={"nombre_modelo": "modelo"})   # el nombre de SQL
     filas += comparar_por_grupos("P-C", leer_resultado(carpeta_sql, "P-C"), python, "modelo",
                                  [("pares", False), ("pedidos", False)])
     return pd.DataFrame(filas)

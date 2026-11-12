@@ -3,7 +3,7 @@ Pruebas de la segmentacion de clientes: RFM y KMeans (segmentacion.py).
 
 Las pruebas de RFM usan pedidos escritos a mano, con resultados que se pueden
 calcular de cabeza. Las de KMeans usan los datos sinteticos (40 clientes):
-con los 6 clientes del conjunto de prueba no se puede agrupar.
+con los 6 clientes de la exportacion de PRUEBA (entrada_acc) no se puede agrupar.
 """
 import unittest
 
@@ -150,7 +150,7 @@ class PruebasSegmentos(unittest.TestCase):
         pd.testing.assert_frame_equal(primera, segunda)
 
     def test_pocos_clientes_no_calculable(self):
-        # Como el conjunto de prueba: 6 clientes y solo el 6 con una compra
+        # Como la exportacion de PRUEBA de entrada_acc: 6 clientes y solo el 6 con una compra
         tabla = pedidos([("1", "6", "2026-10-30 00:00:00", "confirmado", 4796.0)])
         tabla_rfm = segmentacion.rfm(tabla, clientes(6), CORTE).set_index("id_cliente")
         self.assertTrue(tabla_rfm.loc["6", "segmento"].startswith(NO_CALCULABLE))
@@ -216,7 +216,7 @@ class PruebasKMeans(unittest.TestCase):
         self.assertEqual(comparacion.set_index("segmento")["total"].to_dict(), segmentos.to_dict())
 
     def test_no_se_fuerza_con_pocos_clientes(self):
-        # Los 6 clientes del conjunto de prueba, con una sola compra: no hay grupos
+        # Los 6 clientes de la exportacion de PRUEBA, con una sola compra: no hay grupos
         tabla = pedidos([("1", "6", "2026-10-30 00:00:00", "confirmado", 4796.0)])
         tabla_rfm = segmentacion.rfm(tabla, clientes(6), CORTE)
         seleccion, clusters, con_cluster = segmentacion.kmeans_clientes(tabla_rfm)

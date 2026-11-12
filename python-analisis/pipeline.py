@@ -130,6 +130,9 @@ def cargar_todos(carpeta=config.CARPETA_ENTRADA):
     Devuelve (diccionario nombre -> DataFrame, lista de avisos). Si algun
     archivo no se puede usar, lanza ErrorDatos con TODOS los problemas: no
     se analiza nunca con los datos a medias.
+
+    Solo la usan las pruebas de la fase 1 (test_pipeline.py). main.py y el
+    dashboard cargan con calidad.cargar, que ademas guarda el texto original.
     """
     carpeta = Path(carpeta)
     datos = {}

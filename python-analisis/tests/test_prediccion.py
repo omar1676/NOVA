@@ -238,7 +238,7 @@ class PruebasDatosInsuficientes(unittest.TestCase):
         self.assertEqual(len(resultado["demanda_mensual_modelo"]), 11)   # la demanda si se describe
 
     def test_sin_ningun_mes_completo(self):
-        # Como el conjunto de prueba: pedidos solo del mes de la fecha de corte
+        # Como la exportacion de PRUEBA de entrada_acc: pedidos solo del mes de la fecha de corte
         tabla = lineas({"A": [3]}, primer_mes="2026-11")
         resultado = prediccion.predecir_demanda(tabla, pd.Timestamp("2026-11-09 19:12:54"))
         self.assertEqual(resultado["demanda_mensual_modelo"]["estado"].iloc[0], NO_CALCULABLE)

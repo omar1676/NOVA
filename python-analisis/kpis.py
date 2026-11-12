@@ -31,6 +31,7 @@ def kpi(codigo, nombre, valor, unidad, formula, poblacion, origen, detalle=""):
 
 
 def kpi_no_calculable(codigo, nombre, unidad, formula, poblacion, origen, motivo):
+    """Un KPI sin valor: estado NO CALCULABLE y el motivo en el detalle."""
     fila = kpi(codigo, nombre, None, unidad, formula, poblacion, origen, motivo)
     fila["estado"] = NO_CALCULABLE
     return fila
@@ -97,12 +98,18 @@ def calcular_kpis(pedidos, tabla_abc, tabla_tallas, tabla_stock, tabla_meses):
         mas_solicitado("K14", "Talla más solicitada", tabla_tallas, "talla", "ventas_por_talla"),
     ]
 
-    # Pareto: que parte de los pares se lleva el 20 % de los modelos con mas pares
+    # Pareto: que parte de los pares se lleva el 20 % de los modelos con mas pares.
+    # int(x + 0.5) redondea al entero mas cercano; como minimo se cuenta 1 modelo
     modelos = len(tabla_abc)
-    cuantos = max(1, int(modelos * config.PARETO_PORCENTAJE / 100 + 0.5)) if modelos else 0
+    if modelos > 0:
+        cuantos = max(1, int(modelos * config.PARETO_PORCENTAJE / 100 + 0.5))
+    else:
+        cuantos = 0
+    pares_de_los_primeros = tabla_abc["pares"].head(cuantos).sum()   # modelos_abc va de mas a menos pares
+    pares_totales = tabla_abc["pares"].sum()
     lista.append(kpi(
         "K15", "Concentración de Pareto (modelos)",
-        porcentaje(tabla_abc["pares"].head(cuantos).sum(), tabla_abc["pares"].sum()), "%",
+        porcentaje(pares_de_los_primeros, pares_totales), "%",
         f"pares de los {config.PARETO_PORCENTAJE} % de modelos con más pares / pares totales x 100",
         "demanda", "modelos_abc", f"{cuantos} de {modelos} modelos del catálogo"))
 
@@ -127,11 +134,17 @@ def variacion_mensual(tabla_meses):
     """Variacion del importe de venta del ultimo mes frente al anterior. Hacen falta 2 meses."""
     formula = "(importe del último mes / importe del mes anterior - 1) x 100"
     if "estado" in tabla_meses.columns or len(tabla_meses) < 2:
-        meses = 0 if "estado" in tabla_meses.columns else len(tabla_meses)
+        if "estado" in tabla_meses.columns:
+            meses = 0   # la tabla es NO CALCULABLE: no hay ningun mes con ventas
+        else:
+            meses = len(tabla_meses)
         return kpi_no_calculable("K19", "Variación mensual del importe", "%", formula, "venta",
                                  "ventas_por_periodo", f"hacen falta 2 meses con ventas y hay {meses}")
     ultimo = tabla_meses.iloc[-1]
-    valor = None if pd.isna(ultimo["variacion_importe_pct"]) else float(ultimo["variacion_importe_pct"])
+    if pd.isna(ultimo["variacion_importe_pct"]):
+        valor = None
+    else:
+        valor = float(ultimo["variacion_importe_pct"])
     return kpi("K19", "Variación mensual del importe", valor, "%", formula, "venta",
                "ventas_por_periodo", f"{ultimo['anio_mes']} frente al mes anterior")
 
@@ -140,7 +153,10 @@ def cobertura_total(tabla_stock):
     """Semanas que duraria todo el stock con la demanda de los ultimos 28 dias."""
     formula = f"stock total / (pares de demanda de los últimos {config.DIAS_DEMANDA} días / 4)"
     if len(tabla_stock) == 0 or str(tabla_stock["estado_cobertura"].iloc[0]).startswith(NO_CALCULABLE):
-        motivo = tabla_stock["estado_cobertura"].iloc[0] if len(tabla_stock) else "no hay stock"
+        if len(tabla_stock) > 0:
+            motivo = tabla_stock["estado_cobertura"].iloc[0]
+        else:
+            motivo = "no hay stock"
         return kpi_no_calculable("K20", "Cobertura de stock", "semanas", formula, "demanda",
                                  "stock_variantes", motivo)
     semanal = tabla_stock["demanda_28d"].sum() / (config.DIAS_DEMANDA / 7)
@@ -163,13 +179,21 @@ def coherencia_con_sql(tabla_kpis, carpeta_sql):
     valor = dict(zip(tabla_kpis["codigo"], tabla_kpis["valor"]))
     confirmados = p_b[p_b["estado"].isin(config.ESTADOS_CONFIRMADOS)]
     cancelados = p_b[p_b["estado"].isin(config.ESTADOS_CANCELADOS)]
+    # Cada fila: consulta, KPI, que pedidos cuenta, cifra de SQL y cifra de Python
     filas = [
-        conciliacion.comparar("P-B", "K01 pedidos registrados", "todos los estados", p_b["pedidos"].sum(), valor["K01"]),
-        conciliacion.comparar("P-B", "K02 pedidos confirmados", "confirmados en adelante", confirmados["pedidos"].sum(), valor["K02"]),
-        conciliacion.comparar("P-B", "K03 pedidos cancelados", "cancelado", cancelados["pedidos"].sum(), valor["K03"]),
-        conciliacion.comparar("P-A", "K04 pares solicitados", "no cancelados", p_a["pares_solicitados"], valor["K04"]),
-        conciliacion.comparar("P-B", "K05 pares confirmados", "confirmados en adelante", confirmados["pares"].sum(), valor["K05"]),
-        conciliacion.comparar("P-B", "K06 importe registrado", "todos los estados", p_b["importe"].sum(), valor["K06"], euros=True),
-        conciliacion.comparar("P-B", "K07 importe confirmado", "confirmados en adelante", confirmados["importe"].sum(), valor["K07"], euros=True),
+        conciliacion.comparar("P-B", "K01 pedidos registrados", "todos los estados",
+                              p_b["pedidos"].sum(), valor["K01"]),
+        conciliacion.comparar("P-B", "K02 pedidos confirmados", "confirmados en adelante",
+                              confirmados["pedidos"].sum(), valor["K02"]),
+        conciliacion.comparar("P-B", "K03 pedidos cancelados", "cancelado",
+                              cancelados["pedidos"].sum(), valor["K03"]),
+        conciliacion.comparar("P-A", "K04 pares solicitados", "no cancelados",
+                              p_a["pares_solicitados"], valor["K04"]),
+        conciliacion.comparar("P-B", "K05 pares confirmados", "confirmados en adelante",
+                              confirmados["pares"].sum(), valor["K05"]),
+        conciliacion.comparar("P-B", "K06 importe registrado", "todos los estados",
+                              p_b["importe"].sum(), valor["K06"], euros=True),
+        conciliacion.comparar("P-B", "K07 importe confirmado", "confirmados en adelante",
+                              confirmados["importe"].sum(), valor["K07"], euros=True),
     ]
     return pd.DataFrame(filas)

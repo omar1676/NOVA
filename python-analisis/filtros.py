@@ -30,19 +30,27 @@ SIN_FILTROS = {"desde": None, "hasta": None, "modelos": [], "tallas": [], "tipos
 
 def hay_filtros(filtros):
     """True si algun filtro restringe algo."""
-    return any(filtros.get(clave) for clave in SIN_FILTROS)
+    for clave in SIN_FILTROS:
+        if filtros.get(clave):
+            return True
+    return False
 
 
 def describir(filtros):
     """Los filtros en una linea de texto, para el pie de graficos, las descargas y el registro."""
     partes = []
     if filtros.get("desde") or filtros.get("hasta"):
-        partes.append(f"periodo {filtros.get('desde') or 'inicio'} a {filtros.get('hasta') or 'fin'}")
+        desde = filtros.get("desde") or "inicio"
+        hasta = filtros.get("hasta") or "fin"
+        partes.append(f"periodo {desde} a {hasta}")
     nombres = {"modelos": "modelo", "tallas": "talla", "tipos": "tipo", "estados": "estado"}
     for clave, nombre in nombres.items():
         if filtros.get(clave):
-            partes.append(f"{nombre}: {', '.join(str(valor) for valor in filtros[clave])}")
-    return " · ".join(partes) if partes else "ninguno"
+            valores = [str(valor) for valor in filtros[clave]]
+            partes.append(f"{nombre}: {', '.join(valores)}")
+    if partes:
+        return " · ".join(partes)
+    return "ninguno"
 
 
 def ids_de_modelos(modelos, nombres):
@@ -63,7 +71,8 @@ def filtrar_validos(validos, filtros):
         pedidos = pedidos[pedidos["fecha_pedido"] >= pd.Timestamp(filtros["desde"])]
     if filtros.get("hasta"):
         # hasta el final del dia: el 31 incluye un pedido del 31 a las 18:00
-        pedidos = pedidos[pedidos["fecha_pedido"] < pd.Timestamp(filtros["hasta"]) + pd.Timedelta(days=1)]
+        dia_siguiente = pd.Timestamp(filtros["hasta"]) + pd.Timedelta(days=1)
+        pedidos = pedidos[pedidos["fecha_pedido"] < dia_siguiente]
     if filtros.get("tipos"):
         pedidos = pedidos[pedidos["tipo_pedido"].isin(filtros["tipos"])]
     if filtros.get("estados"):
@@ -72,13 +81,18 @@ def filtrar_validos(validos, filtros):
 
     # 2. Condiciones de la linea
     if filtros.get("modelos"):
-        lineas = lineas[lineas["id_modelo"].isin(ids_de_modelos(validos["modelos"], filtros["modelos"]))]
+        ids_elegidos = ids_de_modelos(validos["modelos"], filtros["modelos"])
+        lineas = lineas[lineas["id_modelo"].isin(ids_elegidos)]
     if filtros.get("tallas"):
         lineas = lineas[lineas["talla"].isin(filtros["tallas"])]
     if filtros.get("modelos") or filtros.get("tallas"):
         pedidos = pedidos[pedidos["id_pedido"].isin(lineas["id_pedido"])]
 
-    return {**validos, "pedidos": pedidos, "lineas_pedido": lineas}
+    # Una copia del diccionario con los pedidos y las lineas filtrados; el resto, igual
+    filtrados = dict(validos)
+    filtrados["pedidos"] = pedidos
+    filtrados["lineas_pedido"] = lineas
+    return filtrados
 
 
 def calcular_filtrado(datos, validos, filtros):
