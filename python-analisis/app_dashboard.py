@@ -320,17 +320,22 @@ def pestana_direccion(c):
 
     st.subheader("Conclusiones para dirección")
     alcance(c, filtrado=False)
-    st.caption("Cada conclusión dice de dónde sale. Ninguna simulación es un resultado comercial real.")
-    for fila in c["publicado"]["informe"].to_dict("records"):
+    st.caption("Cada conclusión dice de dónde sale. Ninguna simulación es un resultado comercial real. Van por "
+               "prioridad: primero la urgencia (alta: si no se actúa, se deja sin servir demanda que ya existe; "
+               "media: sirve para planificar el próximo mes; baja: no hay datos para decidir o no hace falta cambiar "
+               "nada) y, con la misma urgencia, el número.")
+    for fila in c["publicado"]["informe"].sort_values("prioridad").to_dict("records"):
         with st.container(border=True):
-            st.markdown(f"**{fila['numero']}. {fila['titulo']}**")
+            st.markdown(f"**Prioridad {fila['prioridad']} · {fila['numero']}. {fila['titulo']}**")
             if fila["procede_de"].startswith("Predicción"):
                 color = "blue"
             else:
                 color = COLOR_ORIGEN.get(c["publicado"]["tipo"], "gray")
             st.badge(fila["procede_de"], color=color)
             st.markdown(f"**Evidencia.** {fila['evidencia']}  \n**Interpretación.** {fila['interpretacion']}  \n"
-                        f"**Decisión.** {fila['decision']}  \n**Limitación.** {fila['limitacion']}")
+                        f"**Decisión.** {fila['decision']}  \n**Impacto esperado.** {fila['impacto_esperado']}  \n"
+                        f"**Limitación o riesgo.** {fila['limitacion']}  \n**Urgencia.** {fila['urgencia']} · "
+                        f"**Sustento.** {fila['sustento']}")
 
 
 def pestana_productos(c):
