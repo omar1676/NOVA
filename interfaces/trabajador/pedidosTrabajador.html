@@ -20,6 +20,7 @@
         <a href="pedidosTrabajador.html" class="adm-activo"><i data-lucide="shopping-bag"></i> Pedidos</a>
         <a href="inventarioTrabajador.html"><i data-lucide="warehouse"></i> Inventario</a>
         <a href="personalizadosTrabajador.html"><i data-lucide="sparkles"></i> Personalizados</a>
+        <a href="#" id="adm-salir"><i data-lucide="log-out"></i> Cerrar sesión</a>
     </nav>
 </div>
 
@@ -27,8 +28,8 @@
     <h1>Pedidos</h1>
 
     <div class="adm-herramientas">
-        <input type="text" id="adm-buscador" placeholder="Buscar por referencia o cliente...">
-        <select id="adm-filtro-estado">
+        <input type="text" id="adm-buscador" placeholder="Buscar por referencia o cliente..." aria-label="Buscar por referencia o cliente">
+        <select id="adm-filtro-estado" aria-label="Filtrar por estado">
             <option value="">Todos los estados</option>
             <option value="confirmado">confirmado</option>
             <option value="en_preparacion">en_preparacion</option>
@@ -57,7 +58,7 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@1.62.0/dist/umd/lucide.min.js" integrity="sha384-KbBG+Cdzk6eN6IszNtkSQeU6IJq84TBpyLQN+W8Fn8y0QNsTNiB+j8vFW5Rn1SGZ" crossorigin="anonymous"></script>
 <script src="script.js"></script>
 
 </body>

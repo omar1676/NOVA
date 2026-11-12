@@ -1,3 +1,14 @@
+// rutas-trabajador.js — la API del portal del trabajador (Berme).
+//
+// Las monta servidor.js detras de soloTrabajador: antes de llegar aqui ya se
+// ha comprobado, contra la base, que la sesion es de un trabajador activo.
+// Todo pasa por la conexion de siempre (web_nova) con el rol
+// portal_trabajador (script 23):
+//   - las lecturas, en una transaccion de solo lectura (leer);
+//   - los dos cambios, con las funciones avanzar_pedido_trabajador y
+//     ajustar_existencias_trabajador, que vuelven a comprobar el usuario y
+//     dejan el cambio en log_eventos a su nombre.
+// El usuario sale siempre de la sesion, nunca de lo que mande el navegador.
 const express = require("express");
 
 const siguienteEstado = {
@@ -6,17 +17,47 @@ const siguienteEstado = {
   enviado: "entregado"
 };
 
+// Hasta 9 cifras: un numero mayor no cabe en un integer de PostgreSQL
 function esEnteroPositivo(valor) {
-  return /^[0-9]+$/.test(String(valor)) && Number(valor) > 0;
+  return /^[1-9][0-9]{0,8}$/.test(String(valor));
 }
 
-function crearRutasTrabajador(pool) {
+// Errores de las funciones del script 23 que se pueden ensenar tal cual
+function errorConocido(error) {
+  if (error.code !== "P0001") return null;
+  const mensaje = error.message;
+  if (mensaje === "Usuario no autorizado") {
+    return [403, "Tu usuario no tiene permiso para el portal del trabajador"];
+  }
+  if (mensaje === "El pedido no existe" || mensaje === "No existe esa existencia") {
+    return [404, mensaje];
+  }
+  if (mensaje.startsWith("Un pedido en estado") || mensaje.startsWith("Solo se puede pasar de")
+      || mensaje.startsWith("La cantidad debe ser")) {
+    return [400, mensaje];
+  }
+  return null;
+}
+
+function crearRutasTrabajador(bd, sesiones) {
   const router = express.Router();
   router.use(express.json());
 
+  // Lecturas: solo lectura y con el rol portal_trabajador
+  function leer(sql, parametros) {
+    return bd.consultarComoTrabajador((cliente) => cliente.query(sql, parametros));
+  }
+
+  // Los cambios solo aceptan JSON, como los manda el portal
+  function soloJson(req, res) {
+    if (req.is("application/json")) return true;
+    res.status(415).json({ error: "Los datos tienen que ir en JSON" });
+    return false;
+  }
+
   router.get("/api/trabajador/pedidos", async function (req, res) {
     try {
-      const resultado = await pool.query(
+      const resultado = await leer(
         `SELECT p.id_pedido, p.referencia, c.nombre AS cliente, p.fecha_pedido,
                 p.fecha_objetivo, p.estado, p.importe_total
          FROM public.pedidos p
@@ -31,7 +72,11 @@ function crearRutasTrabajador(pool) {
     }
   });
 
+  // Avanzar un paso el estado de un pedido. Las reglas (existe, solo un paso
+  // adelante) las comprueba avanzar_pedido_trabajador en PostgreSQL, que
+  // bloquea el pedido: con dos clics a la vez, el segundo ya ve el cambio.
   router.patch("/api/trabajador/pedidos/:id/estado", async function (req, res) {
+    if (!soloJson(req, res)) return;
     const idPedido = req.params.id;
     const estadoNuevo = req.body ? req.body.estado : undefined;
 
@@ -39,47 +84,28 @@ function crearRutasTrabajador(pool) {
       return res.status(400).json({ error: "Identificador de pedido no válido" });
     }
 
+    if (!Object.values(siguienteEstado).includes(estadoNuevo)) {
+      return res.status(400).json({ error: "Estado no válido" });
+    }
+
     try {
-      const actual = await pool.query(
-        "SELECT estado FROM public.pedidos WHERE id_pedido = $1",
-        [idPedido]
+      const idUsuario = sesiones.leerSesion(req).idUsuario;
+      const cambio = await bd.cambiarComoTrabajador(
+        "SELECT * FROM public.avanzar_pedido_trabajador($1, $2, $3)",
+        [idUsuario, Number(idPedido), estadoNuevo]
       );
-
-      if (actual.rows.length === 0) {
-        return res.status(404).json({ error: "El pedido no existe" });
-      }
-
-      const estadoActual = actual.rows[0].estado;
-
-      if (!siguienteEstado[estadoActual]) {
-        return res.status(400).json({ error: "Un pedido en estado " + estadoActual + " no se puede avanzar" });
-      }
-
-      if (estadoNuevo !== siguienteEstado[estadoActual]) {
-        return res.status(400).json({ error: "Solo se puede pasar de " + estadoActual + " a " + siguienteEstado[estadoActual] });
-      }
-
-      const cambio = await pool.query(
-        `UPDATE public.pedidos
-         SET estado = $1
-         WHERE id_pedido = $2 AND estado = $3
-         RETURNING id_pedido, referencia, estado`,
-        [estadoNuevo, idPedido, estadoActual]
-      );
-
-      if (cambio.rows.length === 0) {
-        return res.status(409).json({ error: "El pedido ha cambiado de estado, recarga la página" });
-      }
 
       res.json(cambio.rows[0]);
     } catch (error) {
+      const conocido = errorConocido(error);
+      if (conocido) return res.status(conocido[0]).json({ error: conocido[1] });
       res.status(500).json({ error: "No se ha podido cambiar el estado" });
     }
   });
 
   router.get("/api/trabajador/inventario", async function (req, res) {
     try {
-      const resultado = await pool.query(
+      const resultado = await leer(
         `SELECT e.id_producto_sku, e.id_nave, n.nombre AS nave, m.nombre AS modelo,
                 v.color, s.talla, s.sku, e.cantidad
          FROM public.existencias e
@@ -95,7 +121,9 @@ function crearRutasTrabajador(pool) {
     }
   });
 
+  // Cambiar la cantidad de un SKU en una nave, con ajustar_existencias_trabajador
   router.patch("/api/trabajador/inventario/:idSku/:idNave", async function (req, res) {
+    if (!soloJson(req, res)) return;
     const idSku = req.params.idSku;
     const idNave = req.params.idNave;
     const cantidad = req.body ? req.body.cantidad : undefined;
@@ -104,32 +132,28 @@ function crearRutasTrabajador(pool) {
       return res.status(400).json({ error: "Identificadores no válidos" });
     }
 
-    if (!Number.isInteger(cantidad) || cantidad < 0) {
-      return res.status(400).json({ error: "La cantidad debe ser un número entero igual o mayor que 0" });
+    if (!Number.isInteger(cantidad) || cantidad < 0 || cantidad > 99999) {
+      return res.status(400).json({ error: "La cantidad debe ser un número entero entre 0 y 99999" });
     }
 
     try {
-      const cambio = await pool.query(
-        `UPDATE public.existencias
-         SET cantidad = $1
-         WHERE id_producto_sku = $2 AND id_nave = $3
-         RETURNING id_producto_sku, id_nave, cantidad`,
-        [cantidad, idSku, idNave]
+      const idUsuario = sesiones.leerSesion(req).idUsuario;
+      const cambio = await bd.cambiarComoTrabajador(
+        "SELECT * FROM public.ajustar_existencias_trabajador($1, $2, $3, $4)",
+        [idUsuario, Number(idSku), Number(idNave), cantidad]
       );
-
-      if (cambio.rows.length === 0) {
-        return res.status(404).json({ error: "No existe esa existencia" });
-      }
 
       res.json(cambio.rows[0]);
     } catch (error) {
+      const conocido = errorConocido(error);
+      if (conocido) return res.status(conocido[0]).json({ error: conocido[1] });
       res.status(500).json({ error: "No se ha podido guardar la cantidad" });
     }
   });
 
   router.get("/api/trabajador/personalizados", async function (req, res) {
     try {
-      const pedidos = await pool.query(
+      const pedidos = await leer(
         `SELECT p.id_pedido, p.referencia, c.nombre AS cliente, p.fecha_objetivo,
                 p.estado, p.cantidad_total, p.personalizacion
          FROM public.pedidos p
@@ -139,7 +163,7 @@ function crearRutasTrabajador(pool) {
         [true]
       );
 
-      const configuraciones = await pool.query(
+      const configuraciones = await leer(
         `SELECT x.id_configuracion, c.nombre AS cliente, p.referencia, x.talla_referencia,
                 x.color_principal, x.color_secundario, x.material, x.tipo_suela,
                 x.texto_personalizado, x.fecha_creacion
@@ -157,7 +181,7 @@ function crearRutasTrabajador(pool) {
 
   router.get("/api/trabajador/resumen", async function (req, res) {
     try {
-      const resultado = await pool.query(
+      const resultado = await leer(
         `SELECT
            (SELECT COUNT(*) FROM public.pedidos WHERE estado = $1)::int AS "porPreparar",
            (SELECT COUNT(*) FROM public.pedidos WHERE estado = $2)::int AS "enPreparacion",

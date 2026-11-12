@@ -82,6 +82,50 @@ async function marcarEnReparto(idUsuario, idPedido) {
   }
 }
 
+// ---------------------------------------------------------------------
+// El portal del trabajador (script 23) usa la misma conexion (web_nova),
+// pero con su propio rol, portal_trabajador:
+//   - consultarComoTrabajador: lecturas, en una transaccion de SOLO
+//     LECTURA, como las del panel. Solo ve las columnas que ensena el portal.
+//   - cambiarComoTrabajador: las dos escrituras del portal. El rol no puede
+//     escribir en ninguna tabla: solo ejecutar avanzar_pedido_trabajador y
+//     ajustar_existencias_trabajador, que vuelven a comprobar que el usuario
+//     es un trabajador activo.
+// ---------------------------------------------------------------------
+async function consultarComoTrabajador(trabajo) {
+  const cliente = await pool.connect();
+  let conexionRota = false;
+  try {
+    await cliente.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
+    await cliente.query('SET LOCAL ROLE portal_trabajador');
+    const resultado = await trabajo(cliente);
+    await cliente.query('COMMIT');
+    return resultado;
+  } catch (error) {
+    await cliente.query('ROLLBACK').catch(() => { conexionRota = true; });
+    throw error;
+  } finally {
+    cliente.release(conexionRota);
+  }
+}
+
+async function cambiarComoTrabajador(sql, parametros) {
+  const cliente = await pool.connect();
+  let conexionRota = false;
+  try {
+    await cliente.query('BEGIN');
+    await cliente.query('SET LOCAL ROLE portal_trabajador');
+    const resultado = await cliente.query(sql, parametros);
+    await cliente.query('COMMIT');
+    return resultado;
+  } catch (error) {
+    await cliente.query('ROLLBACK').catch(() => { conexionRota = true; });
+    throw error;
+  } finally {
+    cliente.release(conexionRota);
+  }
+}
+
 // Para /api/estado: comprueba que la base responde y con que usuario.
 async function comprobarConexion() {
   const resultado = await pool.query('SELECT current_user AS usuario, current_database() AS base');
@@ -147,4 +191,7 @@ async function operarEnTienda(trabajo) {
   }
 }
 
-module.exports = { consultarSoloLectura, marcarEnReparto, comprobarConexion, pool, operarEnTienda, poolTienda };
+module.exports = {
+  consultarSoloLectura, marcarEnReparto, consultarComoTrabajador, cambiarComoTrabajador,
+  comprobarConexion, pool, operarEnTienda, poolTienda
+};

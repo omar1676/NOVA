@@ -1,9 +1,27 @@
-const URL_ODOO = process.env.ODOO_URL || 'http://localhost:8069';
-const BD_ODOO = process.env.ODOO_DB || 'nova_sneaker';
+// odoo.js — conector de Berme con la API JSON-2 de Odoo (/json/2/<modelo>/<metodo>).
+//
+// DESACTIVADO mientras no se configure: hacen falta ODOO_URL, ODOO_DB y
+// ODOO_API_KEY en .env. Sin ellas no se llama a ningun servidor (antes iba
+// a http://localhost:8069 por defecto) y cualquier llamada falla con un
+// aviso claro. Nunca se inventa una respuesta de Odoo.
+// Desde este ordenador no se llega a ningun Odoo: nada de este archivo se
+// ha probado contra uno de verdad.
+const URL_ODOO = process.env.ODOO_URL;
+const BD_ODOO = process.env.ODOO_DB;
 const CLAVE_ODOO = process.env.ODOO_API_KEY;
+const odooConfigurado = Boolean(URL_ODOO && BD_ODOO && CLAVE_ODOO);
+
+// La linea que escribe el servidor al arrancar
+function resumen() {
+  return odooConfigurado
+    ? `Conector de Odoo configurado (${URL_ODOO}, base ${BD_ODOO}): sin probar contra un Odoo real`
+    : 'Conector de Odoo desactivado (faltan ODOO_URL, ODOO_DB y ODOO_API_KEY en .env): no se envía nada a Odoo';
+}
 
 async function llamar(modelo, metodo, cuerpo) {
-  if (!CLAVE_ODOO) throw new Error('Falta ODOO_API_KEY');
+  if (!odooConfigurado) {
+    throw new Error('Conector de Odoo desactivado: faltan ODOO_URL, ODOO_DB y ODOO_API_KEY');
+  }
   const respuesta = await fetch(`${URL_ODOO}/json/2/${modelo}/${metodo}`, {
     method: 'POST',
     headers: {
@@ -80,4 +98,4 @@ async function crearPedidoOdoo({ referencia, cliente, lineas, personalizacion })
   return { ...pedido[0], yaExistia: false };
 }
 
-module.exports = { crearPedidoOdoo };
+module.exports = { crearPedidoOdoo, odooConfigurado, resumen };
