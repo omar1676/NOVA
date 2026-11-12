@@ -73,6 +73,7 @@ pares) y K05 (40) cuentan pedidos distintos.
 | 10 | `anomalias.csv` | atípicos de precio (por modelo y tipo de pedido) y de cantidad (por tipo) con la regla IQR | 9 grupos, 0 atípicos |
 | 11 | `precio_y_margen.csv` | precio medio ponderado por par; margen **NO CALCULABLE** | 7 |
 | 12 | `conciliacion_sql.csv` | conciliación con P-A, P-B y P-C | 21 cifras, todas coinciden |
+| caso N | `contraste_sql_caso_n.csv` | ingresos de un mes (N-1), matriz talla × modelo (N-2) y clientes únicos (N-3) frente a SQL | 17 cifras, todas coinciden |
 
 Hay 14 tablas analíticas además de las dos vistas base, y ninguna está hecha para
 llegar a un número:

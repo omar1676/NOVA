@@ -173,7 +173,7 @@ def ejecutar(carpeta, salida, con_graficos=True):
     # 6. Conciliacion con SQL y coherencia de los KPIs con las mismas consultas
     carpeta_sql = carpeta / config.CARPETA_SQL
     tabla_conciliacion = conciliacion.conciliar(carpeta_sql, tablas["pedidos_unicos"], tablas["lineas_enriquecidas"])
-    titulo("Conciliación con las consultas SQL P-A, P-B y P-C de Acceso a Datos")
+    titulo("Conciliación con las consultas SQL P-A, P-B y P-C de Acceso a Datos (y caso N: N-1, N-2 y N-3)")
     cuadra = True
     if pipeline.tipo_origen(carpeta) == "SINTETICO":
         print("  NO APLICA: los datos sintéticos no salen de PostgreSQL; no hay consultas con las que compararlos.")
@@ -185,7 +185,16 @@ def ejecutar(carpeta, salida, con_graficos=True):
         coherencia = kpis.coherencia_con_sql(tabla_kpis, carpeta_sql)
         guardar(tabla_conciliacion, "conciliacion_sql.csv")
         guardar(coherencia, "coherencia_kpis_sql.csv")
-        for nombre, cifras in [("tablas", tabla_conciliacion), ("KPIs", coherencia)]:
+        comparadas = [("tablas", tabla_conciliacion), ("KPIs", coherencia)]
+        # Caso N: ingresos de un mes, matriz talla x modelo y clientes unicos
+        caso_n = conciliacion.contrastar_caso_n(carpeta_sql, tablas)
+        if caso_n is None:
+            faltan = ", ".join(conciliacion.faltan_resultados(carpeta_sql, conciliacion.CONSULTAS_CASO_N))
+            print(f"  caso N: PENDIENTE: faltan {faltan}.")
+        else:
+            guardar(caso_n, "contraste_sql_caso_n.csv")
+            comparadas.append(("caso N", caso_n))
+        for nombre, cifras in comparadas:
             iguales = (cifras["resultado"] == "coincide").sum()
             print(f"  {nombre}: {iguales} de {len(cifras)} cifras coinciden con SQL")
             distintas = cifras[cifras["resultado"] != "coincide"]
