@@ -16,11 +16,11 @@ repositorio (`acceso-datos`, `interfaces`, `psp`).
 | Fase | Qué incluye | Estado |
 |---|---|---|
 | 1 | Lectura y validación de los cinco CSV, diccionario de datos, comprobaciones rápidas | hecha |
-| 2 | Las 12 reglas de calidad, `incidencias.csv` y `resumen_calidad.csv`, `df_lineas_enriquecidas` y `df_pedidos_unicos`, 18 variables derivadas, importes con tres criterios, conciliación con 3 consultas SQL | hecha |
+| 2 | Las 12 reglas de calidad, `incidencias.csv` y `resumen_calidad.csv`, `df_lineas_enriquecidas` y `df_pedidos_unicos`, 18 variables derivadas, importes con tres criterios, conciliación con 3 consultas SQL y las 3 del caso N | hecha |
 | 3 | 20 KPIs (3 NO CALCULABLES), 14 DataFrames analíticos, clasificación ABC, 10 gráficos PNG, coherencia de los KPIs con SQL | hecha |
 | 4 | Generador sintético (900 pedidos, 18 meses, semilla 2026) y copia con errores, estadística descriptiva, 3 hipótesis y bootstrap del ticket medio | hecha |
 | 5 | RFM con 6 segmentos, KMeans (k de 2 a 5, silhouette), predicción de la demanda mensual por modelo con baseline y regresión lineal (MAE y RMSE) | hecha |
-| 6 | Dashboard Streamlit: 6 pestañas, refresco real cada 60 s, 5 filtros combinables, 10 descargas CSV, registro de eventos e informe ejecutivo con 5 conclusiones | hecha |
+| 6 | Dashboard Streamlit: 6 pestañas, refresco real cada 60 s, 6 filtros combinables, 10 descargas CSV con sus metadatos, registro de eventos e informe ejecutivo con 5 conclusiones priorizadas | hecha |
 
 **Los datos actuales son de una base de PRUEBA**, no de la base principal del
 equipo (lo dice `entrada_acc/ORIGEN.txt` y todos los resultados lo llevan
@@ -33,7 +33,7 @@ python-analisis/
 ├── README.md             este archivo
 ├── diccionario_datos.md  columnas, tipos, relaciones, DataFrames y variables derivadas
 ├── calidad_datos.md      las 12 reglas, gravedades y casos investigados
-├── conciliacion_sql.md   las 3 consultas SQL, en qué se diferencian y resultados
+├── conciliacion_sql.md   las consultas SQL (P-A a P-C y caso N), en qué se diferencian y resultados
 ├── kpis_y_graficos.md    los KPIs con su fórmula, los DataFrames, los gráficos y el ABC
 ├── datos_sinteticos.md   cómo se generan los datos sintéticos, sus hipótesis y la copia con errores
 ├── estadistica.md        descriptivos, las tres hipótesis, el bootstrap y lo que no se puede afirmar
@@ -51,10 +51,11 @@ python-analisis/
 ├── estadistica.py        descriptivos, hipótesis y bootstrap
 ├── segmentacion.py       RFM y KMeans
 ├── prediccion.py         demanda mensual, baseline, regresión, MAE y RMSE
-├── filtros.py            los cinco filtros combinables (sin Streamlit)
+├── filtros.py            los seis filtros combinables (sin Streamlit)
 ├── actualizacion.py      ciclo de 60 s: comprobar, validar, recalcular, publicar y anotar
 ├── registro.py           registro de eventos (logs/registro_eventos.csv)
 ├── informe.py            las cinco conclusiones del informe ejecutivo
+├── metadatos.py          fecha de corte, reglas, filtros, filas de origen y función de cada DataFrame
 ├── app_dashboard.py      el dashboard Streamlit (solo orquesta y muestra)
 ├── .streamlit/           tema del dashboard y opciones del servidor
 ├── conciliacion.py       comparación con las consultas SQL de Acceso a Datos
@@ -148,8 +149,9 @@ Pasos de `main.py`:
    - enseña el resumen de la carga y las comprobaciones rápidas;
    - calcula todos los DataFrames y guarda uno en CSV cada uno;
    - guarda `importes_por_criterio.csv` y `kpis.csv`;
-   - concilia con SQL (`conciliacion_sql.csv` y `coherencia_kpis_sql.csv`); con
-     datos sintéticos, la conciliación «NO APLICA»;
+   - concilia con SQL (`conciliacion_sql.csv`, `coherencia_kpis_sql.csv` y, para el
+     caso N, `contraste_sql_caso_n.csv`); con datos sintéticos, la conciliación
+     «NO APLICA»;
    - dibuja los 10 gráficos en la carpeta `graficos/` de su salida;
    - calcula la estadística (`estadisticos_descriptivos.csv`, `hipotesis.csv` y
      `bootstrap_ticket_medio.csv`);
@@ -158,7 +160,12 @@ Pasos de `main.py`:
      y dibuja `graficos_prediccion/11_real_frente_a_prediccion.png`. Con pocos
      clientes o pocos meses, cada tabla sale como NO CALCULABLE con su motivo.
 
-Cada ejecución deja `estado_ejecucion.csv`:
+Cada ejecución deja `metadatos_dataframes.csv`, con una fila por CSV: la fecha de
+corte, las reglas de negocio, los filtros, las filas de origen y la función que lo
+genera (`metadatos.py`). Se enlaza con cada CSV por su nombre y su columna
+`ejecucion`.
+
+Y deja `estado_ejecucion.csv`:
 - `CORRECTO`;
 - `BLOQUEADO`: avisa de que cualquier otro resultado de la carpeta es de una
   ejecución anterior y está **desactualizado**;
@@ -244,10 +251,11 @@ Seis pestañas: Dirección, Productos, Clientes, Inventario, Calidad y Predicci�
   versión de los datos. También hay un botón «Actualizar ahora».
 - **Estado del ciclo.** Correcto, sin cambios, datos inválidos o error de carga.
   Con datos bloqueados no se publica ninguna cifra.
-- **Filtros.** Cinco filtros combinables (periodo, modelo, talla, tipo y estado),
-  hechos en `filtros.py`, fuera de Streamlit.
-- **Descargas.** Diez CSV en UTF-8, con su origen y sus filtros y sin datos
-  personales.
+- **Filtros.** Seis filtros combinables (periodo, modelo, talla, tipo, estado y
+  cliente), hechos en `filtros.py`, fuera de Streamlit. Se mantienen con el
+  refresco y «Restablecer filtros» los vacía todos.
+- **Descargas.** Diez CSV en UTF-8, con su origen, sus filtros y sus metadatos
+  (fecha de corte, función, reglas y filas de origen), y sin datos personales.
 - **Registro.** `logs/registro_eventos.csv`, una fila por operación.
 
 Los datos nuevos de PostgreSQL solo llegan cuando Acceso a Datos vuelve a
@@ -262,23 +270,23 @@ Desde la carpeta `python-analisis`:
 .venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 
-**249 pruebas.** Cada una crea sus propios CSV en una carpeta temporal.
+**265 pruebas.** Cada una crea sus propios CSV en una carpeta temporal.
 
 | Archivo | Pruebas | Qué cubren |
 |---|---|---|
 | `test_pipeline.py` | 20 | fase 1: lectura, CSV ausente, vacío, mal formado, otra codificación, comprobaciones rápidas |
 | `test_calidad.py` | 38 | ver abajo |
-| `test_analiticas.py` | 23 | ver abajo |
+| `test_analiticas.py` | 28 | ver abajo |
 | `test_tablas.py` | 27 | ver abajo |
 | `test_kpis.py` | 16 | ver abajo |
-| `test_visualizaciones.py` | 6 | ver abajo |
+| `test_visualizaciones.py` | 8 | ver abajo |
 | `test_sinteticos.py` | 21 | ver abajo |
 | `test_estadistica.py` | 15 | ver abajo |
 | `test_segmentacion.py` | 18 | ver abajo |
 | `test_prediccion.py` | 20 | ver abajo |
-| `test_filtros.py` | 14 | filtros combinados, sin duplicados, KPIs filtrados, inventario con umbral, CSV descargado (ver `dashboard.md`) |
-| `test_actualizacion.py` | 20 | ciclo de 60 s, pruebas R1 a R5, CSV ausente o corrupto, bloqueo, cambio de origen, registro e informe ejecutivo |
-| `test_dashboard.py` | 11 | la aplicación Streamlit con `AppTest`: pestañas, orígenes, bloqueo, filtros, refresco y botón «Actualizar ahora» |
+| `test_filtros.py` | 18 | filtros combinados (también el de cliente), sin duplicados, KPIs filtrados, inventario con umbral, CSV descargado con sus metadatos (ver `dashboard.md`) |
+| `test_actualizacion.py` | 22 | ciclo de 60 s, pruebas R1 a R5, CSV ausente o corrupto, bloqueo, cambio de origen, registro e informe ejecutivo (prioridad, impacto y sustento) |
+| `test_dashboard.py` | 14 | la aplicación Streamlit con `AppTest`: pestañas, orígenes, bloqueo, filtros (también el de cliente), filtros y pestaña que se mantienen al refrescar, R6 (filtrado cruzado), refresco y botón «Actualizar ahora» |
 
 `test_sinteticos.py`:
 - misma semilla, mismos datos;
@@ -348,7 +356,8 @@ Desde la carpeta `python-analisis`:
 - salen los 10 PNG válidos;
 - funcionan sin datos;
 - la ejecución completa: correcta, bloqueada por calidad (sin cifras ni gráficos) y
-  con SQL que no cuadra.
+  con SQL que no cuadra;
+- `metadatos_dataframes.csv`: una fila por CSV, también con los datos bloqueados.
 
 `test_calidad.py`:
 - al menos un caso preparado por cada una de las 12 reglas;
@@ -362,7 +371,11 @@ Desde la carpeta `python-analisis`:
 - una fila por línea y por pedido;
 - las variables derivadas y el modelo del pedido;
 - los tres criterios de importe;
-- la conciliación: coincide, no coincide, falta en SQL, falta en Python y pendiente.
+- la conciliación: coincide, no coincide, falta en SQL, falta en Python y pendiente;
+- el caso N (ingresos de un mes, matriz talla × modelo y clientes únicos): coincide,
+  mes sin ventas, discrepancias detectadas y pendiente;
+- el caso A: un pedido Custom de 40 pares en 4 tallas, línea a línea, en la matriz y
+  en los KPIs.
 
 Se usa `unittest`, que viene con Python. La rúbrica recomienda pytest, y pytest
 puede ejecutar estas mismas pruebas si el equipo decide añadirlo.

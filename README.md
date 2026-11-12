@@ -148,7 +148,7 @@ Más detalle en `servidor-admin/README.md`.
 | SQL | Scripts 09 a 16, en el orden de arriba | 123 PASS, 0 FAIL y 1 ERROR previsto (la S4b: PostgreSQL deniega `descontar_stock` al cliente a propósito) |
 | Java | `acceso-datos\java\pruebas.bat` (pide las contraseñas de demostración) | 47 PASS, 0 FAIL |
 | PSP | En `psp`, tras compilar: `java -cp clases PruebasPsp` | 27 de 27 |
-| Python | En `python-analisis`: `.venv\Scripts\python.exe -m unittest discover -s tests -v` | 249 pruebas OK |
+| Python | En `python-analisis`: `.venv\Scripts\python.exe -m unittest discover -s tests -v` | 265 pruebas OK |
 | Panel | En `servidor-admin`: `npm test` (con las variables `PRUEBA_*` de su README) | 23 de 23 con `PRUEBA_TIENDA_BASE_DESECHABLE=si` (sin ella, 22 y 1 saltada) |
 | Tienda | En `servidor-admin`: `npm run test:tienda`, solo con `PRUEBA_TIENDA_BASE_DESECHABLE=si` | 39 de 39 |
 | Login único y portal | En `servidor-admin`: `npm run test:portal`, con `PRUEBA_TIENDA_BASE_DESECHABLE=si` y `PRUEBA_SUPERUSUARIO` | 24 de 24 |
