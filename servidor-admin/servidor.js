@@ -1,12 +1,12 @@
-// servidor.js — servidor de NOVA Sneakers: el panel de administracion y la
-// tienda web.
+// servidor.js — servidor de NOVA Sneakers: el panel de administracion, el
+// portal del trabajador y la tienda web.
 //
-//   navegador (panel HTML)  -->  este servidor (Express)  -->  PostgreSQL (web_nova)
-//   navegador (tienda web)  -->  este servidor (Express)  -->  PostgreSQL (tienda_nova)
+//   navegador (panel y portal)  -->  este servidor (Express)  -->  PostgreSQL (web_nova)
+//   navegador (tienda web)      -->  este servidor (Express)  -->  PostgreSQL (tienda_nova)
 //
 // El navegador nunca habla con PostgreSQL: pide /api/... a este servidor, que
-// hace las consultas. El mismo servidor entrega los archivos del panel y de la
-// tienda, asi que paginas y API tienen el mismo origen (sin CORS).
+// hace las consultas. El mismo servidor entrega los archivos del panel, del
+// portal y de la tienda, asi que paginas y API tienen el mismo origen (sin CORS).
 //   http://127.0.0.1:3000/login.html   acceso unico del personal
 //   http://127.0.0.1:3000/admin.html   panel (solo administradores)
 //   http://127.0.0.1:3000/trabajador/  portal del trabajador (solo trabajadores)
@@ -99,7 +99,7 @@ app.get('/api/estado', async (req, res) => {
 // ---------------------------------------------------------------------
 
 // El rol de un usuario ACTIVO, o null si la cuenta no existe o esta desactivada.
-// La usan el login y la comprobacion de cada peticion del panel.
+// La usan el login y la comprobacion de cada peticion del panel y del portal.
 async function rolDeUsuarioActivo(cliente, idUsuario) {
   const resultado = await cliente.query(
     'SELECT r.nombre AS rol FROM public.usuarios u JOIN public.roles r ON r.id_rol = u.id_rol '
@@ -159,7 +159,7 @@ app.post('/api/logout', (req, res) => {
   res.json({ ok: true });
 });
 
-// Para que el panel sepa si hay alguien dentro y con que rol
+// Quien ha entrado, con que rol y cual es su panel (destino)
 app.get('/api/sesion', (req, res) => {
   const sesion = sesiones.leerSesion(req);
   if (!sesion) {
@@ -358,7 +358,7 @@ app.use('/api', (req, res) => {
 // ---------------------------------------------------------------------
 // Archivos de la tienda web: publicos, en /tienda/
 //
-// Van antes que los del panel para que protegerPanel no los pida. Sin la
+// Van antes que los del panel para que protegerPanel no pida sesion. Sin la
 // barra final, el navegador buscaria css/ y js/ fuera de /tienda/, asi que
 // /tienda se redirige a /tienda/. express.static no sirve nada que este
 // fuera de 01_Interfaces/cliente (rechaza las rutas con ..).

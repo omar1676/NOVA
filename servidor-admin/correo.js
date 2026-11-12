@@ -3,7 +3,7 @@
 // Cuando el pago simulado se acepta y el pedido ya esta confirmado en
 // PostgreSQL, tienda.js llama a enviarRecibo. Hay dos proveedores:
 //   - Resend (el de siempre): un POST a su API con la clave en la cabecera
-//     Authorization y el correo en JSON. Node 24 trae fetch.
+//     Authorization y el correo en JSON, con el fetch que ya trae Node.
 //   - Ethereal, SOLO PARA DESARROLLO: un buzon falso de Nodemailer. El correo
 //     no llega a nadie; se ve en una pagina de ethereal.email (vista previa).
 //
@@ -228,19 +228,12 @@ async function crearTransporteEthereal() {
 
 // La cuenta se crea en el primer envio y se reutiliza. Si falla (sin red,
 // Ethereal caido...), se olvida para volver a probar en el siguiente.
-function transporteDeEthereal() {
-  if (!transporteEthereal) {
-    const promesa = crearTransporteEthereal();
-    transporteEthereal = promesa;
-    promesa.catch(() => {
-      if (transporteEthereal === promesa) transporteEthereal = null;
-    });
-  }
-  return transporteEthereal;
-}
-
 async function mandarAEthereal(mensaje) {
-  const transporte = await transporteDeEthereal();
+  if (!transporteEthereal) {
+    transporteEthereal = crearTransporteEthereal();
+    transporteEthereal.catch(() => { transporteEthereal = null; });
+  }
+  const transporte = await transporteEthereal;
   return transporte.sendMail(mensaje);
 }
 

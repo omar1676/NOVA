@@ -1,4 +1,4 @@
-// sesiones.js — las sesiones del panel y las de la tienda.
+// sesiones.js — las sesiones del personal (panel y portal) y las de la tienda.
 //
 // Cuando alguien entra con su usuario y su contrasena, el servidor crea un
 // identificador aleatorio (token) y se lo da al navegador en una cookie
@@ -7,11 +7,12 @@
 // cada token. La contrasena no se guarda en ningun sitio.
 //
 // Hay DOS almacenes separados, cada uno con su cookie y su propio Map:
-//   - sesion_nova:   trabajadores que entran en el panel de administracion.
+//   - sesion_nova:   el personal que entra por login.html (el administrador
+//                    va al panel y el trabajador, al portal).
 //   - sesion_tienda: clientes de la tienda web. Esta cookie solo se envia a
 //                    /api/tienda, asi que nunca llega a las rutas del panel.
 // Un token de un almacen no existe en el otro: una sesion de cliente no
-// sirve para el panel, ni una de trabajador para comprar.
+// sirve para el panel ni para el portal, ni una del personal para comprar.
 //
 // Al reiniciar el servidor las sesiones se pierden y hay que volver a entrar.
 
@@ -79,6 +80,6 @@ function crearAlmacen(nombreCookie, rutaCookie) {
 const panel = crearAlmacen('sesion_nova', '/');
 const tienda = crearAlmacen('sesion_tienda', '/api/tienda');
 
-// Las funciones de siempre son las del panel (servidor.js las usa asi);
-// las de la tienda van en sesiones.tienda.
+// Las del personal se usan tal cual (sesiones.leerSesion...) en servidor.js y
+// rutas-trabajador.js; las de la tienda van en sesiones.tienda.
 module.exports = { ...panel, tienda };

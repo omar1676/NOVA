@@ -25,7 +25,7 @@ Hace falta Node 20.6 o posterior (probado con Node 24.15) y una base con los scr
    ```
    psql -U postgres -d nova_sneakers -f 02_Acceso_Datos/sql/19_usuario_web.sql
    ```
-2. Instalar las dos dependencias, `express` y `pg`, con las versiones exactas de `package-lock.json`:
+2. Instalar las tres dependencias, `express`, `pg` y `nodemailer` (solo para Ethereal), con las versiones exactas de `package-lock.json`:
    ```
    cd servidor-admin
    npm ci
@@ -280,8 +280,9 @@ La web cliente (`01_Interfaces/cliente/`) se sirve en `/tienda/`. Su JavaScript 
 
 - **En todas las páginas:**
   - el enlace «Cerrar sesión»;
-  - **Lucide fijado en la versión 1.62.0**, con `integrity`, en lugar de `lucide@latest`. Es la última versión publicada hace más de dos semanas, y los 12 iconos del menú se han comprobado en las 11 páginas;
-  - `integrity` también en Chart.js 4.4.1.
+  - **Lucide fijado en la versión 1.62.0**, con `integrity`, en lugar de `lucide@latest`. Es la última versión publicada hace más de dos semanas, y los 12 iconos del menú se comprobaron en las 11 páginas que había antes de «Análisis de datos»;
+  - `integrity` también en Chart.js 4.4.1;
+  - una línea más en el menú, «Análisis de datos», que lleva a la página nueva `analisisAdmin.html` (el dashboard de Python dentro del panel).
 - **Páginas con datos** (Dashboard, Pedidos, Productos, Inventario, Clientes, Trabajadores, Auditoría y Estadísticas):
   - las filas de ejemplo dejan paso a los datos de la API;
   - la página se identifica con `data-pagina`.
@@ -302,7 +303,7 @@ La web cliente (`01_Interfaces/cliente/`) se sirve en `/tienda/`. Su JavaScript 
 Sus commits (`67d6cf0` y `9cb42c7`, del 11/11) se han traído con `git cherry-pick -x`, así que siguen a su nombre. Después:
 
 - **`servidor/` pasa a `servidor-admin/`**, sin cambios en ese commit: sus rutas necesitan Express y un pool de PostgreSQL, y el único servidor es este.
-- **`rutas-trabajador.js`:** las mismas rutas, consultas, mensajes y reglas. Cambia cómo llegan a la base: en lugar de `pool.query` con permisos de quien se conectara, lee con `portal_trabajador` y sus dos `UPDATE` pasan a las funciones del script 23 (que comprueban el usuario y dejan la auditoría). Además, los cambios solo aceptan JSON (415) y los ids, como mucho 9 cifras (un número mayor daba un error 500 en PostgreSQL).
+- **`rutas-trabajador.js`:** las mismas rutas, consultas, mensajes y reglas. Cambia cómo llegan a la base: en lugar de `pool.query` con permisos de quien se conectara, lee con `portal_trabajador` y sus dos `UPDATE` pasan a las funciones del script 23 (que comprueban el usuario y dejan la auditoría). Además, los cambios solo aceptan JSON (415) y los ids, como mucho 9 cifras (un número que no cabía en un `integer` daba un error 500 en PostgreSQL).
 - **`odoo.js`:** sin configuración ya no llama a `http://localhost:8069` por defecto: se queda desactivado y lo dice.
 - **`pedidos.js`:** igual que lo dejó, con un comentario al principio que explica por qué no se monta.
 - **Páginas del portal:** el enlace «Cerrar sesión»; Lucide fijado en la 1.62.0 con `integrity` (como el panel) en lugar de `lucide@latest`; nombres accesibles en el buscador, los desplegables y los campos de cantidad. El diseño no cambia.
