@@ -183,6 +183,7 @@ public class Archivos {
             } else if (letra == '\t') {
                 resultado.append("\\t");
             } else if (letra < 32) {
+                // Otros caracteres de control: JSON los escribe con su codigo en hexadecimal
                 resultado.append(String.format("\\u%04x", (int) letra));
             } else {
                 resultado.append(letra);

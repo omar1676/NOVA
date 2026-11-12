@@ -94,8 +94,8 @@ public class Sesion {
     }
 
     /**
-     * Se llama al principio de cada operacion de los DAO. Si el rol no
-     * puede, lanza el mismo codigo de error que PostgreSQL (42501).
+     * Se llama al principio de cada operacion de los DAO. Si no hay sesion o
+     * el rol no puede, lanza el mismo codigo de error que PostgreSQL (42501).
      */
     public static void comprobarPermiso(String operacion) throws SQLException {
         if (!puede(operacion)) {

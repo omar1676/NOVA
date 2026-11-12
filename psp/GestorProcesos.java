@@ -170,6 +170,7 @@ public class GestorProcesos {
      */
     private static void leerTodo(BufferedReader lector, ArrayList<String> destino) {
 
+        // Se declara en el try (try-with-resources) para que se cierre solo al acabar
         try (BufferedReader cerrarAlAcabar = lector) {
 
             String linea;

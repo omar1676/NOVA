@@ -33,7 +33,8 @@ public class PanelNuevoPedido extends JPanel {
     private final JCheckBox casillaCustom = new JCheckBox("Pedido Custom. Personalización:");
     private final JTextField campoPersonalizacion = new JTextField(30);
 
-    // Las lineas que se van anadiendo: lo que se ve en la tabla y lo que se envia
+    // Las lineas que se van anadiendo: lo que se ve en la tabla y lo que se envia.
+    // Cada int[] es {idVariante, talla, cantidad}, como lo espera PedidoDAO.crearPedido.
     private final DefaultTableModel modeloLineas =
             new DefaultTableModel(new Object[] {"Modelo y color", "Talla", "Cantidad"}, 0);
     private final ArrayList<int[]> lineas = new ArrayList<>();

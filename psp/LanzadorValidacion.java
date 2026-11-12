@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  *
  * QUE NO ES ESTA CLASE
  *   No es el ProcesadorPedidosCustom del enunciado. Ese es el coordinador
- *   del equipo, que encadenara tambien GeneradorFichaTaller. Esta clase solo
+ *   del equipo, que encadena tambien GeneradorFichaTaller. Esta clase solo
  *   lanza y comprueba mis dos procesos.
  *
  * COMO SE EJECUTA
@@ -140,7 +140,6 @@ public class LanzadorValidacion {
 
         ProcessBuilder pb = new ProcessBuilder(java, "-cp", classpath, clase);
 
-        // Arrancamos el hijo.
         Process proceso = pb.start();
 
         /*
@@ -161,8 +160,6 @@ public class LanzadorValidacion {
          *   El padre sigue libre, llega a su espera y puede cancelar al hijo.
          *   Al cancelarlo se cierra la tuberia, la escritura falla con
          *   IOException, el hilo la recoge y termina.
-         *
-         *   Es un hilo de tres lineas y es la unica concurrencia del programa.
          *
          * CERRAR AL ACABAR es igual de importante: mientras no se cierre, el
          * hijo sigue esperando mas datos. El try-with-resources lo cierra.
