@@ -38,7 +38,13 @@ public class PedidoDAO {
                 + "WHERE m.activo ORDER BY m.nombre, v.color");
     }
 
+    /**
+     * Las listas se usan en Nuevo pedido y en los filtros de Consultas, y
+     * los tres roles pueden consultar. Sin sesion iniciada, Java no deja
+     * leerlas. Si alguien se saltara esto, PostgreSQL tambien lo rechaza.
+     */
     private static ArrayList<Opcion> listarOpciones(String sql) throws SQLException {
+        Sesion.comprobarPermiso(Sesion.CONSULTAR);
         ArrayList<Opcion> opciones = new ArrayList<>();
         try (PreparedStatement sentencia = ConexionBD.getConexion().prepareStatement(sql);
              ResultSet resultado = sentencia.executeQuery()) {
