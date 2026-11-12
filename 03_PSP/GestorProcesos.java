@@ -131,9 +131,9 @@ public class GestorProcesos {
         lectorError.start();
 
         /*
-         * PRIMERO esperamos, con limite de tiempo, y DESPUES leemos. Asi, pase
-         * lo que pase dentro del hijo, recuperamos el control a los
-         * segundosMaximos. (Ejemplo del profesor LanzadorProcesoFinal2.java.)
+         * PRIMERO esperamos, con limite de tiempo, y DESPUES recogemos lo que
+         * han leido los hilos. Asi recuperamos el control a los segundosMaximos,
+         * pase lo que pase en el hijo. (Ejemplo del profesor LanzadorProcesoFinal2.java.)
          */
         boolean termino = proceso.waitFor(segundosMaximos, TimeUnit.SECONDS);
 

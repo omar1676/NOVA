@@ -408,8 +408,8 @@ public class ProcesadorPedidosCustom {
 
     /**
      * La referencia va en el nombre del archivo de la ficha. Cambiamos por
-     * "_" todo lo que no sea letra, numero o guion, para que el nombre sea
-     * valido en cualquier sistema.
+     * "_" todo lo que no sea letra, numero, guion o guion bajo, para que el
+     * nombre sea valido en cualquier sistema.
      */
     private static String nombreParaArchivo(String referencia) {
 

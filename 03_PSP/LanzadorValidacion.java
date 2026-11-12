@@ -28,8 +28,8 @@ import java.util.concurrent.TimeUnit;
  *   del equipo, que encadena tambien GeneradorFichaTaller. Esta clase solo
  *   lanza y comprueba mis dos procesos.
  *
- * COMO SE EJECUTA
- *   java -cp . LanzadorValidacion custom40.csv
+ * COMO SE EJECUTA (desde la carpeta 03_PSP, con todo compilado en "clases")
+ *   java -cp clases LanzadorValidacion pruebas\custom40.csv
  */
 public class LanzadorValidacion {
 

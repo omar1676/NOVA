@@ -78,10 +78,10 @@ public class GeneradorFichaTaller {
 
             numeroLinea++;
 
-            // La primera linea tiene que decir de que pedido es todo.
-            // Si mide 7 es solo "PEDIDO;": falta la referencia.
+            // La primera linea dice de que pedido es todo: PEDIDO;referencia.
+            // Sin referencia (solo "PEDIDO;") no vale.
             if (numeroLinea == 1) {
-                if (!linea.startsWith("PEDIDO;") || linea.length() == 7) {
+                if (!linea.startsWith("PEDIDO;") || linea.equals("PEDIDO;")) {
                     error("La primera linea tiene que ser PEDIDO;referencia");
                 }
                 referencia = loQueSigue(linea);

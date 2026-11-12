@@ -34,7 +34,7 @@ import java.util.ArrayList;
  *   usar estructuras que no hemos dado.
  *
  * COMO SE PRUEBA SUELTO
- *   type custom40.csv | java -cp . AnalizadorTallas
+ *   type pruebas\custom40.csv | java -cp clases AnalizadorTallas
  */
 public class AnalizadorTallas {
 
