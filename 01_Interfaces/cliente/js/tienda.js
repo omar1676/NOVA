@@ -239,20 +239,22 @@ function crearMuestra(color, indice, marcada) {
   return etiqueta;
 }
 
-// Una talla: un radio transparente sobre su número (un botón de la cuadrícula)
-function crearOpcion(grupo, valor, texto, desactivada, marcada, descripcion) {
+// Una talla: un radio transparente sobre su número (un botón de la cuadrícula).
+// Su valor es el SKU. Si está agotada, va desactivada y el lector de pantalla
+// lo dice.
+function crearTalla(talla) {
+  const agotada = talla.stock === 0;
   const etiqueta = document.createElement("label");
   etiqueta.className = "compra-opcion";
   const radio = document.createElement("input");
   radio.type = "radio";
-  radio.name = grupo;
-  radio.value = valor;
-  radio.disabled = desactivada;
-  radio.checked = marcada;
-  if (descripcion) radio.setAttribute("aria-label", descripcion);
-  const nombre = document.createElement("b");
-  nombre.textContent = texto;
-  etiqueta.append(radio, nombre);
+  radio.name = "talla";
+  radio.value = String(talla.sku);
+  radio.disabled = agotada;
+  if (agotada) radio.setAttribute("aria-label", `Talla ${talla.talla}, agotada`);
+  const numero = document.createElement("b");
+  numero.textContent = String(talla.talla);
+  etiqueta.append(radio, numero);
   return etiqueta;
 }
 
@@ -265,20 +267,7 @@ function pintarTallas() {
   const variante = varianteElegida();
   document.querySelector("#detalle-precio").textContent = formatoPrecio(variante.precio);
   nombreColor.textContent = variante.color;
-  opcionesTalla.replaceChildren();
-  for (const talla of variante.tallas) {
-    const agotada = talla.stock === 0;
-    opcionesTalla.append(
-      crearOpcion(
-        "talla",
-        String(talla.sku),
-        String(talla.talla),
-        agotada,
-        false,
-        agotada ? `Talla ${talla.talla}, agotada` : null,
-      ),
-    );
-  }
+  opcionesTalla.replaceChildren(...variante.tallas.map((talla) => crearTalla(talla)));
   const hayStock = variante.tallas.some((t) => t.stock > 0);
   if (hayStock) avisarStock("Elige una talla. Las tachadas están agotadas.", "");
   else avisarStock("Agotado: no queda ninguna talla de este color.", "agotado");
@@ -300,6 +289,12 @@ function avisarStock(texto, estado) {
   textoStock.className = estado ? `compra-stock ${estado}` : "compra-stock";
 }
 
+// Lo más que se puede llevar de una talla: lo que queda en stock, y nunca más
+// de MAXIMO_POR_TALLA (el mismo límite que el servidor y el SQL)
+function maximoDeTalla(producto) {
+  return Math.min(MAXIMO_POR_TALLA, producto.stock);
+}
+
 // Stock de la talla elegida (y lo que ya hay en el carrito) y el máximo de pares
 function revisarTallaElegida() {
   const sku = tallaElegida();
@@ -314,7 +309,7 @@ function revisarTallaElegida() {
       (enCarrito ? ` Ya tienes ${enCarrito} en el carrito.` : ""),
     pocos ? "pocos" : "quedan",
   );
-  campoCantidad.max = Math.max(1, Math.min(MAXIMO_POR_TALLA, producto.stock) - enCarrito);
+  campoCantidad.max = Math.max(1, maximoDeTalla(producto) - enCarrito);
   actualizarBotonesCantidad();
 }
 
@@ -398,7 +393,7 @@ botonAnadir.addEventListener("click", () => {
   }
   const producto = productosTienda.get(sku);
   const enCarrito = cantidadEnCarrito(sku);
-  const maximo = Math.min(MAXIMO_POR_TALLA, producto.stock);
+  const maximo = maximoDeTalla(producto);
   if (enCarrito + cantidad > maximo) {
     errorEnCantidad(
       `Como mucho puedes llevar ${maximo} pares de esta talla` +
@@ -421,7 +416,7 @@ botonAnadir.addEventListener("click", () => {
   campoCantidad.value = 1;
   revisarTallaElegida(); // ahora cuenta lo que ya hay en el carrito
   avisarEnFicha(
-    `Añadido al carrito: ${producto.modelo}, talla ${producto.talla} (${cantidad} ${cantidad === 1 ? "par" : "pares"}).`,
+    `Añadido al carrito: ${producto.modelo}, talla ${producto.talla} (${textoPares(cantidad)}).`,
   );
 });
 
@@ -471,6 +466,11 @@ function paresEnCarrito() {
   return carrito.reduce((suma, linea) => suma + linea.cantidad, 0);
 }
 
+// "1 par", "3 pares"
+function textoPares(cantidad) {
+  return `${cantidad} ${cantidad === 1 ? "par" : "pares"}`;
+}
+
 // Estimación para enseñar: el total que vale lo calcula PostgreSQL
 function totalEstimado() {
   return carrito.reduce(
@@ -498,7 +498,7 @@ function revisarCarrito() {
         avisosCarrito.push(`${producto.modelo} (talla ${producto.talla}) se ha agotado y lo hemos quitado.`);
         continue;
       }
-      const maximo = Math.min(MAXIMO_POR_TALLA, producto.stock);
+      const maximo = maximoDeTalla(producto);
       if (linea.cantidad > maximo) {
         avisosCarrito.push(
           `De ${producto.modelo} (talla ${producto.talla}) solo quedan ${producto.stock}: hemos ajustado la cantidad.`,
@@ -524,10 +524,10 @@ function pintarCarrito() {
   );
   avisosCarrito = []; // se cuentan una sola vez
   listaCarrito.replaceChildren();
-  const vacio = carrito.length === 0;
-  carritoVacio.hidden = !vacio;
-  pieCarrito.hidden = vacio;
-  if (vacio) return;
+  const sinProductos = carrito.length === 0;
+  carritoVacio.hidden = !sinProductos;
+  pieCarrito.hidden = sinProductos;
+  if (sinProductos) return;
 
   if (!catalogoTienda) {
     carritoVacio.hidden = false;
@@ -563,7 +563,7 @@ function pintarCarrito() {
     const campo = document.createElement("input");
     campo.type = "number";
     campo.min = 1;
-    campo.max = Math.min(MAXIMO_POR_TALLA, producto.stock);
+    campo.max = maximoDeTalla(producto);
     campo.step = 1;
     campo.value = linea.cantidad;
     campo.dataset.sku = linea.sku;
@@ -598,7 +598,7 @@ listaCarrito.addEventListener("change", (evento) => {
   const linea = carrito.find((l) => l.sku === sku);
   if (!linea) return;
   const producto = productosTienda.get(sku);
-  const maximo = Math.min(MAXIMO_POR_TALLA, producto.stock);
+  const maximo = maximoDeTalla(producto);
   const cantidad = Number(evento.target.value);
   if (!Number.isInteger(cantidad) || cantidad < 1 || cantidad > maximo) {
     avisosCarrito.push(
@@ -819,9 +819,8 @@ function abrirCheckout() {
   document.querySelector("#entrega-email").textContent = clienteActual.email;
   campoTelefono.value = clienteActual.telefono || "";
   campoDireccion.value = clienteActual.direccion || "";
-  const pares = paresEnCarrito();
   document.querySelector("#entrega-resumen").textContent =
-    `${pares} ${pares === 1 ? "par" : "pares"} · total estimado ${formatoPrecio(totalEstimado())}.`;
+    `${textoPares(paresEnCarrito())} · total estimado ${formatoPrecio(totalEstimado())}.`;
   errorEntrega.hidden = true;
   mostrarPaso("entrega");
   if (dialogoCarrito.open) dialogoCarrito.close();
@@ -911,7 +910,7 @@ async function pagar(resultado) {
       mostrarResultado(
         "Pedido confirmado.",
         `Pago simulado aceptado: no se ha cobrado nada. Tu pedido ${pedido.referencia} ` +
-          `(${pedido.pares} ${pedido.pares === 1 ? "par" : "pares"}, ${formatoPrecio(pedido.total)}) ` +
+          `(${textoPares(pedido.pares)}, ${formatoPrecio(pedido.total)}) ` +
           "está confirmado. Puedes seguirlo en «Mis pedidos».",
       );
     } else {
@@ -1029,7 +1028,7 @@ function crearFilaPedido(pedido) {
   estado.className = `pedido-estado estado-${pedido.estado}`;
   estado.textContent = NOMBRES_ESTADO[pedido.estado] || pedido.estado;
   const importe = document.createElement("span");
-  importe.textContent = `${pedido.pares} ${pedido.pares === 1 ? "par" : "pares"} · ${formatoPrecio(pedido.total)}`;
+  importe.textContent = `${textoPares(pedido.pares)} · ${formatoPrecio(pedido.total)}`;
   const boton = document.createElement("button");
   boton.type = "button";
   boton.className = "enlace-boton";

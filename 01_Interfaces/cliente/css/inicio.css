@@ -228,7 +228,6 @@ h1 span {
 }
 .estanterias {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
   column-gap: 22px;
   row-gap: 24px;
   margin-top: 0;
@@ -499,14 +498,10 @@ dialog::backdrop {
   .controles {
     gap: 15px;
   }
-  .filtros {
-    gap: 14px;
-  }
   .buscar input {
     width: 125px;
   }
   .estanterias {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 25px 16px;
   }
   .tarjeta img {
@@ -523,10 +518,8 @@ dialog::backdrop {
     padding: 70px 5%;
   }
   .modal {
-    padding: 55px 7% 35px;
     min-height: 0;
     grid-template-columns: 1fr;
-    gap: 25px;
   }
   .modal-texto h2 {
     margin-bottom: 10px;
@@ -536,9 +529,6 @@ dialog::backdrop {
   }
   .modal-imagen img {
     height: 220px;
-  }
-  .modal-info {
-    margin-top: 10px;
   }
 }
 @media (max-width: 370px) {
@@ -631,31 +621,19 @@ dialog::backdrop {
   margin-top: 28px;
 }
 .catalogo-tarjeta {
-  background: none;
-  color: #201e1d;
   padding: 0;
-  border: 0;
   text-align: left;
 }
 .catalogo-tarjeta img {
   display: block;
   width: 100%;
-  aspect-ratio: 1;
-  object-fit: cover;
   transition:
     filter 0.25s,
     transform 0.25s;
 }
-.catalogo-tarjeta:hover img {
-  filter: brightness(0.96);
-  transform: translateY(-4px);
-}
 .catalogo-datos {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
-  padding: 14px 0;
-  font-size: 0.8rem;
 }
 .catalogo-datos span {
   color: #6f6762;
@@ -676,9 +654,6 @@ dialog::backdrop {
     align-items: start;
     flex-direction: column;
   }
-  .catalogo-herramientas {
-    flex-wrap: wrap;
-  }
   .catalogo-herramientas input {
     width: 150px;
   }
@@ -688,7 +663,6 @@ dialog::backdrop {
   }
   .catalogo-datos {
     flex-direction: column;
-    gap: 3px;
   }
 }
 
@@ -737,15 +711,6 @@ dialog::backdrop {
 .catalogo-herramientas p {
   margin-left: 0;
   white-space: nowrap;
-}
-.catalogo-tarjeta img {
-  background: #f7f6f3;
-}
-.catalogo-tarjeta:hover .catalogo-datos strong {
-  color: #a35330;
-}
-.catalogo-tarjeta:focus-visible {
-  outline-color: #8d492a;
 }
 @media (max-width: 760px) {
   .catalogo-herramientas {
@@ -798,12 +763,13 @@ dialog::backdrop {
 .probador-vista[data-escenario="tokio"] {
   background-image: url("../images/probador/tokio.png");
 }
+/* El modelo ocupa menos espacio para que se vea completo. */
 .modelo-base {
   position: absolute;
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  height: 90%;
+  height: 66.25%;
   max-width: 90%;
   object-fit: contain;
   object-position: bottom;
@@ -922,18 +888,12 @@ dialog::backdrop {
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
-/* Las colecciones nuevas contienen fotografías apaisadas y transparentes. */
 .filtros,
 .catalogo-filtros {
   flex-wrap: wrap;
 }
 .catalogo-herramientas {
   flex-wrap: wrap;
-}
-.catalogo-tarjeta img {
-  object-fit: contain;
-  aspect-ratio: 4 / 3;
-  padding: 5% 6%;
 }
 /* Las fotos que conservan el fondo de estudio llenan el hueco: así no queda un
    recuadro gris dentro de la tarjeta. El encuadre 4:3 no corta ninguna zapatilla. */
@@ -953,38 +913,6 @@ dialog::backdrop {
   }
 }
 
-/* El modelo ocupa menos espacio para que se vea completo. */
-@media (min-width: 761px) {
-  .probador-vista {
-    height: min(70vh, 620px);
-    min-height: 0;
-    align-self: start;
-    position: sticky;
-    top: 0;
-  }
-}
-.modelo-base {
-  height: 66.25%;
-}
-/* En escritorio el escenario ocupa toda la columna y la figura permanece visible. */
-@media (min-width: 761px) {
-  .probador-vista {
-    position: relative;
-    height: auto;
-    min-height: 620px;
-    align-self: stretch;
-  }
-  .modelo-base {
-    position: sticky;
-    top: 75px;
-    bottom: auto;
-    left: auto;
-    transform: none;
-    display: block;
-    margin: 110px auto 0;
-    max-height: 420px;
-  }
-}
 /* Una sombra suave bajo los pies ayuda a integrar el modelo en el suelo. */
 .probador-vista::after {
   content: "";
@@ -1005,32 +933,13 @@ dialog::backdrop {
 .etiqueta-vista {
   z-index: 2;
 }
-@media (min-width: 761px) {
-  .probador-vista::after {
-    bottom: auto;
-    top: calc(110px + min(var(--escala-modelo, 66.25%), 420px) - 12px);
-  }
-}
 /* La figura y su sombra comparten la misma línea de suelo. */
 @media (min-width: 761px) {
-  .probador-vista {
-    height: min(72vh, 650px);
-    min-height: 0;
-    align-self: start;
-    position: sticky;
-    top: 0;
-  }
   .modelo-base {
-    position: absolute;
-    top: auto;
     bottom: 5%;
-    left: 50%;
-    margin: 0;
-    transform: translateX(-50%);
     max-height: 80%;
   }
   .probador-vista::after {
-    top: auto;
     bottom: 4%;
   }
 }
@@ -1046,7 +955,6 @@ dialog::backdrop {
   height: 100%;
   position: absolute;
   inset: 0;
-  object-fit: contain;
 }
 .escenarios button:disabled {
   opacity: 0.45;
@@ -1219,10 +1127,6 @@ dialog::backdrop {
   flex-wrap: wrap;
 }
 .catalogo-datos .catalogo-precio {
-  order: 3;
-  width: 100%;
-  color: #201e1d;
-  font-size: 0.8rem;
   font-weight: bold;
 }
 /* Ficha: el nombre y la compra van sobre un panel oscuro liso; en escritorio,

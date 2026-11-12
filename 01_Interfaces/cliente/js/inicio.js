@@ -66,9 +66,9 @@ function mostrarModelos() {
       : `${visibles.length} ${visibles.length === 1 ? "modelo" : "modelos"}`;
   vacio.hidden = visibles.length > 0;
 }
-function abrirDetalle(modelo, boton) {
-  modeloSeleccionado = modelo;
-  ultimoBoton = boton;
+// Escribe en la ficha el nombre, la colección, la foto y los datos de compra.
+// La usan abrirDetalle y el probador, al cambiar de zapatilla.
+function rellenarFicha(modelo) {
   document.querySelector("#detalle-titulo").textContent = modelo.nombre;
   document.querySelector("#detalle-coleccion").textContent =
     `COLECCIÓN ${modelo.coleccion.toUpperCase()}`;
@@ -76,6 +76,11 @@ function abrirDetalle(modelo, boton) {
   imagen.src = modelo.imagen;
   imagen.alt = `Vista de ${modelo.nombre}`;
   mostrarDatosCompra(modelo);
+}
+function abrirDetalle(modelo, boton) {
+  modeloSeleccionado = modelo;
+  ultimoBoton = boton;
+  rellenarFicha(modelo);
   dialogo.showModal();
 }
 document.querySelectorAll(".filtro").forEach((boton) =>
@@ -97,13 +102,8 @@ dialogo.addEventListener("click", (evento) => {
   if (evento.target === dialogo) dialogo.close();
 });
 dialogo.addEventListener("close", () => ultimoBoton?.focus());
-document.querySelector("#cantidad-street").textContent = modelos.filter(
-  (modelo) => modelo.coleccion === "street",
-).length;
-document.querySelector("#cantidad-luxe").textContent = modelos.filter(
-  (modelo) => modelo.coleccion === "luxe",
-).length;
-["casual", "hombre", "mujer", "unisex"].forEach((coleccion) => {
+// Cuántos modelos tiene cada colección, en los botones de filtro
+["street", "luxe", "casual", "hombre", "mujer", "unisex"].forEach((coleccion) => {
   document.querySelector(`#cantidad-${coleccion}`).textContent = modelos.filter(
     (modelo) => modelo.coleccion === coleccion,
   ).length;
@@ -111,7 +111,7 @@ document.querySelector("#cantidad-luxe").textContent = modelos.filter(
 document.querySelector("#cantidad-todos").textContent = modelos.length;
 mostrarModelos();
 
-// El catálogo complementa al escaparate y muestra las dos colecciones.
+// El catálogo complementa al escaparate y muestra todas las colecciones.
 const catalogoGrid = document.querySelector("#catalogo-grid");
 const buscarCatalogo = document.querySelector("#buscar-catalogo");
 let coleccionCatalogo = "todos";
@@ -324,14 +324,7 @@ elegirZapatilla.addEventListener("change", () => {
   modeloSeleccionado = modelos[Number(elegirZapatilla.value)];
   mostrarZapatillaProbador(modeloSeleccionado);
   prepararVistas();
-  document.querySelector("#detalle-titulo").textContent =
-    modeloSeleccionado.nombre;
-  document.querySelector("#detalle-coleccion").textContent =
-    `COLECCIÓN ${modeloSeleccionado.coleccion.toUpperCase()}`;
-  const imagen = document.querySelector("#detalle-imagen");
-  imagen.src = modeloSeleccionado.imagen;
-  imagen.alt = `Vista de ${modeloSeleccionado.nombre}`;
-  mostrarDatosCompra(modeloSeleccionado);
+  rellenarFicha(modeloSeleccionado); // la ficha, al volver, enseña la misma zapatilla
 });
 // Se redondea a intervalos de 5 y se limita al rango visual disponible.
 function redondearMedida(campo, minimo, maximo, valorInicial) {
@@ -359,9 +352,7 @@ function mostrarFiguraSegunMedidas() {
 alturaModelo.addEventListener("change", () => {
   redondearMedida(alturaModelo, 120, 220, 175);
   // Escala visual orientativa; no pretende reproducir proporciones reales.
-  const alturaVisual = `${58 + (Number(alturaModelo.value) - 120) * 0.15}%`;
-  imagenModelo.style.height = alturaVisual;
-  vistaProbador.style.setProperty("--escala-modelo", alturaVisual);
+  imagenModelo.style.height = `${58 + (Number(alturaModelo.value) - 120) * 0.15}%`;
   mostrarFiguraSegunMedidas();
 });
 pesoModelo.addEventListener("change", () => {
