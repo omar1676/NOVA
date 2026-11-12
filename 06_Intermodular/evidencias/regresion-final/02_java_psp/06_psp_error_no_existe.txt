@@ -1,0 +1,3 @@
+===== NOVA Sneakers - PSP - 2026-11-13 01:02:22 =====
+Archivo: datos\no_existe.csv
+Resultado: ERROR EN EL ARCHIVO (codigo 1). No existe el archivo: datos\no_existe.csv

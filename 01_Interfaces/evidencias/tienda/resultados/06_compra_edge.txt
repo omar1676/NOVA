@@ -1,0 +1,129 @@
+Compra completa en Microsoft Edge 157 (Playwright 1.65), en escritorio (1440x900) y en movil (390x844),
+contrastada con PostgreSQL en cada paso, y con axe-core 4.12.1 en cada pantalla nueva.
+Base desechable nova_tienda (PostgreSQL 17.11, puerto 55433), montada desde cero con los scripts 01-21.
+Pasada final: inicio 11/11/2026 23:43:54 · fin 11/11/2026 23:45:09.
+Resultado: 111 de 111.
+
+===== Salida =====
+PASS [escritorio] catalogo: 12 modelos disponibles y 88 no disponibles -> {'No disponible': 88, 'Disponible': 12}
+PASS [escritorio] la tarjeta de un modelo sin stock lo dice tambien a los lectores de pantalla -> Ver NOVA Street 03, 109,90 €, no disponible
+PASS [escritorio] axe WCAG 2.1 A/AA sin violaciones: pagina con el catalogo de la tienda -> 0
+PASS [escritorio] ficha no disponible: aviso, sin compra y precio orientativo -> No disponible: este modelo todavía no está a la venta en la tienda online.
+PASS [escritorio] ficha a la venta: precio de PostgreSQL, color de la base y tallas -> 139,90 €
+PASS [escritorio] anadir sin elegir talla avisa y no anade nada
+PASS [escritorio] al elegir talla se ve su stock -> Quedan 5 pares de la talla 40.
+PASS [escritorio] cantidad con decimales: rechazada
+PASS [escritorio] mas pares de los que hay: rechazado -> Como mucho puedes llevar 5 pares de esta talla.
+PASS [escritorio] anade 2 pares de una talla -> Añadido al carrito: NOVA Luxe 01, talla 40 (2 pares).
+PASS [escritorio] axe WCAG 2.1 A/AA sin violaciones: ficha con color, tallas y cantidad -> 0
+PASS [escritorio] tres productos distintos, 4 pares en total
+PASS [escritorio] localStorage guarda solo SKU y cantidad (ningun precio) -> [{'sku': 82, 'cantidad': 2}, {'sku': 83, 'cantidad': 1}, {'sku': 141, 'cantidad': 1}]
+PASS [escritorio] al recargar la pagina el carrito sigue ahi
+PASS [escritorio] el carrito ensena 3 lineas con su precio y el total estimado -> 519,60 €
+PASS [escritorio] axe WCAG 2.1 A/AA sin violaciones: carrito con productos -> 0
+PASS [escritorio] cambiar la cantidad actualiza el contador y el total -> 659,50 €
+PASS [escritorio] una cantidad de 11 se rechaza y se avisa -> La cantidad de NOVA Luxe 01 (talla 40) tiene que ser un número entero de 1 a 5.
+PASS [escritorio] quitar una linea
+PASS [escritorio] localStorage manipulado: el SKU que no existe se quita y el precio inventado se ignora -> Negro · Talla 40 · 139,90 € el par
+PASS [escritorio] tramitar sin sesion abre el login de Alvaro con un aviso
+PASS [escritorio] login vacio: el aviso de Alvaro
+PASS [escritorio] las credenciales de admin.demo no sirven en la tienda -> Correo o contraseña incorrectos
+PASS [escritorio] axe WCAG 2.1 A/AA sin violaciones: dialogo de inicio de sesion de Alvaro -> 0
+PASS [escritorio] registro con correo mal escrito: avisa
+PASS [escritorio] registro con contrasena corta: avisa
+PASS [escritorio] axe WCAG 2.1 A/AA sin violaciones: dialogo de registro -> 0
+PASS [escritorio] al crear la cuenta sigue con el pedido (paso de entrega) y la barra saluda -> HOLA, CLIENTE
+PASS [escritorio] la cuenta queda en clientes y cuentas_cliente, con la contrasena cifrada
+PASS [escritorio] sin direccion no se crea el pedido
+PASS [escritorio] axe WCAG 2.1 A/AA sin violaciones: pedido, paso de entrega -> 0
+PASS [escritorio] doble clic en «Revisar pedido»: UN pedido pendiente en PostgreSQL -> ['1', 'pendiente', 'pendiente', '279.80']
+PASS [escritorio] el total que se ensena es el de PostgreSQL -> 279,80 € / 279.80
+PASS [escritorio] lineas con el precio de la base (no el 0,01 manipulado)
+PASS [escritorio] crear el pedido no descuenta stock
+PASS [escritorio] el pago dice que es una simulacion academica y no pide tarjeta
+PASS [escritorio] axe WCAG 2.1 A/AA sin violaciones: pedido, pago simulado -> 0
+PASS [escritorio] pago aceptado: confirmado y pagado -> confirmado|pagado
+PASS [escritorio] el stock baja una sola vez (1 par de esa talla, aunque se pulso dos veces) -> 5 -> 4
+PASS [escritorio] el carrito se vacia al confirmar
+PASS [escritorio] axe WCAG 2.1 A/AA sin violaciones: pedido confirmado -> 0
+PASS [escritorio] mis pedidos: el pedido sale como Confirmado -> WEB-57A752F41C634581A576
+11/11/2026 23:44
+CONFIRMADO
+2 pares · 279,80 €
+Ver detalle
+PASS [escritorio] ver detalle: sus lineas -> NOVA Luxe 01 · Negro · Talla 40 · 1 × 139,90 € = 139,90 €
+NOVA Luxe 01 · Negro · Talla 41 · 1 × 139,90 € = 139,90 €
+PASS [escritorio] axe WCAG 2.1 A/AA sin violaciones: mis pedidos con detalle -> 0
+PASS [escritorio] la direccion se recuerda de la compra anterior
+PASS [escritorio] pago rechazado: cancelado, sin tocar el stock y el carrito sigue
+PASS [escritorio] cerrar con Escape sin pagar: el pedido pendiente se cancela
+PASS [escritorio] si se agota mientras paga: aviso claro, pedido cancelado y nada descontado -> Mientras pagabas se han agotado algunas tallas. El pedido se ha cancelado y no se ha cobrado nada.
+PASS [escritorio] el carrito quita la talla agotada y lo dice -> NOVA Casual 02 (talla 42) se ha agotado y lo hemos quitado.
+PASS [escritorio] en la ficha la talla agotada esta desactivada
+PASS [escritorio] cerrar sesion: vuelve «Iniciar sesion» y desaparece «Mis pedidos»
+PASS [escritorio] login con el dialogo de Alvaro: dentro
+PASS [escritorio] sin errores de JavaScript en la pagina -> ['Failed to load resource: the server responded with a status of 401 (Unauthorized)', 'Failed to load resource: the server responded with a status of 409 (Conflict)', 'Failed to load resource: the server responded with a status of 401 (Unauthorized)']
+PASS [escritorio] las unicas respuestas de error son las provocadas: 401 por contrasena mala y 409 por talla agotada al pagar -> ['401 POST http://127.0.0.1:3200/api/tienda/login', '409 POST http://127.0.0.1:3200/api/tienda/pedidos/50/pago', '401 POST http://127.0.0.1:3200/api/tienda/login']
+PASS [movil] catalogo: 12 modelos disponibles y 88 no disponibles -> {'No disponible': 88, 'Disponible': 12}
+PASS [movil] la tarjeta de un modelo sin stock lo dice tambien a los lectores de pantalla -> Ver NOVA Street 03, 109,90 €, no disponible
+PASS [movil] axe WCAG 2.1 A/AA sin violaciones: pagina con el catalogo de la tienda -> 0
+PASS [movil] ficha no disponible: aviso, sin compra y precio orientativo -> No disponible: este modelo todavía no está a la venta en la tienda online.
+PASS [movil] ficha a la venta: precio de PostgreSQL, color de la base y tallas -> 94,90 €
+PASS [movil] anadir sin elegir talla avisa y no anade nada
+PASS [movil] al elegir talla se ve su stock -> Quedan 5 pares de la talla 40.
+PASS [movil] cantidad con decimales: rechazada
+PASS [movil] mas pares de los que hay: rechazado -> Como mucho puedes llevar 5 pares de esta talla.
+PASS [movil] anade 2 pares de una talla -> Añadido al carrito: NOVA Unisex 01, talla 40 (2 pares).
+PASS [movil] axe WCAG 2.1 A/AA sin violaciones: ficha con color, tallas y cantidad -> 0
+PASS [movil] tres productos distintos, 4 pares en total
+PASS [movil] localStorage guarda solo SKU y cantidad (ningun precio) -> [{'sku': 150, 'cantidad': 2}, {'sku': 154, 'cantidad': 1}, {'sku': 118, 'cantidad': 1}]
+PASS [movil] al recargar la pagina el carrito sigue ahi
+PASS [movil] el carrito ensena 3 lineas con su precio y el total estimado -> 384,60 €
+PASS [movil] axe WCAG 2.1 A/AA sin violaciones: carrito con productos -> 0
+PASS [movil] cambiar la cantidad actualiza el contador y el total -> 479,50 €
+PASS [movil] una cantidad de 11 se rechaza y se avisa -> La cantidad de NOVA Unisex 01 (talla 40) tiene que ser un número entero de 1 a 5.
+PASS [movil] quitar una linea
+PASS [movil] localStorage manipulado: el SKU que no existe se quita y el precio inventado se ignora -> Arena y oliva · Talla 40 · 94,90 € el par
+PASS [movil] tramitar sin sesion abre el login de Alvaro con un aviso
+PASS [movil] login vacio: el aviso de Alvaro
+PASS [movil] las credenciales de admin.demo no sirven en la tienda -> Correo o contraseña incorrectos
+PASS [movil] axe WCAG 2.1 A/AA sin violaciones: dialogo de inicio de sesion de Alvaro -> 0
+PASS [movil] registro con correo mal escrito: avisa
+PASS [movil] registro con contrasena corta: avisa
+PASS [movil] axe WCAG 2.1 A/AA sin violaciones: dialogo de registro -> 0
+PASS [movil] al crear la cuenta sigue con el pedido (paso de entrega) y la barra saluda -> HOLA, CLIENTE
+PASS [movil] la cuenta queda en clientes y cuentas_cliente, con la contrasena cifrada
+PASS [movil] sin direccion no se crea el pedido
+PASS [movil] axe WCAG 2.1 A/AA sin violaciones: pedido, paso de entrega -> 0
+PASS [movil] doble clic en «Revisar pedido»: UN pedido pendiente en PostgreSQL -> ['1', 'pendiente', 'pendiente', '189.80']
+PASS [movil] el total que se ensena es el de PostgreSQL -> 189,80 € / 189.80
+PASS [movil] lineas con el precio de la base (no el 0,01 manipulado)
+PASS [movil] crear el pedido no descuenta stock
+PASS [movil] el pago dice que es una simulacion academica y no pide tarjeta
+PASS [movil] axe WCAG 2.1 A/AA sin violaciones: pedido, pago simulado -> 0
+PASS [movil] pago aceptado: confirmado y pagado -> confirmado|pagado
+PASS [movil] el stock baja una sola vez (1 par de esa talla, aunque se pulso dos veces) -> 5 -> 4
+PASS [movil] el carrito se vacia al confirmar
+PASS [movil] axe WCAG 2.1 A/AA sin violaciones: pedido confirmado -> 0
+PASS [movil] mis pedidos: el pedido sale como Confirmado -> WEB-474C7B51D3CE41F4A9A4
+11/11/2026 23:44
+CONFIRMADO
+2 pares · 189,80 €
+Ver detalle
+PASS [movil] ver detalle: sus lineas -> NOVA Unisex 01 · Arena y oliva · Talla 40 · 1 × 94,90 € = 94,90 €
+NOVA Unisex 01 · Arena y oliva · Talla 44 · 1 × 94,90 € = 94,90 €
+PASS [movil] axe WCAG 2.1 A/AA sin violaciones: mis pedidos con detalle -> 0
+PASS [movil] la direccion se recuerda de la compra anterior
+PASS [movil] pago rechazado: cancelado, sin tocar el stock y el carrito sigue
+PASS [movil] cerrar con Escape sin pagar: el pedido pendiente se cancela
+PASS [movil] si se agota mientras paga: aviso claro, pedido cancelado y nada descontado -> Mientras pagabas se han agotado algunas tallas. El pedido se ha cancelado y no se ha cobrado nada.
+PASS [movil] el carrito quita la talla agotada y lo dice -> NOVA Street 02 (talla 39) se ha agotado y lo hemos quitado.
+PASS [movil] en la ficha la talla agotada esta desactivada
+PASS [movil] cerrar sesion: vuelve «Iniciar sesion» y desaparece «Mis pedidos»
+PASS [movil] login con el dialogo de Alvaro: dentro
+PASS [movil] sin errores de JavaScript en la pagina -> ['Failed to load resource: the server responded with a status of 401 (Unauthorized)', 'Failed to load resource: the server responded with a status of 409 (Conflict)', 'Failed to load resource: the server responded with a status of 401 (Unauthorized)']
+PASS [movil] las unicas respuestas de error son las provocadas: 401 por contrasena mala y 409 por talla agotada al pagar -> ['401 POST http://127.0.0.1:3200/api/tienda/login', '409 POST http://127.0.0.1:3200/api/tienda/pedidos/54/pago', '401 POST http://127.0.0.1:3200/api/tienda/login']
+PASS [panel] el dashboard lista la compra web entre los 5 ultimos pedidos
+PASS [panel] Pedidos: las compras web con su estado
+PASS [panel] Auditoria: alta, cambio de estado y cambios de stock de la compra
+=== compra en Edge: 111 PASS, 0 FAIL

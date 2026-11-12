@@ -1,0 +1,2 @@
+Tipo: PRUEBA
+Exportación de PRUEBA, no de la base principal del equipo: 16_exportar_csv_dashboard.sql sobre una base nova_sneakers reconstruida desde cero con los scripts 1-17 del repositorio, el 2026-11-09 a las 19:12. Antes de la defensa hay que sustituir los cinco CSV por una exportación de la base del equipo y cambiar la primera línea a "Tipo: REAL".

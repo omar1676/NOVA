@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVA Sneakers · Análisis de datos</title>
+    <link rel="icon" href="img/Nova Logo.png">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* El dashboard de Python ocupa casi toda la pantalla dentro del panel */
+        .adm-analisis-marco {
+            display: block;
+            width: 100%;
+            height: max(640px, 80vh);
+            border: 0;
+            border-radius: 12px;
+            background: var(--adm-panel);
+        }
+        /* Sin esto, el display: block de arriba enseñaría el marco vacío aunque lleve hidden */
+        .adm-analisis-marco[hidden] {
+            display: none;
+        }
+        .adm-analisis-enlace {
+            color: var(--adm-dorado);
+        }
+    </style>
+</head>
+
+<body class="adm" data-pagina="analisis">
+
+<div class="adm-sidebar">
+    <div class="adm-marca">
+        <img src="img/Nova Logo.png" alt="NOVA Sneakers">
+    </div>
+    <nav class="adm-menu">
+        <a href="admin.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+        <a href="pedidosAdmin.html"><i data-lucide="shopping-bag"></i> Pedidos</a>
+        <a href="productosAdmin.html"><i data-lucide="footprints"></i> Productos</a>
+        <a href="inventarioAdmin.html"><i data-lucide="warehouse"></i> Inventario</a>
+        <a href="clientesAdmin.html"><i data-lucide="users"></i> Clientes</a>
+        <a href="trabajadoresAdmin.html"><i data-lucide="hard-hat"></i> Trabajadores</a>
+        <a href="sugerenciasAdmin.html"><i data-lucide="lightbulb"></i> Sugerencias</a>
+        <a href="mejorasAdmin.html"><i data-lucide="kanban"></i> Mejoras</a>
+        <a href="estadisticasAdmin.html"><i data-lucide="bar-chart-3"></i> Estadísticas</a>
+        <a href="analisisAdmin.html" class="adm-activo"><i data-lucide="trending-up"></i> Análisis de datos</a>
+        <a href="auditoriaAdmin.html"><i data-lucide="scroll-text"></i> Auditoría</a>
+        <a href="configuracionAdmin.html"><i data-lucide="settings"></i> Configuración</a>
+        <a href="#" id="adm-salir"><i data-lucide="log-out"></i> Cerrar sesión</a>
+    </nav>
+</div>
+
+<div class="adm-contenido">
+    <h1>Análisis de datos</h1>
+    <p class="adm-nota">
+        El dashboard de Python (calidad de los datos, KPIs, productos, clientes, inventario y predicción),
+        dentro del panel. Lee los CSV que exporta Acceso a Datos y se vuelve a calcular solo cada 60 segundos.
+    </p>
+    <p class="adm-nota" id="adm-analisis-aviso" role="status" hidden></p>
+
+    <div class="adm-panel" style="margin-top: 20px;">
+        <iframe id="adm-analisis-marco" class="adm-analisis-marco" hidden
+                title="Dashboard de análisis de datos de NOVA Sneakers (Python y Streamlit)"></iframe>
+    </div>
+    <p class="adm-nota">
+        <a id="adm-analisis-enlace" class="adm-analisis-enlace" href="#" target="_blank" rel="noopener">Abrir el dashboard en otra pestaña</a>
+    </p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/lucide@1.62.0/dist/umd/lucide.min.js" integrity="sha384-KbBG+Cdzk6eN6IszNtkSQeU6IJq84TBpyLQN+W8Fn8y0QNsTNiB+j8vFW5Rn1SGZ" crossorigin="anonymous"></script>
+<script src="script.js"></script>
+<script src="analisis.js"></script>
+
+</body>
+</html>

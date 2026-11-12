@@ -1,0 +1,4 @@
+PASS 7 error de conexión -> No se puede conectar con la base de datos.
+Comprueba que PostgreSQL está arrancado y la url de conexion.properties.
+Detalle: Connection to localhost:55499 refused. Check that the hostname and port are correct and that the postmaster is accepting TCP/IP connections.
+RESULTADO SIN CONEXION: 1 PASS, 0 FAIL

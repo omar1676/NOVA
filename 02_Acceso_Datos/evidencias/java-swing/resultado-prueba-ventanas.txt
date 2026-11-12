@@ -1,0 +1,104 @@
+
+--- Login: errores
+PASS E1 usuario y contraseña vacíos -> Usuario o contrasena incorrectos
+PASS E2 contraseña incorrecta -> Usuario o contrasena incorrectos
+PASS E3 tras el error se borra la contraseña -> campo vacío
+
+--- Rol administrador (admin.demo)
+PASS 1 login admin.demo -> entra
+PASS 1 pestañas del rol administrador -> Nuevo pedido,Consultas,Indicadores,Usuarios
+PASS 1 cabecera con usuario y rol -> Usuario: admin.demo    Rol: administrador
+PASS 2 filtro Cliente: (todos) + clientes activos -> 7 elementos, SQL 6 + 1
+PASS 2 filtro Modelo: (todos) + modelos -> 8 elementos, SQL 7 + 1
+PASS 2 Nuevo pedido: clientes y modelo-color -> 6 clientes, 12 modelo-color (SQL 6, 12)
+PASS 3 sin filtros salen todos -> 12 filas, SQL 12 | etiqueta: 12 pedidos.
+PASS 3 filtros cliente + estado -> 2 filas, SQL 2 (cliente 1, pendiente)
+PASS 6 CSV = tabla filtrada (cabecera y celdas) -> 2 filas exportadas a N:\NOVA\salidas\consulta_pedidos.csv
+PASS 3 tres filtros: modelo + desde + hasta -> 4 filas, SQL 4 (2026-11-13 a 2026-11-13)
+PASS 3 consulta sin resultados -> 0 filas | etiqueta: No hay pedidos con esos filtros.
+PASS 3 Limpiar filtros vacía los filtros y vuelve a buscar -> 12 filas, SQL 12
+PASS 7 fecha mal escrita -> Las fechas se escriben AAAA-MM-DD, por ejemplo 2026-11-09
+PASS 7 auditoría: el administrador la ve -> ventana con la tabla de log_eventos
+PASS 5 umbral por defecto -> "10"
+PASS 4 indicadores calculados -> pedidos 12 (SQL 12), estados 2, modelos 6, tallas 5 (SQL 5)
+PASS 4 modelo más solicitado -> NOVA Velocity=82 (SQL NOVA Velocity=82)
+PASS 5 umbral 10: aviso cuando no hay referencias -> 0 filas (SQL 0) | aviso: Ninguna referencia tiene menos de 10 pares en stock.
+PASS 5 umbral 25: filas y aviso -> 60 filas (SQL 60) | aviso: 60 referencias con menos de 25 pares. | primera: NOVA-4-40 10
+PASS 7 umbral negativo rechazado -> El umbral no puede ser negativo. Escribe 0 o un número mayor. | la tabla no cambia
+PASS 7 umbral que no es un número -> El umbral tiene que ser un número entero
+PASS 5 umbral 0 se acepta -> Ninguna referencia tiene menos de 0 pares en stock.
+PASS 7 talla que no es un número -> La talla y la cantidad tienen que ser números enteros
+PASS 7 crear sin referencia -> Escribe la referencia y elige un cliente
+PASS 7 talla que no existe: error de PostgreSQL y nada guardado -> No existe la talla 38 para ese modelo y color | pedidos guardados: 0
+PASS 1 cerrar sesión vuelve al login -> ventana de login abierta
+
+--- Rol comercial (tienda.demo)
+PASS 1 login tienda.demo -> entra
+PASS 1 pestañas del rol comercial -> Nuevo pedido,Consultas,Indicadores
+PASS 1 cabecera con usuario y rol -> Usuario: tienda.demo    Rol: comercial
+PASS 2 filtro Cliente: (todos) + clientes activos -> 7 elementos, SQL 6 + 1
+PASS 2 filtro Modelo: (todos) + modelos -> 8 elementos, SQL 7 + 1
+PASS 2 Nuevo pedido: clientes y modelo-color -> 6 clientes, 12 modelo-color (SQL 6, 12)
+PASS 3 sin filtros salen todos -> 12 filas, SQL 12 | etiqueta: 12 pedidos.
+PASS 3 filtros cliente + estado -> 2 filas, SQL 2 (cliente 1, pendiente)
+PASS 6 CSV = tabla filtrada (cabecera y celdas) -> 2 filas exportadas a N:\NOVA\salidas\consulta_pedidos.csv
+PASS 3 tres filtros: modelo + desde + hasta -> 4 filas, SQL 4 (2026-11-13 a 2026-11-13)
+PASS 3 consulta sin resultados -> 0 filas | etiqueta: No hay pedidos con esos filtros.
+PASS 3 Limpiar filtros vacía los filtros y vuelve a buscar -> 12 filas, SQL 12
+PASS 7 fecha mal escrita -> Las fechas se escriben AAAA-MM-DD, por ejemplo 2026-11-09
+PASS 7 auditoría: comercial recibe Acceso denegado -> Acceso denegado: el rol comercial no puede ver la auditoría
+PASS 5 umbral por defecto -> "10"
+PASS 4 indicadores calculados -> pedidos 12 (SQL 12), estados 2, modelos 6, tallas 5 (SQL 5)
+PASS 4 modelo más solicitado -> NOVA Velocity=82 (SQL NOVA Velocity=82)
+PASS 5 umbral 10: aviso cuando no hay referencias -> 0 filas (SQL 0) | aviso: Ninguna referencia tiene menos de 10 pares en stock.
+PASS 5 umbral 25: filas y aviso -> 60 filas (SQL 60) | aviso: 60 referencias con menos de 25 pares. | primera: NOVA-4-40 10
+PASS 7 umbral negativo rechazado -> El umbral no puede ser negativo. Escribe 0 o un número mayor. | la tabla no cambia
+PASS 7 umbral que no es un número -> El umbral tiene que ser un número entero
+PASS 5 umbral 0 se acepta -> Ninguna referencia tiene menos de 0 pares en stock.
+PASS 1 cerrar sesión vuelve al login -> ventana de login abierta
+
+--- Rol trabajador (taller.demo)
+PASS 1 login taller.demo -> entra
+PASS 1 pestañas del rol trabajador -> Consultas,Indicadores
+PASS 1 cabecera con usuario y rol -> Usuario: taller.demo    Rol: trabajador
+PASS 2 filtro Cliente: (todos) + clientes activos -> 7 elementos, SQL 6 + 1
+PASS 2 filtro Modelo: (todos) + modelos -> 8 elementos, SQL 7 + 1
+PASS 3 sin filtros salen todos -> 12 filas, SQL 12 | etiqueta: 12 pedidos.
+PASS 3 filtros cliente + estado -> 2 filas, SQL 2 (cliente 1, pendiente)
+PASS 6 CSV = tabla filtrada (cabecera y celdas) -> 2 filas exportadas a N:\NOVA\salidas\consulta_pedidos.csv
+PASS 3 tres filtros: modelo + desde + hasta -> 4 filas, SQL 4 (2026-11-13 a 2026-11-13)
+PASS 3 consulta sin resultados -> 0 filas | etiqueta: No hay pedidos con esos filtros.
+PASS 3 Limpiar filtros vacía los filtros y vuelve a buscar -> 12 filas, SQL 12
+PASS 7 fecha mal escrita -> Las fechas se escriben AAAA-MM-DD, por ejemplo 2026-11-09
+PASS 7 auditoría: trabajador recibe Acceso denegado -> Acceso denegado: el rol trabajador no puede ver la auditoría
+PASS 5 umbral por defecto -> "10"
+PASS 4 indicadores calculados -> pedidos 12 (SQL 12), estados 2, modelos 6, tallas 5 (SQL 5)
+PASS 4 modelo más solicitado -> NOVA Velocity=82 (SQL NOVA Velocity=82)
+PASS 5 umbral 10: aviso cuando no hay referencias -> 0 filas (SQL 0) | aviso: Ninguna referencia tiene menos de 10 pares en stock.
+PASS 5 umbral 25: filas y aviso -> 60 filas (SQL 60) | aviso: 60 referencias con menos de 25 pares. | primera: NOVA-4-40 10
+PASS 7 umbral negativo rechazado -> El umbral no puede ser negativo. Escribe 0 o un número mayor. | la tabla no cambia
+PASS 7 umbral que no es un número -> El umbral tiene que ser un número entero
+PASS 5 umbral 0 se acepta -> Ninguna referencia tiene menos de 0 pares en stock.
+PASS 1 cerrar sesión vuelve al login -> ventana de login abierta
+
+--- TXT de actividad
+PASS TXT registra lo hecho en las ventanas -> 51 líneas nuevas
+PASS TXT sin contraseñas -> ninguna contraseña escrita
+   2026-11-13 00:37:09 | admin.demo | administrador | INDICADORES | correcto | umbral de stock 10, 0 referencias bajo el umbral
+   2026-11-13 00:37:09 | admin.demo | administrador | INDICADORES | correcto | umbral de stock 25, 60 referencias bajo el umbral
+   2026-11-13 00:37:12 | admin.demo | administrador | INDICADORES | correcto | umbral de stock 0, 0 referencias bajo el umbral
+   2026-11-13 00:37:15 | admin.demo | administrador | CREAR PEDIDO | rechazado | referencia GUI-TALLA-34540, 1 lineas; No existe la talla 38 para ese modelo y color
+   2026-11-13 00:37:24 | tienda.demo | comercial | INDICADORES | correcto | umbral de stock 10, 0 referencias bajo el umbral
+   2026-11-13 00:37:25 | tienda.demo | comercial | INDICADORES | correcto | umbral de stock 25, 60 referencias bajo el umbral
+   2026-11-13 00:37:27 | tienda.demo | comercial | INDICADORES | correcto | umbral de stock 0, 0 referencias bajo el umbral
+   2026-11-13 00:37:35 | taller.demo | trabajador | INDICADORES | correcto | umbral de stock 10, 0 referencias bajo el umbral
+   2026-11-13 00:37:36 | taller.demo | trabajador | INDICADORES | correcto | umbral de stock 25, 60 referencias bajo el umbral
+   2026-11-13 00:37:38 | taller.demo | trabajador | INDICADORES | correcto | umbral de stock 0, 0 referencias bajo el umbral
+
+RESULTADO PRUEBA VISUAL: 76 PASS, 0 FAIL. Capturas: 17
+
+--- Error de conexion (conexion.properties apuntando a un puerto sin PostgreSQL)
+PASS 7 error de conexión -> No se puede conectar con la base de datos.
+Comprueba que PostgreSQL está arrancado y la url de conexion.properties.
+Detalle: Connection to localhost:55499 refused. Check that the hostname and port are correct and that the postmaster is accepting TCP/IP connections.
+RESULTADO SIN CONEXION: 1 PASS, 0 FAIL

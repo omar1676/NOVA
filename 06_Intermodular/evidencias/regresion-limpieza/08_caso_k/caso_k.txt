@@ -1,0 +1,18 @@
+[13:04:01] 0 carga inicial: Estado=Correcto | Última comprobación=13:03:54 | Última actualización válida=13:03:54 | Filas válidas=103 | Pedidos registrados=12 | Pares solicitados=90 | Importe confirmado=4.796,00 €
+   (ciclo detectado a los 61 s, sin tocar el navegador)
+[13:05:03] 1 ciclo de 60 s: Estado=Sin cambios | Última comprobación=13:04:56 | Última actualización válida=13:03:54 | Filas válidas=103 | Pedidos registrados=12 | Pares solicitados=90 | Importe confirmado=4.796,00 €
+   (ciclo detectado a los 61 s, sin tocar el navegador)
+[13:06:04] 2 ciclo de 60 s: Estado=Sin cambios | Última comprobación=13:05:56 | Última actualización válida=13:03:54 | Filas válidas=103 | Pedidos registrados=12 | Pares solicitados=90 | Importe confirmado=4.796,00 €
+   (ciclo detectado a los 59 s, sin tocar el navegador)
+[13:07:03] 3 ciclo de 60 s: Estado=Sin cambios | Última comprobación=13:06:56 | Última actualización válida=13:03:54 | Filas válidas=103 | Pedidos registrados=12 | Pares solicitados=90 | Importe confirmado=4.796,00 €
+PASS 4 horas de comprobación distintas (carga y 3 ciclos) -> 13:03:54, 13:04:56, 13:05:56, 13:06:56
+PASS los 3 ciclos dicen Sin cambios -> Correcto, Sin cambios, Sin cambios, Sin cambios
+PASS las cifras no cambian (ni la hora de la última actualización válida) -> {'Última actualización válida': '13:03:54', 'Filas válidas': '103', 'Pedidos registrados': '12', 'Pares solicitados': '90', 'Importe confirmado': '4.796,00 €'}
+PASS el registro tiene la carga inicial y 3 comprobaciones automáticas -> 3 automáticas
+Registro de eventos de la sesión:
+  fecha_hora,origen,carpeta,operacion,resultado,filas_procesadas,filas_validas,incidencias,bloqueantes,version_datos,duracion_s,detalle
+  2026-11-13 13:03:54,ACC · PRUEBA (base de prueba: no son ventas reales),entrada_acc,carga inicial del origen,CORRECTO,103,103,2,0,75c216a4,2.0,"Datos leídos, validados y publicados."
+  2026-11-13 13:04:56,ACC · PRUEBA (base de prueba: no son ventas reales),entrada_acc,comprobación automática (60 s),SIN CAMBIOS,103,103,2,0,75c216a4,1.74,"Los CSV no han cambiado: se han vuelto a leer, validar y calcular, con el mismo resultado."
+  2026-11-13 13:05:56,ACC · PRUEBA (base de prueba: no son ventas reales),entrada_acc,comprobación automática (60 s),SIN CAMBIOS,103,103,2,0,75c216a4,1.7,"Los CSV no han cambiado: se han vuelto a leer, validar y calcular, con el mismo resultado."
+  2026-11-13 13:06:56,ACC · PRUEBA (base de prueba: no son ventas reales),entrada_acc,comprobación automática (60 s),SIN CAMBIOS,103,103,2,0,75c216a4,1.73,"Los CSV no han cambiado: se han vuelto a leer, validar y calcular, con el mismo resultado."
+RESULTADO CASO K: 4 PASS, 0 FAIL

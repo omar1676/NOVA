@@ -1,0 +1,388 @@
+Regresion del panel de administracion con el servidor nuevo: las pruebas de pruebas/panel-admin repetidas
+contra el servidor de la tienda (puerto 3200, base nova_tienda con compras web).
+Dos comprobaciones antiguas comparaban la lista de pedidos confirmados con una consulta SIN ORDER BY. Funcionaban
+porque solo habia un pedido confirmado (CUSTOM-40); con varios fallaban. Se les anadio el mismo orden que usa el
+panel (fecha_pedido DESC, id_pedido DESC). El panel no se ha cambiado.
+Resultados: autenticacion 44/44 · seguridad 27/27 · API frente a PostgreSQL 69/69 · intentos y sesiones 25/25 ·
+caducidad 4/4 · navegador escritorio y movil 124/124 · iconos 12/12 · axe 0 violaciones en 12 paginas ·
+Atras tras logout: 0 correos visibles · login sin JavaScript: la contrasena no va en la URL.
+
+===== Autenticacion (prueba_fase2.sh) =====
+--- sin sesion
+PASS  API admin sin cookie -> 401 (401)
+PASS  /api/sesion sin cookie -> 401 (401)
+PASS  cookie inventada -> 401 (401)
+--- datos de login incorrectos
+PASS  contrasena incorrecta -> 401 (401)
+PASS  mensaje generico ({"error":"Usuario o contraseña incorrectos"})
+PASS  usuario que no existe -> 401 (401)
+PASS  mismo mensaje sin pistas ({"error":"Usuario o contraseña incorrectos"})
+PASS  campos vacios -> 400 (400)
+PASS  JSON roto -> 400 (400)
+PASS  tras un login fallido no hay cookie (0)
+--- trabajador y comercial: entran, pero sin permiso
+PASS  login de taller.demo -> 200 (200)
+PASS  taller.demo sin acceso al panel (false)
+PASS  taller.demo en la API admin -> 403 (403)
+PASS  login de tienda.demo -> 200 (200)
+PASS  tienda.demo en la API admin -> 403 (403)
+PASS  taller.demo pide admin.html -> 302 (302)
+--- administrador
+PASS  login de admin.demo -> 200 (200)
+PASS  respuesta del login ({"usuario":"admin.demo","rol":"administrador","accesoPanel":true})
+PASS  cookie HttpOnly (1)
+PASS  cookie SameSite=Strict (1)
+PASS  /api/sesion con cookie -> 200 (200)
+PASS  pasa el control: dashboard -> 200 (200)
+PASS  pasa el control: ruta admin inventada -> 404 (404)
+PASS  admin.html con sesion -> 200 (200)
+PASS  script.js con sesion -> 200 (200)
+--- logout
+PASS  logout -> 200 (200)
+PASS  despues del logout -> 401 (401)
+PASS  reusar la cookie antigua -> 401 (401)
+--- paginas sin sesion
+PASS  /admin.html sin sesion -> 302 (302)
+PASS  /pedidosAdmin.html sin sesion -> 302 (302)
+PASS  /script.js sin sesion -> 302 (302)
+PASS  / sin sesion -> 302 (302)
+PASS  redirige a login.html (http://127.0.0.1:3200/login.html)
+PASS  /login.html es publico -> 200 (200)
+PASS  /login.js es publico -> 200 (200)
+PASS  /styles.css es publico -> 200 (200)
+PASS  /img/Nova%20Logo.png es publico -> 200 (200)
+PASS  /ADMIN.HTML (mayusculas) -> 302 (302)
+PASS  /admin%2Ehtml (codificado) -> 302 (302)
+PASS  /img/../admin.html -> 400 (400)
+PASS  /img/..%5Cadmin.html -> 400 (400)
+PASS  /%E0 mal codificada -> 400 (400)
+--- nada secreto en las respuestas y nada escrito en la base
+PASS  ninguna respuesta lleva hash ni contrasena (0)
+PASS  log_eventos no cambia con los logins (28)
+=== fase 2: 44 PASS, 0 FAIL
+
+===== Seguridad (prueba_seguridad_extra.sh) =====
+--- cabeceras
+PASS  sin X-Powered-By en paginas (0)
+PASS  sin X-Powered-By en la API (0)
+PASS  nosniff (1)
+PASS  no se puede meter en un iframe (1)
+PASS  la API no se guarda en cache (1)
+PASS  las paginas si se pueden cachear (sin no-store) (0)
+--- cuerpos grandes
+PASS  200 KB en el login -> 413 (413)
+PASS  el servidor sigue respondiendo (200)
+--- web_nova (como panel_lectura) no puede tocar la auditoria ni leer hashes
+PASS  web_nova ya no puede pasar a nova_admin (1)
+PASS  INSERT en log_eventos denegado (1)
+PASS  INSERT y DELETE en log_eventos denegados (2 errores) (2)
+PASS  password_hash denegado (1)
+PASS  UPDATE de pedidos y existencias en READ ONLY rechazados (2) (2)
+PASS  web_nova sin SET ROLE no lee pedidos (1)
+--- hallazgos de la revision independiente
+PASS  Host ajeno -> 400 (400)
+PASS  login con Host ajeno -> 400 (400)
+PASS  localhost sigue funcionando (200)
+PASS  NUL en el login -> 400 (400)
+PASS  NUL en un filtro -> 400 (400)
+PASS  charset latin1 -> 415 (415)
+PASS  /API/admin/clientes lleva no-store (1)
+PASS  ?texto=_ ya no devuelve todo (0 pedidos con _) (0)
+PASS  ?texto=producto_sku encuentra eventos de esa tabla (1)
+PASS  modelo dado de baja: sus SKU salen inactivos (inactivo)
+PASS  cuenta sin ficha de personal: aparece en Trabajadores (true)
+PASS  tabla bloqueada: 503 en lugar de quedarse colgado (503)
+      (respondio en 10.024710 s)
+PASS  despues del bloqueo todo vuelve a funcionar (200)
+=== seguridad extra (total): 27 PASS, 0 FAIL
+
+===== API frente a PostgreSQL (prueba_fase3.js) =====
+--- permisos en las 8 rutas
+PASS  dashboard sin sesion -> 401
+PASS  dashboard trabajador -> 403
+PASS  dashboard administrador -> 200 y JSON valido
+PASS  dashboard sin datos sensibles
+PASS  pedidos sin sesion -> 401
+PASS  pedidos trabajador -> 403
+PASS  pedidos administrador -> 200 y JSON valido
+PASS  pedidos sin datos sensibles
+PASS  productos sin sesion -> 401
+PASS  productos trabajador -> 403
+PASS  productos administrador -> 200 y JSON valido
+PASS  productos sin datos sensibles
+PASS  inventario sin sesion -> 401
+PASS  inventario trabajador -> 403
+PASS  inventario administrador -> 200 y JSON valido
+PASS  inventario sin datos sensibles
+PASS  clientes sin sesion -> 401
+PASS  clientes trabajador -> 403
+PASS  clientes administrador -> 200 y JSON valido
+PASS  clientes sin datos sensibles
+PASS  trabajadores sin sesion -> 401
+PASS  trabajadores trabajador -> 403
+PASS  trabajadores administrador -> 200 y JSON valido
+PASS  trabajadores sin datos sensibles
+PASS  auditoria sin sesion -> 401
+PASS  auditoria trabajador -> 403
+PASS  auditoria administrador -> 200 y JSON valido
+PASS  auditoria sin datos sensibles
+PASS  estadisticas sin sesion -> 401
+PASS  estadisticas trabajador -> 403
+PASS  estadisticas administrador -> 200 y JSON valido
+PASS  estadisticas sin datos sensibles
+--- dashboard frente a PostgreSQL
+PASS  ventas = P-A (11156.05)
+PASS  pedidos de hoy (20)
+PASS  pedidos pendientes (11)
+PASS  sugerencias pendientes = no disponible (null)
+PASS  ultimos 5 pedidos
+PASS  pedidos por estado
+PASS  stock bajo = C8 con umbral 10 (106 referencias)
+PASS  umbral = 10
+PASS  ventas por dia suman lo mismo
+--- tablas frente a PostgreSQL
+PASS  pedidos: mismas referencias y totales (20 pedidos)
+PASS  productos: un SKU por fila y precio = base + suplemento (166 SKU)
+PASS  inventario: mismo stock por SKU y nave (166 filas)
+PASS  inventario: estado coherente con el umbral
+PASS  clientes: mismos correos (8 clientes)
+PASS  trabajadores: mismo personal y usuarios (3 personas)
+PASS  auditoria: mismos eventos y acciones reales (29 eventos)
+PASS  estadisticas: ingresos, pedidos y pares del mes (11156.05 € · 14 pedidos · 94 pares)
+PASS  estadisticas: ticket medio = ingresos / pedidos (796.86)
+PASS  estadisticas: mas vendidos = P-C
+--- filtros
+PASS  pedidos?estado=pendiente (11)
+PASS  pedidos?estado=confirmado (WEB-62F5D90C8CFC467DB05E,WEB-C3F83E40782847FFB143,CUSTOM-40)
+PASS  pedidos?texto=custom (sin distinguir mayusculas) (CUSTOM-40)
+PASS  los dos filtros a la vez (0 filas)
+PASS  texto que no existe -> 0 filas
+PASS  intento de inyeccion ' OR '1'='1 -> 0 filas
+PASS  estado que no existe -> 400
+PASS  estado repetido (array) -> 400
+PASS  inventario?estado=bajo: entre 1 y 9 (104 filas)
+PASS  inventario?estado=agotado: stock 0 (2 filas)
+PASS  bajo + agotado + suficiente = todo
+PASS  inventario?texto=42 (talla o SKU) (24 filas)
+PASS  clientes?estado=activo (8)
+PASS  auditoria?accion=ALTA (9)
+PASS  auditoria?accion=crear (accion del prototipo) -> 400
+PASS  trabajadores?texto=taller
+PASS  productos?estado=inactivo
+--- consultar no cambia nada
+PASS  80 consultas mas: pedidos, lineas, clientes, existencias, auditoria y usuarios intactos
+=== fase 3: 69 PASS, 0 FAIL
+
+===== Intentos y sesiones (prueba_intentos_y_sesiones.sh) =====
+--- limite de intentos
+PASS  5 contrasenas malas de admin.demo -> 401 (401 401 401 401 401 )
+PASS  ninguna dio cookie de sesion (0)
+PASS  6.o intento CON la contrasena buena -> 429 (429)
+PASS  el bloqueo no crea sesion (0)
+PASS  lleva Retry-After (1)
+PASS  5 intentos con un usuario que no existe -> 401 (401 401 401 401 401 )
+PASS  6.o intento -> 429 (429)
+PASS  misma respuesta exista o no la cuenta ({"error":"Demasiados intentos. Espera unos minutos y vuelve a probar."})
+PASS  otro usuario (taller.demo) no queda bloqueado (200)
+PASS  pasado el bloqueo, admin.demo vuelve a entrar (200)
+PASS  y su sesion funciona (200)
+PASS  un acierto pone el contador a cero (tras 4 fallos se entra) (200)
+PASS  tras ese acierto, un fallo nuevo es 401 y no 429 (401)
+--- sesion de un administrador que se desactiva
+PASS  cuenta activa -> 200 (200)
+PASS  desactivada en la base, misma cookie -> 401 (401)
+PASS  y no puede volver a entrar (401)
+PASS  reactivada: la sesion antigua ya se borro -> 401 (401)
+PASS  un login nuevo funciona (200)
+--- sesion de un administrador al que se le cambia el rol
+PASS  antes del cambio -> 200 (200)
+PASS  ahora es trabajador, misma cookie -> 403 (403)
+PASS  rol devuelto: la sesion antigua ya se borro -> 401 (401)
+--- logout
+PASS  con sesion -> 200 (200)
+PASS  logout -> 200 (200)
+PASS  despues del logout -> 401 (401)
+PASS  la cookie dura 2 horas (Max-Age=7200) (1)
+=== intentos y sesiones: 25 PASS, 0 FAIL
+
+===== Caducidad (prueba_caducidad.js) =====
+PASS  recien creada, la sesion vale
+PASS  a la 1 h 59 min sigue valiendo
+PASS  a las 2 h y 1 s ya no vale
+PASS  y se ha borrado: con el reloj normal tampoco vale
+=== caducidad: 4 PASS, 0 FAIL
+
+===== Navegador (prueba_fase4.py) =====
+===== escritorio (1280 px)
+--- acceso
+PASS  sin sesion, admin.html lleva a login.html (http://127.0.0.1:3200/login.html)
+PASS  contrasena mala: aviso y sigue en login (Usuario o contrase�a incorrectos)
+PASS  trabajador: no tiene permiso y sigue en login (El usuario taller.demo (trabajador) no tiene permiso para el panel.)
+PASS  al trabajador se le cierra la sesion (401) (401)
+PASS  administrador: entra al dashboard
+--- dashboard
+PASS  ventas acumuladas = P-A (11.156,05��)
+PASS  pedidos del dia (20)
+PASS  pedidos pendientes (11)
+PASS  sugerencias: No disponible
+PASS  ultimas operaciones = 5 ultimos pedidos (WEB-FBD9B3DF0E8F4071B068,WEB-68BAB5D8E28B4673B895,WEB-3411424CB7F04AEBA6D1,WEB-62F5D90C8CFC467DB05E,WEB-B5549E31095149758412)
+PASS  pedidos por estado (los 6) ({'pendiente': '11', 'confirmado': '3', 'en_preparacion': '0', 'enviado': '0', 'entregado': '0', 'cancelado': '6'})
+PASS  stock bajo = C8 (< 10) (106)
+PASS  grafico de ventas dibujado
+PASS  sin desbordamiento horizontal
+--- tablas
+PASS  pedidos: mismas filas que PostgreSQL (20)
+PASS  pedidos: ningun dato de ejemplo
+PASS  pedidos: sin desbordamiento horizontal
+PASS  productos: mismas filas que PostgreSQL (166)
+PASS  productos: ningun dato de ejemplo
+PASS  productos: sin desbordamiento horizontal
+PASS  inventario: mismas filas que PostgreSQL (166)
+PASS  inventario: ningun dato de ejemplo
+PASS  inventario: sin desbordamiento horizontal
+PASS  clientes: mismas filas que PostgreSQL (8)
+PASS  clientes: ningun dato de ejemplo
+PASS  clientes: sin desbordamiento horizontal
+PASS  trabajadores: mismas filas que PostgreSQL (3)
+PASS  trabajadores: ningun dato de ejemplo
+PASS  trabajadores: sin desbordamiento horizontal
+PASS  auditoria: mismas filas que PostgreSQL (29)
+PASS  auditoria: ningun dato de ejemplo
+PASS  auditoria: sin desbordamiento horizontal
+--- filtros
+PASS  pedidos: filtro pendiente (11)
+PASS  pedidos: filtro confirmado (['WEB-62F5D90C8CFC467DB05E', 'WEB-C3F83E40782847FFB143', 'CUSTOM-40'])
+PASS  pedidos: buscador 'custom' (['CUSTOM-40'])
+PASS  pedidos: sin coincidencias -> 'No hay resultados'
+PASS  pedidos: una fila identica a PostgreSQL (['CUSTOM-40', 'Club Atletico NOVA', '11/11/2026', 'confirmado', '4796,00\xa0�'])
+PASS  inventario: filtro bajo (104)
+PASS  inventario: filtro agotado (2)
+PASS  inventario: filtro suficiente (60)
+PASS  auditoria: filtro ALTA (9)
+PASS  trabajadores: buscador 'taller' ([['Demo Taller', 'taller.demo', 'Operario de taller', 'trabajador', 'activo']])
+PASS  trabajadores: sin DNI en la pagina
+--- estadisticas
+PASS  ingresos del mes (11.156,05��)
+PASS  pedidos del mes (14)
+PASS  ticket medio (796,86��)
+PASS  pares del mes (94)
+PASS  mas vendidos = P-C (['NOVA Velocity|82', 'NOVA Archive|2', 'NOVA Eclipse|2', 'NOVA Luxe 01|2', 'NOVA Origin|2', 'NOVA Unisex 01|2', 'NOVA Aura|1', 'NOVA Pulse|1'])
+PASS  graficos de ventas e ingresos
+PASS  estadisticas sin desbordamiento
+--- prototipos
+PASS  sugerenciasAdmin.html: aviso de prototipo visible
+PASS  sugerenciasAdmin.html: sin desbordamiento
+PASS  mejorasAdmin.html: aviso de prototipo visible
+PASS  mejorasAdmin.html: sin desbordamiento
+PASS  configuracionAdmin.html: aviso de prototipo visible
+PASS  configuracionAdmin.html: sin desbordamiento
+PASS  sugerencias: el filtro de Alvaro sigue funcionando (1)
+PASS  configuracion: Guardar avisa de que es prototipo
+--- cerrar sesion
+PASS  Cerrar sesion lleva a login
+PASS  despues, pedidosAdmin.html vuelve a login
+PASS  y la API responde 401
+===== movil (390 px)
+--- acceso
+PASS  sin sesion, admin.html lleva a login.html (http://127.0.0.1:3200/login.html)
+PASS  contrasena mala: aviso y sigue en login (Usuario o contrase�a incorrectos)
+PASS  trabajador: no tiene permiso y sigue en login (El usuario taller.demo (trabajador) no tiene permiso para el panel.)
+PASS  al trabajador se le cierra la sesion (401) (401)
+PASS  administrador: entra al dashboard
+--- dashboard
+PASS  ventas acumuladas = P-A (11.156,05��)
+PASS  pedidos del dia (20)
+PASS  pedidos pendientes (11)
+PASS  sugerencias: No disponible
+PASS  ultimas operaciones = 5 ultimos pedidos (WEB-FBD9B3DF0E8F4071B068,WEB-68BAB5D8E28B4673B895,WEB-3411424CB7F04AEBA6D1,WEB-62F5D90C8CFC467DB05E,WEB-B5549E31095149758412)
+PASS  pedidos por estado (los 6) ({'pendiente': '11', 'confirmado': '3', 'en_preparacion': '0', 'enviado': '0', 'entregado': '0', 'cancelado': '6'})
+PASS  stock bajo = C8 (< 10) (106)
+PASS  grafico de ventas dibujado
+PASS  sin desbordamiento horizontal
+--- tablas
+PASS  pedidos: mismas filas que PostgreSQL (20)
+PASS  pedidos: ningun dato de ejemplo
+PASS  pedidos: sin desbordamiento horizontal
+PASS  productos: mismas filas que PostgreSQL (166)
+PASS  productos: ningun dato de ejemplo
+PASS  productos: sin desbordamiento horizontal
+PASS  inventario: mismas filas que PostgreSQL (166)
+PASS  inventario: ningun dato de ejemplo
+PASS  inventario: sin desbordamiento horizontal
+PASS  clientes: mismas filas que PostgreSQL (8)
+PASS  clientes: ningun dato de ejemplo
+PASS  clientes: sin desbordamiento horizontal
+PASS  trabajadores: mismas filas que PostgreSQL (3)
+PASS  trabajadores: ningun dato de ejemplo
+PASS  trabajadores: sin desbordamiento horizontal
+PASS  auditoria: mismas filas que PostgreSQL (29)
+PASS  auditoria: ningun dato de ejemplo
+PASS  auditoria: sin desbordamiento horizontal
+--- filtros
+PASS  pedidos: filtro pendiente (11)
+PASS  pedidos: filtro confirmado (['WEB-62F5D90C8CFC467DB05E', 'WEB-C3F83E40782847FFB143', 'CUSTOM-40'])
+PASS  pedidos: buscador 'custom' (['CUSTOM-40'])
+PASS  pedidos: sin coincidencias -> 'No hay resultados'
+PASS  pedidos: una fila identica a PostgreSQL (['CUSTOM-40', 'Club Atletico NOVA', '11/11/2026', 'confirmado', '4796,00\xa0�'])
+PASS  inventario: filtro bajo (104)
+PASS  inventario: filtro agotado (2)
+PASS  inventario: filtro suficiente (60)
+PASS  auditoria: filtro ALTA (9)
+PASS  trabajadores: buscador 'taller' ([['Demo Taller', 'taller.demo', 'Operario de taller', 'trabajador', 'activo']])
+PASS  trabajadores: sin DNI en la pagina
+--- estadisticas
+PASS  ingresos del mes (11.156,05��)
+PASS  pedidos del mes (14)
+PASS  ticket medio (796,86��)
+PASS  pares del mes (94)
+PASS  mas vendidos = P-C (['NOVA Velocity|82', 'NOVA Archive|2', 'NOVA Eclipse|2', 'NOVA Luxe 01|2', 'NOVA Origin|2', 'NOVA Unisex 01|2', 'NOVA Aura|1', 'NOVA Pulse|1'])
+PASS  graficos de ventas e ingresos
+PASS  estadisticas sin desbordamiento
+--- prototipos
+PASS  sugerenciasAdmin.html: aviso de prototipo visible
+PASS  sugerenciasAdmin.html: sin desbordamiento
+PASS  mejorasAdmin.html: aviso de prototipo visible
+PASS  mejorasAdmin.html: sin desbordamiento
+PASS  configuracionAdmin.html: aviso de prototipo visible
+PASS  configuracionAdmin.html: sin desbordamiento
+PASS  sugerencias: el filtro de Alvaro sigue funcionando (1)
+PASS  configuracion: Guardar avisa de que es prototipo
+--- cerrar sesion
+PASS  Cerrar sesion lleva a login
+PASS  despues, pedidosAdmin.html vuelve a login
+PASS  y la API responde 401
+--- un dato con HTML no se ejecuta (cliente temporal en la base desechable)
+PASS  el nombre se ve como texto
+PASS  no se crea ninguna imagen ni salta ningun alert
+--- errores en la consola del navegador: 4
+    escritorio: HTTP 401 POST http://127.0.0.1:3200/api/login
+    escritorio: Failed to load resource: the server responded with a status of 401 (Unauthorized)
+    movil: HTTP 401 POST http://127.0.0.1:3200/api/login
+    movil: Failed to load resource: the server responded with a status of 401 (Unauthorized)
+=== fase 4: 124 PASS, 0 FAIL
+
+===== Iconos de Lucide (iconos.py) =====
+PASS  admin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  pedidosAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  productosAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  inventarioAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  clientesAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  trabajadoresAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  sugerenciasAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  mejorasAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  estadisticasAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  auditoriaAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  configuracionAdmin: Lucide cargado=True, 12 iconos en el menu, 0 sin dibujar
+PASS  Chart.js 4.4.1 con SRI cargado y graficos dibujados
+errores de consola (SRI, CDN...): 0 []
+=== iconos: 12 PASS, 0 FAIL
+
+===== Accesibilidad (accesibilidad.py) =====
+paginas revisadas: 12 | reglas con violaciones: 0 | elementos afectados: 0
+
+===== Atras tras logout (atras_tras_logout.py) =====
+headless=True: tras logout + Atras -> http://127.0.0.1:3200/login.html | correos de clientes visibles: 0
+headless=False: tras logout + Atras -> http://127.0.0.1:3200/login.html | correos de clientes visibles: 0
+
+===== Login sin JavaScript (login_sin_js.py) =====
+PASS  sin JavaScript la contrasena no va en la URL (http://127.0.0.1:3200/api/login)

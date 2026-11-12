@@ -1,0 +1,255 @@
+Scripts SQL: los originales siguen dando lo mismo, y el 20 y el 21 se instalan y se pueden repetir.
+Base desechable nova_tienda (PostgreSQL 17.11, puerto 55433), montada desde cero con los scripts 01-21.
+Pasada final: inicio 11/11/2026 23:43:54 · fin 11/11/2026 23:45:09.
+Resultado: 123 PASS, 0 FAIL y 1 ERROR (el de permisos que 09 provoca a proposito) en los originales;
+el 21 anade su comprobacion (PASS). El 20 y el 21 se repiten sin errores.
+
+===== Montaje: un script por linea =====
+sneaker-factory-esquema -> salida 0 | PASS: 0 FAIL: 0 ERROR: 0
+04_xnova -> salida 0 | PASS: 0 FAIL: 0 ERROR: 0
+02_funciones -> salida 0 | PASS: 0 FAIL: 0 ERROR: 0
+03_triggers -> salida 0 | PASS: 0 FAIL: 0 ERROR: 0
+05_datos_prueba -> salida 0 | PASS: 0 FAIL: 0 ERROR: 0
+07_seguridad -> salida 0 | PASS: 0 FAIL: 0 ERROR: 0
+08_auditoria -> salida 0 | PASS: 0 FAIL: 0 ERROR: 0
+17_usuario_java -> salida 0 | PASS: 0 FAIL: 0 ERROR: 0
+19_usuario_web -> salida 0 | PASS: 0 FAIL: 0 ERROR: 0
+06_consultas -> salida 0 | PASS: 0 FAIL: 0 ERROR: 0
+09_pruebas -> salida 0 | PASS: 91 FAIL: 0 ERROR: 1
+10_caso_custom -> salida 0 | PASS: 6 FAIL: 0 ERROR: 0
+11_dml_ejemplos -> salida 0 | PASS: 12 FAIL: 0 ERROR: 0
+12_consultas_panel -> salida 0 | PASS: 1 FAIL: 0 ERROR: 0
+13_activar_usuarios -> salida 0 | PASS: 0 FAIL: 0 ERROR: 0
+14_caso_custom_persistente -> salida 0 | PASS: 9 FAIL: 0 ERROR: 0
+15_exportar_fabricacion -> salida 0 | PASS: 2 FAIL: 0 ERROR: 0
+16_exportar_csv_dashboard -> salida 0 | PASS: 2 FAIL: 0 ERROR: 0
+20_tienda_web -> salida 0 | PASS: 0 FAIL: 0 ERROR: 0
+21_catalogo_web -> salida 0 | PASS: 1 FAIL: 0 ERROR: 0
+
+===== 20_tienda_web.sql (primera vez) =====
+===== Tienda web: cuentas de cliente, compras y usuario tienda_nova =====
+
+Contrasena para tienda_nova (la que ira en servidor-admin/.env): BEGIN
+CREATE TABLE
+REVOKE
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+REVOKE
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+ALTER ROLE
+psql:<repo>/acceso-datos/sql/20_tienda_web.sql:468: NOTICE:  role "tienda_nova" has already been granted membership in role "tienda_web" by role "postgres"
+GRANT ROLE
+COMMIT
+
+--- Comprobacion: tienda_nova solo puede pasar a tienda_web y no hereda
+    rol     | hereda_permisos | puede_set_role
+------------+-----------------+----------------
+ tienda_web | f               | t
+(1 fila)
+
+
+--- Comprobacion: sin SET ROLE, tienda_nova no lee nada ni compra (se esperan tres f)
+ lee_modelos | lee_pedidos | compra
+-------------+-------------+--------
+ f           | f           | f
+(1 fila)
+
+
+--- Comprobacion: tienda_web no puede escribir en ninguna tabla de public (se espera 0)
+ tablas_en_las_que_puede_escribir
+----------------------------------
+                                0
+(1 fila)
+
+
+--- Comprobacion: tienda_web no ve contrasenas ni datos internos (se esperan cinco f)
+ lee_cuentas | lee_hash_trabajadores | lee_dni | lee_auditoria | lee_personalizacion
+-------------+-----------------------+---------+---------------+---------------------
+ f           | f                     | f       | f             | f
+(1 fila)
+
+
+--- Comprobacion: tienda_web no llama directamente a las funciones originales (se esperan cinco f)
+ realizar_compra | anadir_linea | descontar_stock | login_trabajadores | crear_usuario
+-----------------+--------------+-----------------+--------------------+---------------
+ f               | f            | f               | f                  | f
+(1 fila)
+
+
+--- Comprobacion: las cinco funciones de la tienda (tienda_web t, PUBLIC f)
+        funcion         | tienda_web | cualquiera | security_definer | fija_search_path
+------------------------+------------+------------+------------------+------------------
+ cancelar_compra_web    | t          | f          | t                | t
+ confirmar_compra_web   | t          | f          | t                | t
+ crear_compra_web       | t          | f          | t                | t
+ iniciar_sesion_cliente | t          | f          | t                | t
+ registrar_cliente      | t          | f          | t                | t
+(5 filas)
+
+
+===== FIN =====
+
+===== 21_catalogo_web.sql (primera vez) =====
+===== Catalogo de la tienda web: 12 modelos =====
+BEGIN
+CREATE TABLE
+INSERT 0 12
+INSERT 0 12
+INSERT 0 12
+INSERT 0 106
+INSERT 0 106
+
+--- Comprobacion: 12 modelos, 12 variantes, 106 SKU y 530 pares (con las ventas descontadas)
+ catalogo_web | modelos | variantes | sku | pares
+--------------+---------+-----------+-----+-------
+ PASS         |      12 |        12 | 106 |   530
+(1 fila)
+
+COMMIT
+
+--- El catalogo de la tienda
+     modelo     |        color        | precio | tallas | sku | pares
+----------------+---------------------+--------+--------+-----+-------
+ NOVA Casual 01 | Azul marino y cuero |  89.90 | 38-46  |   9 |    45
+ NOVA Casual 02 | Crema y oliva       |  89.90 | 38-46  |   9 |    45
+ NOVA Hombre 01 | Azul marino         |  99.90 | 40-46  |   7 |    35
+ NOVA Hombre 02 | Crema y azul        |  99.90 | 40-46  |   7 |    35
+ NOVA Luxe 01   | Negro               | 139.90 | 38-46  |   9 |    45
+ NOVA Luxe 02   | Crema               | 139.90 | 38-46  |   9 |    45
+ NOVA Mujer 01  | Rosa y granate      |  99.90 | 35-42  |   8 |    40
+ NOVA Mujer 02  | Crema y rosa        |  99.90 | 35-42  |   8 |    40
+ NOVA Street 01 | Gris y coral        | 109.90 | 38-46  |   9 |    45
+ NOVA Street 02 | Blanco y verde      | 109.90 | 38-46  |   9 |    45
+ NOVA Unisex 01 | Arena y oliva       |  94.90 | 36-46  |  11 |    55
+ NOVA Unisex 02 | Crema y verde       |  94.90 | 36-46  |  11 |    55
+(12 filas)
+
+
+===== FIN =====
+
+===== 20_tienda_web.sql repetido =====
+===== Tienda web: cuentas de cliente, compras y usuario tienda_nova =====
+
+Contrasena para tienda_nova (la que ira en servidor-admin/.env): BEGIN
+psql:<repo>/acceso-datos/sql/20_tienda_web.sql:64: NOTICE:  relation "cuentas_cliente" already exists, skipping
+CREATE TABLE
+REVOKE
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+REVOKE
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+ALTER ROLE
+psql:<repo>/acceso-datos/sql/20_tienda_web.sql:468: NOTICE:  role "tienda_nova" has already been granted membership in role "tienda_web" by role "postgres"
+GRANT ROLE
+COMMIT
+
+--- Comprobacion: tienda_nova solo puede pasar a tienda_web y no hereda
+    rol     | hereda_permisos | puede_set_role
+------------+-----------------+----------------
+ tienda_web | f               | t
+(1 fila)
+
+
+--- Comprobacion: sin SET ROLE, tienda_nova no lee nada ni compra (se esperan tres f)
+ lee_modelos | lee_pedidos | compra
+-------------+-------------+--------
+ f           | f           | f
+(1 fila)
+
+
+--- Comprobacion: tienda_web no puede escribir en ninguna tabla de public (se espera 0)
+ tablas_en_las_que_puede_escribir
+----------------------------------
+                                0
+(1 fila)
+
+
+--- Comprobacion: tienda_web no ve contrasenas ni datos internos (se esperan cinco f)
+ lee_cuentas | lee_hash_trabajadores | lee_dni | lee_auditoria | lee_personalizacion
+-------------+-----------------------+---------+---------------+---------------------
+ f           | f                     | f       | f             | f
+(1 fila)
+
+
+--- Comprobacion: tienda_web no llama directamente a las funciones originales (se esperan cinco f)
+ realizar_compra | anadir_linea | descontar_stock | login_trabajadores | crear_usuario
+-----------------+--------------+-----------------+--------------------+---------------
+ f               | f            | f               | f                  | f
+(1 fila)
+
+
+--- Comprobacion: las cinco funciones de la tienda (tienda_web t, PUBLIC f)
+        funcion         | tienda_web | cualquiera | security_definer | fija_search_path
+------------------------+------------+------------+------------------+------------------
+ cancelar_compra_web    | t          | f          | t                | t
+ confirmar_compra_web   | t          | f          | t                | t
+ crear_compra_web       | t          | f          | t                | t
+ iniciar_sesion_cliente | t          | f          | t                | t
+ registrar_cliente      | t          | f          | t                | t
+(5 filas)
+
+
+===== FIN =====
+
+===== 21_catalogo_web.sql repetido (no duplica nada: INSERT 0 0) =====
+===== Catalogo de la tienda web: 12 modelos =====
+BEGIN
+CREATE TABLE
+INSERT 0 12
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+
+--- Comprobacion: 12 modelos, 12 variantes, 106 SKU y 530 pares (con las ventas descontadas)
+ catalogo_web | modelos | variantes | sku | pares
+--------------+---------+-----------+-----+-------
+ PASS         |      12 |        12 | 106 |   530
+(1 fila)
+
+COMMIT
+
+--- El catalogo de la tienda
+     modelo     |        color        | precio | tallas | sku | pares
+----------------+---------------------+--------+--------+-----+-------
+ NOVA Casual 01 | Azul marino y cuero |  89.90 | 38-46  |   9 |    45
+ NOVA Casual 02 | Crema y oliva       |  89.90 | 38-46  |   9 |    45
+ NOVA Hombre 01 | Azul marino         |  99.90 | 40-46  |   7 |    35
+ NOVA Hombre 02 | Crema y azul        |  99.90 | 40-46  |   7 |    35
+ NOVA Luxe 01   | Negro               | 139.90 | 38-46  |   9 |    45
+ NOVA Luxe 02   | Crema               | 139.90 | 38-46  |   9 |    45
+ NOVA Mujer 01  | Rosa y granate      |  99.90 | 35-42  |   8 |    40
+ NOVA Mujer 02  | Crema y rosa        |  99.90 | 35-42  |   8 |    40
+ NOVA Street 01 | Gris y coral        | 109.90 | 38-46  |   9 |    45
+ NOVA Street 02 | Blanco y verde      | 109.90 | 38-46  |   9 |    45
+ NOVA Unisex 01 | Arena y oliva       |  94.90 | 36-46  |  11 |    55
+ NOVA Unisex 02 | Crema y verde       |  94.90 | 36-46  |  11 |    55
+(12 filas)
+
+
+===== FIN =====
+
+===== 09_pruebas.sql lanzado DESPUES del 20 y el 21 (en una copia): 86 PASS; los FAIL son los previstos (P1, P2, S1 por la tienda; A1 y A2 por el 13) =====
+ FAIL |     15 |     17 |        24 |           10 |     4
+ FAIL |      19 |        24 | 166 |     1 |        6 |         3 |        3 |        3 |        1690 |               40
+psql:<repo>/acceso-datos/sql/09_pruebas.sql:944: NOTICE:  FAIL S1: ve 19 modelos
+ FAIL |                      0
+psql:<repo>/acceso-datos/sql/09_pruebas.sql:1164: NOTICE:  FAIL A2: error inesperado: Usuario o contrasena incorrectos

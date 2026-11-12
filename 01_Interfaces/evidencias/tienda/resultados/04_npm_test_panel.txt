@@ -1,0 +1,30 @@
+npm test: las 16 pruebas del panel con el servidor nuevo (servidor.js, bd.js y sesiones.js modificados).
+Base desechable nova_tienda (PostgreSQL 17.11, puerto 55433), montada desde cero con los scripts 01-21.
+Pasada final: inicio 11/11/2026 23:43:54 · fin 11/11/2026 23:45:09.
+Resultado: 16 de 16.
+
+===== Salida =====
+✔ el servidor responde y se conecta con web_nova, no con postgres (91.0561ms)
+✔ las respuestas llevan cabeceras de proteccion y la API no se guarda en cache (12.1166ms)
+✔ una peticion con otro nombre de host se rechaza (DNS rebinding) (4.7572ms)
+✔ los datos no validos dan 4xx y no 500 (40.4083ms)
+✔ las rutas con .. o mal codificadas dan 400 y lo publico se ve sin sesion (13.2817ms)
+✔ sin sesion, las 8 rutas responden 401 (9.3733ms)
+✔ sin sesion, las paginas del panel llevan al login (4.7ms)
+✔ una contrasena incorrecta da 401 y no crea sesion (15.9275ms)
+✔ un usuario que no es administrador recibe 403 (20.1889ms)
+✔ el administrador recibe JSON de las 8 rutas, sin datos sensibles (78.8096ms)
+✔ el dashboard marca las sugerencias como no disponibles y usa el umbral 10 (14.0398ms)
+✔ los filtros se aplican y un valor no permitido da 400 (27.95ms)
+✔ consultar no puede escribir: la transaccion es de solo lectura (2.2418ms)
+✔ despues del logout la sesion ya no sirve (13.1107ms)
+✔ web_nova no puede pasar a nova_admin ni escribir, aunque falte READ ONLY (6.0758ms)
+✔ tras 5 fallos el usuario queda bloqueado (429), exista o no, y despues puede entrar (1787.711ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8535.5904

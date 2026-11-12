@@ -1,0 +1,902 @@
+id_pedido,referencia,id_cliente,fecha_pedido,tipo_pedido,estado_pedido,estado_pago,personalizacion,cantidad_total,importe_total
+1,SINT-0001,9,2025-05-01 10:16:00,custom,cancelado,pendiente,Logo del club y dorsal,40,4114.00
+2,SINT-0002,23,2025-05-01 11:49:00,normal,entregado,pagado,,1,114.28
+3,SINT-0003,19,2025-05-01 14:24:00,normal,cancelado,reembolsado,,1,123.80
+4,SINT-0004,25,2025-05-01 14:44:00,normal,entregado,pagado,,1,66.66
+5,SINT-0005,13,2025-05-02 09:32:00,normal,entregado,pagado,,2,199.98
+6,SINT-0006,1,2025-05-02 20:33:00,custom,entregado,pagado,Logo del club y dorsal,24,3291.12
+7,SINT-0007,17,2025-05-03 11:39:00,normal,entregado,pagado,,2,247.60
+8,SINT-0008,11,2025-05-03 19:07:00,normal,entregado,pagado,,3,228.54
+9,SINT-0009,11,2025-05-03 19:51:00,normal,entregado,pagado,,1,76.18
+10,SINT-0010,3,2025-05-04 14:18:00,custom,entregado,pagado,Colores del club,17,2331.21
+11,SINT-0011,23,2026-02-30 10:00:00,normal,entregado,pagado,,1,95.23
+12,SINT-0012,10,2025-05-05 11:28:00,custom,entregado,pagado,Logo del club y dorsal,35,4799.55
+13,SINT-0013,28,2025-05-05 13:01:00,normal,entregado,pagado,,2,238.08
+14,SINT-0014,16,2025-05-05 15:18:00,normal,entregado,pagado,,5,619.00
+15,SINT-0015,2,2025-05-05 20:43:00,normal,entregado,pagado,,3,228.54
+16,SINT-0016,13,2025-05-06 13:27:00,normal,entregado,pagado,,3,323.78
+17,SINT-0017,12,2025-05-06 20:32:00,normal,entregado,pagado,,1,76.18
+18,SINT-0018,36,2025-05-07 19:44:00,normal,entregado,pagado,,3,276.16
+19,SINT-0019,20,2025-05-09 11:18:00,normal,entregado,pagado,,5,485.68
+20,SINT-0020,11,2025-05-09 14:32:00,normal,entregado,pagado,,2,180.94
+21,SINT-0021,15,2025-05-09 18:37:00,normal,entregado,pagado,,3,371.40
+22,SINT-0022,11,2025-05-11 11:16:00,normal,entregado,pagado,,2,190.46
+23,SINT-0023,29,2025-05-12 12:23:00,normal,entregado,pagado,,3,333.30
+24,SINT-0024,1,2025-05-12 13:26:00,custom,entregado,pagado,Iniciales en el talón,41,4216.85
+25,SINT-0025,12,2025-05-12 14:17:00,normal,entregado,pagado,,2,152.36
+26,SINT-0026,12,2025-05-12 19:46:00,normal,entregado,pagado,,3,276.16
+27,SINT-0027,11,2025-05-13 11:51:00,normal,entregado,pagado,,5,418.98
+28,SINT-0028,12,2025-05-13 12:31:00,normal,cancelado,reembolsado,,3,219.02
+29,SINT-0029,12,2025-05-13 12:32:00,normal,entregado,pagado,,3,323.78
+30,SINT-0030,5,2025-05-14 16:29:00,custom,entregado,pagado,Logo del club y dorsal,12,1371.24
+31,SINT-0031,15,2025-05-15 13:12:00,normal,entregado,pagado,,1,66.66
+32,SINT-0032,17,2025-05-15 17:10:00,normal,entregado,pagado,,1,85.70
+33,SINT-0033,2,2025-05-15 17:41:00,normal,cancelado,pendiente,,3,276.16
+34,SINT-0034,7,2025-05-15 18:39:00,normal,entregado,pagado,,1,95.23
+35,SINT-0035,22,2025-05-17 19:25:00,normal,entregado,pagado,,5,476.14
+36,SINT-0036,12,2025-05-18 10:41:00,normal,entregado,pagado,,1,123.80
+37,SINT-0037,17,2025-05-18 10:58:00,normal,entregado,pagado,,2,190.46
+38,SINT-0038,21,2025-05-18 11:15:00,normal,entregado,pagado,,1,123.80
+39,SINT-0039,8,2025-05-18 12:26:00,custom,entregado,pagado,Colores del club,22,3016.86
+40,SINT-0040,26,2025-05-18 15:38:00,normal,entregado,pagado,,4,457.10
+41,SINT-0041,,2025-05-18 17:57:00,custom,entregado,pagado,Colores del club,63,8639.19
+42,SINT-0042,12,2025-05-19 18:00:00,normal,entregado,pagado,,1,85.70
+43,SINT-0043,14,2025-05-21 14:30:00,normal,entregado,pagado,,3,199.98
+44,SINT-0044,35,2025-05-21 18:51:00,normal,entregado,pagado,,1,95.23
+45,SINT-0045,15,2025-05-22 13:41:00,normal,entregado,pagado,,2,247.60
+46,SINT-0046,26,2025-05-23 11:51:00,normal,entregado,pagado,,2,171.40
+47,SINT-0047,13,2025-05-23 16:01:00,normal,entregado,pagado,,2,171.41
+48,SINT-0048,11,2025-05-24 15:04:00,normal,entregado,pagado,,2,152.36
+49,SINT-0049,11,2025-05-24 17:43:00,normal,entregado,pagado,,5,542.80
+50,SINT-0050,23,2025-05-25 11:08:00,normal,cancelado,reembolsado,,1,76.18
+51,SINT-0051,16,2025-05-25 12:21:00,normal,entregado,pagado,,2,219.50
+52,SINT-0052,11,2025-05-26 20:17:00,normal,entregado,pagado,,2,247.60
+53,SINT-0053,2,2025-05-27 12:59:00,normal,entregado,pagado,,3,295.20
+54,SINT-0054,28,2025-05-27 15:34:00,normal,entregado,pagado,,1,114.28
+55,SINT-0055,14,2025-05-28 11:52:00,normal,entregado,pagado,,3,257.12
+56,SINT-0056,16,2025-05-28 16:00:00,normal,entregado,pagado,,4,314.24
+57,SINT-0057,31,2025-05-29 14:35:00,custom,entregado,pagado,Logo del club y dorsal,64,5850.88
+58,SINT-0058,19,2025-05-29 16:10:00,normal,entregado,pagado,,1,114.28
+59,SINT-0059,11,2025-05-30 15:01:00,normal,entregado,pagado,,2,219.03
+60,SINT-0060,12,2025-05-30 19:59:00,normal,entregado,pagado,,3,371.40
+61,SINT-0061,37,2027-01-15 10:00:00,normal,cancelado,pendiente,,5,523.76
+62,SINT-0062,14,2025-06-04 20:19:00,normal,entregado,pagado,,1,66.66
+63,SINT-0063,7,2025-06-05 09:36:00,custom,entregado,pagado,Logo del club y dorsal,17,1942.59
+64,SINT-0064,9,2025-06-05 17:48:00,normal,entregado,pagado,,4,447.58
+65,SINT-0065,39,2025-06-06 12:19:00,normal,entregado,pagado,,1,123.80
+66,SINT-0066,27,2025-06-07 09:53:00,normal,entregado,pagado,,2,199.98
+67,SINT-0067,1,2025-06-07 11:30:00,custom,entregado,pagado,Logo del club y dorsal,85,9712.95
+68,SINT-0068,14,2025-06-07 18:30:00,normal,entregado,pagado,,5,380.92
+69,SINT-0069,22,2025-06-08 10:13:00,normal,entregado,pagado,,2,152.36
+70,SINT-0070,1,2025-06-09 16:48:00,normal,entregado,pagado,,3,304.74
+71,SINT-0071,17,2025-06-10 10:00:00,normal,entregado,pagado,,3,371.40
+72,SINT-0072,11,2025-06-10 15:42:00,custom,Entregado,pagado,Colores del club,32,4753.92
+73,SINT-0073,11,2025-06-11 09:56:00,normal,entregado,pagado,,2,238.08
+74,SINT-0074,1,2025-06-11 19:00:00,custom,entregado,pagado,Colores del club,25,3714.00
+75,SINT-0075,20,2025-06-13 15:35:00,normal,entregado,pagado,,3,285.69
+76,SINT-0076,11,2025-06-14 10:42:00,normal,entregado,pagado,,2,161.88
+77,SINT-0077,24,2025-06-14 14:47:00,normal,entregado,pagado,,3,285.68
+78,SINT-0078,12,2025-06-14 20:24:00,normal,entregado,pagado,,1,66.66
+79,SINT-0079,31,2025-06-15 09:06:00,normal,entregado,pagado,,5,495.20
+80,SINT-0080,23,2025-06-15 13:19:00,normal,entregado,pagado,,1,76.18
+81,SINT-0081,11,2025-06-16 16:42:00,normal,entregado,pagado,,2,152.36
+82,SINT-0082,35,2025-06-17 09:59:00,normal,entregado,pagado,,1,123.80
+83,SINT-0083,13,2025-06-21 10:53:00,normal,entregado,pagado,,2,209.51
+84,SINT-0084,11,2025-06-22 15:29:00,normal,entregado,pagado,,1,123.80
+85,SINT-0085,13,2025-06-23 12:59:00,normal,entregado,pagado,,3,323.78
+86,SINT-0086,20,2025-06-23 19:10:00,normal,entregado,pagado,,2,142.84
+87,SINT-0087,1,2025-06-24 12:25:00,custom,entregado,pagado,Iniciales en el talón,53,7873.68
+88,SINT-0088,12,2025-06-24 17:06:00,normal,entregado,pagado,,1,66.66
+89,SINT-0089,9,2025-06-26 15:13:00,normal,entregado,pagado,,3,314.26
+90,SINT-0090,19,2025-06-27 09:32:00,normal,entregado,pagado,,3,314.26
+91,SINT-0091,18,2025-06-27 17:02:00,normal,entregado,pagado,,4,295.20
+92,SINT-0092,25,2025-06-28 11:25:00,normal,entregado,pagado,,2,247.60
+93,SINT-0093,23,2025-06-28 11:37:00,normal,entregado,pagado,,3,295.20
+94,SINT-0094,4,2025-06-28 13:25:00,normal,entregado,pagado,,1,123.80
+95,SINT-0095,6,2025-06-28 17:28:00,custom,entregado,pagado,Iniciales en el talón,15,1371.30
+96,SINT-0096,7,2025-06-29 15:59:00,custom,entregado,pagado,Colores del club,52,7725.12
+97,SINT-0097,16,2025-06-30 09:09:00,normal,entregado,pagado,,2,199.98
+98,SINT-0098,13,2025-06-30 19:48:00,normal,entregado,pagado,,2,152.36
+99,SINT-0099,22,2025-07-02 15:34:00,normal,entregado,pagado,,3,266.64
+100,SINT-0100,2,2025-07-03 09:22:00,custom,entregado,pagado,Iniciales en el talón,33,4902.48
+101,SINT-0101,22,2025-07-03 13:50:00,normal,entregado,pagado,,3,314.26
+102,SINT-0102,19,2025-07-03 16:24:00,normal,entregado,pagado,,1,123.80
+103,SINT-0103,12,2025-07-06 19:50:00,normal,entregado,pagado,,3,342.84
+104,SINT-0104,11,2025-07-07 11:03:00,normal,entregado,pagado,,2,247.60
+105,SINT-0105,17,2025-07-11 14:20:00,normal,entregado,pagado,,1,123.80
+106,SINT-0106,15,2025-07-12 20:42:00,normal,entregado,pagado,,1,66.66
+107,SINT-0107,35,2025-07-13 12:48:00,normal,entregado,pagado,,3,266.64
+108,SINT-0108,12,2025-07-13 18:31:00,normal,entregado,pagado,,2,247.60
+109,SINT-0109,14,2025-07-13 19:27:00,normal,entregado,pagado,,1,123.80
+110,SINT-0110,34,2025-07-15 19:57:00,custom,entregado,pagado,Logo del club y dorsal,25,2571.25
+111,SINT-0111,22,2025-07-16 09:14:00,normal,cancelado,reembolsado,,1,66.66
+112,SINT-0112,40,2025-07-17 15:12:00,normal,entregado,pagado,,2,228.56
+113,SINT-0113,9,2025-07-18 10:07:00,normal,entregado,pagado,,3,266.64
+114,SINT-0114,2,2025-07-18 17:30:00,normal,cancelado,reembolsado,,3,209.50
+115,SINT-0115,35,2025-07-19 10:37:00,normal,entregado,pagado,,6,599.94
+116,SINT-0116,16,2025-07-21 11:44:00,normal,entregado,pagado,,4,295.20
+117,SINT-0117,21,2025-07-21 16:17:00,normal,entregado,pagado,,2,152.36
+118,SINT-0118,24,2025-07-22 15:06:00,normal,entregado,pagado,,1,85.70
+119,SINT-0119,12,2025-07-23 14:10:00,normal,entregado,pagado,,4,352.34
+120,SINT-0120,15,2025-07-23 18:17:00,normal,entregado,pagado,,2,199.98
+121,SINT-0121,40,2025-07-23 18:24:00,normal,entregado,pagado,,2,247.60
+122,SINT-0122,13,2025-07-24 13:18:00,normal,entregado,pagado,,4,352.34
+123,SINT-0123,5,2025-07-25 15:46:00,normal,cancelado,pendiente,,2,152.36
+124,SINT-0124,1,2025-07-25 17:08:00,custom,entregado,pagado,Iniciales en el talón,54,5553.90
+125,SINT-0125,24,2025-07-25 18:08:00,normal,entregado,pagado,,3,371.40
+126,SINT-0126,12,2025-07-26 10:07:00,normal,entregado,pagado,,4,361.86
+127,SINT-0127,32,2025-07-27 18:58:00,normal,entregado,pagado,,2,190.46
+128,SINT-0128,3,2025-07-28 12:23:00,normal,entregado,pagado,,6,599.94
+129,SINT-0129,20,2025-07-28 13:48:00,normal,entregado,pagado,,3,219.02
+130,SINT-0130,15,2025-07-28 14:54:00,normal,cancelado,pendiente,,1,95.23
+131,SINT-0131,36,2025-07-28 16:51:00,normal,entregado,pagado,,2,133.32
+132,SINT-0132,14,2025-07-30 15:29:00,custom,entregado,pagado,Iniciales en el talón,19,2822.64
+133,SINT-0133,23,2025-07-30 20:23:00,normal,entregado,pagado,,3,314.26
+134,SINT-0134,21,2025-08-03 12:59:00,normal,entregado,pagado,,2,209.50
+135,SINT-0135,40,2025-08-05 12:23:00,normal,entregado,pagado,,3,314.26
+136,SINT-0136,12,2025-08-06 12:46:00,normal,entregado,pagado,,2,209.50
+137,SINT-0137,37,2025-08-06 14:26:00,normal,entregado,pagado,,1,123.80
+138,SINT-0138,11,2025-08-06 15:57:00,normal,entregado,pagado,,1,123.80
+139,SINT-0139,15,2025-08-08 20:32:00,normal,entregado,pagado,,3,285.68
+140,SINT-0140,14,2025-08-09 12:30:00,normal,entregado,pagado,,2,152.36
+141,SINT-0141,13,2025-08-10 16:14:00,normal,entregado,pagado,,5,352.34
+142,SINT-0142,32,2025-08-12 12:05:00,normal,cancelado,pendiente,,1,76.18
+143,SINT-0143,24,2025-08-12 12:35:00,normal,entregado,pagado,,3,228.54
+144,SINT-0144,4,2025-08-15 10:02:00,custom,entregado,pagado,Iniciales en el talón,37,3805.45
+145,SINT-0145,34,2025-08-15 11:52:00,normal,entregado,pagado,,3,257.10
+146,SINT-0146,40,2025-08-16 12:57:00,normal,entregado,pagado,,2,152.36
+147,SINT-0147,12,2025-08-18 16:14:00,normal,entregado,pagado,,3,266.64
+148,SINT-0148,20,2025-08-19 15:09:00,normal,entregado,pagado,,4,380.92
+149,SINT-0149,13,2025-08-19 18:02:00,normal,entregado,pagado,,1,66.66
+150,SINT-0150,1,2025-08-19 19:26:00,normal,entregado,pagado,,2,199.98
+151,SINT-0151,18,2025-08-20 12:40:00,normal,entregado,pagado,,1,123.80
+152,SINT-0152,21,2025-08-21 11:01:00,normal,entregado,pagado,,1,123.80
+153,SINT-0153,25,2025-08-22 16:52:00,normal,entregado,pagado,,1,85.70
+154,SINT-0154,11,2025-08-26 11:50:00,normal,entregado,pagado,,2,190.46
+155,SINT-0155,21,2025-08-26 15:37:00,normal,entregado,pagado,,1,123.80
+156,SINT-0156,31,2025-08-26 18:23:00,normal,entregado,pagado,,6,476.14
+157,SINT-0157,1,2025-08-28 11:21:00,normal,entregado,pagado,,1,114.28
+158,SINT-0158,16,2025-08-29 10:14:00,normal,entregado,pagado,,3,209.50
+159,SINT-0159,16,2025-08-29 13:03:00,normal,entregado,pagado,,2,247.60
+160,SINT-0160,13,2025-08-30 15:22:00,normal,entregado,pagado,,2,247.60
+161,SINT-0161,9,2025-08-30 19:23:00,normal,entregado,pagado,,1,66.66
+162,SINT-0162,13,2025-09-01 19:45:00,normal,entregado,pagado,,1,123.80
+163,SINT-0163,5,2025-09-02 09:55:00,custom,entregado,pagado,Logo del club y dorsal,59,8765.04
+164,SINT-0164,16,2025-09-02 10:01:00,normal,entregado,pagado,,1,95.23
+165,SINT-0165,4,2025-09-02 15:03:00,normal,entregado,pagado,,3,371.40
+166,SINT-0166,12,2025-09-03 13:34:00,normal,cancelado,pendiente,,1,123.80
+167,SINT-0167,13,2025-09-03 19:12:00,normal,entregado,pagado,,2,133.32
+168,SINT-0168,13,2025-09-06 09:45:00,normal,entregado,pagado,,2,247.60
+169,SINT-0169,15,2025-09-06 19:40:00,normal,entregado,pagado,,2,238.08
+170,SINT-0170,18,2025-09-07 16:15:00,normal,entregado,pagado,,3,371.40
+171,SINT-0171,3,2025-09-09 18:53:00,normal,entregado,pagado,,3,333.30
+172,SINT-0172,15,2025-09-09 20:13:00,normal,cancelado,reembolsado,,1,76.18
+173,SINT-0173,15,2025-09-10 10:54:00,normal,cancelado,reembolsado,,1,123.80
+174,SINT-0174,31,2025-09-10 14:07:00,normal,entregado,pagado,,4,285.68
+175,SINT-0175,1,2025-09-10 16:19:00,normal,entregado,pagado,,1,114.28
+176,SINT-0176,8,2025-09-10 17:43:00,normal,entregado,pagado,,5,619.00
+177,SINT-0177,5,2025-09-11 16:14:00,normal,entregado,pagado,,5,466.62
+178,SINT-0178,19,2025-09-11 20:16:00,normal,entregado,pagado,,3,238.06
+179,SINT-0179,3,2025-09-12 19:07:00,normal,entregado,pagado,,3,257.12
+180,SINT-0180,19,2025-09-13 14:42:00,normal,entregado,pagado,,2,238.08
+181,SINT-0181,5,2025-09-14 13:22:00,custom,entregado,pagado,Colores del club,12,959.88
+182,SINT-0182,20,2025-09-14 18:36:00,normal,entregado,pagado,,6,590.43
+183,SINT-0183,12,2025-09-15 09:06:00,normal,entregado,pagado,,3,257.12
+184,SINT-0184,24,2025-09-17 13:55:00,normal,entregado,pagado,,3,314.26
+185,SINT-0185,7,2025-09-17 14:36:00,custom,entregado,pagado,Logo del club y dorsal,42,3359.58
+186,SINT-0186,38,2025-09-18 12:43:00,normal,entregado,pagado,,2,199.98
+187,SINT-0187,4,2025-09-19 09:36:00,custom,entregado,pagado,Logo del club y dorsal,34,4662.42
+188,SINT-0188,12,2025-09-19 17:04:00,normal,entregado,pagado,,2,133.32
+189,SINT-0189,2,2025-09-20 09:20:00,normal,entregado,pagado,,1,85.70
+190,SINT-0190,11,2025-09-20 13:13:00,normal,entregado,pagado,,1,114.28
+191,SINT-0191,5,2025-09-23 11:59:00,normal,entregado,pagado,,4,314.24
+192,SINT-0192,2,2025-09-23 12:52:00,custom,entregado,pagado,Iniciales en el talón,72,5759.28
+193,SINT-0193,1,2025-09-23 19:12:00,normal,entregado,pagado,,1,123.80
+194,SINT-0194,2,2025-09-24 09:18:00,custom,entregado,pagado,Colores del club,37,2959.63
+195,SINT-0195,3,2025-09-25 10:29:00,custom,entregado,pagado,Colores del club,22,3268.32
+196,SINT-0196,35,2025-09-28 13:41:00,normal,entregado,pagado,,2,238.08
+197,SINT-0197,17,2025-09-28 14:07:00,normal,entregado,pagado,,1,66.66
+198,SINT-0198,4,2025-09-28 15:57:00,normal,entregado,pagado,,3,295.21
+199,SINT-0199,28,2025-10-01 10:01:00,normal,entregado,pagado,,1,66.66
+200,SINT-0200,16,2025-10-03 09:57:00,normal,entregado,pagado,,1,114.28
+201,SINT-0201,17,2025-10-03 11:12:00,normal,entregado,pagado,,2,247.60
+202,SINT-0202,13,2025-10-03 18:37:00,normal,entregado,pagado,,1,66.66
+203,SINT-0203,40,2025-10-04 10:34:00,normal,entregado,pagado,,2,238.08
+204,SINT-0204,14,2025-10-05 11:17:00,custom,entregado,pagado,Logo del club y dorsal,32,4753.92
+205,SINT-0205,4,2025-10-05 18:06:00,normal,entregado,pagado,,3,361.88
+206,SINT-0206,32,2025-10-06 12:32:00,normal,entregado,pagado,,1,85.70
+207,SINT-0207,6,2025-10-06 14:52:00,custom,entregado,pagado,Logo del club y dorsal,23,3416.88
+208,SINT-0208,13,2025-10-06 17:58:00,normal,entregado,pagado,,2,199.98
+209,SINT-0209,1,2025-10-07 13:18:00,custom,cancelado,pendiente,Iniciales en el talón,53,7873.68
+210,SINT-0210,14,2025-10-07 17:52:00,normal,entregado,pagado,,3,342.84
+211,SINT-0211,18,2025-10-07 18:54:00,normal,entregado,pagado,,1,85.70
+212,SINT-0212,17,2025-10-09 13:23:00,normal,entregado,pagado,,1,114.28
+213,SINT-0213,4,2025-10-09 14:50:00,normal,entregado,pagado,,2,247.60
+214,SINT-0214,37,2025-10-10 09:45:00,normal,entregado,pagado,,4,342.80
+215,SINT-0215,11,2025-10-10 11:41:00,normal,entregado,pagado,,4,476.16
+216,SINT-0216,28,2025-10-10 12:38:00,normal,entregado,pagado,,1,123.80
+217,SINT-0217,1,2025-10-11 20:30:00,custom,entregado,pagado,Logo del club y dorsal,61,9062.16
+218,SINT-0218,1,2025-10-12 10:20:00,custom,entregado,pagado,Colores del club,31,4605.36
+219,SINT-0219,11,2025-10-13 10:10:00,normal,entregado,pagado,,2,209.50
+220,SINT-0220,13,2025-10-13 11:41:00,normal,entregado,pagado,,2,228.56
+221,SINT-0221,13,2025-10-13 19:02:00,normal,entregado,pagado,,1,123.80
+222,SINT-0222,19,2025-10-13 19:24:00,normal,entregado,pagado,,2,199.98
+223,SINT-0223,5,2025-10-13 19:46:00,normal,entregado,pagado,,2,133.32
+224,SINT-0224,7,2025-10-14 10:54:00,normal,entregado,pagado,,4,409.48
+225,SINT-0225,23,2025-10-14 12:47:00,normal,entregado,pagado,,6,571.38
+226,SINT-0226,2,2025-10-14 15:19:00,custom,entregado,pagado,Colores del club,43,5896.59
+227,SINT-0227,18,2025-10-14 17:47:00,normal,entregado,pagado,,1,95.23
+228,SINT-0228,11,2025-10-16 10:59:00,normal,entregado,pagado,,2,238.08
+229,SINT-0229,24,2025-10-16 16:50:00,normal,entregado,pagado,,3,228.54
+230,SINT-0230,27,2025-10-17 13:13:00,custom,entregado,pagado,Iniciales en el talón,30,4113.90
+231,SINT-0231,7,2025-10-17 17:59:00,normal,entregado,pagado,,4,419.00
+232,SINT-0232,24,2025-10-17 19:59:00,normal,entregado,pagado,,2,247.60
+233,SINT-0233,23,2025-10-18 10:26:00,normal,entregado,pagado,,3,371.40
+234,SINT-0234,11,2025-10-19 11:20:00,normal,entregado,pagado,,3,285.68
+235,SINT-0235,7,2025-10-19 12:21:00,custom,entregado,pagado,Iniciales en el talón,47,4833.95
+236,SINT-0236,15,2025-10-19 15:31:00,custom,entregado,pagado,Iniciales en el talón,40,3199.60
+237,SINT-0237,28,2025-10-19 19:32:00,normal,entregado,pagado,,5,399.94
+238,SINT-0238,34,2025-10-20 09:09:00,normal,entregado,pagado,,1,123.80
+239,SINT-0239,11,2025-10-21 20:03:00,normal,cancelado,pendiente,,2,171.40
+240,SINT-0240,40,2025-10-22 14:19:00,normal,entregado,pagado,,1,66.66
+241,SINT-0241,36,2025-10-22 20:49:00,normal,entregado,pagado,,3,266.64
+242,SINT-0242,11,2025-10-23 12:35:00,normal,entregado,pagado,,2,133.32
+243,SINT-0243,13,2025-10-23 16:13:00,normal,entregado,pagado,,1,123.80
+244,SINT-0244,18,2025-10-23 18:54:00,normal,entregado,pagado,,5,523.76
+245,SINT-0245,19,2025-10-24 10:32:00,normal,entregado,pagado,,5,447.58
+246,SINT-0246,36,2025-10-24 12:34:00,normal,entregado,pagado,,2,171.40
+247,SINT-0247,37,2025-10-25 10:02:00,custom,entregado,pagado,Colores del club,20,2971.20
+248,SINT-0248,37,2025-10-26 10:49:00,normal,entregado,pagado,,2,209.51
+249,SINT-0249,2,2025-10-26 20:01:00,custom,entregado,pagado,Colores del club,52,7725.12
+250,SINT-0250,11,2025-10-27 10:20:00,normal,entregado,pagado,,3,371.40
+251,SINT-0251,4,2025-10-27 10:46:00,custom,entregado,pagado,Iniciales en el talón,66,9050.58
+252,SINT-0252,19,2025-10-27 14:34:00,normal,entregado,pagado,,2,228.56
+253,SINT-0253,5,2025-10-28 10:42:00,custom,entregado,pagado,Colores del club,54,8022.24
+254,SINT-0254,4,2025-10-28 12:46:00,custom,entregado,pagado,Colores del club,66,9804.96
+255,SINT-0255,33,2025-10-28 20:18:00,normal,entregado,pagado,,2,171.40
+256,SINT-0256,3,2025-10-29 19:52:00,custom,entregado,pagado,Iniciales en el talón,20,2971.20
+257,SINT-0257,11,2025-10-30 09:14:00,normal,entregado,pagado,,5,409.47
+258,SINT-0258,11,2025-10-30 09:43:00,normal,entregado,pagado,,4,390.44
+259,SINT-0259,28,2025-10-30 13:58:00,normal,entregado,pagado,,5,542.80
+260,SINT-0260,36,2025-10-30 17:26:00,normal,entregado,pagado,,2,199.98
+261,SINT-0261,12,2025-10-31 14:48:00,normal,entregado,pagado,,3,304.74
+262,SINT-0262,14,2025-11-01 14:58:00,normal,entregado,pagado,,4,285.68
+263,SINT-0263,11,2025-11-02 16:52:00,normal,entregado,pagado,,2,171.40
+264,SINT-0264,20,2025-11-02 20:10:00,normal,entregado,pagado,,4,380.91
+265,SINT-0265,4,2025-11-03 17:23:00,custom,entregado,pagado,Colores del club,48,3839.52
+266,SINT-0266,14,2025-11-04 15:51:00,custom,entregado,pagado,Iniciales en el talón,39,5793.84
+267,SINT-0267,2,2025-11-05 11:46:00,custom,entregado,pagado,Colores del club,73,8341.71
+268,SINT-0268,36,2025-11-07 12:27:00,normal,entregado,pagado,,3,295.20
+269,SINT-0269,13,2025-11-07 16:10:00,normal,entregado,pagado,,6,723.76
+270,SINT-0270,3,2025-11-08 13:35:00,custom,entregado,pagado,Iniciales en el talón,74,10993.44
+271,SINT-0271,11,2025-11-08 14:44:00,normal,entregado,pagado,,4,428.54
+272,SINT-0272,12,2025-11-09 15:13:00,normal,entregado,pagado,,1,66.66
+273,SINT-0273,16,2025-11-09 15:38:00,normal,entregado,pagado,,2,171.40
+274,SINT-0274,8,2025-11-12 10:26:00,normal,entregado,pagado,,3,314.26
+275,SINT-0275,3,2025-11-13 19:01:00,custom,entregado,pagado,Iniciales en el talón,28,4159.68
+276,SINT-0276,1,2025-11-15 09:58:00,custom,entregado,pagado,Logo del club y dorsal,27,2468.34
+277,SINT-0277,1,2025-11-16 11:53:00,normal,entregado,pagado,,3,228.54
+278,SINT-0278,12,2025-11-16 16:36:00,normal,entregado,pagado,,1,85.70
+279,SINT-0279,11,2025-11-17 17:16:00,normal,entregado,pagado,,1,114.28
+280,SINT-0280,12,2025-11-18 13:13:00,normal,entregado,pagado,,1,114.28
+281,SINT-0281,15,2025-11-18 13:35:00,normal,entregado,pagado,,2,238.08
+282,SINT-0282,7,2025-11-19 11:24:00,normal,entregado,pagado,,2,247.60
+283,SINT-0283,24,2025-11-19 18:21:00,normal,entregado,pagado,,2,180.93
+284,SINT-0284,12,2025-11-20 13:16:00,normal,entregado,pagado,,3,257.10
+285,SINT-0285,10,2025-11-21 11:56:00,custom,entregado,pagado,Iniciales en el talón,25,3714.00
+286,SINT-0286,6,2025-11-21 15:01:00,custom,entregado,pagado,Logo del club y dorsal,23,3416.88
+287,SINT-0287,1,2025-11-23 15:30:00,custom,entregado,pagado,Colores del club,57,8467.92
+288,SINT-0288,11,2025-11-24 15:10:00,normal,entregado,pagado,,1,66.66
+289,SINT-0289,12,2025-11-25 11:30:00,normal,entregado,pagado,,4,409.48
+290,SINT-0290,33,2025-11-25 14:42:00,normal,entregado,pagado,,1,85.70
+291,SINT-0291,8,2025-11-26 09:36:00,custom,cancelado,pendiente,Logo del club y dorsal,46,6833.76
+292,SINT-0292,25,2025-11-26 13:02:00,normal,entregado,pagado,,1,123.80
+293,SINT-0293,38,2025-11-27 09:06:00,normal,entregado,pagado,,1,123.80
+294,SINT-0294,18,2025-11-27 10:07:00,normal,entregado,pagado,,2,247.60
+295,SINT-0295,7,2025-11-27 15:28:00,normal,entregado,pagado,,2,161.88
+296,SINT-0296,11,2025-11-27 17:03:00,normal,entregado,pagado,,4,428.54
+297,SINT-0297,17,2025-11-28 14:03:00,normal,entregado,pagado,,2,152.36
+298,SINT-0298,14,2025-11-28 16:19:00,normal,entregado,pagado,,4,295.20
+299,SINT-0299,11,2025-11-28 20:05:00,normal,entregado,pagado,,3,209.50
+300,SINT-0300,12,2025-11-29 18:37:00,normal,entregado,pagado,,4,399.96
+301,SINT-0301,13,2025-11-29 19:16:00,normal,entregado,pagado,,3,333.30
+302,SINT-0302,16,2025-11-30 10:12:00,normal,entregado,pagado,,1,85.70
+303,SINT-0303,35,2025-11-30 10:48:00,normal,entregado,pagado,,2,180.94
+304,SINT-0304,2,2025-12-01 14:41:00,normal,entregado,pagado,,3,371.40
+305,SINT-0305,18,2025-12-02 11:44:00,normal,entregado,pagado,,4,457.10
+306,SINT-0306,17,2025-12-02 15:13:00,normal,entregado,pagado,,5,457.08
+307,SINT-0307,34,2025-12-03 09:28:00,normal,entregado,pagado,,2,190.46
+308,SINT-0308,9,2025-12-03 12:10:00,custom,entregado,pagado,Logo del club y dorsal,16,1828.32
+309,SINT-0309,15,2025-12-03 13:15:00,normal,entregado,pagado,,4,476.16
+310,SINT-0310,28,2025-12-03 15:16:00,normal,entregado,pagado,,3,323.78
+311,SINT-0311,1,2025-12-03 16:04:00,normal,entregado,pagado,,1,123.80
+312,SINT-0312,2,2025-12-04 09:49:00,custom,cancelado,reembolsado,Colores del club,37,2959.63
+313,SINT-0313,31,2025-12-06 12:53:00,normal,entregado,pagado,,1,123.80
+314,SINT-0314,18,2025-12-07 18:42:00,normal,entregado,pagado,,4,380.92
+315,SINT-0315,13,2025-12-08 20:55:00,normal,entregado,pagado,,3,238.06
+316,SINT-0316,21,2025-12-09 09:27:00,normal,entregado,pagado,,1,123.80
+317,SINT-0317,34,2025-12-10 11:45:00,custom,entregado,pagado,Iniciales en el talón,25,1999.75
+318,SINT-0318,15,2025-12-11 12:42:00,normal,entregado,pagado,,4,323.78
+319,SINT-0319,6,2025-12-11 12:50:00,custom,entregado,pagado,Logo del club y dorsal,58,5965.30
+320,SINT-0320,10,2025-12-12 16:22:00,custom,entregado,pagado,Iniciales en el talón,21,2879.73
+321,SINT-0321,15,2025-12-12 19:01:00,normal,entregado,pagado,,2,247.60
+322,SINT-0322,12,2025-12-13 18:10:00,normal,entregado,pagado,,1,123.80
+323,SINT-0323,21,2025-12-14 13:01:00,normal,entregado,pagado,,2,247.60
+324,SINT-0324,36,2025-12-15 17:17:00,normal,entregado,pagado,,3,371.40
+325,SINT-0325,38,2025-12-15 17:47:00,normal,entregado,pagado,,3,209.50
+326,SINT-0326,30,2025-12-15 20:28:00,normal,entregado,pagado,,3,295.22
+327,SINT-0327,34,2025-12-16 15:46:00,normal,entregado,pagado,,2,171.40
+328,SINT-0328,18,2025-12-16 17:00:00,normal,entregado,pagado,,1,76.18
+329,SINT-0329,39,2025-12-16 18:27:00,normal,entregado,pagado,,3,295.20
+330,SINT-0330,19,2025-12-17 19:14:00,normal,entregado,pagado,,3,238.06
+331,SINT-0331,11,2025-12-17 20:43:00,normal,entregado,pagado,,4,295.20
+332,SINT-0332,24,2025-12-18 17:23:00,normal,entregado,pagado,,2,161.88
+333,SINT-0333,17,2025-12-19 13:46:00,normal,entregado,pagado,,2,190.46
+334,SINT-0334,10,2025-12-19 13:55:00,normal,entregado,pagado,,3,342.83
+335,SINT-0335,11,2025-12-19 16:08:00,normal,entregado,pagado,,3,257.12
+336,SINT-0336,24,2025-12-19 17:22:00,normal,entregado,pagado,,3,257.12
+337,SINT-0337,5,2025-12-19 19:52:00,normal,entregado,pagado,,2,199.98
+338,SINT-0338,19,2025-12-20 12:30:00,normal,entregado,pagado,,4,352.35
+339,SINT-0339,14,2025-12-20 14:17:00,normal,entregado,pagado,,4,476.16
+340,SINT-0340,6,2025-12-21 12:06:00,custom,entregado,pagado,Colores del club,79,11736.24
+341,SINT-0341,35,2025-12-21 18:04:00,normal,entregado,pagado,,3,323.78
+342,SINT-0342,4,2025-12-21 18:46:00,normal,entregado,pagado,,3,257.10
+343,SINT-0343,5,2025-12-22 15:27:00,normal,entregado,pagado,,4,266.64
+344,SINT-0344,31,2025-12-22 16:10:00,normal,entregado,pagado,,6,742.80
+345,SINT-0345,9,2025-12-22 16:31:00,custom,entregado,pagado,Colores del club,70,9599.10
+346,SINT-0346,22,2025-12-22 18:51:00,normal,entregado,pagado,,3,371.40
+347,SINT-0347,1,2025-12-23 09:59:00,custom,entregado,pagado,Iniciales en el talón,43,6388.08
+348,SINT-0348,11,2025-12-23 11:17:00,normal,entregado,pagado,,3,295.20
+349,SINT-0349,35,2025-12-24 14:50:00,normal,cancelado,reembolsado,,4,438.06
+350,SINT-0350,6,2025-12-24 16:35:00,custom,entregado,pagado,Colores del club,30,4456.80
+351,SINT-0351,32,2025-12-25 14:45:00,normal,entregado,pagado,,2,238.08
+352,SINT-0352,11,2025-12-25 14:50:00,normal,entregado,pagado,,2,180.94
+353,SINT-0353,15,2025-12-26 12:26:00,normal,entregado,pagado,,1,114.28
+354,SINT-0354,11,2025-12-26 17:24:00,custom,entregado,pagado,Logo del club y dorsal,57,5862.45
+355,SINT-0355,35,2025-12-29 16:57:00,normal,entregado,pagado,,2,228.56
+356,SINT-0356,38,2025-12-29 17:17:00,normal,entregado,pagado,,2,247.60
+357,SINT-0357,17,2025-12-29 17:23:00,normal,entregado,pagado,,4,419.00
+358,SINT-0358,29,2025-12-29 20:50:00,normal,entregado,pagado,,3,238.07
+359,SINT-0359,15,2025-12-30 10:53:00,normal,entregado,pagado,,1,66.66
+360,SINT-0360,11,2025-12-30 18:21:00,normal,entregado,pagado,,1,66.66
+361,SINT-0361,25,2025-12-31 13:55:00,normal,entregado,pagado,,2,238.08
+362,SINT-0362,39,2025-12-31 16:48:00,normal,entregado,pagado,,2,228.56
+363,SINT-0363,14,2025-12-31 18:29:00,normal,entregado,pagado,,2,228.56
+364,SINT-0364,17,2025-12-31 19:01:00,normal,entregado,pagado,,1,114.28
+365,SINT-0365,9,2025-12-31 20:01:00,custom,entregado,pagado,Colores del club,40,5942.40
+366,SINT-0366,11,2026-01-01 12:08:00,normal,entregado,pagado,,1,129.99
+367,SINT-0367,18,2026-01-01 16:48:00,custom,entregado,pagado,Colores del club,32,4991.68
+368,SINT-0368,21,2026-01-01 19:55:00,normal,entregado,pagado,,6,739.94
+369,SINT-0369,7,2026-01-08 15:44:00,custom,entregado,pagado,Colores del club,33,5147.67
+370,SINT-0370,18,2026-01-09 10:48:00,normal,entregado,pagado,,3,379.97
+371,SINT-0371,30,2026-01-09 20:24:00,normal,entregado,pagado,,2,259.98
+372,SINT-0372,8,2026-01-09 20:40:00,normal,entregado,pagado,,2,149.98
+373,SINT-0373,7,2026-01-10 13:15:00,custom,entregado,pagado,Logo del club y dorsal,69,7451.31
+374,SINT-0374,5,2026-01-12 16:41:00,custom,entregado,pagado,Colores del club,54,8423.46
+375,SINT-0375,11,2026-01-12 17:04:00,normal,entregado,pagado,,1,119.99
+376,SINT-0376,11,2026-01-12 20:09:00,normal,entregado,pagado,,2,259.98
+377,SINT-0377,13,2026-01-13 17:34:00,normal,entregado,pagado,,1,119.99
+378,SINT-0378,24,2026-01-13 20:40:00,normal,entregado,pagado,,3,339.97
+379,SINT-0379,22,2026-01-15 09:06:00,normal,entregado,pagado,,2,259.98
+380,SINT-0380,10,2026-01-16 20:47:00,normal,entregado,pagado,,2,199.98
+381,SINT-0381,1,2026-01-17 09:38:00,custom,entregado,pagado,Iniciales en el talón,36,3887.64
+382,SINT-0382,13,2026-01-19 16:38:00,normal,entregado,pagado,,1,69.99
+383,SINT-0383,31,2026-01-21 10:56:00,normal,cancelado,pendiente,,1,69.99
+384,SINT-0384,17,2026-01-22 14:05:00,custom,entregado,pagado,Logo del club y dorsal,27,4211.73
+385,SINT-0385,22,2026-01-22 14:05:00,normal,entregado,pagado,,1,119.99
+386,SINT-0386,12,2026-01-23 09:36:00,normal,entregado,pagado,,2,239.98
+387,SINT-0387,5,2026-01-23 10:05:00,normal,entregado,pagado,,5,579.95
+388,SINT-0388,12,2026-01-23 19:32:00,normal,entregado,pagado,,6,659.94
+389,SINT-0389,12,2026-01-24 18:48:00,normal,entregado,pagado,,1,79.99
+390,SINT-0390,8,2026-01-30 20:06:00,normal,entregado,pagado,,5,589.95
+391,SINT-0391,1,2026-01-31 15:26:00,custom,entregado,pagado,Iniciales en el talón,73,7007.27
+392,SINT-0392,14,2026-02-02 16:29:00,normal,entregado,pagado,,1,129.99
+393,SINT-0393,12,2026-02-03 17:28:00,normal,entregado,pagado,,1,129.99
+394,SINT-0394,2,2026-02-03 20:05:00,normal,entregado,pagado,,1,129.99
+395,SINT-0395,22,2026-02-05 17:51:00,normal,entregado,pagado,,4,499.96
+396,SINT-0396,2,2026-02-06 12:27:00,normal,entregado,pagado,,1,69.99
+397,SINT-0397,20,2026-02-06 17:45:00,normal,entregado,pagado,,1,129.99
+398,SINT-0398,21,2026-02-06 18:55:00,normal,entregado,pagado,,2,189.98
+399,SINT-0399,24,2026-02-07 14:56:00,normal,entregado,pagado,,2,209.98
+400,SINT-0400,11,2026-02-07 18:59:00,normal,entregado,pagado,,1,129.99
+401,SINT-0401,31,2026-02-08 11:46:00,normal,cancelado,reembolsado,,7,799.93
+402,SINT-0402,34,2026-02-09 11:51:00,normal,entregado,pagado,,1,129.99
+403,SINT-0403,4,2026-02-09 14:47:00,custom,entregado,pagado,Colores del club,45,7019.55
+404,SINT-0404,11,2026-02-09 15:41:00,normal,entregado,pagado,,2,249.98
+405,SINT-0405,12,2026-02-10 14:33:00,normal,entregado,pagado,,1,79.99
+406,SINT-0406,12,2026-02-10 17:03:00,normal,entregado,pagado,,3,309.97
+407,SINT-0407,16,2026-02-11 15:31:00,normal,cancelado,reembolsado,,2,239.98
+408,SINT-0408,32,2026-02-11 15:47:00,normal,entregado,pagado,,3,389.97
+409,SINT-0409,12,2026-02-11 18:07:00,normal,entregado,pagado,,3,239.97
+410,SINT-0410,25,2026-02-15 09:12:00,normal,entregado,pagado,,1,89.99
+411,SINT-0411,33,2026-02-15 11:49:00,normal,entregado,pagado,,3,309.97
+412,SINT-0412,29,2026-02-15 14:51:00,normal,entregado,pagado,,3,349.97
+413,SINT-0413,12,2026-02-16 16:56:00,normal,entregado,pagado,,1,69.99
+414,SINT-0414,12,2026-02-16 19:44:00,normal,entregado,pagado,,5,609.95
+415,SINT-0415,24,2026-02-17 10:55:00,normal,entregado,pagado,,4,519.96
+416,SINT-0416,17,2026-02-17 15:04:00,custom,cancelado,reembolsado,Colores del club,55,8579.45
+417,SINT-0417,13,2026-02-17 15:29:00,normal,entregado,pagado,,2,259.98
+418,SINT-0418,15,2026-02-18 15:57:00,normal,entregado,pagado,,3,209.97
+419,SINT-0419,11,2026-02-20 13:50:00,normal,entregado,pagado,,2,199.98
+420,SINT-0420,30,2026-02-22 14:58:00,normal,entregado,pagado,,1,129.99
+421,SINT-0421,11,2026-02-22 19:23:00,normal,entregado,pagado,,2,259.98
+422,SINT-0422,19,2026-02-23 18:27:00,normal,entregado,pagado,,2,259.98
+423,SINT-0423,11,2026-02-24 09:52:00,normal,entregado,pagado,,2,209.98
+424,SINT-0424,6,2026-02-26 10:55:00,normal,entregado,pagado,,1,79.99
+425,SINT-0425,2,2026-02-26 15:50:00,custom,entregado,pagado,Iniciales en el talón,33,5147.67
+426,SINT-0426,4,2026-02-27 11:37:00,custom,entregado,pagado,Logo del club y dorsal,50,7799.50
+427,SINT-0427,25,2026-02-28 10:01:00,normal,cancelado,reembolsado,,2,139.98
+428,SINT-0428,31,2026-02-28 10:18:00,normal,entregado,pagado,,1,69.99
+429,SINT-0429,6,2026-02-28 15:26:00,custom,entregado,pagado,Logo del club y dorsal,29,4523.71
+430,SINT-0430,19,2026-02-28 17:23:00,normal,entregado,pagado,,3,309.97
+431,SINT-0431,21,2026-03-01 09:36:00,normal,entregado,pagado,,3,289.97
+432,SINT-0432,25,2026-03-01 13:08:00,normal,entregado,pagado,,1,129.99
+433,SINT-0433,7,2026-03-02 18:51:00,normal,cancelado,reembolsado,,2,229.98
+434,SINT-0434,17,2026-03-03 20:33:00,normal,entregado,pagado,,1,129.99
+435,SINT-0435,26,2026-03-04 12:34:00,normal,entregado,pagado,,2,249.98
+436,SINT-0436,11,2026-03-04 16:46:00,normal,entregado,pagado,,3,339.97
+437,SINT-0437,1,2026-03-06 09:57:00,custom,entregado,pagado,Iniciales en el talón,49,7055.51
+438,SINT-0438,25,2026-03-06 18:48:00,normal,entregado,pagado,,6,699.94
+439,SINT-0439,11,2026-03-07 16:31:00,normal,entregado,pagado,,2,169.98
+440,SINT-0440,12,2026-03-08 09:43:00,normal,entregado,pagado,,2,259.98
+441,SINT-0441,39,2026-03-08 10:43:00,normal,entregado,pagado,,3,389.97
+442,SINT-0442,11,2026-03-08 11:43:00,normal,entregado,pagado,,2,229.98
+443,SINT-0443,32,2026-03-09 14:08:00,normal,entregado,pagado,,3,269.97
+444,SINT-0444,3,2026-03-09 17:22:00,normal,entregado,pagado,,3,259.97
+445,SINT-0445,12,2026-03-10 12:23:00,normal,entregado,pagado,,2,259.98
+446,SINT-0446,24,2026-03-10 13:57:00,normal,entregado,pagado,,1,119.99
+447,SINT-0447,19,2026-03-10 14:26:00,normal,cancelado,reembolsado,,1,79.99
+448,SINT-0448,2,2026-03-10 16:03:00,custom,entregado,pagado,Logo del club y dorsal,17,2651.83
+449,SINT-0449,30,2026-03-10 20:22:00,normal,entregado,pagado,,2,259.98
+450,SINT-0450,8,2026-03-11 14:51:00,normal,entregado,pagado,,1,69.99
+451,SINT-0451,30,2026-03-11 14:59:00,normal,entregado,pagado,,3,329.97
+452,SINT-0452,12,2026-03-11 15:39:00,normal,entregado,pagado,,4,449.96
+453,SINT-0453,16,2026-03-12 10:38:00,normal,entregado,pagado,,3,269.97
+454,SINT-0454,1,2026-03-12 12:35:00,normal,entregado,pagado,,3,329.97
+455,SINT-0455,8,2026-03-12 14:51:00,normal,entregado,pagado,,3,339.97
+456,SINT-0456,11,2026-03-13 09:50:00,normal,entregado,pagado,,2,219.98
+457,SINT-0457,27,2026-03-13 13:45:00,normal,entregado,pagado,,3,359.97
+458,SINT-0458,11,2026-03-13 16:50:00,normal,entregado,pagado,,2,149.98
+459,SINT-0459,29,2026-03-13 18:12:00,normal,cancelado,reembolsado,,5,569.95
+460,SINT-0460,18,2026-03-14 18:21:00,normal,entregado,pagado,,4,319.96
+461,SINT-0461,32,2026-03-14 18:44:00,normal,entregado,pagado,,4,419.96
+462,SINT-0462,18,2026-03-15 09:03:00,normal,entregado,pagado,,4,519.96
+463,SINT-0463,1,2026-03-15 10:40:00,normal,entregado,pagado,,4,439.96
+464,SINT-0464,19,2026-03-17 14:27:00,normal,entregado,pagado,,1,119.99
+465,SINT-0465,12,2026-03-18 19:30:00,normal,entregado,pagado,,5,539.95
+466,SINT-0466,18,2026-03-19 14:58:00,normal,entregado,pagado,,1,69.99
+467,SINT-0467,21,2026-03-20 14:36:00,normal,entregado,pagado,,2,149.98
+468,SINT-0468,14,2026-03-21 11:36:00,normal,entregado,pagado,,5,399.95
+469,SINT-0469,4,2026-03-21 15:36:00,custom,entregado,pagado,Iniciales en el talón,32,4991.68
+470,SINT-0470,31,2026-03-22 10:53:00,normal,entregado,pagado,,3,269.97
+471,SINT-0471,19,2026-03-23 15:46:00,normal,cancelado,pendiente,,4,419.96
+472,SINT-0472,1,2026-03-23 19:12:00,normal,entregado,pagado,,2,259.98
+473,SINT-0473,12,2026-03-24 10:00:00,normal,entregado,pagado,,4,429.96
+474,SINT-0474,12,2026-03-24 11:06:00,normal,entregado,pagado,,3,249.97
+475,SINT-0475,18,2026-03-24 12:03:00,normal,entregado,pagado,,3,359.97
+476,SINT-0476,22,2026-03-24 15:13:00,normal,entregado,pagado,,1,69.99
+477,SINT-0477,1,2026-03-24 16:45:00,normal,entregado,pagado,,3,269.97
+478,SINT-0478,17,2026-03-25 10:15:00,normal,entregado,pagado,,2,219.98
+479,SINT-0479,1,2026-03-25 17:34:00,custom,entregado,pagado,Logo del club y dorsal,24,2015.76
+480,SINT-0480,11,2026-03-25 18:12:00,custom,cancelado,reembolsado,Iniciales en el talón,42,3527.58
+481,SINT-0481,13,2026-03-25 18:37:00,normal,entregado,pagado,,1,79.99
+482,SINT-0482,24,2026-03-26 11:59:00,normal,entregado,pagado,,1,89.99
+483,SINT-0483,35,2026-03-28 10:43:00,normal,entregado,pagado,,2,169.98
+484,SINT-0484,15,2026-03-28 10:48:00,custom,entregado,pagado,Logo del club y dorsal,30,2519.70
+485,SINT-0485,1,2026-03-28 11:17:00,normal,entregado,pagado,,5,539.95
+486,SINT-0486,19,2026-03-28 19:59:00,normal,entregado,pagado,,2,139.98
+487,SINT-0487,1,2026-03-28 20:16:00,custom,entregado,pagado,Logo del club y dorsal,52,8111.48
+488,SINT-0488,12,2026-03-30 16:18:00,normal,entregado,pagado,,2,259.98
+489,SINT-0489,2,2026-03-30 19:40:00,custom,entregado,pagado,Logo del club y dorsal,15,1619.85
+490,SINT-0490,13,2026-03-31 19:54:00,normal,entregado,pagado,,1,119.99
+491,SINT-0491,33,2026-04-01 11:04:00,normal,entregado,pagado,,1,119.99
+492,SINT-0492,16,2026-04-01 11:33:00,normal,entregado,pagado,,2,159.98
+493,SINT-0493,1,2026-04-01 12:54:00,custom,entregado,pagado,Logo del club y dorsal,61,7319.39
+494,SINT-0494,30,2026-04-01 20:01:00,normal,entregado,pagado,,2,259.98
+495,SINT-0495,7,2026-04-02 16:08:00,normal,entregado,pagado,,3,339.97
+496,SINT-0496,6,2026-04-02 16:35:00,normal,entregado,pagado,,2,159.98
+497,SINT-0497,11,2026-04-03 10:06:00,normal,entregado,pagado,,3,299.97
+498,SINT-0498,14,2026-04-03 10:56:00,normal,entregado,pagado,,3,239.97
+499,SINT-0499,24,2026-04-03 16:44:00,normal,cancelado,pendiente,,5,419.95
+500,SINT-0500,1,2026-04-03 16:57:00,normal,entregado,pagado,,5,649.95
+501,SINT-0501,14,2026-04-04 17:14:00,normal,entregado,pagado,,4,399.96
+502,SINT-0502,36,2026-04-04 18:55:00,normal,cancelado,pendiente,,6,659.94
+503,SINT-0503,37,2026-04-05 12:51:00,normal,entregado,pagado,,1,69.99
+504,SINT-0504,23,2026-04-05 17:54:00,normal,entregado,pagado,,2,159.98
+505,SINT-0505,13,2026-04-05 18:36:00,normal,entregado,pagado,,2,209.98
+506,SINT-0506,12,2026-04-07 15:43:00,normal,entregado,pagado,,3,269.97
+507,SINT-0507,29,2026-04-07 17:15:00,normal,entregado,pagado,,3,369.97
+508,SINT-0508,19,2026-04-08 10:27:00,normal,entregado,pagado,,1,89.99
+509,SINT-0509,4,2026-04-08 13:13:00,normal,entregado,pagado,,5,549.95
+510,SINT-0510,16,2026-04-10 16:32:00,normal,cancelado,reembolsado,,3,209.97
+511,SINT-0511,26,2026-04-10 16:47:00,custom,entregado,pagado,Logo del club y dorsal,21,3275.79
+512,SINT-0512,19,2026-04-10 17:11:00,normal,entregado,pagado,,4,349.96
+513,SINT-0513,11,2026-04-11 14:30:00,normal,cancelado,reembolsado,,3,339.97
+514,SINT-0514,33,2026-04-11 17:57:00,normal,entregado,pagado,,3,339.97
+515,SINT-0515,12,2026-04-11 18:09:00,normal,entregado,pagado,,3,299.97
+516,SINT-0516,24,2026-04-11 20:25:00,normal,entregado,pagado,,1,89.99
+517,SINT-0517,19,2026-04-12 13:10:00,normal,entregado,pagado,,4,399.96
+518,SINT-0518,8,2026-04-12 16:26:00,normal,cancelado,reembolsado,,1,79.99
+519,SINT-0519,17,2026-04-13 09:16:00,normal,entregado,pagado,,2,179.98
+520,SINT-0520,26,2026-04-14 19:02:00,normal,cancelado,reembolsado,,4,319.96
+521,SINT-0521,8,2026-04-15 18:36:00,custom,entregado,pagado,Colores del club,24,2591.76
+522,SINT-0522,33,2026-04-16 12:12:00,normal,entregado,pagado,,1,129.99
+523,SINT-0523,12,2026-04-16 13:02:00,normal,entregado,pagado,,6,689.94
+524,SINT-0524,13,2026-04-16 16:41:00,normal,entregado,pagado,,2,169.98
+525,SINT-0525,3,2026-04-17 10:58:00,custom,entregado,pagado,Iniciales en el talón,51,5507.49
+526,SINT-0526,13,2026-04-17 19:07:00,normal,entregado,pagado,,2,139.98
+527,SINT-0527,15,2026-04-18 10:26:00,normal,entregado,pagado,,5,609.95
+528,SINT-0528,12,2026-04-18 14:11:00,normal,entregado,pagado,,1,79.99
+529,SINT-0529,1,2026-04-18 14:42:00,normal,entregado,pagado,,3,349.97
+530,SINT-0530,20,2026-04-19 11:45:00,normal,entregado,pagado,,1,79.99
+531,SINT-0531,3,2026-04-19 13:35:00,custom,entregado,pagado,Iniciales en el talón,57,8891.43
+532,SINT-0532,13,2026-04-19 17:18:00,normal,entregado,pagado,,4,379.96
+533,SINT-0533,21,2026-04-20 12:57:00,normal,entregado,pagado,,4,399.96
+534,SINT-0534,12,2026-04-20 13:10:00,normal,entregado,pagado,,2,159.98
+535,SINT-0535,2,2026-04-20 13:55:00,custom,entregado,pagado,Logo del club y dorsal,45,7019.55
+536,SINT-0536,19,2026-04-20 15:45:00,normal,entregado,pagado,,3,389.97
+537,SINT-0537,25,2026-04-20 17:54:00,normal,entregado,pagado,,2,259.98
+538,SINT-0538,11,2026-04-20 18:34:00,normal,entregado,pagado,,1,89.99
+539,SINT-0539,1,2026-04-21 11:04:00,custom,entregado,pagado,Colores del club,48,5759.52
+540,SINT-0540,17,2026-04-21 14:51:00,normal,entregado,pagado,,3,239.97
+541,SINT-0541,17,2026-04-21 17:08:00,normal,entregado,pagado,,1,89.99
+542,SINT-0542,40,2026-04-22 12:14:00,normal,entregado,pagado,,1,69.99
+543,SINT-0543,18,2026-04-22 15:24:00,normal,entregado,pagado,,1,129.99
+544,SINT-0544,8,2026-04-23 09:38:00,normal,entregado,pagado,,1,129.99
+545,SINT-0545,27,2026-04-23 14:27:00,normal,entregado,pagado,,2,219.98
+546,SINT-0546,16,2026-04-23 19:24:00,normal,entregado,pagado,,4,439.96
+547,SINT-0547,12,2026-04-24 09:21:00,normal,cancelado,reembolsado,,3,389.97
+548,SINT-0548,11,2026-04-24 15:25:00,normal,entregado,pagado,,3,259.97
+549,SINT-0549,14,2026-04-24 17:08:00,normal,entregado,pagado,,5,569.95
+550,SINT-0550,16,2026-04-24 18:59:00,normal,entregado,pagado,,3,339.97
+551,SINT-0551,2,2026-04-24 20:55:00,custom,entregado,pagado,Colores del club,49,4703.51
+552,SINT-0552,1,2026-04-25 12:05:00,custom,entregado,pagado,Logo del club y dorsal,28,4367.72
+553,SINT-0553,21,2026-04-26 12:40:00,normal,entregado,pagado,,3,289.97
+554,SINT-0554,40,2026-04-27 17:10:00,normal,entregado,pagado,,3,339.97
+555,SINT-0555,21,2026-04-28 17:21:00,normal,entregado,pagado,,2,149.98
+556,SINT-0556,17,2026-04-28 19:47:00,normal,entregado,pagado,,5,389.95
+557,SINT-0557,2,2026-04-28 20:54:00,normal,cancelado,reembolsado,,1,79.99
+558,SINT-0558,37,2026-04-29 11:38:00,custom,entregado,pagado,Iniciales en el talón,54,7775.46
+559,SINT-0559,32,2026-04-29 18:30:00,normal,entregado,pagado,,4,289.96
+560,SINT-0560,8,2026-04-29 20:22:00,custom,entregado,pagado,Iniciales en el talón,47,5075.53
+561,SINT-0561,32,2026-04-29 20:24:00,normal,entregado,pagado,,1,89.99
+562,SINT-0562,40,2026-04-30 12:08:00,normal,entregado,pagado,,2,209.98
+563,SINT-0563,12,2026-04-30 13:43:00,normal,entregado,pagado,,1,79.99
+564,SINT-0564,19,2026-04-30 17:18:00,normal,entregado,pagado,,2,179.98
+565,SINT-0565,11,2026-04-30 20:23:00,normal,entregado,pagado,,1,129.99
+566,SINT-0566,13,2026-05-01 15:07:00,normal,cancelado,reembolsado,,1,89.99
+567,SINT-0567,29,2026-05-01 16:43:00,normal,entregado,pagado,,1,119.99
+568,SINT-0568,4,2026-05-01 16:59:00,custom,entregado,pagado,Colores del club,51,4895.49
+569,SINT-0569,7,2026-05-01 18:28:00,custom,entregado,pagado,Colores del club,55,7919.45
+570,SINT-0570,7,2026-05-02 17:36:00,custom,entregado,pagado,Colores del club,43,5159.57
+571,SINT-0571,13,2026-05-03 18:12:00,normal,entregado,pagado,,3,329.97
+572,SINT-0572,7,2026-05-04 10:38:00,normal,entregado,pagado,,5,549.95
+573,SINT-0573,4,2026-05-04 14:42:00,normal,entregado,pagado,,1,119.99
+574,SINT-0574,12,2026-05-04 18:08:00,normal,entregado,pagado,,5,479.95
+575,SINT-0575,29,2026-05-04 20:22:00,normal,entregado,pagado,,2,259.98
+576,SINT-0576,5,2026-05-06 09:09:00,custom,entregado,pagado,Iniciales en el talón,40,3839.60
+577,SINT-0577,23,2026-05-06 09:44:00,normal,entregado,pagado,,3,349.97
+578,SINT-0578,6,2026-05-06 17:40:00,normal,entregado,pagado,,4,509.96
+579,SINT-0579,2,2026-05-06 18:49:00,normal,cancelado,reembolsado,,1,129.99
+580,SINT-0580,33,2026-05-06 19:19:00,normal,entregado,pagado,,2,159.98
+581,SINT-0581,4,2026-05-07 09:08:00,custom,entregado,pagado,Iniciales en el talón,54,7775.46
+582,SINT-0582,40,2026-05-07 13:27:00,normal,entregado,pagado,,3,249.97
+583,SINT-0583,19,2026-05-08 11:12:00,normal,entregado,pagado,,3,389.97
+584,SINT-0584,21,2026-05-09 11:55:00,normal,entregado,pagado,,4,519.96
+585,SINT-0585,11,2026-05-09 16:18:00,normal,entregado,pagado,,2,259.98
+586,SINT-0586,25,2026-05-09 16:36:00,normal,entregado,pagado,,3,269.97
+587,SINT-0587,14,2026-05-10 15:21:00,normal,entregado,pagado,,3,389.97
+588,SINT-0588,12,2026-05-10 16:09:00,normal,entregado,pagado,,1,69.99
+589,SINT-0589,16,2026-05-10 16:12:00,normal,entregado,pagado,,2,259.98
+590,SINT-0590,16,2026-05-10 18:10:00,normal,entregado,pagado,,1,129.99
+591,SINT-0591,19,2026-05-11 11:53:00,normal,entregado,pagado,,2,179.98
+592,SINT-0592,22,2026-05-12 15:04:00,normal,entregado,pagado,,2,159.98
+593,SINT-0593,34,2026-05-12 18:52:00,normal,entregado,pagado,,1,79.99
+594,SINT-0594,18,2026-05-13 12:09:00,normal,entregado,pagado,,1,129.99
+595,SINT-0595,12,2026-05-14 15:32:00,normal,entregado,pagado,,3,209.97
+596,SINT-0596,6,2026-05-14 16:20:00,custom,entregado,pagado,Iniciales en el talón,32,3455.68
+597,SINT-0597,27,2026-05-14 20:35:00,normal,entregado,pagado,,3,299.97
+598,SINT-0598,12,2026-05-15 12:23:00,normal,entregado,pagado,,2,229.98
+599,SINT-0599,1,2026-05-15 15:34:00,custom,entregado,pagado,Iniciales en el talón,50,4199.50
+600,SINT-0600,38,2026-05-15 19:33:00,normal,entregado,pagado,,3,309.97
+601,SINT-0601,11,2026-05-16 16:31:00,normal,entregado,pagado,,3,259.97
+602,SINT-0602,29,2026-05-17 13:11:00,normal,entregado,pagado,,2,139.98
+603,SINT-0603,38,2026-05-17 13:36:00,normal,entregado,pagado,,2,199.98
+604,SINT-0604,11,2026-05-17 19:50:00,normal,entregado,pagado,,2,259.98
+605,SINT-0605,38,2026-05-18 09:43:00,normal,entregado,pagado,,2,209.98
+606,SINT-0606,1,2026-05-18 17:45:00,normal,entregado,pagado,,3,319.97
+607,SINT-0607,33,2026-05-19 20:00:00,normal,cancelado,reembolsado,,6,419.94
+608,SINT-0608,15,2026-05-21 09:00:00,normal,entregado,pagado,,1,119.99
+609,SINT-0609,3,2026-05-21 19:50:00,custom,entregado,pagado,Iniciales en el talón,11,1187.89
+610,SINT-0610,13,2026-05-22 18:08:00,normal,entregado,pagado,,3,269.97
+611,SINT-0611,3,2026-05-22 18:56:00,normal,entregado,pagado,,1,89.99
+612,SINT-0612,35,2026-05-23 13:30:00,normal,entregado,pagado,,4,469.96
+613,SINT-0613,5,2026-05-24 09:14:00,custom,entregado,pagado,Logo del club y dorsal,20,3119.80
+614,SINT-0614,31,2026-05-24 13:12:00,normal,entregado,pagado,,2,259.98
+615,SINT-0615,27,2026-05-24 17:23:00,normal,cancelado,pendiente,,1,89.99
+616,SINT-0616,13,2026-05-24 18:56:00,normal,entregado,pagado,,1,69.99
+617,SINT-0617,27,2026-05-26 09:41:00,normal,entregado,pagado,,2,209.98
+618,SINT-0618,14,2026-05-26 13:48:00,normal,entregado,pagado,,2,199.98
+619,SINT-0619,11,2026-05-26 14:50:00,custom,entregado,pagado,Iniciales en el talón,24,3455.76
+620,SINT-0620,14,2026-05-26 16:05:00,normal,entregado,pagado,,1,89.99
+621,SINT-0621,19,2026-05-27 09:50:00,normal,entregado,pagado,,3,249.97
+622,SINT-0622,2,2026-05-27 10:13:00,normal,entregado,pagado,,2,199.98
+623,SINT-0623,11,2026-05-27 19:09:00,normal,entregado,pagado,,1,119.99
+624,SINT-0624,4,2026-05-29 10:53:00,normal,entregado,pagado,,4,489.96
+625,SINT-0625,26,2026-05-30 12:22:00,normal,entregado,pagado,,1,129.99
+626,SINT-0626,27,2026-05-30 17:09:00,normal,entregado,pagado,,1,129.99
+627,SINT-0627,3,2026-06-01 10:43:00,normal,entregado,pagado,,1,129.99
+628,SINT-0628,1,2026-06-01 12:35:00,normal,entregado,pagado,,5,649.95
+629,SINT-0629,1,2026-06-01 18:08:00,normal,entregado,pagado,,1,129.99
+630,SINT-0630,3,2026-06-01 20:51:00,custom,entregado,pagado,Iniciales en el talón,25,3599.75
+631,SINT-0631,1,2026-06-02 10:01:00,normal,cancelado,pendiente,,2,179.98
+632,SINT-0632,14,2026-06-02 15:32:00,normal,entregado,pagado,,2,199.98
+633,SINT-0633,1,2026-06-03 09:36:00,normal,entregado,pagado,,2,239.98
+634,SINT-0634,15,2026-06-04 14:22:00,normal,entregado,pagado,,2,139.98
+635,SINT-0635,40,2026-06-06 17:21:00,normal,entregado,pagado,,2,179.98
+636,SINT-0636,14,2026-06-07 18:35:00,normal,entregado,pagado,,3,269.97
+637,SINT-0637,1,2026-06-07 19:14:00,normal,entregado,pagado,,2,259.98
+638,SINT-0638,1,2026-06-08 10:27:00,normal,cancelado,pendiente,,3,269.97
+639,SINT-0639,24,2026-06-09 18:09:00,normal,entregado,pagado,,1,129.99
+640,SINT-0640,23,2026-06-11 11:40:00,normal,entregado,pagado,,1,129.99
+641,SINT-0641,12,2026-06-11 12:52:00,normal,entregado,pagado,,2,189.98
+642,SINT-0642,28,2026-06-12 18:19:00,normal,entregado,pagado,,2,199.98
+643,SINT-0643,1,2026-06-13 09:30:00,custom,entregado,pagado,Iniciales en el talón,46,5519.54
+644,SINT-0644,21,2026-06-14 15:18:00,normal,entregado,pagado,,2,259.98
+645,SINT-0645,28,2026-06-14 18:40:00,normal,entregado,pagado,,2,209.98
+646,SINT-0646,28,2026-06-15 15:55:00,normal,entregado,pagado,,1,69.99
+647,SINT-0647,29,2026-06-15 17:51:00,normal,entregado,pagado,,2,179.98
+648,SINT-0648,2,2026-06-17 10:18:00,normal,entregado,pagado,,4,459.96
+649,SINT-0649,33,2026-06-17 12:28:00,normal,entregado,pagado,,6,589.94
+650,SINT-0650,22,2026-06-17 16:47:00,normal,entregado,pagado,,5,609.95
+651,SINT-0651,12,2026-06-17 20:04:00,normal,entregado,pagado,,2,259.98
+652,SINT-0652,1,2026-06-18 17:12:00,custom,entregado,pagado,Colores del club,33,5147.67
+653,SINT-0653,24,2026-06-18 17:47:00,normal,entregado,pagado,,3,359.97
+654,SINT-0654,12,2026-06-19 15:35:00,custom,cancelado,reembolsado,Colores del club,68,7343.32
+655,SINT-0655,29,2026-06-19 16:49:00,normal,entregado,pagado,,4,499.96
+656,SINT-0656,35,2026-06-19 20:39:00,normal,entregado,pagado,,2,219.98
+657,SINT-0657,16,2026-06-20 12:12:00,normal,entregado,pagado,,1,129.99
+658,SINT-0658,26,2026-06-20 13:50:00,normal,entregado,pagado,,3,279.97
+659,SINT-0659,15,2026-06-20 16:21:00,normal,entregado,pagado,,4,399.96
+660,SINT-0660,2,2026-06-20 17:44:00,custom,entregado,pagado,Iniciales en el talón,57,8891.43
+661,SINT-0661,29,2026-06-20 19:46:00,normal,entregado,pagado,,2,259.98
+662,SINT-0662,11,2026-06-21 09:03:00,normal,entregado,pagado,,2,259.98
+663,SINT-0663,11,2026-06-21 09:49:00,normal,entregado,pagado,,1,129.99
+664,SINT-0664,34,2026-06-21 11:08:00,normal,entregado,pagado,,1,129.99
+665,SINT-0665,13,2026-06-21 18:39:00,normal,entregado,pagado,,1,89.99
+666,SINT-0666,7,2026-06-22 13:43:00,normal,entregado,pagado,,3,339.97
+667,SINT-0667,6,2026-06-22 20:20:00,normal,entregado,pagado,,3,259.97
+668,SINT-0668,11,2026-06-23 13:41:00,normal,cancelado,pendiente,,2,229.98
+669,SINT-0669,8,2026-06-24 10:26:00,normal,entregado,pagado,,3,349.97
+670,SINT-0670,16,2026-06-24 20:32:00,normal,entregado,pagado,,3,249.97
+671,SINT-0671,23,2026-06-27 12:52:00,normal,entregado,pagado,,2,169.98
+672,SINT-0672,11,2026-06-27 18:29:00,normal,entregado,pagado,,4,339.96
+673,SINT-0673,28,2026-06-27 20:35:00,normal,entregado,pagado,,1,89.99
+674,SINT-0674,11,2026-06-28 17:56:00,normal,entregado,pagado,,1,129.99
+675,SINT-0675,21,2026-06-29 18:21:00,normal,entregado,pagado,,3,389.97
+676,SINT-0676,13,2026-06-29 20:19:00,normal,entregado,pagado,,2,139.98
+677,SINT-0677,11,2026-06-30 09:39:00,normal,entregado,pagado,,3,349.97
+678,SINT-0678,18,2026-06-30 10:54:00,normal,entregado,pagado,,4,339.96
+679,SINT-0679,14,2026-06-30 17:27:00,normal,entregado,pagado,,3,389.97
+680,SINT-0680,12,2026-06-30 18:41:00,normal,entregado,pagado,,1,129.99
+681,SINT-0681,13,2026-07-03 12:03:00,normal,entregado,pagado,,2,259.98
+682,SINT-0682,22,2026-07-03 17:17:00,normal,entregado,pagado,,4,449.96
+683,SINT-0683,36,2026-07-04 18:05:00,normal,entregado,pagado,,1,119.99
+684,SINT-0684,17,2026-07-05 10:22:00,normal,entregado,pagado,,1,129.99
+685,SINT-0685,5,2026-07-05 13:08:00,normal,cancelado,reembolsado,,2,259.98
+686,SINT-0686,16,2026-07-05 16:29:00,normal,entregado,pagado,,2,179.98
+687,SINT-0687,14,2026-07-05 16:44:00,normal,entregado,pagado,,2,209.98
+688,SINT-0688,18,2026-07-05 16:44:00,normal,entregado,pagado,,2,139.98
+689,SINT-0689,11,2026-07-05 19:22:00,normal,entregado,pagado,,1,69.99
+690,SINT-0690,14,2026-07-06 18:26:00,normal,cancelado,pendiente,,1,89.99
+691,SINT-0691,23,2026-07-07 09:40:00,normal,entregado,pagado,,1,89.99
+692,SINT-0692,8,2026-07-08 15:59:00,custom,entregado,pagado,Logo del club y dorsal,30,2879.70
+693,SINT-0693,11,2026-07-08 18:39:00,normal,cancelado,reembolsado,,2,239.98
+694,SINT-0694,36,2026-07-10 13:47:00,normal,cancelado,pendiente,,1,89.99
+695,SINT-0695,28,2026-07-10 19:19:00,normal,entregado,pagado,,3,359.97
+696,SINT-0696,16,2026-07-11 15:55:00,normal,entregado,pagado,,2,259.98
+697,SINT-0697,11,2026-07-12 13:48:00,normal,entregado,pagado,,3,379.97
+698,SINT-0698,10,2026-07-13 15:13:00,custom,entregado,pagado,Colores del club,58,8351.42
+699,SINT-0699,11,2026-07-13 16:23:00,normal,entregado,pagado,,2,169.98
+700,SINT-0700,16,2026-07-15 16:58:00,normal,entregado,pagado,,4,339.96
+701,SINT-0701,15,2026-07-17 09:36:00,normal,entregado,pagado,,2,209.98
+702,SINT-0702,12,2026-07-17 12:50:00,normal,entregado,pagado,,2,219.98
+703,SINT-0703,4,2026-07-18 13:43:00,custom,entregado,pagado,Iniciales en el talón,52,8111.48
+704,SINT-0704,22,2026-07-18 15:09:00,normal,entregado,pagado,,1,119.99
+705,SINT-0705,22,2026-07-19 18:51:00,normal,entregado,pagado,,3,249.97
+706,SINT-0706,21,2026-07-20 10:09:00,normal,entregado,pagado,,3,289.97
+707,SINT-0707,7,2026-07-22 11:04:00,normal,entregado,pagado,,1,69.99
+708,SINT-0708,14,2026-07-22 12:09:00,normal,entregado,pagado,,1,129.99
+709,SINT-0709,15,2026-07-23 12:28:00,normal,entregado,pagado,,1,129.99
+710,SINT-0710,15,2026-07-24 10:48:00,normal,entregado,pagado,,2,179.98
+711,SINT-0711,4,2026-07-24 16:19:00,normal,entregado,pagado,,3,269.97
+712,SINT-0712,32,2026-07-24 17:18:00,normal,entregado,pagado,,2,179.98
+713,SINT-0713,4,2026-07-24 19:05:00,custom,entregado,pagado,Iniciales en el talón,26,2807.74
+714,SINT-0714,1,2026-07-25 17:22:00,custom,cancelado,pendiente,Logo del club y dorsal,38,4559.62
+715,SINT-0715,32,2026-07-26 17:49:00,normal,cancelado,pendiente,,3,309.97
+716,SINT-0716,16,2026-07-30 09:53:00,normal,entregado,pagado,,6,739.94
+717,SINT-0717,12,2026-07-30 13:10:00,normal,entregado,pagado,,4,419.96
+718,SINT-0718,5,2026-07-30 14:17:00,custom,entregado,pagado,Colores del club,35,3359.65
+719,SINT-0719,17,2026-07-30 15:59:00,normal,entregado,pagado,,2,159.98
+720,SINT-0720,19,2026-07-30 16:58:00,normal,entregado,pagado,,1,89.99
+721,SINT-0721,11,2026-07-30 19:20:00,normal,entregado,pagado,,1,69.99
+722,SINT-0722,23,2026-07-31 14:45:00,normal,entregado,pagado,,4,359.96
+723,SINT-0723,33,2026-08-01 10:25:00,normal,entregado,pagado,,3,339.97
+724,SINT-0724,1,2026-08-01 16:23:00,normal,entregado,pagado,,3,389.97
+725,SINT-0725,24,2026-08-04 20:21:00,normal,entregado,pagado,,2,199.98
+726,SINT-0726,16,2026-08-05 14:34:00,normal,cancelado,reembolsado,,2,259.98
+727,SINT-0727,10,2026-08-07 12:17:00,normal,entregado,pagado,,4,519.96
+728,SINT-0728,25,2026-08-07 13:31:00,normal,entregado,pagado,,2,209.98
+729,SINT-0729,40,2026-08-11 10:16:00,normal,entregado,pagado,,3,359.97
+730,SINT-0730,14,2026-08-11 12:46:00,normal,entregado,pagado,,1,119.99
+731,SINT-0731,20,2026-08-13 10:48:00,normal,entregado,pagado,,2,259.98
+732,SINT-0732,11,2026-08-13 13:55:00,normal,cancelado,pendiente,,1,69.99
+733,SINT-0733,5,2026-08-15 11:14:00,custom,entregado,pagado,Colores del club,39,3275.61
+734,SINT-0734,39,2026-08-16 09:06:00,normal,entregado,pagado,,2,139.98
+735,SINT-0735,23,2026-08-16 13:42:00,normal,entregado,pagado,,6,659.94
+736,SINT-0736,24,2026-08-16 13:54:00,normal,entregado,pagado,,1,119.99
+737,SINT-0737,39,2026-08-17 16:32:00,normal,cancelado,pendiente,,2,259.98
+738,SINT-0738,14,2026-08-17 20:31:00,normal,entregado,pagado,,1,99.99
+739,SINT-0739,19,2026-08-18 17:10:00,normal,entregado,pagado,,4,489.96
+740,SINT-0740,7,2026-08-20 09:04:00,normal,entregado,pagado,,1,79.99
+741,SINT-0741,15,2026-08-20 10:56:00,normal,cancelado,reembolsado,,2,199.98
+742,SINT-0742,2,2026-08-20 18:28:00,custom,entregado,pagado,Colores del club,56,4703.44
+743,SINT-0743,9,2026-08-21 13:53:00,custom,entregado,pagado,Iniciales en el talón,46,4967.54
+744,SINT-0744,13,2026-08-22 14:16:00,normal,entregado,pagado,,2,159.98
+745,SINT-0745,14,2026-08-23 09:04:00,normal,entregado,pagado,,5,379.95
+746,SINT-0746,20,2026-08-24 11:33:00,normal,entregado,pagado,,4,399.96
+747,SINT-0747,10,2026-08-24 19:22:00,custom,entregado,pagado,Colores del club,55,5279.45
+748,SINT-0748,2,2026-08-26 19:30:00,normal,entregado,pagado,,3,209.97
+749,SINT-0749,1,2026-08-27 14:38:00,normal,entregado,pagado,,1,89.99
+750,SINT-0750,3,2026-08-28 19:51:00,normal,entregado,pagado,,3,319.97
+751,SINT-0751,38,2026-08-29 19:09:00,normal,entregado,pagado,,2,149.98
+752,SINT-0752,1,2026-08-30 18:06:00,custom,entregado,pagado,Colores del club,45,7019.55
+753,SINT-0753,9,2026-09-01 09:44:00,normal,entregado,pagado,,2,219.98
+754,SINT-0754,26,2026-09-01 10:19:00,normal,entregado,pagado,,1,129.99
+755,SINT-0755,2,2026-09-01 11:52:00,custom,entregado,pagado,Colores del club,29,3131.71
+756,SINT-0756,14,2026-09-01 12:24:00,normal,entregado,pagado,,1,129.99
+757,SINT-0757,14,2026-09-02 09:03:00,normal,entregado,pagado,,2,199.98
+758,SINT-0758,12,2026-09-02 13:30:00,normal,entregado,pagado,,1,79.99
+759,SINT-0759,37,2026-09-02 20:10:00,normal,entregado,pagado,,2,219.98
+760,SINT-0760,13,2026-09-02 20:32:00,normal,entregado,pagado,,1,119.99
+761,SINT-0761,5,2026-09-03 12:00:00,normal,entregado,pagado,,1,129.99
+762,SINT-0762,5,2026-09-03 13:01:00,custom,cancelado,pendiente,Logo del club y dorsal,72,11231.28
+763,SINT-0763,13,2026-09-03 16:53:00,normal,entregado,pagado,,2,259.98
+764,SINT-0764,30,2026-09-04 17:39:00,normal,entregado,pagado,,3,289.97
+765,SINT-0765,25,2026-09-04 18:56:00,normal,entregado,pagado,,1,129.99
+766,SINT-0766,13,2026-09-04 20:03:00,normal,entregado,pagado,,1,129.99
+767,SINT-0767,1,2026-09-05 16:54:00,custom,entregado,pagado,Iniciales en el talón,59,6371.41
+768,SINT-0768,37,2026-09-05 19:04:00,normal,entregado,pagado,,3,349.97
+769,SINT-0769,12,2026-09-06 10:00:00,normal,entregado,pagado,,3,289.97
+770,SINT-0770,13,2026-09-06 18:07:00,normal,entregado,pagado,,3,289.97
+771,SINT-0771,34,2026-09-06 19:31:00,normal,entregado,pagado,,4,339.96
+772,SINT-0772,34,2026-09-07 15:37:00,normal,cancelado,pendiente,,1,89.99
+773,SINT-0773,11,2026-09-07 15:41:00,normal,entregado,pagado,,2,259.98
+774,SINT-0774,19,2026-09-07 17:47:00,normal,entregado,pagado,,2,259.98
+775,SINT-0775,1,2026-09-08 11:24:00,custom,entregado,pagado,Iniciales en el talón,56,5375.44
+776,SINT-0776,16,2026-09-08 13:16:00,normal,entregado,pagado,,4,459.96
+777,SINT-0777,10,2026-09-08 18:37:00,custom,entregado,pagado,Iniciales en el talón,24,2879.76
+778,SINT-0778,40,2026-09-08 19:19:00,normal,entregado,pagado,,3,279.97
+779,SINT-0779,8,2026-09-08 19:47:00,normal,entregado,pagado,,2,259.98
+780,SINT-0780,14,2026-09-09 13:36:00,normal,cancelado,reembolsado,,3,389.97
+781,SINT-0781,16,2026-09-09 14:01:00,normal,entregado,pagado,,6,599.94
+782,SINT-0782,19,2026-09-09 17:26:00,normal,entregado,pagado,,3,389.97
+783,SINT-0783,2,2026-09-09 17:53:00,custom,entregado,pagado,Logo del club y dorsal,70,7559.30
+784,SINT-0784,11,2026-09-10 09:48:00,normal,entregado,pagado,,4,449.96
+785,SINT-0785,12,2026-09-10 11:24:00,normal,entregado,pagado,,2,209.98
+786,SINT-0786,3,2026-09-10 11:51:00,normal,cancelado,pendiente,,2,219.98
+787,SINT-0787,34,2026-09-10 19:57:00,normal,entregado,pagado,,2,259.98
+788,SINT-0788,8,2026-09-11 11:07:00,normal,entregado,pagado,,5,649.95
+789,SINT-0789,3,2026-09-11 13:22:00,normal,entregado,pagado,,1,69.99
+790,SINT-0790,2,2026-09-11 18:30:00,normal,entregado,pagado,,3,389.97
+791,SINT-0791,20,2026-09-12 11:59:00,normal,entregado,pagado,,2,139.98
+792,SINT-0792,12,2026-09-12 13:46:00,normal,entregado,pagado,,1,89.99
+793,SINT-0793,12,2026-09-12 16:26:00,normal,entregado,pagado,,2,209.98
+794,SINT-0794,31,2026-09-14 20:52:00,normal,entregado,pagado,,1,129.99
+795,SINT-0795,17,2026-09-15 13:48:00,normal,entregado,pagado,,1,129.99
+796,SINT-0796,37,2026-09-15 16:47:00,normal,cancelado,reembolsado,,4,439.96
+797,SINT-0797,12,2026-09-16 12:38:00,normal,entregado,pagado,,1,89.99
+798,SINT-0798,6,2026-09-16 16:30:00,normal,entregado,pagado,,3,389.97
+799,SINT-0799,21,2026-09-16 17:27:00,normal,entregado,pagado,,4,339.96
+800,SINT-0800,24,2026-09-16 17:43:00,normal,entregado,pagado,,1,129.99
+801,SINT-0801,11,2026-09-17 10:35:00,normal,entregado,pagado,,2,139.98
+802,SINT-0802,22,2026-09-19 16:38:00,normal,entregado,pagado,,1,69.99
+803,SINT-0803,11,2026-09-19 19:17:00,normal,entregado,pagado,,2,159.98
+804,SINT-0804,28,2026-09-20 17:13:00,normal,entregado,pagado,,1,129.99
+805,SINT-0805,11,2026-09-21 10:27:00,normal,entregado,pagado,,4,519.96
+806,SINT-0806,3,2026-09-21 16:53:00,normal,entregado,pagado,,2,219.98
+807,SINT-0807,11,2026-09-21 17:23:00,normal,entregado,pagado,,4,369.96
+808,SINT-0808,13,2026-09-21 20:39:00,normal,entregado,pagado,,3,329.97
+809,SINT-0809,17,2026-09-22 12:34:00,normal,entregado,pagado,,3,279.97
+810,SINT-0810,37,2026-09-22 13:14:00,normal,entregado,pagado,,2,199.98
+811,SINT-0811,15,2026-09-22 13:54:00,normal,entregado,pagado,,2,209.98
+812,SINT-0812,11,2026-09-22 18:55:00,normal,cancelado,pendiente,,1,89.99
+813,SINT-0813,26,2026-09-24 19:39:00,custom,entregado,pagado,Logo del club y dorsal,62,5207.38
+814,SINT-0814,13,2026-09-25 09:38:00,normal,entregado,pagado,,2,189.98
+815,SINT-0815,12,2026-09-25 20:18:00,normal,cancelado,reembolsado,,1,119.99
+816,SINT-0816,16,2026-09-25 20:40:00,normal,entregado,pagado,,1,69.99
+817,SINT-0817,5,2026-09-26 09:37:00,custom,entregado,pagado,Colores del club,22,3431.78
+818,SINT-0818,32,2026-09-26 14:10:00,normal,entregado,pagado,,1,79.99
+819,SINT-0819,9,2026-09-26 15:56:00,normal,entregado,pagado,,2,159.98
+820,SINT-0820,3,2026-09-26 15:58:00,normal,entregado,pagado,,1,129.99
+821,SINT-0821,1,2026-09-27 17:49:00,custom,entregado,pagado,Iniciales en el talón,40,6239.60
+822,SINT-0822,33,2026-09-28 09:33:00,normal,entregado,pagado,,2,149.98
+823,SINT-0823,11,2026-09-28 13:49:00,normal,entregado,pagado,,1,79.99
+824,SINT-0824,14,2026-09-28 17:59:00,custom,entregado,pagado,Logo del club y dorsal,50,4199.50
+825,SINT-0825,14,2026-09-28 19:11:00,normal,entregado,pagado,,3,229.97
+826,SINT-0826,25,2026-09-28 20:30:00,normal,entregado,pagado,,1,99.99
+827,SINT-0827,2,2026-09-29 16:35:00,custom,cancelado,pendiente,Logo del club y dorsal,47,5075.53
+828,SINT-0828,1,2026-09-29 20:55:00,custom,entregado,pagado,Iniciales en el talón,45,7019.55
+829,SINT-0829,11,2026-09-30 12:16:00,normal,entregado,pagado,,1,119.99
+830,SINT-0830,8,2026-10-01 11:42:00,custom,enviado,pagado,Colores del club,12,1871.88
+831,SINT-0831,13,2026-10-01 12:09:00,normal,enviado,pagado,,1,129.99
+832,SINT-0832,1,2026-10-01 14:19:00,custom,entregado,pagado,Logo del club y dorsal,45,7019.55
+833,SINT-0833,20,2026-10-01 19:23:00,normal,entregado,pagado,,2,179.98
+834,SINT-0834,11,2026-10-02 12:28:00,normal,enviado,pagado,,3,339.97
+835,SINT-0835,29,2026-10-02 19:17:00,normal,entregado,pagado,,3,389.97
+836,SINT-0836,18,2026-10-02 20:32:00,normal,entregado,pagado,,2,219.98
+837,SINT-0837,16,2026-10-03 15:33:00,normal,enviado,pagado,,1,89.99
+838,SINT-0838,22,2026-10-03 16:57:00,normal,enviado,pagado,,1,129.99
+839,SINT-0839,4,2026-10-03 20:50:00,custom,entregado,pagado,Iniciales en el talón,33,5147.67
+840,SINT-0840,11,2026-10-04 12:01:00,normal,enviado,pendiente,,3,229.97
+841,SINT-0841,15,2026-10-04 14:05:00,normal,entregado,pagado,,4,399.96
+842,SINT-0842,11,2026-10-04 14:29:00,normal,cancelado,reembolsado,,1,89.99
+843,SINT-0843,34,2026-10-05 17:39:00,normal,entregado,pagado,,4,279.96
+844,SINT-0844,2,2026-10-05 20:43:00,normal,entregado,pagado,,1,99.99
+845,SINT-0845,5,2026-10-06 09:03:00,custom,enviado,pagado,Iniciales en el talón,59,5663.41
+846,SINT-0846,18,2026-10-06 10:45:00,normal,entregado,pagado,,1,129.99
+847,SINT-0847,37,2026-10-06 11:09:00,normal,entregado,pagado,,2,229.98
+848,SINT-0848,38,2026-10-07 16:11:00,normal,enviado,pagado,,1,129.99
+849,SINT-0849,13,2026-10-08 16:25:00,normal,enviado,pagado,,2,239.98
+850,SINT-0850,33,2026-10-09 09:10:00,normal,entregado,pagado,,2,179.98
+851,SINT-0851,17,2026-10-09 14:29:00,normal,enviado,pagado,,1,69.99
+852,SINT-0852,2,2026-10-10 09:36:00,custom,enviado,pendiente,Logo del club y dorsal,24,2591.76
+853,SINT-0853,13,2026-10-10 17:05:00,normal,cancelado,pendiente,,3,309.97
+854,SINT-0854,23,2026-10-11 19:51:00,normal,entregado,pagado,,1,129.99
+855,SINT-0855,12,2026-10-12 09:27:00,normal,entregado,pagado,,1,89.99
+856,SINT-0856,12,2026-10-12 09:47:00,normal,entregado,pagado,,3,209.97
+857,SINT-0857,3,2026-10-12 11:50:00,normal,entregado,pagado,,2,259.98
+858,SINT-0858,13,2026-10-13 14:42:00,normal,cancelado,pendiente,,2,209.98
+859,SINT-0859,8,2026-10-13 18:35:00,normal,enviado,pagado,,4,479.96
+860,SINT-0860,13,2026-10-13 19:09:00,normal,enviado,pagado,,1,69.99
+861,SINT-0861,11,2026-10-13 20:12:00,normal,cancelado,reembolsado,,1,129.99
+862,SINT-0862,23,2026-10-14 09:41:00,normal,entregado,pagado,,2,229.98
+863,SINT-0863,12,2026-10-14 15:00:00,normal,entregado,pagado,,4,479.96
+864,SINT-0864,18,2026-10-14 19:01:00,normal,enviado,pagado,,4,319.96
+865,SINT-0865,36,2026-10-15 14:16:00,normal,entregado,pagado,,3,289.97
+866,SINT-0866,6,2026-10-15 14:46:00,normal,enviado,pendiente,,1,69.99
+867,SINT-0867,15,2026-10-15 16:19:00,normal,enviado,pendiente,,2,199.98
+868,SINT-0868,13,2026-10-15 18:22:00,normal,enviado,pagado,,2,179.98
+869,SINT-0869,23,2026-10-16 10:39:00,normal,enviado,pagado,,3,389.97
+870,SINT-0870,3,2026-10-16 20:02:00,normal,enviado,pendiente,,3,309.97
+871,SINT-0871,13,2026-10-18 10:55:00,normal,cancelado,reembolsado,,1,69.99
+872,SINT-0872,26,2026-10-19 11:27:00,normal,confirmado,pagado,,1,79.99
+873,SINT-0873,15,2026-10-19 15:27:00,normal,confirmado,pendiente,,5,549.95
+874,SINT-0874,11,2026-10-19 18:40:00,normal,enviado,pendiente,,5,519.95
+875,SINT-0875,11,2026-10-19 20:01:00,normal,enviado,pendiente,,2,259.98
+876,SINT-0876,38,2026-10-20 11:15:00,normal,enviado,pagado,,1,79.99
+877,SINT-0877,12,2026-10-20 13:30:00,normal,confirmado,pagado,,3,389.97
+878,SINT-0878,1,2026-10-20 17:11:00,custom,confirmado,pendiente,Iniciales en el talón,21,2267.79
+879,SINT-0879,33,2026-10-21 15:08:00,normal,confirmado,pagado,,1,129.99
+880,SINT-0880,23,2026-10-21 15:38:00,normal,enviado,pagado,,1,89.99
+881,SINT-0881,12,2026-10-21 19:57:00,normal,en_preparacion,pagado,,2,179.98
+882,SINT-0882,11,2026-10-23 12:04:00,normal,enviado,pagado,,1,99.99
+883,SINT-0883,33,2026-10-23 17:23:00,normal,enviado,pagado,,2,259.98
+884,SINT-0884,8,2026-10-25 09:12:00,normal,pendiente,pendiente,,4,449.96
+885,SINT-0885,2,2026-10-25 09:59:00,custom,pendiente,pendiente,Logo del club y dorsal,66,7919.34
+886,SINT-0886,2,2026-10-25 16:21:00,normal,confirmado,pagado,,1,79.99
+887,SINT-0887,19,2026-10-25 19:00:00,normal,confirmado,pagado,,5,349.95
+888,SINT-0888,11,2026-10-26 10:52:00,normal,confirmado,pendiente,,5,529.95
+889,SINT-0889,14,2026-10-26 12:49:00,normal,pendiente,pendiente,,1,69.99
+890,SINT-0890,11,2026-10-26 14:03:00,normal,confirmado,pagado,,2,179.98
+891,SINT-0891,33,2026-10-26 14:49:00,normal,confirmado,pendiente,,5,439.95
+892,SINT-0892,7,2026-10-27 15:03:00,normal,cancelado,pendiente,,2,259.98
+893,SINT-0893,23,2026-10-27 20:48:00,normal,pendiente,pendiente,,2,209.98
+894,SINT-0894,29,2026-10-28 10:30:00,normal,confirmado,pendiente,,4,389.96
+895,SINT-0895,19,2026-10-28 12:01:00,normal,pendiente,pendiente,,1,79.99
+896,SINT-0896,19,2026-10-28 15:08:00,normal,pendiente,pendiente,,6,569.94
+897,SINT-0897,15,2026-10-29 10:02:00,normal,cancelado,pendiente,,4,349.96
+898,SINT-0898,6,2026-10-29 19:24:00,normal,confirmado,pendiente,,2,179.98
+899,SINT-0899,22,2026-10-30 13:16:00,normal,pendiente,pendiente,,2,209.98
+900,SINT-0900,11,2026-10-31 14:35:00,normal,pendiente,pendiente,,3,279.97
+6,SINT-REPETIDO,1,2025-05-02 20:33:00,custom,entregado,pagado,Logo del club y dorsal,24,3291.12

@@ -1,0 +1,6 @@
+[
+  {"id_usuario": 1, "username": "admin.demo", "rol": "administrador", "activo": true},
+  {"id_usuario": 2, "username": "taller.demo", "rol": "trabajador", "activo": true},
+  {"id_usuario": 3, "username": "tienda.demo", "rol": "comercial", "activo": true},
+  {"id_usuario": 5, "username": "prueba.524415", "rol": "trabajador", "activo": false}
+]

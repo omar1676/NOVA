@@ -1,0 +1,74 @@
+Inicio salidas: 13/11/2026 01:12:27
+FALLO main --modo sintetico-errores
+referencia lista en <temporal>/salidas_python
+Codigos de salida de main.py: DATOS BLOQUEADOS: hay incidencias bloqueantes. No se publica ninguna cifra. 
+-- comparar_todo.py (referencia original frente a la rama final)
+ARCHIVOS DISTINTOS: ['real\\contraste_sql_caso_n.csv', 'real\\metadatos_dataframes.csv', 'sintetico-errores\\metadatos_dataframes.csv', 'sintetico\\metadatos_dataframes.csv']
+93 archivos de datos/texto comparados; distintos: ['real\\informe_ejecutivo.csv', 'sintetico\\informe_ejecutivo.csv']; PNG (cambian por la hora): 22; .log (rutas temporales y horas, informativos): 4
+comparar_todo -> salida 1 (1 = hay diferencias; se explican abajo)
+-- comparar_cierre.py (separa las diferencias hechas a proposito)
+Archivos que faltan en la nueva: ninguno
+Archivos nuevos (a proposito): ['real\\contraste_sql_caso_n.csv', 'real\\metadatos_dataframes.csv', 'sintetico-errores\\metadatos_dataframes.csv', 'sintetico\\metadatos_dataframes.csv']
+93 archivos de datos/texto de la referencia comparados: 91 identicos, 2 con columnas nuevas a proposito, distintos: ninguno
+  columnas nuevas: real\informe_ejecutivo.csv (+prioridad, urgencia, impacto_esperado, sustento; las 10 columnas de antes, iguales)
+  columnas nuevas: sintetico\informe_ejecutivo.csv (+prioridad, urgencia, impacto_esperado, sustento; las 10 columnas de antes, iguales)
+PNG en los dos lados: 22 (cambian por la hora del pie; no se comparan)
+generador.log: 4 lineas distintas
+    -Datos sint�ticos (semilla 2026) en <temporal>\py\datos_sinteticos
+    +Datos sint�ticos (semilla 2026) en <temporal>\py\datos_sinteticos
+    -  copia con errores: 12 errores introducidos (<temporal>\py\datos_sinteticos\con_errores\errores_introducidos.csv)
+    +  copia con errores: 12 errores introducidos (<temporal>\py\datos_sinteticos\con_errores\errores_introducidos.csv)
+main_real.log: 23 lineas distintas
+    -Carpeta de entrada: <temporal>\py\entrada_acc
+    +Carpeta de entrada: <temporal>\py\entrada_acc
+    -     clientes.csv      6         6    387 T T
+    -      modelos.csv      7         5    483 T T
+    -      pedidos.csv     12        10   1163 T T
+    -lineas_pedido.csv     18         8    738 T T
+    -        stock.csv     60         7   3007 T T
+    +     clientes.csv      6         6    394 T T
+    +      modelos.csv      7         5    491 T T
+    +      pedidos.csv     12        10   1176 T T
+    +lineas_pedido.csv     18         8    757 T T
+    +        stock.csv     60         7   3068 T T
+    -Conciliaci�n con las consultas SQL P-A, P-B y P-C de Acceso a Datos
+    +Conciliaci�n con las consultas SQL P-A, P-B y P-C de Acceso a Datos (y caso N: N-1, N-2 y N-3)
+    +----------------------------------------------------------------------------------------------
+    +  caso N: 17 de 17 cifras coinciden con SQL
+    -Gr�ficos (10 PNG en <referencia_python>\real\graficos)
+    +Gr�ficos (10 PNG en <temporal>\salidas_python\real\graficos)
+    +-------------------------------------------------------------------------------------------------
+    -  Gr�fico: <referencia_python>\real\graficos_prediccion\11_real_frente_a_prediccion.png
+    +  Gr�fico: <temporal>\salidas_python\real\graficos_prediccion\11_real_frente_a_prediccion.png
+    -Resultados guardados en <referencia_python>\real
+    +Resultados guardados en <temporal>\salidas_python\real
+main_sintetico-errores.log: 4 lineas distintas
+    -Carpeta de entrada: <temporal>\py\datos_sinteticos\con_errores
+    +Carpeta de entrada: <temporal>\py\datos_sinteticos\con_errores
+    -Detalle en <referencia_python>\sintetico-errores\incidencias.csv
+    +Detalle en <temporal>\salidas_python\sintetico-errores\incidencias.csv
+main_sintetico.log: 22 lineas distintas
+    -Carpeta de entrada: <temporal>\py\datos_sinteticos\limpios
+    +Carpeta de entrada: <temporal>\py\datos_sinteticos\limpios
+    -     clientes.csv     40         6   3027 T T
+    -      modelos.csv     12         5    916 T T
+    -      pedidos.csv    900        10  66991 T T
+    -lineas_pedido.csv   1777         8  71227 T T
+    -        stock.csv    216         7  10811 T T
+    +     clientes.csv     40         6   3068 T T
+    +      modelos.csv     12         5    929 T T
+    +      pedidos.csv    900        10  67892 T T
+    +lineas_pedido.csv   1777         8  73005 T T
+    +        stock.csv    216         7  11028 T T
+    -Conciliaci�n con las consultas SQL P-A, P-B y P-C de Acceso a Datos
+    +Conciliaci�n con las consultas SQL P-A, P-B y P-C de Acceso a Datos (y caso N: N-1, N-2 y N-3)
+    +----------------------------------------------------------------------------------------------
+    -Gr�ficos (10 PNG en <referencia_python>\sintetico\graficos)
+    +Gr�ficos (10 PNG en <temporal>\salidas_python\sintetico\graficos)
+    +------------------------------------------------------------------------------------------------------
+    -  Gr�fico: <referencia_python>\sintetico\graficos_prediccion\11_real_frente_a_prediccion.png
+    +  Gr�fico: <temporal>\salidas_python\sintetico\graficos_prediccion\11_real_frente_a_prediccion.png
+    -Resultados guardados en <referencia_python>\sintetico
+    +Resultados guardados en <temporal>\salidas_python\sintetico
+comparar_cierre -> salida 0
+Fin salidas: 13/11/2026 01:13:53

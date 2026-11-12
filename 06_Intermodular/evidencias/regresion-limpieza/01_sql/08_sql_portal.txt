@@ -1,0 +1,56 @@
+Partida: CUSTOM-40 = 46 , pendiente = 1 , SKU 1 nave 1 con 20
+=== Quien puede llamar a las funciones
+PASS Q1 tienda_web no puede avanzar pedidos: 42501 permission denied for function avanzar_pedido_trabajador
+PASS Q2 tienda_web no puede cambiar el stock: 42501 permission denied for function ajustar_existencias_trabajador
+PASS Q3 panel_lectura (el panel) tampoco: 42501 permission denied for function avanzar_pedido_trabajador
+PASS Q4 panel_reparto tampoco: 42501 permission denied for function ajustar_existencias_trabajador
+PASS Q5 web_nova sin SET ROLE tampoco (NOINHERIT): 42501 permission denied for function avanzar_pedido_trabajador
+PASS Q6 nova_trabajador (Java) tampoco: 42501 permission denied for function ajustar_existencias_trabajador
+PASS Q7 EXECUTE solo para portal_trabajador (ni PUBLIC, ni tienda, ni Java)
+PASS Q8 web_nova pasa a portal_trabajador solo con SET ROLE (sin heredar)
+PASS Q9 portal_trabajador no tiene login
+PASS Q10 portal_trabajador no escribe en ninguna tabla de public: 0
+PASS Q11 panel_lectura sigue sin poder escribir en ninguna tabla: 0
+PASS Q12 panel_reparto sigue sin leer ni escribir ninguna tabla: 0
+PASS Q13 portal_trabajador no cambia el estado a mano: 42501 permission denied for table pedidos
+PASS Q14 portal_trabajador no toca existencias a mano: 42501 permission denied for table existencias
+PASS Q15 portal_trabajador no escribe en la auditoria: 42501 permission denied for table log_eventos
+PASS Q16 portal_trabajador no lee la auditoria: 42501 permission denied for table log_eventos
+PASS Q17 portal_trabajador no lee el hash: 42501 permission denied for table usuarios
+PASS Q18 portal_trabajador no lee el DNI: 42501 permission denied for table personal
+PASS Q19 portal_trabajador no lee el correo ni la direccion de los clientes: 42501 permission denied for table clientes
+PASS Q20 portal_trabajador no lee las cuentas de la tienda: 42501 permission denied for table cuentas_cliente
+PASS Q21 portal_trabajador no marca en reparto (22): 42501 permission denied for function marcar_pedido_en_reparto
+PASS Q22 portal_trabajador no hace login (iniciar_sesion): 42501 permission denied for function iniciar_sesion
+PASS Q23 portal_trabajador no compra (realizar_compra): 42501 permission denied for function realizar_compra
+PASS Q24 portal_trabajador lee lo que ensena el portal (pedidos con su personalizacion)
+PASS Q25 las dos son SECURITY DEFINER con search_path fijo
+=== Reglas de las funciones (como portal_trabajador, que es lo que usa el servidor)
+PASS R1 el administrador no usa el portal: P0001 Usuario no autorizado
+PASS R2 un comercial tampoco: P0001 Usuario no autorizado
+PASS R3 un usuario que no existe: P0001 Usuario no autorizado
+PASS R4 sin usuario (NULL): P0001 Usuario no autorizado
+PASS R5 el administrador no cambia stock por el portal: P0001 Usuario no autorizado
+PASS R6 saltarse un paso (confirmado -> enviado): P0001 Solo se puede pasar de confirmado a en_preparacion
+PASS R7 volver atras o cancelar: P0001 Solo se puede pasar de confirmado a en_preparacion
+PASS R8 un pedido pendiente no avanza: P0001 Un pedido en estado pendiente no se puede avanzar
+PASS R9 un pedido que no existe: P0001 El pedido no existe
+PASS R10 una cantidad negativa: P0001 La cantidad debe ser un numero entero entre 0 y 99999
+PASS R11 una cantidad enorme: P0001 La cantidad debe ser un numero entero entre 0 y 99999
+PASS R12 unas existencias que no existen: P0001 No existe esa existencia
+PASS R13 un trabajador desactivado: P0001 Usuario no autorizado
+PASS R14 un trabajador desactivado no cambia stock: P0001 Usuario no autorizado
+PASS R15 los intentos rechazados no cambian el pedido
+PASS R16 ni el stock
+PASS R17 ni dejan nada en la auditoria: 0 eventos
+=== Un pedido avanza paso a paso y el stock cambia, a nombre del trabajador
+PASS R18 no deja una sesion abierta: nova.id_usuario vuelve a estar vacio
+PASS R19 entregado ya no avanza: P0001 Un pedido en estado entregado no se puede avanzar
+PASS R20 confirmado -> en_preparacion -> enviado -> entregado: entregado
+PASS R21 avanzar no toca el stock; solo cambia el SKU ajustado (+4): 17170 -> 17174
+PASS R22 log_eventos: 3 CAMBIO_ESTADO y 1 CAMBIO_STOCK, todos con taller.demo: CAMBIO_ESTADO | taller.demo | Pedido CUSTOM-40: confirmado -> en_preparacion. Usuario del pedido: 3 ; CAMBIO_ESTADO | taller.demo | Pedido CUSTOM-40: en_preparacion -> enviado. Usuario del pedido: 3 ; CAMBIO_ESTADO | taller.demo | Pedido CUSTOM-40: enviado -> entregado. Usuario del pedido: 3 ; CAMBIO_STOCK | taller.demo | SKU 1: 20 -> 24
+=== La sesion de quien llama se respeta y READ ONLY sigue mandando
+PASS R23 si ya habia un valor en nova.id_usuario, la funcion lo deja como estaba
+PASS R24 con ROLLBACK no queda nada
+PASS R25 dentro de una transaccion READ ONLY no se puede (como las lecturas del portal): 25006 cannot execute UPDATE in a read-only transaction
+=== Fin

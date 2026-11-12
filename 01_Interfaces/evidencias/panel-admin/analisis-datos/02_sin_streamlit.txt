@@ -1,0 +1,3 @@
+PASS sin Streamlit: la pagina explica como arrancarlo -> El dashboard de Python no está arrancado. En la carpeta 04_Python: .venv\Scripts\streamlit.exe run app_dashboard.py (y después recarga esta página).
+PASS sin Streamlit: el marco no se enseña vacio
+=== pagina Analisis de datos (sin): 2 PASS, 0 FAIL

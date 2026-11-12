@@ -1,0 +1,29 @@
+{
+  "cliente_ficticio": {
+    "nombre": "Lucía Prueba Ficticia",
+    "email": "lucia.ficticia.1794529923@example.com",
+    "direccion": "Calle Inventada 12, 28000 Madrid (dirección ficticia)"
+  },
+  "referencia": "WEB-8280F0467AAA4B02BC2E",
+  "id_pedido": 47,
+  "vista_previa": "https://ethereal.email/message/avZai0s6EhPCfcLoavZajGjCd8MK6QU3AAAAAfGSGwWJlJD4RamQZhCDtsA",
+  "lineas": [
+    {
+      "modelo": "NOVA Casual Brisa",
+      "color": "Crema y gris",
+      "talla": 40,
+      "cantidad": 2,
+      "precio": 89.9,
+      "subtotal": 179.8
+    },
+    {
+      "modelo": "NOVA Casual Cala",
+      "color": "Verde y mostaza",
+      "talla": 39,
+      "cantidad": 1,
+      "precio": 89.9,
+      "subtotal": 89.9
+    }
+  ],
+  "total": 269.7
+}

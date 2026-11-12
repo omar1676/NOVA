@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVA Sneakers · Personalizados</title>
+    <link rel="icon" href="img/Nova Logo.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="adm">
+
+<div class="adm-sidebar">
+    <div class="adm-marca">
+        <img src="img/Nova Logo.png" alt="NOVA Sneakers">
+    </div>
+    <nav class="adm-menu">
+        <a href="trabajador.html"><i data-lucide="layout-dashboard"></i> Resumen</a>
+        <a href="pedidosTrabajador.html"><i data-lucide="shopping-bag"></i> Pedidos</a>
+        <a href="inventarioTrabajador.html"><i data-lucide="warehouse"></i> Inventario</a>
+        <a href="personalizadosTrabajador.html" class="adm-activo"><i data-lucide="sparkles"></i> Personalizados</a>
+        <a href="#" id="adm-salir"><i data-lucide="log-out"></i> Cerrar sesión</a>
+    </nav>
+</div>
+
+<div class="adm-contenido">
+    <h1>Personalizados</h1>
+
+    <div class="adm-herramientas">
+        <input type="text" id="adm-buscador" placeholder="Buscar por referencia, cliente o material..." aria-label="Buscar por referencia, cliente o material">
+    </div>
+
+    <h2>Pedidos personalizados</h2>
+    <div class="adm-tabla-caja">
+        <table class="adm-tabla">
+            <thead>
+                <tr>
+                    <th>Referencia</th>
+                    <th>Cliente</th>
+                    <th>Fecha objetivo</th>
+                    <th>Estado</th>
+                    <th>Cantidad</th>
+                    <th>Personalización</th>
+                </tr>
+            </thead>
+            <tbody id="adm-personalizados">
+                <tr><td colspan="6" class="adm-vacio">Cargando...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h2>Configuraciones X-Nova</h2>
+    <div class="adm-tabla-caja">
+        <table class="adm-tabla">
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Pedido</th>
+                    <th>Talla</th>
+                    <th>Color principal</th>
+                    <th>Color secundario</th>
+                    <th>Material</th>
+                    <th>Suela</th>
+                    <th>Texto</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody id="adm-xnova">
+                <tr><td colspan="9" class="adm-vacio">Cargando...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/lucide@1.62.0/dist/umd/lucide.min.js" integrity="sha384-KbBG+Cdzk6eN6IszNtkSQeU6IJq84TBpyLQN+W8Fn8y0QNsTNiB+j8vFW5Rn1SGZ" crossorigin="anonymous"></script>
+<script src="script.js"></script>
+
+</body>
+</html>

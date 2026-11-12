@@ -1,0 +1,149 @@
+OK    [escritorio] sin desplazamiento horizontal -> [1440, 1440]
+OK    [escritorio] la cabecera cabe y sus enlaces no se pisan -> ['Catálogo', 'Nuestra visión', 'Custom', 'Contacto']
+OK    [escritorio] las 100 tarjetas del catálogo muestran su precio (también en aria-label) -> 100 tarjetas; ej.: Ver NOVA Street Vortex, 109,90 €, disponible; mal: []
+OK    [escritorio] ficha street: precio, descripción y tallas -> 109,90 € | Tallas: 38, 39, 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [escritorio] ficha luxe: precio, descripción y tallas -> 139,90 € | Tallas: 38, 39, 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [escritorio] ficha casual: precio, descripción y tallas -> 89,90 € | Tallas: 38, 39, 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [escritorio] ficha hombre: precio, descripción y tallas -> 99,90 € | Tallas: 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [escritorio] ficha mujer: precio, descripción y tallas -> 99,90 € | Tallas: 35, 36, 37, 38, 39, 40, 41, 42 | descripción=True | cabe=True
+OK    [escritorio] ficha unisex: precio, descripción y tallas -> 94,90 € | Tallas: 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [escritorio] cambiar de zapatilla en el probador actualiza el precio y las tallas de la ficha -> ['NOVA Mujer Aurora', '99,90\xa0€', 'Tallas: 35, 36, 37, 38, 39, 40, 41, 42']
+OK    [escritorio] menú -> Catálogo -> #catalogo-completo a 0px del borde superior
+OK    [escritorio] menú -> Custom -> #custom a -0.0px del borde superior
+OK    [escritorio] menú -> Contacto -> #contacto a 472px del borde superior (final de la página)
+OK    [escritorio] sección de contacto con email y aviso de datos ficticios -> {'h2': 'Hablemos.', 'mail': 'mailto:hola@nova-sneakers.example', 'nota': True}
+OK    [escritorio] favicon declarado y servido -> ['images/favicon.png', 200]
+OK    [escritorio] un solo footer con correo, marca y «Volver arriba» -> ['hola@nova-sneakers.example -> mailto:hola@nova-sneakers.example', 'NOVA SNEAKERS -> #inicio', 'Volver arriba ↑ -> #top']
+OK    [escritorio] «Volver arriba» deja la página arriba del todo, con la cabecera visible -> scrollY=0, cabecera en 0px
+OK    [escritorio] el menú lleva a inicio, catálogo, Custom y contacto -> ['#catalogo', '#catalogo-completo', '#contacto', '#custom', '#historia', '#inicio']
+OK    [escritorio] todos los campos tienen etiqueta, las tallas van en un fieldset y el resultado es role=status -> {'sinEtiqueta': [], 'legend': 'Pares por talla (de la 38 a la 46)', 'opciones': 100, 'estado': 'status'}
+OK    [escritorio] el campo Modelo sugiere los 100 modelos del catálogo -> 100
+OK    [escritorio] envío vacío: el navegador lo bloquea y no aparece ningún resultado -> 
+OK    [escritorio] email mal escrito: bloqueado -> typeMismatch=True
+OK    [escritorio] sin ningún par: avisa y lleva el foco a la primera talla -> Indica cuántos pares quieres de al menos una talla. | foco en talla 38
+OK    [escritorio] cantidades negativas o con decimales: bloqueadas -> negativa=True decimal=True
+OK    [escritorio] el total de pares se actualiza al escribir (8 tallas x 5 = 40) -> 40
+OK    [escritorio] envío válido: mensaje de SIMULACIÓN, sin peticiones de red y sin recargar -> SIMULACIÓN · Solicitud preparada para Club de Prueba: Runner X, 40 pares (tallas 38: 5, 39: 5, 40: 5, 41: 5, 42: 5, 43: 5, 44: 5, 45: 5). No se ha enviado ningún dato ni se ha registrado ningún pedido. | peticiones=[] | url=True
+OK    [escritorio] con Tab el foco pasa al campo siguiente y se ve (contorno oscuro) -> ['contacto', 'solid', 'rgb(141, 73, 42)']
+OK    [escritorio] sin errores en la consola (salvo el favicon que no existe) -> ninguno
+OK    [escritorio] sin peticiones fallidas -> ninguna
+OK    [tableta] sin desplazamiento horizontal -> [820, 820]
+OK    [tableta] la cabecera cabe y sus enlaces no se pisan -> ['Catálogo', 'Nuestra visión', 'Custom', 'Contacto']
+OK    [tableta] las 100 tarjetas del catálogo muestran su precio (también en aria-label) -> 100 tarjetas; ej.: Ver NOVA Street Vortex, 109,90 €, disponible; mal: []
+OK    [tableta] ficha street: precio, descripción y tallas -> 109,90 € | Tallas: 38, 39, 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [tableta] ficha luxe: precio, descripción y tallas -> 139,90 € | Tallas: 38, 39, 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [tableta] ficha casual: precio, descripción y tallas -> 89,90 € | Tallas: 38, 39, 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [tableta] ficha hombre: precio, descripción y tallas -> 99,90 € | Tallas: 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [tableta] ficha mujer: precio, descripción y tallas -> 99,90 € | Tallas: 35, 36, 37, 38, 39, 40, 41, 42 | descripción=True | cabe=True
+OK    [tableta] ficha unisex: precio, descripción y tallas -> 94,90 € | Tallas: 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [tableta] cambiar de zapatilla en el probador actualiza el precio y las tallas de la ficha -> ['NOVA Mujer Aurora', '99,90\xa0€', 'Tallas: 35, 36, 37, 38, 39, 40, 41, 42']
+OK    [tableta] menú -> Catálogo -> #catalogo-completo a 0px del borde superior
+OK    [tableta] menú -> Custom -> #custom a -0.0px del borde superior
+OK    [tableta] menú -> Contacto -> #contacto a 715px del borde superior (final de la página)
+OK    [tableta] sección de contacto con email y aviso de datos ficticios -> {'h2': 'Hablemos.', 'mail': 'mailto:hola@nova-sneakers.example', 'nota': True}
+OK    [tableta] favicon declarado y servido -> ['images/favicon.png', 200]
+OK    [tableta] un solo footer con correo, marca y «Volver arriba» -> ['hola@nova-sneakers.example -> mailto:hola@nova-sneakers.example', 'NOVA SNEAKERS -> #inicio', 'Volver arriba ↑ -> #top']
+OK    [tableta] «Volver arriba» deja la página arriba del todo, con la cabecera visible -> scrollY=0, cabecera en 0px
+OK    [tableta] el menú lleva a inicio, catálogo, Custom y contacto -> ['#catalogo', '#catalogo-completo', '#contacto', '#custom', '#historia', '#inicio']
+OK    [tableta] todos los campos tienen etiqueta, las tallas van en un fieldset y el resultado es role=status -> {'sinEtiqueta': [], 'legend': 'Pares por talla (de la 38 a la 46)', 'opciones': 100, 'estado': 'status'}
+OK    [tableta] el campo Modelo sugiere los 100 modelos del catálogo -> 100
+OK    [tableta] envío vacío: el navegador lo bloquea y no aparece ningún resultado -> 
+OK    [tableta] email mal escrito: bloqueado -> typeMismatch=True
+OK    [tableta] sin ningún par: avisa y lleva el foco a la primera talla -> Indica cuántos pares quieres de al menos una talla. | foco en talla 38
+OK    [tableta] cantidades negativas o con decimales: bloqueadas -> negativa=True decimal=True
+OK    [tableta] el total de pares se actualiza al escribir (8 tallas x 5 = 40) -> 40
+OK    [tableta] envío válido: mensaje de SIMULACIÓN, sin peticiones de red y sin recargar -> SIMULACIÓN · Solicitud preparada para Club de Prueba: Runner X, 40 pares (tallas 38: 5, 39: 5, 40: 5, 41: 5, 42: 5, 43: 5, 44: 5, 45: 5). No se ha enviado ningún dato ni se ha registrado ningún pedido. | peticiones=[] | url=True
+OK    [tableta] sin errores en la consola (salvo el favicon que no existe) -> ninguno
+OK    [tableta] sin peticiones fallidas -> ninguna
+OK    [movil] sin desplazamiento horizontal -> [390, 390]
+OK    [movil] la cabecera cabe y sus enlaces no se pisan -> ['Catálogo', 'Custom', 'Contacto']
+OK    [movil] las 100 tarjetas del catálogo muestran su precio (también en aria-label) -> 100 tarjetas; ej.: Ver NOVA Street Vortex, 109,90 €, disponible; mal: []
+OK    [movil] ficha street: precio, descripción y tallas -> 109,90 € | Tallas: 38, 39, 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [movil] ficha luxe: precio, descripción y tallas -> 139,90 € | Tallas: 38, 39, 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [movil] ficha casual: precio, descripción y tallas -> 89,90 € | Tallas: 38, 39, 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [movil] ficha hombre: precio, descripción y tallas -> 99,90 € | Tallas: 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [movil] ficha mujer: precio, descripción y tallas -> 99,90 € | Tallas: 35, 36, 37, 38, 39, 40, 41, 42 | descripción=True | cabe=True
+OK    [movil] ficha unisex: precio, descripción y tallas -> 94,90 € | Tallas: 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [movil] cambiar de zapatilla en el probador actualiza el precio y las tallas de la ficha -> ['NOVA Mujer Aurora', '99,90\xa0€', 'Tallas: 35, 36, 37, 38, 39, 40, 41, 42']
+OK    [movil] menú -> Catálogo -> #catalogo-completo a 0px del borde superior
+OK    [movil] menú -> Custom -> #custom a 0px del borde superior
+OK    [movil] menú -> Contacto -> #contacto a 205px del borde superior (final de la página)
+OK    [movil] sección de contacto con email y aviso de datos ficticios -> {'h2': 'Hablemos.', 'mail': 'mailto:hola@nova-sneakers.example', 'nota': True}
+OK    [movil] favicon declarado y servido -> ['images/favicon.png', 200]
+OK    [movil] un solo footer con correo, marca y «Volver arriba» -> ['hola@nova-sneakers.example -> mailto:hola@nova-sneakers.example', 'NOVA SNEAKERS -> #inicio', 'Volver arriba ↑ -> #top']
+OK    [movil] «Volver arriba» deja la página arriba del todo, con la cabecera visible -> scrollY=0, cabecera en 0px
+OK    [movil] el menú lleva a inicio, catálogo, Custom y contacto -> ['#catalogo-completo', '#contacto', '#custom', '#inicio']
+OK    [movil] zonas táctiles del menú de al menos 24x24 px -> [('NOVA Sneakers, inicio', 115, 38), ('Catálogo', 50, 36), ('Custom', 42, 36), ('Contacto', 50, 36)]
+OK    [movil] todos los campos tienen etiqueta, las tallas van en un fieldset y el resultado es role=status -> {'sinEtiqueta': [], 'legend': 'Pares por talla (de la 38 a la 46)', 'opciones': 100, 'estado': 'status'}
+OK    [movil] el campo Modelo sugiere los 100 modelos del catálogo -> 100
+OK    [movil] envío vacío: el navegador lo bloquea y no aparece ningún resultado -> 
+OK    [movil] email mal escrito: bloqueado -> typeMismatch=True
+OK    [movil] sin ningún par: avisa y lleva el foco a la primera talla -> Indica cuántos pares quieres de al menos una talla. | foco en talla 38
+OK    [movil] cantidades negativas o con decimales: bloqueadas -> negativa=True decimal=True
+OK    [movil] el total de pares se actualiza al escribir (8 tallas x 5 = 40) -> 40
+OK    [movil] envío válido: mensaje de SIMULACIÓN, sin peticiones de red y sin recargar -> SIMULACIÓN · Solicitud preparada para Club de Prueba: Runner X, 40 pares (tallas 38: 5, 39: 5, 40: 5, 41: 5, 42: 5, 43: 5, 44: 5, 45: 5). No se ha enviado ningún dato ni se ha registrado ningún pedido. | peticiones=[] | url=True
+OK    [movil] sin errores en la consola (salvo el favicon que no existe) -> ninguno
+OK    [movil] sin peticiones fallidas -> ninguna
+OK    [movil_360] sin desplazamiento horizontal -> [360, 360]
+OK    [movil_360] la cabecera cabe y sus enlaces no se pisan -> ['Catálogo', 'Custom', 'Contacto']
+OK    [movil_360] las 100 tarjetas del catálogo muestran su precio (también en aria-label) -> 100 tarjetas; ej.: Ver NOVA Street Vortex, 109,90 €, disponible; mal: []
+OK    [movil_360] ficha street: precio, descripción y tallas -> 109,90 € | Tallas: 38, 39, 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [movil_360] ficha luxe: precio, descripción y tallas -> 139,90 € | Tallas: 38, 39, 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [movil_360] ficha casual: precio, descripción y tallas -> 89,90 € | Tallas: 38, 39, 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [movil_360] ficha hombre: precio, descripción y tallas -> 99,90 € | Tallas: 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [movil_360] ficha mujer: precio, descripción y tallas -> 99,90 € | Tallas: 35, 36, 37, 38, 39, 40, 41, 42 | descripción=True | cabe=True
+OK    [movil_360] ficha unisex: precio, descripción y tallas -> 94,90 € | Tallas: 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46 | descripción=True | cabe=True
+OK    [movil_360] cambiar de zapatilla en el probador actualiza el precio y las tallas de la ficha -> ['NOVA Mujer Aurora', '99,90\xa0€', 'Tallas: 35, 36, 37, 38, 39, 40, 41, 42']
+OK    [movil_360] menú -> Catálogo -> #catalogo-completo a -0.0px del borde superior
+OK    [movil_360] menú -> Custom -> #custom a 0px del borde superior
+OK    [movil_360] menú -> Contacto -> #contacto a 101px del borde superior (final de la página)
+OK    [movil_360] sección de contacto con email y aviso de datos ficticios -> {'h2': 'Hablemos.', 'mail': 'mailto:hola@nova-sneakers.example', 'nota': True}
+OK    [movil_360] favicon declarado y servido -> ['images/favicon.png', 200]
+OK    [movil_360] un solo footer con correo, marca y «Volver arriba» -> ['hola@nova-sneakers.example -> mailto:hola@nova-sneakers.example', 'NOVA SNEAKERS -> #inicio', 'Volver arriba ↑ -> #top']
+OK    [movil_360] «Volver arriba» deja la página arriba del todo, con la cabecera visible -> scrollY=0, cabecera en 0px
+OK    [movil_360] el menú lleva a inicio, catálogo, Custom y contacto -> ['#catalogo-completo', '#contacto', '#custom', '#inicio']
+OK    [movil_360] zonas táctiles del menú de al menos 24x24 px -> [('NOVA Sneakers, inicio', 95, 32), ('Catálogo', 50, 36), ('Custom', 42, 36), ('Contacto', 50, 36)]
+OK    [movil_360] todos los campos tienen etiqueta, las tallas van en un fieldset y el resultado es role=status -> {'sinEtiqueta': [], 'legend': 'Pares por talla (de la 38 a la 46)', 'opciones': 100, 'estado': 'status'}
+OK    [movil_360] el campo Modelo sugiere los 100 modelos del catálogo -> 100
+OK    [movil_360] envío vacío: el navegador lo bloquea y no aparece ningún resultado -> 
+OK    [movil_360] email mal escrito: bloqueado -> typeMismatch=True
+OK    [movil_360] sin ningún par: avisa y lleva el foco a la primera talla -> Indica cuántos pares quieres de al menos una talla. | foco en talla 38
+OK    [movil_360] cantidades negativas o con decimales: bloqueadas -> negativa=True decimal=True
+OK    [movil_360] el total de pares se actualiza al escribir (8 tallas x 5 = 40) -> 40
+OK    [movil_360] envío válido: mensaje de SIMULACIÓN, sin peticiones de red y sin recargar -> SIMULACIÓN · Solicitud preparada para Club de Prueba: Runner X, 40 pares (tallas 38: 5, 39: 5, 40: 5, 41: 5, 42: 5, 43: 5, 44: 5, 45: 5). No se ha enviado ningún dato ni se ha registrado ningún pedido. | peticiones=[] | url=True
+OK    [movil_360] sin errores en la consola (salvo el favicon que no existe) -> ninguno
+OK    [movil_360] sin peticiones fallidas -> ninguna
+OK    [cabecera_320] enlaces en una línea, sin pisarse y dentro del margen -> ['Catálogo', 'Custom', 'Contacto'] último acaba en 304 de 320; scrollWidth=320
+OK    [cabecera_360] enlaces en una línea, sin pisarse y dentro del margen -> ['Catálogo', 'Custom', 'Contacto'] último acaba en 342 de 360; scrollWidth=360
+OK    [cabecera_390] enlaces en una línea, sin pisarse y dentro del margen -> ['Catálogo', 'Custom', 'Contacto'] último acaba en 370 de 390; scrollWidth=390
+OK    [cabecera_414] enlaces en una línea, sin pisarse y dentro del margen -> ['Catálogo', 'Custom', 'Contacto'] último acaba en 393 de 414; scrollWidth=414
+OK    [cabecera_600] enlaces en una línea, sin pisarse y dentro del margen -> ['Catálogo', 'Custom', 'Contacto'] último acaba en 570 de 600; scrollWidth=600
+OK    [cabecera_760] enlaces en una línea, sin pisarse y dentro del margen -> ['Catálogo', 'Custom', 'Contacto'] último acaba en 722 de 760; scrollWidth=760
+OK    [cabecera_761] enlaces en una línea, sin pisarse y dentro del margen -> ['Catálogo', 'Nuestra visión', 'Custom', 'Contacto'] último acaba en 585 de 761; scrollWidth=761
+OK    [cabecera_820] enlaces en una línea, sin pisarse y dentro del margen -> ['Catálogo', 'Nuestra visión', 'Custom', 'Contacto'] último acaba en 615 de 820; scrollWidth=820
+OK    [cabecera_1024] enlaces en una línea, sin pisarse y dentro del margen -> ['Catálogo', 'Nuestra visión', 'Custom', 'Contacto'] último acaba en 717 de 1024; scrollWidth=1024
+OK    [cabecera_1280] enlaces en una línea, sin pisarse y dentro del margen -> ['Catálogo', 'Nuestra visión', 'Custom', 'Contacto'] último acaba en 845 de 1280; scrollWidth=1280
+OK    [cabecera_1440] enlaces en una línea, sin pisarse y dentro del margen -> ['Catálogo', 'Nuestra visión', 'Custom', 'Contacto'] último acaba en 925 de 1440; scrollWidth=1440
+OK    [servidor] archivos pedidos que no existen (404) -> ninguno
+OK    [axe] nueva_escritorio: ninguna violación WCAG A/AA nueva respecto a la web anterior -> ninguna
+OK    [axe] nueva_movil: ninguna violación WCAG A/AA nueva respecto a la web anterior -> ninguna
+OK    [axe] nueva_escritorio_ficha_abierta: ninguna violación WCAG A/AA nueva respecto a la web anterior -> ninguna
+OK    [axe] nueva_escritorio_formulario_enviado: 0 violaciones WCAG 2.1 A/AA -> ninguna
+OK    [axe] nueva_escritorio_ficha_abierta: 0 violaciones WCAG 2.1 A/AA -> ninguna
+OK    [axe] nueva_escritorio_probador_abierto: 0 violaciones WCAG 2.1 A/AA -> ninguna
+OK    [axe] nueva_movil: 0 violaciones WCAG 2.1 A/AA -> ninguna
+OK    [axe] nueva_escritorio: 0 violaciones WCAG 2.1 A/AA -> ninguna
+OK    [axe] formulario Custom y contacto (con el resultado visible): ninguna violación WCAG A/AA -> ninguna
+
+axe (violaciones por estado):
+  nueva_escritorio_formulario_enviado: []
+  nueva_escritorio_ficha_abierta: []
+  nueva_escritorio_probador_abierto: []
+  nueva_movil: []
+  anterior_escritorio: []
+  anterior_escritorio_ficha_abierta: []
+  anterior_escritorio_probador_abierto: []
+  anterior_movil: []
+  nueva_escritorio: []
+
+136 de 136 comprobaciones correctas

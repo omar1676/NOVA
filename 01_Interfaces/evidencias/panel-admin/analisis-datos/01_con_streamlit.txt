@@ -1,0 +1,44 @@
+PASS sin sesion: lleva a la pagina de acceso -> http://127.0.0.1:3301/login.html
+PASS el trabajador (taller.demo) no ve la pagina -> http://127.0.0.1:3301/login.html
+PASS el comercial (tienda.demo) no ve la pagina -> http://127.0.0.1:3301/login.html
+PASS un cliente de la tienda (con sesion de la tienda) no ve la pagina -> alta 201, http://127.0.0.1:3301/login.html
+PASS el administrador entra al Dashboard del panel -> http://127.0.0.1:3301/admin.html
+PASS 1. «Análisis de datos» aparece una vez en el menu -> 1
+PASS 2. el enlace del menu lleva a la pagina -> http://127.0.0.1:3301/analisisAdmin.html
+PASS 2. misma estructura que las demas paginas (barra lateral de Alvaro y contenido)
+PASS el marco carga el Streamlit de este ordenador, incrustado y con el tema oscuro del panel -> http://127.0.0.1:8501/?embed=true&embed_options=dark_theme
+PASS el marco tiene un titulo accesible
+PASS dentro del panel se ven las cifras de Python (exportacion de PRUEBA) -> {'Estado': 'Correcto', 'Filas válidas': '103', 'Pedidos registrados': '12'}
+PASS 2. dentro del panel el dashboard usa los colores oscuros del panel -> rgb(24, 24, 27)
+PASS 4. las 6 pestañas del dashboard estan dentro del panel -> ['Dirección', 'Productos', 'Clientes', 'Inventario', 'Calidad', 'Predicción']
+PASS 5. la barra lateral de los filtros se ve dentro del panel
+PASS 5. estan los filtros de modelo, talla, tipo, estado y cliente, y el periodo -> ['Modelo', 'Talla', 'Tipo de pedido', 'Estado del pedido', 'Cliente']
+PASS 5. al filtrar por estado cambian las cifras -> estado confirmado: 12 -> 1
+PASS 5. «Restablecer filtros» devuelve las cifras
+PASS 5. la descarga funciona dentro del panel (CSV con su origen) -> ventas_por_periodo_prueba.csv, 2 lineas
+PASS 5. el refresco de 60 s funciona dentro del panel (sin recargar) -> 14:16:24 -> 14:17:40 en 59 s
+PASS las pestañas se pueden usar dentro del panel (Predicción)
+PASS sin errores de JavaScript en la pagina del panel -> []
+PASS 3. Estadisticas de Alvaro: tarjetas con datos y los dos graficos dibujados -> ['10.686,45\xa0€', '12'], graficos [True, True]
+PASS axe: ninguna violacion que no tenga ya la pagina Estadisticas -> analisis={} estadisticas={}
+PASS 3. Dashboard de Alvaro: grafico de ventas dibujado
+PASS 1. admin.html: carga y tiene «Análisis de datos» una vez -> 200, 1
+PASS 1. pedidosAdmin.html: carga y tiene «Análisis de datos» una vez -> 200, 1
+PASS 1. productosAdmin.html: carga y tiene «Análisis de datos» una vez -> 200, 1
+PASS 1. inventarioAdmin.html: carga y tiene «Análisis de datos» una vez -> 200, 1
+PASS 1. clientesAdmin.html: carga y tiene «Análisis de datos» una vez -> 200, 1
+PASS 1. trabajadoresAdmin.html: carga y tiene «Análisis de datos» una vez -> 200, 1
+PASS 1. sugerenciasAdmin.html: carga y tiene «Análisis de datos» una vez -> 200, 1
+PASS 1. mejorasAdmin.html: carga y tiene «Análisis de datos» una vez -> 200, 1
+PASS 1. estadisticasAdmin.html: carga y tiene «Análisis de datos» una vez -> 200, 1
+PASS 1. analisisAdmin.html: carga y tiene «Análisis de datos» una vez -> 200, 1
+PASS 1. auditoriaAdmin.html: carga y tiene «Análisis de datos» una vez -> 200, 1
+PASS 1. configuracionAdmin.html: carga y tiene «Análisis de datos» una vez -> 200, 1
+PASS 4. el dashboard de Python, abierto por su cuenta, no cambia (tema claro) -> rgb(255, 255, 255)
+PASS 6. escritorio (1440 px): sin desplazamiento horizontal y el dashboard ocupa el ancho disponible -> [1425, 1440, 1083, 720]
+PASS 6. escritorio: las cifras se ven dentro del panel
+PASS 6. tablet (820 px): sin desplazamiento horizontal y el dashboard ocupa el ancho disponible -> [805, 820, 731, 944]
+PASS 6. tablet: las cifras se ven dentro del panel
+PASS 6. movil (390 px): sin desplazamiento horizontal y el dashboard ocupa el ancho disponible -> [390, 390, 317, 675]
+PASS 6. movil: las cifras se ven dentro del panel
+=== pagina Analisis de datos (con): 43 PASS, 0 FAIL
