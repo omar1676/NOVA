@@ -1,6 +1,7 @@
 """
 Pruebas de los dos DataFrames principales, las variables derivadas, los
-importes por criterio y la conciliacion con SQL (analiticas.py y conciliacion.py).
+importes por criterio, la conciliacion con SQL y el caso N (analiticas.py y conciliacion.py), y el
+caso A: un pedido Custom de 40 pares linea a linea.
 
 Datos de partida (los CSV validos de test_pipeline.py):
   pedido 10  P-1  cliente 1  2026-10-01 10:00 (jueves)  normal  confirmado  lineas 100 y 101: 3 pares, 239.97 €
@@ -12,6 +13,7 @@ import pandas as pd
 import analiticas
 import calidad
 import conciliacion
+import kpis
 import pipeline
 from test_calidad import PruebaCalidad
 
@@ -228,6 +230,7 @@ class PruebasConciliacion(PruebaAnalisis):
         self.assertIsNone(conciliacion.conciliar(carpeta_sql, pedidos, lineas))
         self.assertEqual(conciliacion.faltan_resultados(carpeta_sql), ["P-A.csv", "P-B.csv", "P-C.csv"])
 
+
 # Resultados SQL del caso N (N-1 a N-3 de 12_consultas_panel.sql) que corresponden a los CSV validos
 SQL_CASO_N = {
     "N-1.csv": "anio_mes,pedidos,pares,importe\n2026-10,1,3,239.97\n",
@@ -281,3 +284,48 @@ class PruebasCasoN(PruebaAnalisis):
         self.assertIsNone(conciliacion.contrastar_caso_n(carpeta_sql, self.tablas()))
         self.assertEqual(conciliacion.faltan_resultados(carpeta_sql, conciliacion.CONSULTAS_CASO_N),
                          ["N-1.csv", "N-2.csv", "N-3.csv"])
+
+
+class PruebasCasoA(PruebaAnalisis):
+    """Caso A: un pedido Custom de 40 pares en varias tallas, linea a linea y en los KPIs."""
+
+    LINEAS = {"103": ("M1-40", 40, 10), "104": ("M1-41", 41, 10), "105": ("M1-42", 42, 12), "106": ("M1-43", 43, 8)}
+
+    def test_pedido_custom_de_40_pares_linea_a_linea(self):
+        sin_el = kpis.calcular_kpis(*self.tablas_para_kpis())
+        self.anadir("stock.csv", "M1-42,1,Blanco,42,true,30,2026-11-09 19:00:00\n"
+                                 "M1-43,1,Blanco,43,true,30,2026-11-09 19:00:00\n")
+        self.anadir("pedidos.csv", "12,C-40,2,2026-11-03 09:00:00,custom,confirmado,pendiente,Logo del club,40,3199.60\n")
+        self.anadir("lineas_pedido.csv", "".join(f"{linea},12,{sku},1,{talla},{pares},79.99,{pares * 79.99:.2f}\n"
+                                                 for linea, (sku, talla, pares) in self.LINEAS.items()))
+        resultado = calidad.evaluar(self.carpeta)
+        self.assertEqual(len(resultado["incidencias"]), 0)
+        tablas = analiticas.calcular_tablas(resultado["datos"], resultado["validos"])
+        # Linea a linea: cada linea del CSV es una fila, con su talla, sus pares y su importe
+        suyas = tablas["lineas_enriquecidas"].set_index("id_linea").loc[list(self.LINEAS)]
+        for linea, (sku, talla, pares) in self.LINEAS.items():
+            self.assertEqual((suyas.loc[linea, "sku"], suyas.loc[linea, "talla"], suyas.loc[linea, "cantidad"]),
+                             (sku, talla, pares))
+            self.assertAlmostEqual(suyas.loc[linea, "importe_linea"], round(pares * 79.99, 2))
+        # Un solo pedido de 40 pares y 4 tallas
+        pedido = tablas["pedidos_unicos"].set_index("referencia").loc["C-40"]
+        self.assertEqual((pedido["num_lineas"], pedido["num_tallas"], pedido["pares"]), (4, 4, 40))
+        self.assertEqual(pedido["importe"], 3199.60)
+        # La matriz modelo x talla suma cada linea en su talla
+        matriz = tablas["matriz_modelo_talla"].loc["Modelo Uno"]
+        self.assertEqual([matriz[talla] for talla in [40, 41, 42, 43]], [11, 12, 12, 8])   # P-1 ya tenia 1 y 2
+        # Los KPIs suben exactamente un pedido, 40 pares y su importe
+        con_el = kpis.calcular_kpis(tablas["pedidos_unicos"], tablas["modelos_abc"], tablas["ventas_por_talla"],
+                                    tablas["stock_variantes"], tablas["ventas_por_periodo"])
+        antes = dict(zip(sin_el["codigo"], sin_el["valor"]))
+        despues = dict(zip(con_el["codigo"], con_el["valor"]))
+        self.assertEqual(despues["K01"] - antes["K01"], 1)
+        self.assertEqual(despues["K04"] - antes["K04"], 40)
+        self.assertEqual(despues["K05"] - antes["K05"], 40)
+        self.assertAlmostEqual(despues["K07"] - antes["K07"], 3199.60, places=2)
+
+    def tablas_para_kpis(self):
+        resultado = calidad.evaluar(self.carpeta)
+        tablas = analiticas.calcular_tablas(resultado["datos"], resultado["validos"])
+        return (tablas["pedidos_unicos"], tablas["modelos_abc"], tablas["ventas_por_talla"], tablas["stock_variantes"],
+                tablas["ventas_por_periodo"])
