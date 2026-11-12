@@ -256,6 +256,8 @@ completo) todo sale como NO CALCULABLE. Detalle en `segmentacion_y_prediccion.md
 
 Seis pestañas: Dirección, Productos, Clientes, Inventario, Calidad y Predicción.
 
+**También dentro del panel de administración.** La página «Análisis de datos» del panel de Álvaro (`01_Interfaces/admin/analisisAdmin.html`) carga este mismo dashboard en un marco, sin su barra de Streamlit y con la variante oscura del tema (`[theme.dark]` en `.streamlit/config.toml`, con los colores del panel). Dentro del panel funcionan igual los filtros, las descargas y el refresco de 60 s. Solo entra el administrador del panel. Abierto por su cuenta, el dashboard sigue con el tema claro de siempre. Para verlo en el panel hacen falta los dos servidores: `npm start` (en `servidor-admin`) y `streamlit run app_dashboard.py` (aquí).
+
 - **Origen siempre visible.** Puede ser la exportación de ACC (ahora PRUEBA), los
   sintéticos limpios o los sintéticos con errores, y nunca se mezclan.
 - **Refresco real cada 60 s.** Con `st.fragment(run_every="60s")`, cada minuto

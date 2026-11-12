@@ -148,6 +148,15 @@ Así funcionan el escaparate, el catálogo, la ficha, el probador, Custom y Cont
 3. Copiar `.env.example` como `.env` y escribir las contraseñas de `web_nova` y, para la tienda, de `tienda_nova`. El `.env` no se sube a Git.
 4. `npm start` y abrir `http://127.0.0.1:3000/login.html`, la página de acceso única del personal: `admin.demo` (administrador) pasa al panel, `taller.demo` (trabajador) al portal del trabajador, y `tienda.demo` (comercial) recibe «sin permiso», porque trabaja con la aplicación Java. La tienda está en `http://127.0.0.1:3000/tienda/`.
 
+5. Para la página **«Análisis de datos»** del panel (el dashboard de Python dentro del panel de administración), arrancar también Streamlit, en otra consola:
+
+   ```
+   cd 04_Python
+   .venv\Scripts\streamlit.exe run app_dashboard.py
+   ```
+
+   El panel lo muestra dentro de su propia página, con los colores del panel, en `http://127.0.0.1:3000/analisisAdmin.html` (solo para el administrador). Si Streamlit no está arrancado, la página explica cómo arrancarlo. Streamlit solo escucha en este ordenador (`04_Python/.streamlit/config.toml`, `address = "localhost"`). No tiene login propio: desde otro equipo no se puede abrir, pero en este ordenador `http://localhost:8501` se abre sin pasar por el panel.
+
 El conector de Odoo de Berme (`servidor-admin/odoo.js`) está **desactivado** mientras falten `ODOO_URL`, `ODOO_DB` y `ODOO_API_KEY`, y las rutas de `servidor-admin/pedidos.js` (crear pedidos y enviarlos a Odoo) **no se montan**. Más detalle en `servidor-admin/README.md`.
 
 ## Pruebas
