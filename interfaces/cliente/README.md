@@ -4,10 +4,12 @@ Abre `index.html` en un navegador moderno. No hace falta instalar librerías ni 
 
 ## Dónde está cada cosa
 
-- `index.html`: el contenido de la página: cabecera, estantería, catálogo y ficha.
+- `index.html`: el contenido de la página: cabecera, estantería, catálogo, ficha, servicio Custom y contacto.
 - `css/inicio.css`: colores, tamaños, distribución y diseño para móviles.
-- `js/modelos.js`: lista de zapatillas, con su nombre, colección y rutas de imágenes.
+- `js/modelos.js`: lista de zapatillas, con su nombre, colección y rutas de imágenes, y `datosColeccion`, con el precio orientativo, las tallas y la descripción de cada colección.
 - `js/inicio.js`: muestra las zapatillas y controla los filtros, las búsquedas y la ficha.
+- `js/custom.js`: suma los pares por talla del formulario Custom y simula el envío.
+- `images/favicon.png`: favicon de 64×64. Es la estrella del logo, recortada de `logo-nova.png`.
 - `images/nova/street/`: imágenes de la colección Street.
 - `images/nova/luxe/`: imágenes de la colección Luxe.
 - `images/nova/casual/`, `hombre/`, `mujer/` y `unisex/`: imágenes transparentes del ZIP de 80 modelos.
@@ -20,9 +22,15 @@ Para añadir una zapatilla, copia un objeto de `modelos.js`, cambia su nombre y 
 
 Los nombres y las imágenes son una presentación visual; todavía no están vinculados a los productos de la base de datos.
 
+El precio, las tallas y la descripción son comunes a todos los modelos de una colección y se cambian solo en `datosColeccion`. Son **provisionales**: el equipo tiene que acordarlos para que coincidan con Odoo y PostgreSQL.
+
+## Formulario Custom
+
+Pide club o equipo, persona de contacto, email, modelo, personalización y pares de cada talla, de la 38 a la 46; el teléfono y los colores son opcionales. El navegador comprueba los campos obligatorios, el formato del email y que las cantidades sean números enteros no negativos; `custom.js` suma el total y exige al menos un par. No hay servidor: el envío es una **simulación**, no se envía ningún dato y no se registra ningún pedido. SO024 aparece solo como ejemplo de pedido.
+
 ## Pendiente de integración
 
-No hay `contrato-pedido.md` en esta rama ni una API o exportación de Odoo disponible. Antes de habilitar la compra hay que acordar identificadores de producto, variante y SKU, tallas, stock disponible, precios y moneda, datos de cliente y dirección, impuestos, referencia asignada por Odoo y estados. El servidor deberá volver a validar precio y stock al confirmar. No se generan referencias SO ni se simula la recepción de un pedido.
+No hay `contrato-pedido.md` en esta rama ni una API o exportación de Odoo disponible. Antes de habilitar la compra hay que acordar identificadores de producto, variante y SKU, tallas, stock disponible, precios y moneda, datos de cliente y dirección, impuestos, referencia asignada por Odoo y estados. El servidor deberá volver a validar precio y stock al confirmar. La web no genera referencias SO ni registra pedidos: el formulario Custom solo simula el envío de la solicitud.
 
 El SQL identifica la talla con `producto_sku` y la personalización como texto a nivel del pedido. El caso CUSTOM-40 contiene varias líneas de tallas y una misma descripción de personalización. Debe acordarse cómo representar varias personalizaciones distintas en una compra sin perder información. PSP actualmente consume el CSV de fabricación de PostgreSQL, no una exportación de Odoo. La confirmación SQL descuenta stock y la cancelación lo devuelve; crear una línea no reserva stock.
 
