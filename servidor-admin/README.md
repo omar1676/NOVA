@@ -52,6 +52,16 @@ Si `.env` dice `PGUSER=postgres`, el servidor se niega a arrancar.
    psql -U postgres -d nova_sneakers -f acceso-datos/sql/22_reparto_panel.sql
    ```
 
+**Para el recibo por correo** (opcional):
+
+10. Escribir en `.env` la clave de [Resend](https://resend.com) y el remitente, y volver a arrancar:
+    ```
+    RESEND_API_KEY=re_...
+    RESEND_FROM=NOVA Sneakers <onboarding@resend.dev>
+    ```
+    Mientras no haya un dominio verificado en Resend, solo llegan los correos dirigidos al correo de la propia cuenta de Resend: hay que registrarse en la tienda con ese correo para recibir el recibo. Sin estas variables, la compra funciona igual y la consola dice que el recibo no se ha enviado.
+11. **Solo para desarrollo**, para probar el recibo sin enviar correos reales: `CORREO_PROVEEDOR=ethereal` en `.env` (no necesita claves). En el primer envío, Nodemailer crea una cuenta temporal de [Ethereal](https://ethereal.email): el correo no llega a nadie, la consola escribe `Vista previa del recibo WEB-…: <url>` y en «Mis pedidos», al ver el detalle del pedido, sale el enlace «Ver recibo de prueba (Ethereal)». Con `NODE_ENV=production` se niega y no se envía nada. Sin `CORREO_PROVEEDOR` (o con `resend`) todo sigue como en el paso 10.
+
 ## Archivos
 
 | Archivo | Qué hace |
@@ -61,6 +71,7 @@ Si `.env` dice `PGUSER=postgres`, el servidor se niega a arrancar.
 | `consultas.js` | Las 8 consultas SQL del panel. Salen de `12_consultas_panel.sql` y de `PedidoDAO.verAuditoria` (Java) |
 | `tienda.js` | Las rutas de la tienda (`/api/tienda/...`): comprueban los datos y llaman a las funciones del script 20 con el cliente de la sesión |
 | `consultas-tienda.js` | El SQL de la tienda: catálogo, cuenta, historial y las llamadas a las funciones de compra |
+| `correo.js` | El recibo por correo de cada compra pagada: con la API de Resend (`fetch` de Node) o, solo en desarrollo, con Ethereal (Nodemailer) |
 | `sesiones.js` | Las sesiones: un token aleatorio en una cookie HttpOnly, guardado en memoria. Dos almacenes separados: `sesion_nova` (panel) y `sesion_tienda` (clientes) |
 | `intentos.js` | El límite de intentos de login (panel y tienda) |
 | `pruebas/api.test.js` | Pruebas automáticas del panel (`npm test`). Solo leen |
@@ -183,6 +194,15 @@ La web cliente (`interfaces/cliente/`) se sirve en `/tienda/`. Su JavaScript (`j
 
 **El pago es una simulación académica.** No se pide ningún dato bancario y no se cobra nada. El resultado lo elige quien prueba la web; en una tienda real lo mandaría la pasarela de pago al servidor.
 
+**Recibo por correo (`correo.js`):**
+- Cuando el pago aceptado ya está guardado en PostgreSQL, el servidor responde al cliente y **después** manda el recibo con la API de Resend: un `POST` con `Authorization: Bearer <clave>` y el JSON `{from, to, subject, html, text}`.
+- Va al correo **con el que se registró el cliente**, leído de la base, nunca uno que mande el navegador.
+- Lleva la referencia `WEB-…`, cada zapatilla con su color, talla, cantidad, precio y subtotal, el total, la dirección de entrega y el aviso de que es un pago simulado de un proyecto académico y no se ha cobrado nada. En el HTML, los datos que escribe el cliente van escapados.
+- **Nunca hace fallar la compra.** Sin `RESEND_API_KEY` no se envía nada y la consola lo dice en una línea. Si Resend falla o tarda más de 5 s, el pedido sigue confirmado, la respuesta al cliente es la misma y solo se apunta el error. La clave no se escribe nunca en la consola.
+- El pago rechazado o cancelado no manda correo. Si llegan varios pagos del mismo pedido a la vez (doble clic), un bloqueo de PostgreSQL (`pg_advisory_xact_lock`) los pone en fila y solo el que lo confirma manda el recibo.
+- `RESEND_URL` (opcional, por defecto `https://api.resend.com/emails`) sirve para que las pruebas usen un Resend simulado.
+- **Ethereal (solo desarrollo, `CORREO_PROVEEDOR=ethereal`):** el mismo recibo (la misma función `crearRecibo`) se manda por SMTP a una cuenta temporal que crea `nodemailer.createTestAccount()`. Sus credenciales solo están en memoria: no se escriben en la consola ni en ningún archivo. La URL de `nodemailer.getTestMessageUrl(info)` se guarda en memoria con el pedido, sale en la consola y `GET /api/tienda/pedidos/:id` la devuelve como `reciboPrueba` (solo al dueño del pedido y solo en modo Ethereal). Si Ethereal no está (sin red, error o más de 10 s), la compra sigue confirmada y solo se apunta el error. Al reiniciar el servidor se olvidan la cuenta y los enlaces.
+
 **Dobles clics, reintentos y compras a la vez:**
 - **Crear el pedido:** el navegador crea una `clave` aleatoria al abrir el checkout, y de ella sale la referencia `WEB-…`. Si la petición llega dos veces, `crear_compra_web` devuelve el mismo pedido, porque `pedidos_referencia_uq` no deja repetirla.
 - **Pagar:** `confirmar_compra_web` bloquea el pedido (`FOR UPDATE`). El segundo pago ve que ya está pagado y no hace nada.
@@ -248,7 +268,7 @@ npm test
 
 Sin esas variables, las pruebas que las necesitan se saltan y lo avisan.
 
-`npm run test:tienda` hace 23 pruebas de la tienda:
+`npm run test:tienda` hace 39 pruebas de la tienda:
 - catálogo frente a PostgreSQL;
 - registro, login, límite de intentos y logout;
 - clientes y administradores separados;
@@ -257,6 +277,8 @@ Sin esas variables, las pruebas que las necesitan se saltan y lo avisan.
 - falta de stock a mitad del pago;
 - historial privado;
 - que la compra sale en el panel, y que al marcarla en reparto el cliente la ve como `enviado`;
+- el recibo por correo, con un **Resend simulado** en este ordenador (`RESEND_URL` apunta a él y la clave es inventada, aunque el `.env` tenga la de verdad): pago aceptado → un correo al email registrado con la referencia, las líneas y el total; rechazado o cancelado → ninguno; sin clave → ninguno y la compra va bien; Resend responde 500 o no responde → la compra sigue confirmada; doble clic → un solo correo; la clave no sale en la consola;
+- el recibo de prueba con `CORREO_PROVEEDOR=ethereal`, **sin red**: en lugar de la cuenta de Ethereal se usa un transporte de Nodemailer que guarda los mensajes en memoria. Pago aceptado → un recibo al email registrado, igual que el de Resend, y `reciboPrueba` en el detalle; rechazado o cancelado → ninguno; doble clic → uno solo; el transporte falla, lanza un error o no responde → la compra sigue confirmada y el stock baja una vez; con `NODE_ENV=production` → se niega.
 
 **Registran clientes y crean pedidos de verdad**, así que solo se ejecutan si se confirma que la base es desechable:
 
@@ -277,4 +299,5 @@ npm run test:tienda
 - **Pedidos pendientes olvidados:** si alguien cierra el navegador en mitad del pago, su pedido se queda pendiente (sin stock descontado) y cuenta en «Ventas» del dashboard, igual que un pendiente creado desde Java. Si cierra solo la ventana del pedido, la web lo cancela.
 - **La dirección de entrega** se guarda en la ficha del cliente, porque `pedidos` no tiene columna de dirección. Un pedido antiguo enseña la dirección actual.
 - **El registro dice si un correo ya existe**, y no hay verificación por correo.
+- **Nodemailer 7.0.13** (la última 7.x) tiene avisos de `npm audit` que se arreglan en la 10.x. Solo se usa con `CORREO_PROVEEDOR=ethereal`, en desarrollo, para mandar un correo sin adjuntos a un buzón falso que no entrega nada.
 - **En la auditoría** las compras web salen con el usuario «(sin sesión)», porque el cliente no es un usuario de la tabla `usuarios`. El detalle dice para qué cliente es.

@@ -1061,6 +1061,18 @@ async function verDetallePedido(id, boton, detalle) {
         `${linea.cantidad} × ${formatoPrecio(linea.precio)} = ${formatoPrecio(linea.subtotal)}`;
       detalle.append(item);
     }
+    // Solo en desarrollo (CORREO_PROVEEDOR=ethereal): el recibo de prueba
+    if (pedido.reciboPrueba?.startsWith("https://")) {
+      const item = document.createElement("li");
+      const enlace = document.createElement("a");
+      enlace.className = "enlace-boton";
+      enlace.href = pedido.reciboPrueba;
+      enlace.target = "_blank";
+      enlace.rel = "noopener";
+      enlace.textContent = "Ver recibo de prueba (Ethereal)";
+      item.append(enlace);
+      detalle.append(item);
+    }
   } catch (error) {
     const item = document.createElement("li");
     item.textContent = error.message;

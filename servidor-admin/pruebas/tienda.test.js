@@ -11,6 +11,12 @@
 //
 // Cada prueba usa tallas que todavia tienen sus 5 pares, asi que se puede
 // repetir varias veces sobre la misma base antes de tener que montarla otra vez.
+//
+// El recibo por correo NUNCA va a Resend de verdad: las pruebas arrancan un
+// Resend simulado en este ordenador y ponen RESEND_URL apuntando a el, con
+// una clave inventada (aunque el .env tenga la de verdad).
+// Tampoco va a Ethereal: las pruebas de CORREO_PROVEEDOR=ethereal usan un
+// transporte de Nodemailer que guarda los mensajes en memoria (sin red).
 
 const BLOQUEO_PRUEBA_MS = 1500; // el bloqueo por intentos dura 1,5 s en las pruebas
 process.env.BLOQUEO_LOGIN_MS = String(BLOQUEO_PRUEBA_MS);
@@ -20,8 +26,10 @@ const assert = require('node:assert');
 const crypto = require('node:crypto');
 const http = require('node:http');
 const { once } = require('node:events');
+const nodemailer = require('nodemailer');
 const app = require('../servidor');
 const bd = require('../bd');
+const correo = require('../correo');
 
 const saltar = process.env.PRUEBA_TIENDA_BASE_DESECHABLE !== 'si'
   && 'crean clientes y pedidos: solo con una base desechable (PRUEBA_TIENDA_BASE_DESECHABLE=si)';
@@ -36,14 +44,59 @@ const DIRECCION = 'Calle de Prueba 1, Madrid';
 let servidor;
 let base;
 
+// ---------------------------------------------------------------------
+// Resend simulado: guarda cada correo que le llega y responde segun
+// modoResend: 'bien' (200), 'error' (500) o 'cuelga' (no responde nunca).
+// ---------------------------------------------------------------------
+const CLAVE_RESEND = 're_prueba_' + crypto.randomBytes(8).toString('hex'); // inventada
+const REMITENTE = 'NOVA Sneakers <onboarding@resend.dev>';
+const correos = []; // [{ cabeceras, datos: { from, to, subject, html, text } }]
+let modoResend = 'bien';
+const resendSimulado = http.createServer((req, res) => {
+  let cuerpo = '';
+  req.on('data', (trozo) => { cuerpo += trozo; });
+  req.on('end', () => {
+    let datos;
+    try { datos = JSON.parse(cuerpo); } catch { datos = { cuerpo }; }
+    correos.push({ metodo: req.method, ruta: req.url, cabeceras: req.headers, datos });
+    if (modoResend === 'cuelga') return; // no contesta: el servidor tiene que cortar a los 5 s
+    if (modoResend === 'error') {
+      // Un error que, ademas, repite la cabecera con la clave: el servidor no debe escribirla
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ message: 'error simulado', eco: req.headers.authorization }));
+    }
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(`{"id":"simulado-${correos.length}"}`);
+  });
+});
+
+// Lo que el servidor escribe en la consola (para ver los avisos del correo
+// y comprobar que la clave no sale nunca)
+const consola = [];
+for (const nivel of ['log', 'error']) {
+  const original = console[nivel];
+  console[nivel] = (...partes) => {
+    consola.push(partes.join(' '));
+    original(...partes);
+  };
+}
+
 test.before(async () => {
   servidor = app.listen(0, '127.0.0.1');
   await once(servidor, 'listening');
   base = `http://127.0.0.1:${servidor.address().port}`;
+  resendSimulado.listen(0, '127.0.0.1');
+  await once(resendSimulado, 'listening');
+  process.env.RESEND_URL = `http://127.0.0.1:${resendSimulado.address().port}/emails`;
+  process.env.RESEND_API_KEY = CLAVE_RESEND;
+  process.env.RESEND_FROM = REMITENTE;
+  delete process.env.CORREO_PROVEEDOR; // Resend, el de siempre, aunque el .env diga otra cosa
 });
 
 test.after(async () => {
   servidor.close();
+  resendSimulado.closeAllConnections();
+  resendSimulado.close();
   await bd.pool.end();
   if (bd.poolTienda) await bd.poolTienda.end();
 });
@@ -612,4 +665,423 @@ test('tienda_nova (rol tienda_web) no puede marcar pedidos en reparto ni pasar a
     bd.operarEnTienda((c) => c.query('SELECT public.marcar_pedido_en_reparto(1, 1)')), { code: '42501' });
   await assert.rejects(
     bd.operarEnTienda((c) => c.query('SET LOCAL ROLE panel_reparto')), { code: '42501' });
+});
+
+// ---------------------------------------------------------------------
+// Recibo por correo (con el Resend simulado de arriba)
+// ---------------------------------------------------------------------
+const espera = (ms) => new Promise((resolver) => setTimeout(resolver, ms));
+const euros = (valor) => Number(valor).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+
+// Los correos que ha recibido el Resend simulado para ese email. Espera un
+// poco, porque el servidor responde al cliente y DESPUES manda el correo.
+async function correosPara(email, cuantos = 1, ms = 3000) {
+  const limite = Date.now() + ms;
+  while (correos.filter((c) => c.datos.to === email).length < cuantos && Date.now() < limite) {
+    await espera(50);
+  }
+  return correos.filter((c) => c.datos.to === email);
+}
+
+// La primera linea de la consola que contiene ese texto (esperando como mucho ms)
+async function lineaEnConsola(texto, ms = 3000) {
+  const limite = Date.now() + ms;
+  while (!consola.some((linea) => linea.includes(texto)) && Date.now() < limite) {
+    await espera(50);
+  }
+  return consola.find((linea) => linea.includes(texto));
+}
+
+async function comprarYPagar(cliente, lineas, extra) {
+  const pedido = (await crearPedido(cliente, lineas, extra)).datos;
+  const pago = await cliente.pedir('POST', `/api/tienda/pedidos/${pedido.id}/pago`, { resultado: 'aceptado' });
+  return { pedido, pago };
+}
+
+test('recibo: pago aceptado -> un correo al email registrado, con la referencia, las lineas y el total', { skip: saltar }, async () => {
+  // Nombre y direccion con HTML: en el correo tienen que verse como texto
+  const nav = navegador();
+  const email = `recibo.${Date.now()}@example.com`;
+  const registro = await nav.pedir('POST', '/api/tienda/registro', {
+    nombre: 'Ana <b>Recibo</b> & Cía', email: email.toUpperCase(), contrasena: CONTRASENA
+  });
+  assert.equal(registro.codigo, 201);
+  const direccion = '<script>alert(1)</script> Calle del Recibo 7, Madrid';
+  const t1 = await tallaLibre();
+  const t2 = await tallaLibre();
+  const { pedido, pago } = await comprarYPagar(nav, [{ sku: t1.sku, cantidad: 2 }, { sku: t2.sku, cantidad: 1 }], { direccion });
+  assert.equal(pago.codigo, 200);
+  assert.equal(pago.datos.estado, 'confirmado');
+
+  const recibidos = await correosPara(email);
+  assert.equal(recibidos.length, 1);
+  const { metodo, ruta, cabeceras, datos } = recibidos[0];
+  assert.equal(metodo, 'POST');
+  assert.equal(ruta, '/emails');
+  assert.equal(cabeceras.authorization, `Bearer ${CLAVE_RESEND}`);
+  assert.match(cabeceras['content-type'], /^application\/json/);
+  assert.deepEqual(Object.keys(datos).sort(), ['from', 'html', 'subject', 'text', 'to']);
+  assert.equal(datos.from, REMITENTE);
+  assert.equal(datos.to, email); // el de la base (en minusculas), no el que se tecleo
+  assert.equal(datos.subject, `Recibo de tu pedido ${pedido.referencia} · NOVA Sneakers`);
+
+  // Lo mismo en el HTML y en el texto: referencia, cada linea, total y el aviso
+  for (const linea of pago.datos.lineas) {
+    assert.ok(datos.text.includes(`- ${linea.modelo} · ${linea.color} · talla ${linea.talla} · `
+      + `${linea.cantidad} × ${euros(linea.precio)} = ${euros(linea.subtotal)}`), linea.modelo);
+    for (const valor of [linea.modelo, linea.color, linea.talla, linea.cantidad, euros(linea.precio), euros(linea.subtotal)]) {
+      assert.ok(datos.html.includes(`>${valor}</td>`), `${valor} en el HTML`);
+    }
+  }
+  for (const contenido of [datos.html, datos.text]) {
+    assert.ok(contenido.includes(pedido.referencia));
+    assert.ok(contenido.includes(euros(pago.datos.total)));
+    assert.ok(contenido.includes('Pago simulado: NOVA Sneakers es un proyecto académico y no se ha cobrado nada.'));
+  }
+  assert.ok(datos.text.includes(`Total: ${euros(pago.datos.total)}`));
+  assert.ok(datos.text.includes(`Dirección de entrega: ${direccion}`));
+  // Escapado en el HTML
+  assert.ok(datos.html.includes('&lt;script&gt;alert(1)&lt;/script&gt; Calle del Recibo 7, Madrid'));
+  assert.ok(datos.html.includes('Hola, Ana &lt;b&gt;Recibo&lt;/b&gt; &amp; Cía:'));
+  assert.ok(!datos.html.includes('<script>') && !datos.html.includes('<b>Recibo</b>'));
+  assert.ok(await lineaEnConsola(`Recibo de ${pedido.referencia} enviado`));
+});
+
+test('recibo: pago rechazado o pedido cancelado -> ningun correo', { skip: saltar }, async () => {
+  const cliente = await clienteNuevo();
+  const talla = await tallaLibre();
+  const rechazado = (await crearPedido(cliente, [{ sku: talla.sku, cantidad: 1 }])).datos;
+  const r = await cliente.pedir('POST', `/api/tienda/pedidos/${rechazado.id}/pago`, { resultado: 'rechazado' });
+  assert.equal(r.datos.estado, 'cancelado');
+  // Ya cancelado, un pago aceptado da 409 y tampoco manda nada
+  assert.equal((await cliente.pedir('POST', `/api/tienda/pedidos/${rechazado.id}/pago`, { resultado: 'aceptado' })).codigo, 409);
+  const cancelado = (await crearPedido(cliente, [{ sku: talla.sku, cantidad: 1 }])).datos;
+  assert.equal((await cliente.pedir('POST', `/api/tienda/pedidos/${cancelado.id}/cancelacion`)).datos.estado, 'cancelado');
+  await espera(800);
+  assert.equal((await correosPara(cliente.email, 1, 0)).length, 0);
+  assert.equal(await stockDe(talla.sku), 5);
+});
+
+test('recibo: sin RESEND_API_KEY no se envia nada, se avisa con una linea y la compra va bien', { skip: saltar }, async () => {
+  delete process.env.RESEND_API_KEY;
+  try {
+    const cliente = await clienteNuevo();
+    const talla = await tallaLibre();
+    const { pedido, pago } = await comprarYPagar(cliente, [{ sku: talla.sku, cantidad: 1 }]);
+    assert.equal(pago.codigo, 200);
+    assert.equal(pago.datos.estado, 'confirmado');
+    assert.equal(await stockDe(talla.sku), 4);
+    assert.ok(await lineaEnConsola(`Recibo de ${pedido.referencia} sin enviar: falta RESEND_API_KEY o RESEND_FROM`));
+    await espera(300);
+    assert.equal((await correosPara(cliente.email, 1, 0)).length, 0);
+  } finally {
+    process.env.RESEND_API_KEY = CLAVE_RESEND;
+  }
+});
+
+test('recibo: si Resend responde 500, la compra sigue confirmada y solo se apunta el error (sin la clave)', { skip: saltar }, async () => {
+  modoResend = 'error';
+  try {
+    const cliente = await clienteNuevo();
+    const talla = await tallaLibre();
+    const { pedido, pago } = await comprarYPagar(cliente, [{ sku: talla.sku, cantidad: 1 }]);
+    assert.equal(pago.codigo, 200);
+    assert.equal(pago.datos.estado, 'confirmado');
+    assert.equal((await correosPara(cliente.email)).length, 1); // lo ha intentado
+    const linea = await lineaEnConsola(`Recibo de ${pedido.referencia} sin enviar: Resend ha respondido 500`);
+    assert.ok(linea);
+    assert.ok(!linea.includes(CLAVE_RESEND)); // Resend la ha repetido, pero en la consola sale tapada
+    const [enLaBase] = await leer('SELECT estado FROM public.pedidos WHERE id_pedido = $1', [pedido.id]);
+    assert.equal(enLaBase.estado, 'confirmado');
+    assert.equal((await cliente.pedir('GET', `/api/tienda/pedidos/${pedido.id}`)).datos.estadoPago, 'pagado');
+    assert.equal(await stockDe(talla.sku), 4);
+  } finally {
+    modoResend = 'bien';
+  }
+});
+
+test('recibo: si Resend no responde, se corta a los 5 s y la compra sigue confirmada (el cliente no espera)', { skip: saltar }, async () => {
+  modoResend = 'cuelga';
+  try {
+    const cliente = await clienteNuevo();
+    const talla = await tallaLibre();
+    const inicio = Date.now();
+    const { pedido, pago } = await comprarYPagar(cliente, [{ sku: talla.sku, cantidad: 1 }]);
+    assert.equal(pago.codigo, 200);
+    assert.equal(pago.datos.estado, 'confirmado');
+    assert.ok(Date.now() - inicio < 4000, 'la respuesta no espera a Resend');
+    assert.equal((await correosPara(cliente.email)).length, 1);
+    const linea = await lineaEnConsola(`Recibo de ${pedido.referencia} sin enviar: Resend no ha respondido en 5 s`, 9000);
+    assert.ok(linea, 'el error se apunta en la consola');
+    assert.ok(Date.now() - inicio >= 4500, 'se corta a los 5 s, no antes');
+    const [enLaBase] = await leer('SELECT estado FROM public.pedidos WHERE id_pedido = $1', [pedido.id]);
+    assert.equal(enLaBase.estado, 'confirmado');
+    assert.equal((await cliente.pedir('GET', `/api/tienda/pedidos/${pedido.id}`)).datos.estadoPago, 'pagado');
+  } finally {
+    modoResend = 'bien';
+  }
+});
+
+test('recibo: varios pagos a la vez del mismo pedido (doble clic) mandan un solo correo', { skip: saltar }, async () => {
+  const cliente = await clienteNuevo();
+  const talla = await tallaLibre();
+  const pedido = (await crearPedido(cliente, [{ sku: talla.sku, cantidad: 1 }])).datos;
+  const pagos = await Promise.all([1, 2, 3].map(() =>
+    cliente.pedir('POST', `/api/tienda/pedidos/${pedido.id}/pago`, { resultado: 'aceptado' })));
+  assert.deepEqual(pagos.map((p) => p.codigo), [200, 200, 200]);
+  // Y un reintento mas tarde tampoco manda otro
+  assert.equal((await cliente.pedir('POST', `/api/tienda/pedidos/${pedido.id}/pago`, { resultado: 'aceptado' })).codigo, 200);
+  await espera(800);
+  assert.equal((await correosPara(cliente.email, 2, 0)).length, 1);
+  assert.equal(await stockDe(talla.sku), 4);
+});
+
+test('recibo: la clave de Resend no sale nunca en la consola', { skip: saltar }, () => {
+  assert.ok(consola.some((linea) => linea.includes('Recibo de WEB-'))); // ha habido avisos
+  assert.ok(!consola.some((linea) => linea.includes(CLAVE_RESEND)));
+});
+
+// ---------------------------------------------------------------------
+// Recibo de prueba con Ethereal (CORREO_PROVEEDOR=ethereal), SIN RED.
+// En lugar de la cuenta de Ethereal, correo.js usa este transporte de
+// Nodemailer: Nodemailer monta el mensaje de verdad, el transporte lo guarda
+// en memoria y responde como Ethereal ("250 Accepted [STATUS=new MSGID=...]").
+// modoEthereal: 'bien', 'error' (falla) o 'cuelga' (no responde nunca).
+// ---------------------------------------------------------------------
+const mensajesEthereal = []; // [{ id, datos: { from, to, subject, html, text }, sobre, crudo }]
+let modoEthereal = 'bien';
+const etherealSimulado = nodemailer.createTransport({
+  name: 'ethereal-simulado',
+  version: '1.0.0',
+  send(mensaje, terminar) {
+    if (modoEthereal === 'cuelga') return; // no llama nunca a terminar
+    if (modoEthereal === 'error') return terminar(new Error('fallo simulado de Ethereal'));
+    const trozos = [];
+    const flujo = mensaje.message.createReadStream(); // el correo tal cual se mandaria por SMTP
+    flujo.on('data', (trozo) => trozos.push(trozo));
+    flujo.on('error', terminar);
+    flujo.on('end', () => {
+      const id = `simulado${mensajesEthereal.length + 1}`;
+      const sobre = mensaje.message.getEnvelope();
+      mensajesEthereal.push({ id, datos: mensaje.data, sobre, crudo: Buffer.concat(trozos).toString() });
+      terminar(null, { envelope: sobre, messageId: mensaje.message.messageId(), response: `250 Accepted [STATUS=new MSGID=${id}]` });
+    });
+  }
+});
+correo.usarTransporteDePrueba(etherealSimulado); // asi ninguna prueba sale a la red
+
+// Pone CORREO_PROVEEDOR=ethereal (y lo que se pida) durante el trabajo y
+// despues deja todo como estaba
+async function conEthereal(trabajo, otras = {}) {
+  const variables = { CORREO_PROVEEDOR: 'ethereal', ...otras };
+  const antes = {};
+  for (const [nombre, valor] of Object.entries(variables)) {
+    antes[nombre] = process.env[nombre];
+    process.env[nombre] = valor;
+  }
+  try {
+    await trabajo();
+  } finally {
+    for (const [nombre, valor] of Object.entries(antes)) {
+      if (valor === undefined) delete process.env[nombre];
+      else process.env[nombre] = valor;
+    }
+    modoEthereal = 'bien';
+    correo.usarTransporteDePrueba(etherealSimulado);
+  }
+}
+
+async function mensajesPara(email, cuantos = 1, ms = 3000) {
+  const limite = Date.now() + ms;
+  while (mensajesEthereal.filter((m) => m.datos.to === email).length < cuantos && Date.now() < limite) {
+    await espera(50);
+  }
+  return mensajesEthereal.filter((m) => m.datos.to === email);
+}
+
+const detallePedido = async (cliente, id) => (await cliente.pedir('GET', `/api/tienda/pedidos/${id}`)).datos;
+
+test('CORREO_PROVEEDOR: sin indicar o "resend" -> Resend como siempre; "ethereal" solo fuera de produccion', async () => {
+  const antes = { CORREO_PROVEEDOR: process.env.CORREO_PROVEEDOR, NODE_ENV: process.env.NODE_ENV };
+  try {
+    delete process.env.NODE_ENV;
+    delete process.env.CORREO_PROVEEDOR;
+    assert.equal(correo.resumen(), 'Recibos por correo activados (Resend)');
+    process.env.CORREO_PROVEEDOR = ''; // vacio, como en .env.example
+    assert.equal(correo.resumen(), 'Recibos por correo activados (Resend)');
+    process.env.CORREO_PROVEEDOR = ' Resend ';
+    assert.equal(correo.resumen(), 'Recibos por correo activados (Resend)');
+    process.env.CORREO_PROVEEDOR = 'ethereal';
+    assert.match(correo.resumen(), /PRUEBA con Ethereal \(solo desarrollo\)/);
+    process.env.NODE_ENV = 'production';
+    assert.equal(correo.resumen(), 'CORREO_PROVEEDOR=ethereal no se admite con NODE_ENV=production: no se envian recibos');
+    process.env.CORREO_PROVEEDOR = 'gmail';
+    assert.match(correo.resumen(), /no es valido/);
+  } finally {
+    for (const [nombre, valor] of Object.entries(antes)) {
+      if (valor === undefined) delete process.env[nombre];
+      else process.env[nombre] = valor;
+    }
+  }
+});
+
+test('ethereal: pago aceptado -> un recibo al email registrado, el mismo que con Resend, y su enlace en el detalle', { skip: saltar }, async () => {
+  let cliente;
+  let pedido;
+  await conEthereal(async () => {
+    cliente = await clienteNuevo();
+    const datosCliente = (await cliente.pedir('GET', '/api/tienda/sesion')).datos.cliente;
+    const t1 = await tallaLibre();
+    const t2 = await tallaLibre();
+    const compra = await comprarYPagar(cliente, [{ sku: t1.sku, cantidad: 2 }, { sku: t2.sku, cantidad: 1 }]);
+    pedido = compra.pedido;
+    const pago = compra.pago;
+    assert.equal(pago.codigo, 200);
+    assert.equal(pago.datos.estado, 'confirmado');
+
+    const recibidos = await mensajesPara(cliente.email);
+    assert.equal(recibidos.length, 1);
+    const { id, datos, sobre, crudo } = recibidos[0];
+    assert.equal(datos.to, cliente.email); // el de la base
+    assert.deepEqual(sobre.to, [cliente.email]);
+    assert.equal(datos.from, 'NOVA Sneakers <recibos@example.com>');
+    // El mismo asunto, HTML y texto que manda Resend (sale de la misma funcion)
+    const esperado = correo.crearRecibo(datosCliente, pago.datos);
+    assert.equal(datos.subject, esperado.asunto);
+    assert.equal(datos.html, esperado.html);
+    assert.equal(datos.text, esperado.texto);
+    // Referencia, cada linea (modelo, color, talla, cantidad y precio) y el total
+    assert.equal(pago.datos.lineas.length, 2);
+    for (const linea of pago.datos.lineas) {
+      assert.ok(datos.text.includes(`- ${linea.modelo} · ${linea.color} · talla ${linea.talla} · `
+        + `${linea.cantidad} × ${euros(linea.precio)} = ${euros(linea.subtotal)}`), linea.modelo);
+      for (const valor of [linea.modelo, linea.color, linea.talla, linea.cantidad, euros(linea.precio), euros(linea.subtotal)]) {
+        assert.ok(datos.html.includes(`>${valor}</td>`), `${valor} en el HTML`);
+      }
+    }
+    assert.ok(datos.text.includes(`Total: ${euros(pago.datos.total)}`));
+    assert.ok(datos.html.includes(pedido.referencia) && datos.html.includes(euros(pago.datos.total)));
+    // Nodemailer lo ha montado con su texto y su HTML, para ese destinatario
+    assert.match(crudo, new RegExp(`^To: ${cliente.email.replaceAll('.', '\\.')}\\r?$`, 'm'));
+    assert.match(crudo, /multipart\/alternative/);
+    assert.match(crudo, /Content-Type: text\/plain/);
+    assert.match(crudo, /Content-Type: text\/html/);
+
+    // La vista previa: en la consola y en el detalle del pedido
+    const url = `https://ethereal.email/message/${id}`;
+    assert.ok(await lineaEnConsola(`Vista previa del recibo ${pedido.referencia}: ${url}`));
+    assert.equal((await detallePedido(cliente, pedido.id)).reciboPrueba, url);
+    // Ni en la lista de pedidos, ni para otro cliente
+    const lista = (await cliente.pedir('GET', '/api/tienda/pedidos')).datos.pedidos;
+    assert.ok(lista.every((p) => !('reciboPrueba' in p)));
+    const otro = await clienteNuevo();
+    assert.equal((await otro.pedir('GET', `/api/tienda/pedidos/${pedido.id}`)).codigo, 404);
+    // Y nada a Resend
+    assert.equal((await correosPara(cliente.email, 1, 0)).length, 0);
+    assert.equal(await stockDe(t1.sku), 3);
+    assert.equal(await stockDe(t2.sku), 4);
+  });
+  // Fuera del modo ethereal, el detalle ya no lleva el enlace
+  assert.ok(!('reciboPrueba' in await detallePedido(cliente, pedido.id)));
+});
+
+test('ethereal: pago rechazado o pedido cancelado -> ningun recibo', { skip: saltar }, async () => {
+  await conEthereal(async () => {
+    const cliente = await clienteNuevo();
+    const talla = await tallaLibre();
+    const rechazado = (await crearPedido(cliente, [{ sku: talla.sku, cantidad: 1 }])).datos;
+    const r = await cliente.pedir('POST', `/api/tienda/pedidos/${rechazado.id}/pago`, { resultado: 'rechazado' });
+    assert.equal(r.datos.estado, 'cancelado');
+    assert.equal((await cliente.pedir('POST', `/api/tienda/pedidos/${rechazado.id}/pago`, { resultado: 'aceptado' })).codigo, 409);
+    const cancelado = (await crearPedido(cliente, [{ sku: talla.sku, cantidad: 1 }])).datos;
+    assert.equal((await cliente.pedir('POST', `/api/tienda/pedidos/${cancelado.id}/cancelacion`)).datos.estado, 'cancelado');
+    await espera(800);
+    assert.equal((await mensajesPara(cliente.email, 1, 0)).length, 0);
+    assert.ok(!('reciboPrueba' in await detallePedido(cliente, rechazado.id)));
+    assert.equal(await stockDe(talla.sku), 5);
+  });
+});
+
+test('ethereal: varios pagos a la vez del mismo pedido (doble clic) -> un solo recibo y el stock baja una vez', { skip: saltar }, async () => {
+  await conEthereal(async () => {
+    const cliente = await clienteNuevo();
+    const talla = await tallaLibre();
+    const pedido = (await crearPedido(cliente, [{ sku: talla.sku, cantidad: 2 }])).datos;
+    const pagos = await Promise.all([1, 2, 3].map(() =>
+      cliente.pedir('POST', `/api/tienda/pedidos/${pedido.id}/pago`, { resultado: 'aceptado' })));
+    assert.deepEqual(pagos.map((p) => p.codigo), [200, 200, 200]);
+    assert.equal((await cliente.pedir('POST', `/api/tienda/pedidos/${pedido.id}/pago`, { resultado: 'aceptado' })).codigo, 200);
+    await espera(800);
+    assert.equal((await mensajesPara(cliente.email, 2, 0)).length, 1);
+    assert.equal(await stockDe(talla.sku), 3);
+    assert.ok((await detallePedido(cliente, pedido.id)).reciboPrueba);
+  });
+});
+
+test('ethereal: si el transporte falla o lanza un error, la compra sigue confirmada y el stock baja una vez', { skip: saltar }, async () => {
+  const transporteQueLanza = { sendMail() { throw new Error('el transporte ha lanzado un error'); } };
+  const casos = [
+    ['error', etherealSimulado, 'Ethereal ha fallado: fallo simulado de Ethereal'],
+    ['bien', transporteQueLanza, 'Ethereal ha fallado: el transporte ha lanzado un error']
+  ];
+  for (const [modo, transporte, motivo] of casos) {
+    await conEthereal(async () => {
+      modoEthereal = modo;
+      correo.usarTransporteDePrueba(transporte);
+      const cliente = await clienteNuevo();
+      const talla = await tallaLibre();
+      const { pedido, pago } = await comprarYPagar(cliente, [{ sku: talla.sku, cantidad: 1 }]);
+      assert.equal(pago.codigo, 200);
+      assert.equal(pago.datos.estado, 'confirmado');
+      assert.ok(await lineaEnConsola(`Recibo de ${pedido.referencia} sin enviar: ${motivo}`), motivo);
+      const [enLaBase] = await leer('SELECT estado FROM public.pedidos WHERE id_pedido = $1', [pedido.id]);
+      assert.equal(enLaBase.estado, 'confirmado');
+      assert.equal(await stockDe(talla.sku), 4);
+      const cambios = await leer(
+        "SELECT count(*) AS n FROM public.log_eventos WHERE accion = 'CAMBIO_STOCK' AND detalle = $1",
+        [`SKU ${talla.sku}: 5 -> 4`]);
+      assert.equal(cambios[0].n, 1);
+      // Pagado y sin ninguna vista previa inventada
+      const detalle = await detallePedido(cliente, pedido.id);
+      assert.equal(detalle.estadoPago, 'pagado');
+      assert.ok(!('reciboPrueba' in detalle));
+      assert.ok(!consola.some((linea) => linea.includes(`Vista previa del recibo ${pedido.referencia}`)));
+    });
+  }
+});
+
+test('ethereal: si no responde, se corta a los 10 s y la compra sigue confirmada (el cliente no espera)', { skip: saltar }, async () => {
+  await conEthereal(async () => {
+    modoEthereal = 'cuelga';
+    const cliente = await clienteNuevo();
+    const talla = await tallaLibre();
+    const inicio = Date.now();
+    const { pedido, pago } = await comprarYPagar(cliente, [{ sku: talla.sku, cantidad: 1 }]);
+    assert.equal(pago.codigo, 200);
+    assert.equal(pago.datos.estado, 'confirmado');
+    assert.ok(Date.now() - inicio < 4000, 'la respuesta no espera a Ethereal');
+    const linea = await lineaEnConsola(`Recibo de ${pedido.referencia} sin enviar: Ethereal no ha respondido en 10 s`, 14000);
+    assert.ok(linea, 'el error se apunta en la consola');
+    assert.ok(Date.now() - inicio >= 9500, 'se corta a los 10 s, no antes');
+    assert.equal((await detallePedido(cliente, pedido.id)).estadoPago, 'pagado');
+    assert.ok(!('reciboPrueba' in await detallePedido(cliente, pedido.id)));
+    assert.equal(await stockDe(talla.sku), 4);
+  });
+});
+
+test('ethereal con NODE_ENV=production: se niega, lo dice en la consola y no manda nada (ni por Resend)', { skip: saltar }, async () => {
+  await conEthereal(async () => {
+    const cliente = await clienteNuevo();
+    const talla = await tallaLibre();
+    const { pedido, pago } = await comprarYPagar(cliente, [{ sku: talla.sku, cantidad: 1 }]);
+    assert.equal(pago.codigo, 200);
+    assert.equal(pago.datos.estado, 'confirmado');
+    assert.ok(await lineaEnConsola(
+      `Recibo de ${pedido.referencia} sin enviar: CORREO_PROVEEDOR=ethereal no se admite con NODE_ENV=production`));
+    await espera(500);
+    assert.equal((await mensajesPara(cliente.email, 1, 0)).length, 0);
+    assert.equal((await correosPara(cliente.email, 1, 0)).length, 0);
+    assert.ok(!('reciboPrueba' in await detallePedido(cliente, pedido.id)));
+    assert.equal(await stockDe(talla.sku), 4);
+  }, { NODE_ENV: 'production' });
 });

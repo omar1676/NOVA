@@ -20,6 +20,7 @@ const bd = require('./bd');
 const sesiones = require('./sesiones');
 const intentos = require('./intentos');
 const consultas = require('./consultas-tienda');
+const correo = require('./correo');
 
 const rutas = express.Router();
 const sesionesTienda = sesiones.tienda; // NO son las del panel (sesiones.js)
@@ -268,8 +269,9 @@ rutas.post('/pedidos', soloCliente, async (req, res) => {
 // Paso 2: el resultado del pago SIMULADO.
 //   aceptado  -> confirmar_compra_web: confirmado y pagado; el trigger
 //                descuenta el stock. Si ya no queda, se deshace y el pedido
-//                se cancela.
-//   rechazado -> cancelar_compra_web: cancelado, sin tocar el stock.
+//                se cancela. Si queda confirmado, se envia el recibo por
+//                correo (correo.js).
+//   rechazado -> cancelar_compra_web: cancelado, sin tocar el stock y sin correo.
 // En una tienda real el resultado lo daria la pasarela de pago al servidor,
 // nunca el navegador. Aqui es una simulacion academica: no se cobra nada.
 rutas.post('/pedidos/:id/pago', soloCliente, async (req, res) => {
@@ -287,12 +289,18 @@ rutas.post('/pedidos/:id/pago', soloCliente, async (req, res) => {
     return res.json(pedido);
   }
 
+  let pago;
   try {
-    const pedido = await bd.operarEnTienda(async (c) => {
+    pago = await bd.operarEnTienda(async (c) => {
+      // Si llegan dos pagos del mismo pedido a la vez (doble clic), este
+      // bloqueo de PostgreSQL hace que vayan uno detras de otro. Asi solo el
+      // que lo pasa de pendiente a confirmado manda el recibo.
+      await c.query('SELECT pg_advisory_xact_lock($1)', [idPedido]);
+      const antes = await consultas.pedido(c, req.cliente.id, idPedido);
       await consultas.confirmarCompra(c, req.cliente.id, idPedido);
-      return consultas.pedido(c, req.cliente.id, idPedido);
+      const pedido = await consultas.pedido(c, req.cliente.id, idPedido);
+      return { pedido, recienPagado: antes?.estado === 'pendiente' };
     });
-    res.json(pedido);
   } catch (error) {
     // Entre crear el pedido y pagarlo, otro cliente se ha llevado los ultimos
     // pares (el trigger de 03 lanza este error y no se descuenta nada).
@@ -302,6 +310,16 @@ rutas.post('/pedidos/:id/pago', soloCliente, async (req, res) => {
         'Mientras pagabas se han agotado algunas tallas. El pedido se ha cancelado y no se ha cobrado nada.', 409);
     }
     throw traducirErrorBD(error);
+  }
+
+  // El pago ya esta guardado (COMMIT): primero se responde al cliente y
+  // despues se manda el recibo, asi que si el correo falla o tarda la compra
+  // no cambia. Va al correo con el que se registro: req.cliente lo ha leido
+  // soloCliente de la base, no viene del navegador. enviarRecibo no lanza
+  // errores: como mucho los apunta en la consola.
+  res.json(pago.pedido);
+  if (pago.recienPagado) {
+    await correo.enviarRecibo(req.cliente, pago.pedido);
   }
 });
 
@@ -325,6 +343,9 @@ rutas.get('/pedidos/:id', soloCliente, async (req, res) => {
   const idPedido = leerIdPedido(req);
   const pedido = await enTienda((c) => consultas.pedido(c, req.cliente.id, idPedido));
   if (!pedido) throw errorParaElCliente('Ese pedido no existe', 404);
+  // Solo en desarrollo con CORREO_PROVEEDOR=ethereal: el enlace al recibo de prueba
+  const reciboPrueba = correo.vistaPrevia(pedido.id);
+  if (reciboPrueba) pedido.reciboPrueba = reciboPrueba;
   res.json(pedido);
 });
 

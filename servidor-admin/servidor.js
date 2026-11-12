@@ -17,6 +17,7 @@ const sesiones = require('./sesiones');
 const intentos = require('./intentos');
 const consultas = require('./consultas');
 const tienda = require('./tienda');
+const correo = require('./correo');
 
 const PUERTO = Number(process.env.PUERTO) || 3000;
 const HOST = '127.0.0.1'; // solo este ordenador: el servidor no se abre a la red
@@ -387,6 +388,7 @@ if (require.main === module) {
     console.log(bd.poolTienda
       ? `Tienda web en http://${HOST}:${PUERTO}/tienda/`
       : 'Tienda web sin configurar (faltan TIENDA_PGUSER y TIENDA_PGPASSWORD en .env)');
+    console.log(correo.resumen()); // Resend, Ethereal (solo desarrollo) o sin correo
   });
 }
 
