@@ -9,8 +9,9 @@ no afirma que las pruebas se hayan ejecutado sobre una base de datos.
 2. Arrancar `python3 -m http.server 8000 --bind 127.0.0.1`.
 3. Abrir `/interfaces/cliente/` y probar los seis filtros, búsquedas con y
    sin resultados, apertura/cierre de ficha y navegación con teclado.
-4. Abrir el probador con Street 01, Casual 01, Casual 02 y un modelo sin
-   foto puesta. Comprobar los avisos y controles deshabilitados.
+4. Abrir el probador con NOVA Street Vortex, NOVA Casual Marea, NOVA Casual
+   Olivo y un modelo sin foto puesta. Elegir las tres complexiones y subir el
+   peso: la figura tiene que cambiar y la zapatilla elegida verse a su lado.
 5. Abrir inicio de sesión: validar campos vacíos y comprobar que informa
    de la falta de servidor; no debe simular un acceso correcto.
 6. Abrir `/interfaces/admin/admin.html` y recorrer todos los enlaces del menú.

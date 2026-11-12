@@ -28,7 +28,8 @@ const saltar = process.env.PRUEBA_TIENDA_BASE_DESECHABLE !== 'si'
 const ADMIN = process.env.PRUEBA_ADMIN_USUARIO;
 const CLAVE_ADMIN = process.env.PRUEBA_ADMIN_CLAVE;
 const sinAdmin = saltar || (!(ADMIN && CLAVE_ADMIN) && 'faltan PRUEBA_ADMIN_USUARIO y PRUEBA_ADMIN_CLAVE');
-const MODELO_WEB = /^NOVA (Street|Luxe|Casual|Hombre|Mujer|Unisex) 0[12]$/;
+// Los 100 modelos de la web, todos a la venta (21_catalogo_web.sql): NOVA <coleccion> <nombre>
+const MODELO_WEB = /^NOVA (Street|Luxe|Casual|Hombre|Mujer|Unisex) [A-Z][a-z]+$/;
 const CONTRASENA = 'clave-de-prueba-1';
 const DIRECCION = 'Calle de Prueba 1, Madrid';
 
@@ -94,7 +95,8 @@ function crearPedido(nav, lineas, extra = {}) {
   return nav.pedir('POST', '/api/tienda/pedidos', { clave: crypto.randomUUID(), lineas, direccion: DIRECCION, ...extra });
 }
 
-// Tallas que todavia tienen sus 5 pares (y no se han usado en esta ejecucion)
+/// Tallas que todavia tienen sus 5 pares (y no se han usado en esta ejecucion).
+// Son las de los 12 modelos que ya se vendian; los otros 88 empiezan con 20.
 let catalogo;
 const usadas = new Set();
 async function tallaLibre() {
@@ -124,19 +126,19 @@ async function stockDe(sku) {
 // ---------------------------------------------------------------------
 // Catalogo y archivos de la tienda
 // ---------------------------------------------------------------------
-test('catalogo: los 12 modelos de la web, con precio, color, tallas y stock de PostgreSQL', { skip: saltar }, async () => {
+test('catalogo: los 100 modelos de la web, con precio, color, tallas y stock de PostgreSQL', { skip: saltar }, async () => {
   const r = await navegador().pedir('GET', '/api/tienda/catalogo');
   assert.equal(r.codigo, 200);
   const web = r.datos.modelos.filter((m) => MODELO_WEB.test(m.nombre));
-  assert.equal(web.length, 12);
+  assert.equal(web.length, 100);
   const sku = web.flatMap((m) => m.variantes.flatMap((v) => v.tallas));
-  assert.equal(sku.length, 106);
+  assert.equal(sku.length, 880);
   // Comparado con la base, fila a fila
   const enLaBase = await leer(`
     SELECT s.id_producto_sku AS sku, m.precio_base + v.suplemento_precio AS precio, e.cantidad AS stock
     FROM public.producto_sku s JOIN public.variantes v USING (id_variante) JOIN public.modelos m USING (id_modelo)
     JOIN public.existencias e USING (id_producto_sku)
-    WHERE m.nombre ~ '^NOVA (Street|Luxe|Casual|Hombre|Mujer|Unisex) 0[12]$'`);
+    WHERE m.nombre ~ '^NOVA (Street|Luxe|Casual|Hombre|Mujer|Unisex) [A-Z][a-z]+$'`);
   const porSku = new Map(enLaBase.map((f) => [f.sku, f]));
   for (const modelo of web) {
     for (const variante of modelo.variantes) {

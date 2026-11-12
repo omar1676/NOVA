@@ -127,8 +127,8 @@ function mostrarCatalogo() {
   visibles.forEach((modelo) => {
     const tarjeta = document.createElement("button");
     tarjeta.type = "button";
-    tarjeta.className = "catalogo-tarjeta";
-    tarjeta.classList.add("c-" + modelo.coleccion);
+    // c-<colección>: los colores de Álvaro para cada colección (inicio.css)
+    tarjeta.className = "catalogo-tarjeta c-" + modelo.coleccion;
     // Tienda (js/tienda.js): si el modelo está en PostgreSQL, su precio real
     // y si se puede comprar. Sin servidor, el precio orientativo y nada más.
     const enTienda =
@@ -141,10 +141,18 @@ function mostrarCatalogo() {
       "aria-label",
       `Ver ${modelo.nombre}, ${textoPrecio}${textoEstado ? `, ${textoEstado.toLowerCase()}` : ""}`,
     );
+    // Zona de la foto: el color de la colección y su etiqueta
+    const foto = document.createElement("span");
+    foto.className = "catalogo-foto";
+    const etiqueta = document.createElement("span");
+    etiqueta.className = "catalogo-etiqueta";
+    etiqueta.textContent = modelo.coleccion;
     const imagen = document.createElement("img");
     imagen.src = modelo.imagen;
     imagen.alt = "";
     imagen.loading = "lazy";
+    foto.append(etiqueta, imagen);
+    // Banda de datos: nombre, precio, disponibilidad y «Ver modelo»
     const contenido = document.createElement("span");
     contenido.className = "catalogo-datos";
     const nombre = document.createElement("strong");
@@ -153,6 +161,7 @@ function mostrarCatalogo() {
     precio.className = "catalogo-precio";
     precio.textContent = textoPrecio;
     const accion = document.createElement("span");
+    accion.className = "catalogo-accion";
     accion.textContent = "Ver modelo ↗";
     contenido.append(nombre, accion, precio);
     if (textoEstado) {
@@ -161,7 +170,7 @@ function mostrarCatalogo() {
       estado.textContent = textoEstado;
       contenido.append(estado);
     }
-    tarjeta.append(imagen, contenido);
+    tarjeta.append(foto, contenido);
     tarjeta.addEventListener("click", () => abrirDetalle(modelo, tarjeta));
     catalogoGrid.append(tarjeta);
   });
@@ -245,7 +254,7 @@ zonaDeslizamiento.addEventListener("touchcancel", () => {
   inicioToque = null;
 });
 
-// Primera versión visual del probador: muestra el modelo y el producto por separado.
+// Probador conceptual: la zapatilla elegida con una figura, puesta o sola.
 const probador = document.querySelector("#probador");
 const vistaProbador = document.querySelector(".probador-vista");
 const elegirZapatilla = document.querySelector("#elegir-zapatilla");
@@ -253,8 +262,27 @@ const alturaModelo = document.querySelector("#altura-modelo");
 const pesoModelo = document.querySelector("#peso-modelo");
 const tipoModelo = document.querySelector("#tipo-modelo");
 const imagenModelo = document.querySelector(".modelo-base");
-const opcionesUnisex = document.querySelector("#modelo-unisex");
-let modeloUnisexPreferido = "hombre";
+const imagenEscena = document.querySelector("#escena-completa");
+const zapatillaEscena = document.querySelector("#zapatilla-escena");
+const avisoVista = document.querySelector("#aviso-sin-foto");
+
+// Las tres figuras (con calzado genérico) valen para todas las zapatillas.
+const figuras = {
+  delgado: { imagen: "images/probador/modelo-delgado.png", texto: "delgada" },
+  base: { imagen: "images/probador/modelo-base.png", texto: "media" },
+  ancho: { imagen: "images/probador/modelo-ancho.png", texto: "amplia" },
+};
+// Fotos con una zapatilla concreta puesta. Qué modelo tiene cada una lo dice
+// el campo «probador» de modelos.js (así no dependen del nombre).
+const personasPuestas = {
+  street01: "images/probador/modelo-street-01.png",
+  "casual01-urbano": "images/probador/modelo-casual01-urbano.png",
+  "casual01-deportivo": "images/probador/modelo-casual01-deportivo.png",
+};
+const escenasPuestas = {
+  "casual02-escena": "images/probador/escena-casual-02.png",
+  "casual03-escena": "images/probador/escena-casual-03.png",
+};
 
 // Las opciones salen de la misma lista que alimenta el catálogo.
 modelos.forEach((modelo, indice) => {
@@ -270,20 +298,32 @@ function mostrarZapatillaProbador(modelo) {
   imagen.src = modelo.imagen;
   imagen.alt = `Vista de ${modelo.nombre}`;
 }
+// Al abrir el probador o cambiar de zapatilla. Las vistas «puesta» solo se
+// ofrecen con su zapatilla. Si se estaba viendo una figura, se mantiene (la
+// misma complexión con otra zapatilla); si no, la primera foto puesta o, si no
+// la hay, la zapatilla sola.
+function prepararVistas() {
+  const puestas = modeloSeleccionado.probador || [];
+  tipoModelo.querySelectorAll("option[data-puesta]").forEach((opcion) => {
+    const permitida = puestas.includes(opcion.value);
+    opcion.disabled = !permitida;
+    opcion.hidden = !permitida;
+  });
+  if (!figuras[tipoModelo.value]) tipoModelo.value = puestas[0] || "producto";
+  tipoModelo.dispatchEvent(new Event("change"));
+}
 document.querySelector(".abrir-probador").addEventListener("click", () => {
   if (!modeloSeleccionado) return;
   elegirZapatilla.value = modelos.indexOf(modeloSeleccionado);
   mostrarZapatillaProbador(modeloSeleccionado);
-  actualizarOpcionStreet();
-  elegirVistaConZapatilla();
+  prepararVistas();
   dialogo.close();
   probador.showModal();
 });
 elegirZapatilla.addEventListener("change", () => {
   modeloSeleccionado = modelos[Number(elegirZapatilla.value)];
   mostrarZapatillaProbador(modeloSeleccionado);
-  actualizarOpcionStreet();
-  elegirVistaConZapatilla();
+  prepararVistas();
   document.querySelector("#detalle-titulo").textContent =
     modeloSeleccionado.nombre;
   document.querySelector("#detalle-coleccion").textContent =
@@ -302,137 +342,73 @@ function redondearMedida(campo, minimo, maximo, valorInicial) {
     campo.value = Math.max(minimo, Math.min(maximo, Math.round(valor / 5) * 5));
   }
 }
+// La complexión aproximada sale del IMC (peso / estatura²): solo sirve para
+// elegir una de las tres figuras, no para recomendar nada.
+function figuraSegunMedidas() {
+  const metros = Number(alturaModelo.value) / 100;
+  const imc = Number(pesoModelo.value) / (metros * metros);
+  if (imc < 20) return "delgado";
+  if (imc < 27) return "base";
+  return "ancho";
+}
+// Al cambiar la estatura o el peso se ve la figura que corresponde.
+function mostrarFiguraSegunMedidas() {
+  tipoModelo.value = figuraSegunMedidas();
+  tipoModelo.dispatchEvent(new Event("change"));
+}
 alturaModelo.addEventListener("change", () => {
   redondearMedida(alturaModelo, 120, 220, 175);
   // Escala visual orientativa; no pretende reproducir proporciones reales.
   const alturaVisual = `${58 + (Number(alturaModelo.value) - 120) * 0.15}%`;
   imagenModelo.style.height = alturaVisual;
   vistaProbador.style.setProperty("--escala-modelo", alturaVisual);
+  mostrarFiguraSegunMedidas();
 });
-pesoModelo.addEventListener("change", () =>
-  redondearMedida(pesoModelo, 30, 200, 75),
-);
-// Vistas en las que la persona lleva puesta una zapatilla concreta.
-const fotosPuestas = {
-  street01: "NOVA Street 01",
-  "casual01-urbano": "NOVA Casual 01",
-  "casual01-deportivo": "NOVA Casual 01",
-  "casual02-escena": "NOVA Casual 02",
-  "casual03-escena": "NOVA Casual 03",
-};
-// Cada imagen con zapatillas puestas solo se activa para el producto correcto. Las
-// personas con calzado genérico no se ofrecen: mostrarían otras zapatillas.
-function actualizarOpcionStreet() {
-  const eleccionAnterior = tipoModelo.value;
-  tipoModelo.querySelectorAll("option").forEach((opcion) => {
-    const permitida =
-      opcion.value === "producto" ||
-      fotosPuestas[opcion.value] === modeloSeleccionado.nombre;
-    opcion.disabled = !permitida;
-    opcion.hidden = !permitida;
-  });
-  if (
-    fotosPuestas[eleccionAnterior] &&
-    fotosPuestas[eleccionAnterior] !== modeloSeleccionado.nombre
-  ) {
-    tipoModelo.value = "producto";
-    tipoModelo.dispatchEvent(new Event("change"));
-  }
-}
-function elegirVistaConZapatilla() {
-  const vistas = {
-    "NOVA Street 01": "street01",
-    "NOVA Casual 01": "casual01-urbano",
-    "NOVA Casual 02": "casual02-escena",
-    "NOVA Casual 03": "casual03-escena",
-  };
-  // Solo aparece una persona si lleva puesta la zapatilla elegida. Si aún no hay foto
-  // así, se muestra la zapatilla sola sobre el escenario y la pose queda desactivada.
-  const vista = vistas[modeloSeleccionado.nombre];
-  opcionesUnisex.hidden = true;
-  tipoModelo.disabled = !vista;
-  tipoModelo.value = vista || "producto";
-  tipoModelo.dispatchEvent(new Event("change"));
-}
-// Elección de persona en los modelos unisex: queda sin uso mientras no haya fotos de
-// personas con cada zapatilla unisex puesta.
-// Los botones solo cambian la persona de la vista; no cambian la zapatilla.
-function seleccionarModeloUnisex(tipo) {
-  modeloUnisexPreferido = tipo;
-  tipoModelo.value = tipo === "mujer" ? "persona02" : "persona01";
-  tipoModelo.dispatchEvent(new Event("change"));
-}
-opcionesUnisex.querySelectorAll("button").forEach((boton) => {
-  boton.addEventListener("click", () =>
-    seleccionarModeloUnisex(boton.dataset.modeloUnisex),
-  );
+pesoModelo.addEventListener("change", () => {
+  redondearMedida(pesoModelo, 30, 200, 75);
+  mostrarFiguraSegunMedidas();
 });
 tipoModelo.addEventListener("change", () => {
-  if (modeloSeleccionado && modeloSeleccionado.coleccion === "unisex") {
-    const mujeres = ["persona02", "persona03"];
-    const hombres = [
-      "persona01",
-      "persona04",
-      "base",
-      "delgado",
-      "ancho",
-      "urbano",
-      "deportivo",
-    ];
-    let tipo = null;
-    if (mujeres.includes(tipoModelo.value)) tipo = "mujer";
-    if (hombres.includes(tipoModelo.value)) tipo = "hombre";
-    if (tipo) modeloUnisexPreferido = tipo;
-    opcionesUnisex.querySelectorAll("button").forEach((boton) => {
-      boton.setAttribute(
-        "aria-pressed",
-        String(boton.dataset.modeloUnisex === tipo),
-      );
-    });
-  }
-  const imagenes = {
-    persona01: "images/probador/persona-01.png",
-    persona02: "images/probador/persona-02.png",
-    persona03: "images/probador/persona-03.png",
-    persona04: "images/probador/persona-04.png",
-    base: "images/probador/modelo-base.png",
-    delgado: "images/probador/modelo-delgado.png",
-    ancho: "images/probador/modelo-ancho.png",
-    urbano: "images/probador/modelo-urbano.png",
-    deportivo: "images/probador/modelo-deportivo.png",
-    street01: "images/probador/modelo-street-01.png",
-    "casual01-urbano": "images/probador/modelo-casual01-urbano.png",
-    "casual01-deportivo": "images/probador/modelo-casual01-deportivo.png",
-  };
-  const escenas = {
-    "casual02-escena": "images/probador/escena-casual-02.png",
-    "casual03-escena": "images/probador/escena-casual-03.png",
-  };
-  const rutaEscena = escenas[tipoModelo.value];
+  const vista = tipoModelo.value;
+  const figura = figuras[vista];
+  const rutaPersona = figura ? figura.imagen : personasPuestas[vista];
+  const rutaEscena = escenasPuestas[vista];
   // «producto»: la zapatilla elegida sola, en grande, sin ninguna persona.
-  const soloZapatilla = tipoModelo.value === "producto";
-  const imagenEscena = document.querySelector("#escena-completa");
-  const zapatillaEscena = document.querySelector("#zapatilla-escena");
+  const soloZapatilla = vista === "producto";
+  // La zapatilla elegida se ve sola o, con una figura, en una tarjeta a su lado.
+  const verZapatilla = soloZapatilla || Boolean(figura);
+  const nombre = modeloSeleccionado.nombre;
   imagenEscena.hidden = !rutaEscena;
-  zapatillaEscena.hidden = !soloZapatilla;
+  zapatillaEscena.hidden = !verZapatilla;
   vistaProbador.classList.toggle("escena-fija", Boolean(rutaEscena));
   vistaProbador.classList.toggle("solo-zapatilla", soloZapatilla);
+  vistaProbador.classList.toggle("con-figura", Boolean(figura));
   document.querySelector("#aviso-escena").hidden = !rutaEscena;
-  document.querySelector("#aviso-sin-foto").hidden =
-    !soloZapatilla ||
-    Object.values(fotosPuestas).includes(modeloSeleccionado.nombre);
-  alturaModelo.disabled = Boolean(rutaEscena) || soloZapatilla;
+  avisoVista.textContent = figura
+    ? "Figura con calzado genérico · tu zapatilla, al lado"
+    : "Aún no hay foto con este modelo puesto";
+  avisoVista.hidden = !(
+    figura ||
+    (soloZapatilla && !modeloSeleccionado.probador)
+  );
   probador.querySelectorAll(".escenarios button").forEach((boton) => {
     boton.disabled = Boolean(rutaEscena);
   });
-  if (soloZapatilla) {
+  if (verZapatilla) {
     zapatillaEscena.src = modeloSeleccionado.imagen;
-    zapatillaEscena.alt = `${modeloSeleccionado.nombre} sobre el escenario`;
-  } else if (rutaEscena) {
+    zapatillaEscena.alt = figura
+      ? `${nombre}, junto a la figura`
+      : `${nombre} sobre el escenario`;
+  }
+  if (rutaEscena) {
     imagenEscena.src = rutaEscena;
-    imagenEscena.alt = `Imagen generada con ${modeloSeleccionado.nombre} puesta`;
-  } else {
-    imagenModelo.src = imagenes[tipoModelo.value];
+    imagenEscena.alt = `Imagen generada con ${nombre} puesta`;
+  }
+  if (rutaPersona) {
+    imagenModelo.src = rutaPersona;
+    imagenModelo.alt = figura
+      ? `Figura de complexión ${figura.texto}`
+      : `Persona con ${nombre} puesta`;
   }
 });
 probador.querySelectorAll(".escenarios button").forEach((boton) => {
