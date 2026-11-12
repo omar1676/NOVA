@@ -118,7 +118,7 @@ Es la última barrera. Aunque alguien haga un UPDATE a mano o falle una función
 Un grupo de operaciones que se guarda entero (COMMIT) o no se guarda nada (ROLLBACK). El esquema entero va entre `BEGIN` y `COMMIT` (`esquema:1` y `:189`); cada prueba de `09_pruebas.sql` va entre BEGIN y ROLLBACK para no dejar rastro (por ejemplo, `:150-186`); y Java crea un pedido con todas sus líneas en una sola transacción (`02_Acceso_Datos/java/src/nova/PedidoDAO.java:70-106`).
 
 **P1.7 ¿Qué ve otra conexión mientras una transacción no ha hecho COMMIT?**
-Nada de lo nuevo: ni el pedido ni su evento de auditoría (es el aislamiento por defecto, READ COMMITTED). Se midió a mano con dos sesiones el 8/11: 0 eventos durante la transacción y 1 después del COMMIT; con ROLLBACK desaparecen los dos (`02_Acceso_Datos/documentacion/README.md:873-919`).
+Nada de lo nuevo: ni el pedido ni su evento de auditoría (es el aislamiento por defecto, READ COMMITTED). Se midió a mano con dos sesiones el 8/11: 0 eventos durante la transacción y 1 después del COMMIT; con ROLLBACK desaparecen los dos (`02_Acceso_Datos/documentacion/README.md:875-921`).
 
 **P1.8 ¿Qué pasa si dos personas confirman a la vez pedidos que necesitan el último par?**
 `descontar_stock` mete la comprobación en el propio UPDATE: `WHERE ... AND cantidad >= p_cantidad` (`02_funciones.sql:144-148`). La segunda transacción espera a que la primera libere la fila, vuelve a evaluar la condición con el dato nuevo, no encuentra ninguna fila y lanza «Stock insuficiente o producto no encontrado». El stock nunca queda en negativo.
@@ -160,7 +160,7 @@ Porque el número es el orden en que se escribieron. `04_xnova.sql` va antes que
 ### Preguntas probables
 
 **P2.1 ¿Qué triggers tenéis?**
-Diez. Cinco de cálculo y control en `03_triggers.sql` (subtotal, totales, proteger líneas, descontar y devolver stock) y cinco de auditoría en `08_auditoria.sql` (alta de pedido, cambio de estado, cambio de stock y baja lógica de modelo y de SKU). La tabla con la tabla que dispara cada uno, si es BEFORE o AFTER y qué modifica está en `documentacion/README.md:269-298`.
+Diez. Cinco de cálculo y control en `03_triggers.sql` (subtotal, totales, proteger líneas, descontar y devolver stock) y cinco de auditoría en `08_auditoria.sql` (alta de pedido, cambio de estado, cambio de stock y baja lógica de modelo y de SKU). La tabla con la tabla que dispara cada uno, si es BEFORE o AFTER y qué modifica está en `documentacion/README.md:271-300`.
 
 **P2.2 ¿Cómo se calcula el importe del pedido?**
 En dos pasos. BEFORE INSERT OR UPDATE en la línea: `subtotal = cantidad × precio_unitario` (`02_funciones.sql:124-133` y `03_triggers.sql:8-12`). AFTER INSERT, UPDATE o DELETE: se recalculan `cantidad_total` e `importe_total` con un `SUM` de todas las líneas del pedido (`02_funciones.sql:93-122` y `03_triggers.sql:2-6`).
@@ -333,7 +333,7 @@ De `02_Acceso_Datos/sql/15_exportar_fabricacion.sql`, que exporta con `\copy` la
 De cinco CSV que exporta Acceso a Datos con `16_exportar_csv_dashboard.sql`: clientes, modelos, pedidos, líneas y stock, más un `ORIGEN.txt` que dice si son REAL, PRUEBA o SINTÉTICO (`04_Python/config.py:18-26` y `:44`). Python nunca se conecta a PostgreSQL ni escribe en la carpeta de entrada.
 
 **P5.2 ¿Qué pasos sigue el ETL?**
-Leer y comprobar el esquema, aplicar las 12 reglas, quedarse con las filas válidas, construir las dos vistas base, calcular los DataFrames y los KPIs, conciliar con SQL y sacar gráficos, estadística, segmentación, predicción e informe (`main.py`, función `ejecutar`, que llama a un paso con nombre por cada fase: `paso_calidad`, `paso_tablas`, `paso_importes`, `paso_kpis`, `paso_conciliacion`…). Si hay una incidencia bloqueante, para y no publica ninguna cifra (`parar_por_bloqueo`, `main.py:158-166`).
+Leer y comprobar el esquema, aplicar las 12 reglas, quedarse con las filas válidas, construir las dos vistas base, calcular los DataFrames y los KPIs, conciliar con SQL y sacar gráficos, estadística, segmentación, predicción e informe (`main.py`, función `ejecutar`, que llama a un paso con nombre por cada fase: `paso_calidad`, `paso_tablas`, `paso_importes`, `paso_kpis`, `paso_conciliacion`…). Si hay una incidencia bloqueante, para y no publica ninguna cifra (`parar_por_bloqueo`, `main.py:159-167`).
 
 **P5.3 ¿Cuáles son las 12 reglas y qué gravedades hay?**
 Están en `calidad.py:27-40`: fichero vacío o sin cabeceras, IDs duplicados, claves huérfanas, fechas, cantidades, precios, estados, tallas, falta de cliente o modelo, líneas duplicadas, stock y coherencia. Hay tres gravedades (`:42-50`): bloqueante (no se publica nada), recuperable (se rechaza la fila) y advertencia (la fila se queda y se avisa).
@@ -360,7 +360,7 @@ Con la conciliación: tres consultas SQL de Acceso a Datos (P-A, P-B y P-C, en `
 Porque cero es un dato y vacío es «no se sabe». Solo se pone 0 cuando es un recuento (un pedido sin líneas tiene 0 líneas), y el precio medio de un pedido sin pares se queda vacío (`analiticas.py:128-136`). La rúbrica lo prohíbe expresamente (PY-62).
 
 **P5.11 ¿Qué metadatos lleva cada DataFrame?**
-La fecha de corte, las reglas de negocio, los filtros, las filas de origen y la función que lo ha generado (PY-159). `main.py` escribe `metadatos_dataframes.csv`, una fila por CSV, enlazada por el nombre del archivo y la `ejecucion` (`metadatos.py:175`), y cada descarga del dashboard lleva esas columnas con los filtros que se le aplican (`metadatos.del_dashboard`, `:211`).
+La fecha de corte, las reglas de negocio, los filtros, las filas de origen y la función que lo ha generado (PY-159). `main.py` escribe `metadatos_dataframes.csv`, una fila por CSV, enlazada por el nombre del archivo y la `ejecucion` (`metadatos.py:175`), y cada descarga del dashboard lleva esas columnas con los filtros que se le aplican (`metadatos.del_dashboard`, `:213`).
 
 **P5.12 ¿Cómo se ordenan las recomendaciones del informe ejecutivo?**
 Primero por la urgencia (alta: se puede dejar sin servir demanda que ya existe; media: sirve para planificar el próximo mes; baja: NO CALCULABLE o no cambiar nada) y, con la misma urgencia, por su número (`informe.py:11-19` y `:30`). Cada una dice su impacto esperado con una cifra, de dónde sale y la tabla y el gráfico que la sustentan (PY-110 y PY-111).
@@ -580,7 +580,7 @@ NO CALCULABLE: hay 0 meses completos de demanda y hacen falta al menos 12 (3 de 
 ### Preguntas probables
 
 **P10.1 ¿Cómo se refresca cada 60 segundos?**
-La función `panel` lleva `@st.fragment(run_every="60s")` (`app_dashboard.py:695-696`): Streamlit la vuelve a ejecutar sola cada 60 s mientras la página está abierta. `actualizar()` lanza un ciclo si han pasado 60 s, con 5 de margen, desde la última comprobación (`:50` y `:57-73`). No hay `time.sleep` ni bucles, que la rúbrica prohíbe (PY-135).
+La función `panel` lleva `@st.fragment(run_every="60s")` (`app_dashboard.py:710-711`): Streamlit la vuelve a ejecutar sola cada 60 s mientras la página está abierta. `actualizar()` lanza un ciclo si han pasado 60 s, con 5 de margen, desde la última comprobación (`:52` y `:59-75`). No hay `time.sleep` ni bucles, que la rúbrica prohíbe (PY-135).
 
 **P10.2 ¿Qué hace cada ciclo?**
 Los cinco pasos de la rúbrica: comprueba los archivos y su huella SHA-256, lee y valida con las 12 reglas, recalcula todo con esa misma versión de los datos, publica todo o nada y lo anota en el registro (`actualizacion.py:1-21` y `:159-219`).
@@ -592,22 +592,22 @@ Cuatro: CORRECTO (datos nuevos y válidos), SIN CAMBIOS (los mismos datos, recal
 Un SHA-256 del contenido de cada CSV y otro de todas las huellas juntas (`actualizacion.py:47-74`). Si se vuelve a exportar lo mismo, la huella no cambia y el estado es SIN CAMBIOS: la hora de la última actualización válida se mantiene (`:199-202`).
 
 **P10.5 ¿Qué pasa si llega un CSV roto?**
-No se publica ninguna cifra nueva. Se conserva el último resultado válido, pero solo se enseña si el usuario lo pide, y con el rótulo DESACTUALIZADO y su hora (`actualizacion.py:190-197` y `:216`; `app_dashboard.py:678-692`).
+No se publica ninguna cifra nueva. Se conserva el último resultado válido, pero solo se enseña si el usuario lo pide, y con el rótulo DESACTUALIZADO y su hora (`actualizacion.py:190-197` y `:216`; `app_dashboard.py:693-707`).
 
 **P10.6 Si se crea un pedido en PostgreSQL, ¿aparece solo en el dashboard?**
-No. Python solo lee los CSV: hasta que Acceso a Datos vuelva a exportarlos con el 16, los valores no cambian. Recalcular cada 60 s no es lo mismo que tener datos nuevos, y el propio dashboard lo dice (`app_dashboard.py:762-763`; `actualizacion.py:19-21`).
+No. Python solo lee los CSV: hasta que Acceso a Datos vuelva a exportarlos con el 16, los valores no cambian. Recalcular cada 60 s no es lo mismo que tener datos nuevos, y el propio dashboard lo dice (`app_dashboard.py:777-778`; `actualizacion.py:19-21`).
 
 **P10.7 ¿Todos los KPIs salen de la misma versión de los datos?**
-Sí. Se publica un único resultado con su versión, y las tablas filtradas se calculan sobre esos mismos datos publicados (`app_dashboard.py:723`). No puede haber un gráfico con un CSV nuevo y otro con uno viejo (PY-137).
+Sí. Se publica un único resultado con su versión, y las tablas filtradas se calculan sobre esos mismos datos publicados (`app_dashboard.py:738`). No puede haber un gráfico con un CSV nuevo y otro con uno viejo (PY-137).
 
 **P10.8 ¿Se mantienen los filtros y la pestaña al refrescar?**
-Los filtros (periodo, modelo, talla, tipo, estado y cliente) se guardan en `st.session_state` (`app_dashboard.py:92-118`) y la pestaña va en la URL con `bind="query-params"` (`:714`). Cuando llega una exportación nueva, se redibuja toda la página para actualizar las opciones de los filtros (`:699-700`). Lo prueba `test_filtros_y_pestana_se_mantienen_al_refrescar` (`tests/test_dashboard.py:242`): sigue en Productos, con el cliente 1 y la talla 40, y la tabla ABC pasa de 1 a 2 pares (PY-168).
+Los filtros (periodo, modelo, talla, tipo, estado y cliente) se guardan en `st.session_state` (`app_dashboard.py:92-119`) y la pestaña va en la URL con `bind="query-params"` (`:729`). Cuando llega una exportación nueva, se redibuja toda la página para actualizar las opciones de los filtros (`:714-715`). Lo prueba `test_filtros_y_pestana_se_mantienen_al_refrescar` (`tests/test_dashboard.py:242`): sigue en Productos, con el cliente 1 y la talla 40, y la tabla ABC pasa de 1 a 2 pares (PY-168).
 
 ### Código real
 
-- `04_Python/app_dashboard.py:695-741` — `panel`, el fragmento que se repite cada 60 s.
+- `04_Python/app_dashboard.py:710-756` — `panel`, el fragmento que se repite cada 60 s.
 - `04_Python/actualizacion.py:159-219` — `ciclo`: comprobar, validar, recalcular, publicar o no y anotar.
-- `04_Python/app_dashboard.py:678-692` — `publicacion_visible`: el último resultado válido, rotulado como DESACTUALIZADO.
+- `04_Python/app_dashboard.py:693-707` — `publicacion_visible`: el último resultado válido, rotulado como DESACTUALIZADO.
 
 ### Ejercicios
 
@@ -716,7 +716,7 @@ Una ampliación que ningún enunciado pide: cuentas de cliente, carrito, pago si
 El navegador desactiva los botones mientras espera la respuesta (`01_Interfaces/cliente/js/tienda.js:851` y `:900`) y cada compra lleva una clave aleatoria creada al abrir el checkout (`:817`); si la misma compra llega dos veces, la base devuelve el mismo pedido (`20_tienda_web.sql:226-237`).
 
 **P12.9 ¿De dónde saca los datos el panel de administración?**
-De la API `/api/admin/...` del servidor (`01_Interfaces/admin/script.js:62-100`), que lee PostgreSQL en transacciones de solo lectura (`servidor-admin/bd.js:61-72`, con el ayudante `enTransaccion` de `:40-56`). La única escritura es «Marcar en reparto», con su propio rol (`bd.js:80-83`).
+De la API `/api/admin/...` del servidor (`01_Interfaces/admin/script.js:62-100`), que lee PostgreSQL en transacciones de solo lectura (`servidor-admin/bd.js:62-73`, con el ayudante `enTransaccion` de `:41-57`). La única escritura es «Marcar en reparto», con su propio rol (`bd.js:81-84`).
 
 ### Código real
 
@@ -754,31 +754,31 @@ No. Es un hash de un solo sentido, no un cifrado. Para comprobarla se vuelve a c
 Para tardar lo mismo en los dos casos, y que el tiempo de respuesta no delate qué correos están registrados (`20_tienda_web.sql:166-170`). El mensaje también es siempre el mismo: «Correo o contraseña incorrectos».
 
 **P13.4 ¿Cómo funcionan las sesiones web?**
-Al entrar, el servidor crea un token aleatorio de 32 bytes (`servidor-admin/sesiones.js:53`), lo guarda en memoria con los datos del usuario y se lo da al navegador en una cookie que caduca a las 2 horas (`:20` y `:55`). La contraseña no se guarda en la sesión.
+Al entrar, el servidor crea un token aleatorio de 32 bytes (`servidor-admin/sesiones.js:54`), lo guarda en memoria con los datos del usuario y se lo da al navegador en una cookie que caduca a las 2 horas (`:21` y `:56`). La contraseña no se guarda en la sesión.
 
 **P13.5 ¿Qué significan HttpOnly y SameSite=Strict?**
-HttpOnly: el JavaScript de la página no puede leer la cookie, y eso protege el token si alguien consigue inyectar código (XSS). SameSite=Strict: el navegador no envía la cookie en peticiones que vienen de otras webs, y eso protege de CSRF (`sesiones.js:26-30`).
+HttpOnly: el JavaScript de la página no puede leer la cookie, y eso protege el token si alguien consigue inyectar código (XSS). SameSite=Strict: el navegador no envía la cookie en peticiones que vienen de otras webs, y eso protege de CSRF (`sesiones.js:27-31`).
 
 **P13.6 ¿Por qué hay dos cookies de sesión?**
-Una para el panel (`sesion_nova`, ruta `/`) y otra para la tienda (`sesion_tienda`, ruta `/api/tienda`), cada una con su propio almacén: una sesión de cliente no sirve en el panel, ni la de un trabajador para comprar (`sesiones.js:79-80`).
+Una para el panel (`sesion_nova`, ruta `/`) y otra para la tienda (`sesion_tienda`, ruta `/api/tienda`), cada una con su propio almacén: una sesión de cliente no sirve en el panel, ni la de un trabajador para comprar (`sesiones.js:80-81`).
 
 **P13.7 ¿Cómo limitáis los intentos de login?**
 Tras 5 fallos seguidos con el mismo usuario, el servidor responde 429 durante 5 minutos sin mirar la contraseña, aunque sea la buena (`servidor-admin/intentos.js:11-12` y `:41-43`; `servidor.js:120-124`). Se cuenta por nombre, exista o no la cuenta, y un acierto pone el contador a cero (`servidor.js:134`). Vale igual para el administrador y para el trabajador, porque entran por el mismo login. La tienda hace lo mismo con el correo (`servidor-admin/tienda.js:207-211`).
 
 **P13.8 ¿Qué roles de PostgreSQL hay y para qué sirve cada uno?**
-Los usuarios con LOGIN no tienen permisos propios (NOINHERIT): `java_nova`, `web_nova` y `tienda_nova`. Al conectarse pasan con `SET ROLE` a un rol sin login con los permisos justos: `nova_admin`, `nova_comercial` o `nova_trabajador` (Java), `panel_lectura` o `panel_reparto` (panel), `portal_trabajador` (portal) y `tienda_web` (tienda) (`17_usuario_java.sql:41-48`, `19_usuario_web.sql:111`, `23_portal_trabajador.sql:242`, `servidor-admin/bd.js:71`, `:81`, `:96`, `:100` y `:153`).
+Los usuarios con LOGIN no tienen permisos propios (NOINHERIT): `java_nova`, `web_nova` y `tienda_nova`. Al conectarse pasan con `SET ROLE` a un rol sin login con los permisos justos: `nova_admin`, `nova_comercial` o `nova_trabajador` (Java), `panel_lectura` o `panel_reparto` (panel), `portal_trabajador` (portal) y `tienda_web` (tienda) (`17_usuario_java.sql:41-48`, `19_usuario_web.sql:111`, `23_portal_trabajador.sql:250`, `servidor-admin/bd.js:72`, `:82`, `:97`, `:101` y `:154`).
 
 **P13.9 ¿Qué diferencia hay entre un rol de la aplicación y un rol de PostgreSQL?**
 El rol de la aplicación (administrador, comercial o trabajador) es del negocio y está en la tabla `roles`; el de PostgreSQL es un conjunto de permisos de la base. Java los une con `Sesion.rolPostgres` (`Sesion.java:110-121`). Y `admin.demo` no es un rol de PostgreSQL, sino una fila de la tabla `usuarios` (`20_tienda_web.sql:35-42`). Es lo que pide explicar AD-67.
 
 **P13.10 ¿Cómo se protegen el panel y el portal en cada petición?**
-`comprobarRol` comprueba la sesión y el rol, y vuelve a mirar en la base que la cuenta sigue activa y sigue teniendo ese rol; si no, borra la sesión (`servidor.js:187-203`). `soloRol` la convierte en un filtro de Express con 401 o 403 (`:205-219`), y de ahí salen `soloAdministrador` para `/api/admin` y `soloTrabajador` para `/api/trabajador` (`:221-225`). Además, las lecturas del panel van en una transacción READ ONLY con `panel_lectura` (`bd.js:40-56`), y el servidor solo escucha en 127.0.0.1 (`servidor.js:27`).
+`comprobarRol` comprueba la sesión y el rol, y vuelve a mirar en la base que la cuenta sigue activa y sigue teniendo ese rol; si no, borra la sesión (`servidor.js:187-203`). `soloRol` la convierte en un filtro de Express con 401 o 403 (`:205-219`), y de ahí salen `soloAdministrador` para `/api/admin` y `soloTrabajador` para `/api/trabajador` (`:221-225`). Además, las lecturas del panel van en una transacción READ ONLY con `panel_lectura` (`bd.js:41-57`), y el servidor solo escucha en 127.0.0.1 (`servidor.js:27`).
 
 ### Código real
 
 - `02_Acceso_Datos/sql/02_funciones.sql:1-39` — `iniciar_sesion`: comprueba la contraseña con bcrypt y deja el usuario firmado con HMAC para esa transacción.
-- `servidor-admin/sesiones.js:23-56` — opciones de la cookie y creación de la sesión con un token aleatorio.
-- `servidor-admin/bd.js:61-72` — transacción de solo lectura con `SET LOCAL ROLE panel_lectura` (la abre `enTransaccion`, `:40-56`).
+- `servidor-admin/sesiones.js:24-57` — opciones de la cookie y creación de la sesión con un token aleatorio.
+- `servidor-admin/bd.js:62-73` — transacción de solo lectura con `SET LOCAL ROLE panel_lectura` (la abre `enTransaccion`, `:41-57`).
 
 ### Ejercicios
 
@@ -787,7 +787,7 @@ El rol de la aplicación (administrador, comercial o trabajador) es del negocio 
 
 ### Limitaciones que conviene decir antes de que pregunten
 
-- Las sesiones y los intentos están en memoria: si se reinicia el servidor se pierden (`sesiones.js:16`).
+- Las sesiones y los intentos están en memoria: si se reinicia el servidor se pierden (`sesiones.js:17`).
 - La cookie no lleva `Secure` porque el servidor usa HTTP en 127.0.0.1. En producción haría falta HTTPS y `Secure`.
 - El límite de intentos es por nombre de usuario, no por IP: alguien podría probar una misma contraseña con muchos usuarios.
 - Java no tiene límite de intentos y guarda la contraseña en memoria durante la sesión.
@@ -910,19 +910,19 @@ Por el login único, `/login.html` (`servidor.js:110-155`): `iniciar_sesion` com
 `soloRol` (`servidor.js:205-219`) crea `soloAdministrador` y `soloTrabajador` (`:221-225`): sin sesión, 401; con otro rol, 403. Por debajo, `comprobarRol` (`:187-203`) vuelve a mirar en la base en cada petición: si la cuenta se desactiva o le cambian el rol, la sesión se borra en ese momento. Las páginas del portal también están protegidas (`protegerPortal`, `:408-416`).
 
 **P16.4 ¿Con qué usuario de PostgreSQL se conecta y a qué rol pasa?**
-Con `web_nova`, el mismo del panel. En cada transacción del portal hace `SET LOCAL ROLE portal_trabajador` (`bd.js:95-102`): las lecturas, en una transacción de solo lectura (`consultarComoTrabajador`), y los dos cambios en otra (`cambiarComoTrabajador`). `web_nova` no hereda los permisos del rol: solo puede pasar a él (`23_portal_trabajador.sql:242`, `WITH INHERIT FALSE, SET TRUE`).
+Con `web_nova`, el mismo del panel. En cada transacción del portal hace `SET LOCAL ROLE portal_trabajador` (`bd.js:96-103`): las lecturas, en una transacción de solo lectura (`consultarComoTrabajador`), y los dos cambios en otra (`cambiarComoTrabajador`). `web_nova` no hereda los permisos del rol: solo puede pasar a él (`23_portal_trabajador.sql:250`, `WITH INHERIT FALSE, SET TRUE`).
 
 **P16.5 ¿Qué puede hacer `portal_trabajador`?**
-Leer solo las columnas que enseña el portal (`23_portal_trabajador.sql:219-234`): nada de `password_hash`, `dni`, `email`, `telefono`, `direccion_entrega` ni `log_eventos`. Y ejecutar dos funciones (`:237-238`). No puede escribir en ninguna tabla (`:214`).
+Leer solo las columnas que enseña el portal (`23_portal_trabajador.sql:227-242`): nada de `password_hash`, `dni`, `email`, `telefono`, `direccion_entrega` ni `log_eventos`. Y ejecutar dos funciones (`:245-246`). No puede escribir en ninguna tabla (`:222`).
 
 **P16.6 ¿Cómo avanza un pedido?**
-`avanzar_pedido_trabajador` (`23_portal_trabajador.sql:52-131`) comprueba que el usuario existe, está activo y es trabajador (`:69-79`), bloquea el pedido con `FOR UPDATE` (`:83-87`), solo deja dar un paso (`:93-106`), firma `nova.id_usuario` igual que `iniciar_sesion` (`:110-116`), hace el UPDATE (`:118-120`) y deja la variable como estaba (`:123`). Así el trigger de auditoría apunta el `CAMBIO_ESTADO` a nombre del trabajador.
+`avanzar_pedido_trabajador` (`23_portal_trabajador.sql:56-135`) comprueba que el usuario existe, está activo y es trabajador (`:73-83`), bloquea el pedido con `FOR UPDATE` (`:87-91`), solo deja dar un paso (`:97-110`), firma `nova.id_usuario` igual que `iniciar_sesion` (`:114-120`), hace el UPDATE (`:122-124`) y deja la variable como estaba (`:127`). Así el trigger de auditoría apunta el `CAMBIO_ESTADO` a nombre del trabajador.
 
 **P16.7 ¿Avanzar un pedido toca el stock?**
 No. El stock se descuenta al confirmar, y el trigger solo salta al pasar a `confirmado` (`03_triggers.sql:31`). La prueba 9b de `test:portal` lleva un pedido hasta `entregado` y comprueba que el stock no cambia.
 
 **P16.8 ¿Y el inventario?**
-`ajustar_existencias_trabajador` (`23_portal_trabajador.sql:136-196`) hace la misma comprobación del usuario, solo acepta una cantidad de 0 a 99999 (`:165-166`), firma y hace el UPDATE. El `CHECK (cantidad >= 0)` de `existencias` sigue ahí (`esquema:61`), y `trg_auditar_existencias` apunta el `CAMBIO_STOCK` a nombre del trabajador (`08_auditoria.sql:101-105`; prueba 11 de `test:portal`).
+`ajustar_existencias_trabajador` (`23_portal_trabajador.sql:142-202`) hace la misma comprobación del usuario, solo acepta una cantidad de 0 a 99999 (`:171-172`), firma y hace el UPDATE. El `CHECK (cantidad >= 0)` de `existencias` sigue ahí (`esquema:61`), y `trg_auditar_existencias` apunta el `CAMBIO_STOCK` a nombre del trabajador (`08_auditoria.sql:101-105`; prueba 11 de `test:portal`).
 
 **P16.9 ¿Qué ha pasado con Odoo y con `pedidos.js`?**
 El conector (`odoo.js`) está desactivado mientras falten `ODOO_URL`, `ODOO_DB` y `ODOO_API_KEY` (`odoo.js:3-23`), y la consola lo dice al arrancar (`servidor.js:473`). Las rutas de `pedidos.js` no se montan (`pedidos.js:1-11`): crearían pedidos sin login ni rol, escriben en `pedidos` y `log_eventos` directamente y necesitan un Odoo que no está. No se ha probado contra ningún Odoo.
@@ -932,7 +932,7 @@ El conector (`odoo.js`) está desactivado mientras falten `ODOO_URL`, `ODOO_DB` 
 
 ### Código real
 
-- `02_Acceso_Datos/sql/23_portal_trabajador.sql:52-131` — `avanzar_pedido_trabajador`: comprueba el rol, bloquea el pedido, un solo paso y la firma para la auditoría.
+- `02_Acceso_Datos/sql/23_portal_trabajador.sql:56-135` — `avanzar_pedido_trabajador`: comprueba el rol, bloquea el pedido, un solo paso y la firma para la auditoría.
 - `servidor-admin/servidor.js:187-225` — `comprobarRol`, `soloRol`, `soloAdministrador` y `soloTrabajador`.
 - `servidor-admin/rutas-trabajador.js:77-103` — `PATCH /api/trabajador/pedidos/:id/estado`: valida la petición y llama a la función con el usuario de la sesión.
 
@@ -998,7 +998,7 @@ Resultado: un pago, un único descuento de stock y un solo recibo, porque solo e
 
 **E9.2** El baseline usa los pares de septiembre de ese modelo (`pares_mes_anterior`, que es `shift(1)`: `prediccion.py:70`, `:73` y `:196`). La regresión usa los pares de septiembre, la media de julio, agosto y septiembre (`:74`), el seno y el coseno del mes 10 (`:76-77`) y las columnas del modelo (`:81`). Los pares de octubre nunca son una entrada (`test_el_mes_objetivo_no_es_una_entrada`), y la regresión se entrenó solo hasta julio de 2026: no se vuelve a entrenar con agosto ni con septiembre (`prediccion.py:25-27`).
 
-**E10.1** `cargar` no puede preparar la tabla y apunta una incidencia 01 BLOQUEANTE (`calidad.py:118-125`). Como no están las cinco tablas, el estado es ERROR DE CARGA (`actualizacion.py:190-193`) y no se publica ninguna cifra nueva. El último resultado válido se conserva y solo se ve si se activa el interruptor, con el rótulo DESACTUALIZADO y su hora (`actualizacion.py:216`; `app_dashboard.py:678-692`). Al reponer el archivo bueno, el siguiente ciclo vuelve a CORRECTO, o a SIN CAMBIOS si el contenido es el mismo de antes.
+**E10.1** `cargar` no puede preparar la tabla y apunta una incidencia 01 BLOQUEANTE (`calidad.py:118-125`). Como no están las cinco tablas, el estado es ERROR DE CARGA (`actualizacion.py:190-193`) y no se publica ninguna cifra nueva. El último resultado válido se conserva y solo se ve si se activa el interruptor, con el rótulo DESACTUALIZADO y su hora (`actualizacion.py:216`; `app_dashboard.py:693-707`). Al reponer el archivo bueno, el siguiente ciclo vuelve a CORRECTO, o a SIN CAMBIOS si el contenido es el mismo de antes.
 
 **E10.2** Cambian la «Última comprobación», el registro de ciclos (uno por minuto) y la duración del cálculo. El estado es SIN CAMBIOS y los KPIs no se mueven. La «Última actualización válida» tampoco cambia, porque se conserva la de la publicación anterior (`actualizacion.py:199-202`): la huella de los CSV es la misma (`:47-74`). Así salió en el caso K del 13/11 (`04_Python/evidencias/dashboard/caso_k_registro.txt`).
 
@@ -1008,7 +1008,7 @@ Resultado: un pago, un único descuento de stock y un solo recibo, porque solo e
 
 **E13.1** Responde 429 «Demasiados intentos» con la cabecera `Retry-After`, sin comprobar la contraseña: `tiempoDeBloqueo` es mayor que 0 y el login sale antes de llamar a `iniciar_sesion` (`servidor.js:120-124`). El bloqueo lo puso el quinto fallo (`intentos.js:41-43`). Está probado en `01_Interfaces/evidencias/panel-admin/resultados/09_intentos_y_sesiones.txt` («6.o intento CON la contrasena buena -> 429»). Pasados 5 minutos puede volver a entrar.
 
-**E13.2** `usuario_sesion()` separa el id y la firma por `:`. Con `'1'` no hay firma, así que devuelve NULL (`02_funciones.sql:59-64`): el evento queda **sin operador**, no a nombre del administrador. Si se inventa una firma, el HMAC no coincide y también devuelve NULL (`:76-78`). La clave de la firma es el hash bcrypt del usuario, que ningún rol de la aplicación puede leer (`07_seguridad.sql:99-101`). Son las pruebas F1–F4 (`documentacion/README.md:504-557`).
+**E13.2** `usuario_sesion()` separa el id y la firma por `:`. Con `'1'` no hay firma, así que devuelve NULL (`02_funciones.sql:59-64`): el evento queda **sin operador**, no a nombre del administrador. Si se inventa una firma, el HMAC no coincide y también devuelve NULL (`:76-78`). La clave de la firma es el hash bcrypt del usuario, que ningún rol de la aplicación puede leer (`07_seguridad.sql:99-101`). Son las pruebas F1–F4 (`documentacion/README.md:506-559`).
 
 **E14.1** `git log --oneline 7715f83^1..7715f83^2`: muestra lo que está en el segundo padre (la rama fusionada) y no en el primero (la rama de integración). Salen 25 commits; con `--format='%an'` se ve que el autor de todos es `Alvarobaz`, aunque el commit de fusión lo firme `omar1676`.
 
@@ -1022,9 +1022,9 @@ Resultado: un pago, un único descuento de stock y un solo recibo, porque solo e
 
 **E11.2** O se usa el SKU de PostgreSQL como referencia interna de cada variante en Odoo, o se apunta una tabla de equivalencias entre el SKU y la variante de Odoo. Además hay que acordar el número del pedido de venta (que sea SO024 o apuntar la equivalencia) para que la ficha de PSP y su registro lleven la referencia de Odoo (IM-PSP-10 y 29; `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md`).
 
-**E16.1** `avanzar_pedido_trabajador` bloquea el pedido con `FOR UPDATE` (`23_portal_trabajador.sql:83-87`): el segundo espera a que el primero termine. Cuando entra, ya ve `en_preparacion`, pero pide otra vez `en_preparacion`, y la función lanza «Solo se puede pasar de en_preparacion a enviado» (`:104-106`). La ruta lo convierte en un 400 con ese mensaje (`rutas-trabajador.js:26-40`). En la base queda un solo cambio y un solo `CAMBIO_ESTADO` en `log_eventos`. Es la prueba 9d de `test:portal`.
+**E16.1** `avanzar_pedido_trabajador` bloquea el pedido con `FOR UPDATE` (`23_portal_trabajador.sql:87-91`): el segundo espera a que el primero termine. Cuando entra, ya ve `en_preparacion`, pero pide otra vez `en_preparacion`, y la función lanza «Solo se puede pasar de en_preparacion a enviado» (`:108-110`). La ruta lo convierte en un 400 con ese mensaje (`rutas-trabajador.js:26-40`). En la base queda un solo cambio y un solo `CAMBIO_ESTADO` en `log_eventos`. Es la prueba 9d de `test:portal`.
 
-**E16.2** La ruta deja pasar `entregado` porque es un estado válido, pero la función solo permite un paso: «Solo se puede pasar de confirmado a en_preparacion» (`23_portal_trabajador.sql:104-106`) → 400. El `idUsuario` del cuerpo no se usa: la ruta toma el usuario de la sesión (`rutas-trabajador.js:91`) y la función vuelve a comprobar que es un trabajador activo (`23_portal_trabajador.sql:69-79`). Son las pruebas 10a y 10b de `test:portal`.
+**E16.2** La ruta deja pasar `entregado` porque es un estado válido, pero la función solo permite un paso: «Solo se puede pasar de confirmado a en_preparacion» (`23_portal_trabajador.sql:108-110`) → 400. El `idUsuario` del cuerpo no se usa: la ruta toma el usuario de la sesión (`rutas-trabajador.js:91`) y la función vuelve a comprobar que es un trabajador activo (`23_portal_trabajador.sql:73-83`). Son las pruebas 10a y 10b de `test:portal`.
 
 ---
 
