@@ -1,0 +1,24 @@
+✔ el servidor responde y se conecta con web_nova, no con postgres (73.652ms)
+✔ las respuestas llevan cabeceras de proteccion y la API no se guarda en cache (9.4994ms)
+✔ una peticion con otro nombre de host se rechaza (DNS rebinding) (5.9198ms)
+✔ los datos no validos dan 4xx y no 500 (31.6893ms)
+✔ las rutas con .. o mal codificadas dan 400 y lo publico se ve sin sesion (6.1763ms)
+✔ sin sesion, las 8 rutas responden 401 (6.5548ms)
+✔ sin sesion, las paginas del panel llevan al login (2.4258ms)
+✔ una contrasena incorrecta da 401 y no crea sesion (14.7992ms)
+✔ un usuario que no es administrador recibe 403 (14.6121ms)
+✔ el administrador recibe JSON de las 8 rutas, sin datos sensibles (52.2232ms)
+✔ el dashboard marca las sugerencias como no disponibles y usa el umbral 10 (9.2536ms)
+✔ los filtros se aplican y un valor no permitido da 400 (18.2554ms)
+✔ consultar no puede escribir: la transaccion es de solo lectura (4.6167ms)
+✔ despues del logout la sesion ya no sirve (9.198ms)
+✔ web_nova no puede pasar a nova_admin ni escribir, aunque falte READ ONLY (4.4079ms)
+✔ tras 5 fallos el usuario queda bloqueado (429), exista o no, y despues puede entrar (1746.1924ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8531.0773

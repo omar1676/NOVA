@@ -27,11 +27,13 @@
             <a href="estadisticasAdmin.html"><i data-lucide="bar-chart-3"></i> Estadísticas</a>
             <a href="auditoriaAdmin.html"><i data-lucide="scroll-text"></i> Auditoría</a>
             <a href="configuracionAdmin.html" class="adm-activo"><i data-lucide="settings"></i> Configuración</a>
+            <a href="#" id="adm-salir"><i data-lucide="log-out"></i> Cerrar sesión</a>
         </nav>
     </div>
 
     <div class="adm-contenido">
         <h1>Configuración</h1>
+        <p class="adm-prototipo">Prototipo · Los datos de esta página son de ejemplo: todavía no está conectada a la base de datos.</p>
         <p class="adm-nota">Ajustes de la tienda online. Cada cambio queda registrado en el historial con quién y cuándo
             lo hizo.</p>
 
@@ -47,7 +49,7 @@
                             <small>Muestra un aviso en la parte superior de la tienda</small>
                         </div>
                         <label class="adm-interruptor">
-                            <input type="checkbox" id="adm-banner-activo">
+                            <input type="checkbox" id="adm-banner-activo" aria-label="Banner promocional">
                             <span></span>
                         </label>
                     </div>
@@ -74,8 +76,8 @@
                     <div class="adm-campo">
                         <label for="adm-umbral-stock">Umbral de stock bajo</label>
                         <input type="number" id="adm-umbral-stock" value="10" min="0">
-                        <span class="adm-ayuda">Con estas unidades o menos, la talla aparece como "bajo" en
-                            Inventario.</span>
+                        <span class="adm-ayuda">Con menos de estas unidades, la talla aparece como "bajo" en
+                            Inventario. En el servidor está fijado en 10.</span>
                     </div>
 
                     <div class="adm-opcion">
@@ -84,7 +86,7 @@
                             <small>Muestra los últimos modelos en la tienda</small>
                         </div>
                         <label class="adm-interruptor">
-                            <input type="checkbox" id="adm-modulo-novedades" checked>
+                            <input type="checkbox" id="adm-modulo-novedades" aria-label="Sección de novedades" checked>
                             <span></span>
                         </label>
                     </div>
@@ -95,7 +97,7 @@
                             <small>Permite enviar sugerencias desde la tienda</small>
                         </div>
                         <label class="adm-interruptor">
-                            <input type="checkbox" id="adm-modulo-sugerencias" checked>
+                            <input type="checkbox" id="adm-modulo-sugerencias" aria-label="Sugerencias de clientes" checked>
                             <span></span>
                         </label>
                     </div>
@@ -131,7 +133,7 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@1.62.0/dist/umd/lucide.min.js" integrity="sha384-KbBG+Cdzk6eN6IszNtkSQeU6IJq84TBpyLQN+W8Fn8y0QNsTNiB+j8vFW5Rn1SGZ" crossorigin="anonymous"></script>
     <script src="script.js"></script>
 
 </body>

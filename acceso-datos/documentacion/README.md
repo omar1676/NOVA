@@ -51,11 +51,13 @@ cuándo se escribió cada uno.
 | 16 | `16_exportar_csv_dashboard.sql` | Exporta los cinco CSV del contrato (clientes, modelos, pedidos, líneas y stock) para el dashboard. Solo lee. Opcional | no |
 | 17 | `17_usuario_java.sql` | **Crea `java_nova`, el usuario con el que se conecta la aplicación Java**, y deja al comercial marcar pedidos Custom. Pide la contraseña por teclado. Se puede lanzar después del 7 o al final | **sí** |
 | 18 | `18_datos_so024.sql` | **Datos del caso común SO024**: el cliente Club Halcones, el modelo Runner X con sus tallas 38–46 (SKU y existencias). **No crea el pedido**: SO024 se crea y confirma desde la aplicación Java. El precio, el color y el stock se pasan con `-v` hasta que se acuerden; sin ellos no inserta nada. Va al final, después de las pruebas | no |
+| 19 | `19_usuario_web.sql` | **Crea `panel_lectura`, un rol de solo lectura, y `web_nova`, el usuario con el que se conecta el servidor del panel de administración** (`servidor-admin/`). `web_nova` solo puede pasar a `panel_lectura` con `SET ROLE` y no hereda nada. `panel_lectura` no puede escribir en ninguna tabla ni leer `password_hash`, `dni` ni `direccion_entrega`. Pide la contraseña por teclado. Se puede lanzar después del 7 o al final | **sí** |
 
 **Los tres últimos van al final, y el orden importa.** El orden correcto es:
 instalación (1–7) → pruebas (8–12) → contraseñas (13) → `CUSTOM-40` (14) →
-exportaciones (15 y 16) → datos de SO024 (18). El 17 puede ir en cualquier
-momento después del 7: la batería `09_pruebas.sql` da 91 de 91 con él instalado.
+exportaciones (15 y 16) → datos de SO024 (18). El 17 y el 19 pueden ir en
+cualquier momento después del 7: la batería `09_pruebas.sql` da 91 de 91 con
+los dos instalados.
 El 18 no puede ir antes de las pruebas: con Runner X ya cargado, dos
 comprobaciones de `09_pruebas.sql` que cuentan los modelos de los datos de
 demostración dan `FAIL`.

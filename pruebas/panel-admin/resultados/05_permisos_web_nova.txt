@@ -1,0 +1,66 @@
+Permisos reales: conectado como web_nova con su contrasena. En C, como panel_lectura y con la transaccion en lectura/escritura (transaction_read_only = off): lo que se prueba son los PERMISOS, no el READ ONLY.
+
+--- A. web_nova sin cambiar de rol
+PASS  leer pedidos sin SET ROLE (denegado)
+PASS  ejecutar iniciar_sesion sin SET ROLE (denegado)
+--- B. web_nova no puede pasar a otros roles
+PASS  SET ROLE nova_admin (denegado)
+PASS  SET ROLE nova_comercial (denegado)
+PASS  SET ROLE nova_trabajador (denegado)
+PASS  SET ROLE java_nova (denegado)
+PASS  SET ROLE postgres (denegado)
+--- C. como panel_lectura y SIN transaccion de solo lectura: escrituras
+ transaction_read_only
+ off
+
+PASS  UPDATE pedidos (denegado)
+PASS  DELETE pedidos (denegado)
+PASS  UPDATE linea_pedido (denegado)
+PASS  DELETE linea_pedido (denegado)
+PASS  UPDATE existencias (denegado)
+PASS  DELETE existencias (denegado)
+PASS  UPDATE clientes (denegado)
+PASS  DELETE clientes (denegado)
+PASS  UPDATE usuarios (denegado)
+PASS  DELETE usuarios (denegado)
+PASS  UPDATE personal (denegado)
+PASS  DELETE personal (denegado)
+PASS  UPDATE modelos (denegado)
+PASS  DELETE modelos (denegado)
+PASS  UPDATE producto_sku (denegado)
+PASS  DELETE producto_sku (denegado)
+PASS  UPDATE log_eventos (denegado)
+PASS  DELETE log_eventos (denegado)
+PASS  INSERT pedidos (denegado)
+PASS  INSERT clientes (denegado)
+PASS  INSERT log_eventos (denegado)
+PASS  TRUNCATE existencias (denegado)
+PASS  CREATE TABLE en public (denegado)
+--- D. funciones que escriben
+PASS  establecer_password (denegado)
+PASS  crear_usuario (denegado)
+PASS  realizar_compra (denegado)
+PASS  anadir_linea_pedido (denegado)
+PASS  descontar_stock (denegado)
+--- E. datos sensibles
+PASS  leer usuarios.password_hash (denegado)
+PASS  leer personal.dni (denegado)
+PASS  leer clientes.direccion_entrega (denegado)
+PASS  leer pedidos.personalizacion (denegado)
+PASS  SELECT * de clientes (denegado)
+PASS  SELECT * de usuarios (denegado)
+PASS  leer configuraciones_xnova (denegado)
+--- F. lo que el panel SI necesita
+PASS  leer pedidos (columnas del panel) (permitido)
+PASS  count(*) de pedidos (permitido)
+PASS  leer lineas (P-C) (permitido)
+PASS  leer clientes sin direccion (permitido)
+PASS  leer personal sin dni (permitido)
+PASS  leer usuarios sin hash (permitido)
+PASS  leer catalogo, stock, naves, roles y auditoria (permitido)
+                   login
+ PASS  login con iniciar_sesion (permitido)
+
+--- G. funciones que puede ejecutar (las de PUBLIC y el login; las de trigger no se pueden llamar)
+                  ejecutables
+ cerrar_sesion, iniciar_sesion, usuario_sesion
