@@ -28,8 +28,9 @@
 --      (19) y a panel_reparto (22). Nadie mas puede llamar a las funciones.
 --
 -- QUE NO HACE
---   No cambia ninguna tabla, trigger, funcion ni rol de los scripts 01-22:
---   panel_lectura y panel_reparto siguen igual.
+--   No cambia ninguna tabla, trigger ni funcion de los scripts 01-22, ni los
+--   permisos de panel_lectura y panel_reparto. A web_nova solo le anade el
+--   paso a portal_trabajador.
 --   El rol no se llama nova_* porque 09 cuenta los roles con ese prefijo.
 --
 -- COMO SE EJECUTA
@@ -49,6 +50,9 @@ BEGIN;
 -- ---------------------------------------------------------------------
 -- 1. Avanzar el estado de un pedido (un paso)
 -- ---------------------------------------------------------------------
+-- RETURNS TABLE crea variables con los nombres de sus columnas (id_pedido,
+-- referencia, estado). Por eso dentro se escribe siempre p.id_pedido,
+-- p.estado...: sin el alias, PostgreSQL no sabria si es la columna o la variable.
 CREATE OR REPLACE FUNCTION public.avanzar_pedido_trabajador(
     p_id_usuario integer,
     p_id_pedido integer,
@@ -133,6 +137,8 @@ $function$
 -- ---------------------------------------------------------------------
 -- 2. Cambiar la cantidad de unas existencias (SKU en una nave)
 -- ---------------------------------------------------------------------
+-- Igual que arriba: las columnas devueltas son tambien variables, asi que
+-- las consultas usan el alias e.
 CREATE OR REPLACE FUNCTION public.ajustar_existencias_trabajador(
     p_id_usuario integer,
     p_id_producto_sku integer,
@@ -175,6 +181,7 @@ BEGIN
         true
     );
 
+    -- 4. El cambio. Si ese SKU no tiene fila en esa nave, error
     UPDATE public.existencias e
     SET cantidad = p_cantidad
     WHERE e.id_producto_sku = p_id_producto_sku
@@ -184,6 +191,7 @@ BEGIN
         RAISE EXCEPTION 'No existe esa existencia';
     END IF;
 
+    -- 5. La variable vuelve a como estaba: no queda una sesion abierta
     PERFORM set_config('nova.id_usuario', COALESCE(v_sesion_anterior, ''), true);
 
     RETURN QUERY
