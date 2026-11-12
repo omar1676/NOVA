@@ -1,19 +1,21 @@
 -- =====================================================================
 -- 15_exportar_fabricacion.sql
 --
--- Exporta la orden de fabricacion del pedido CUSTOM-40 a un CSV, para
--- que PSP pueda leerla.
+-- Exporta a un CSV la orden de fabricacion de un pedido Custom, para que
+-- PSP pueda leerla. Por defecto, CUSTOM-40. Para otro pedido, por ejemplo
+-- SO024, se indica con -v referencia=SO024 (ver COMO SE EJECUTA).
 --
 -- QUE EXPORTA, Y QUE NO
---   Solo CUSTOM-40, y solo si esta **confirmado**. No mezcla NOVA-0011
---   ni ningun otro pedido personalizado: cada orden de fabricacion es de
+--   Solo el pedido indicado, y solo si esta **confirmado** y suma 40
+--   pares. No mezcla ningun otro pedido: cada orden de fabricacion es de
 --   un pedido.
 --
 --   Un pedido pendiente todavia no se fabrica, y uno cancelado ya no se
 --   fabrica: en los dos casos el script se detiene con un error.
 --
---   Lee el pedido GUARDADO en la base, no datos temporales. Si CUSTOM-40
---   no esta, hay que ejecutar antes 14_caso_custom_persistente.sql.
+--   Lee el pedido GUARDADO en la base, no datos temporales. CUSTOM-40 lo
+--   crea 14_caso_custom_persistente.sql; SO024 se crea desde la
+--   aplicacion Java.
 --
 -- ESTE CSV NO ES NINGUNO DE LOS CINCO DEL CONTRATO
 --   El contrato de integracion (integracion/contrato-pedido.md, apartado
@@ -67,15 +69,32 @@
 --     mkdir salidas
 --     cd salidas
 --     psql -U postgres -d nova_sneakers -f ..\15_exportar_fabricacion.sql
+--
+--   Para exportar otro pedido, se le pasa su referencia:
+--     psql -U postgres -d nova_sneakers -v referencia=SO024 -f 15_exportar_fabricacion.sql
+--
+--   Ni \copy ni los bloques DO ven las variables de psql. Por eso la
+--   referencia se guarda en una tabla temporal (pedido_a_exportar) y las
+--   consultas la leen de alli. La tabla desaparece al terminar.
 -- =====================================================================
 
 \set ON_ERROR_STOP on
 
-\echo '===== Orden de fabricacion para PSP: pedido CUSTOM-40 ====='
+-- Si no se indica otra referencia con -v, se exporta CUSTOM-40.
+\if :{?referencia}
+\else
+\set referencia CUSTOM-40
+\endif
+
+\echo '===== Orden de fabricacion para PSP: pedido' :referencia '====='
 \echo ''
 \echo 'El CSV se deja como fabricacion_psp.csv en el directorio actual.'
 
 BEGIN;
+
+-- La referencia del pedido, en una tabla temporal que leen las consultas.
+CREATE TEMP TABLE pedido_a_exportar ON COMMIT DROP AS
+SELECT :'referencia'::varchar(30) AS referencia;
 
 -- ---------------------------------------------------------------------
 -- 1. Comprobaciones previas. Si alguna falla, psql se detiene aqui y el
@@ -86,26 +105,30 @@ BEGIN;
 
 DO $$
 DECLARE
+    v_ref    varchar(30);
     v_pedido integer;
     v_estado varchar(25);
     v_pares  integer;
     v_tallas integer;
     v_lineas integer;
 BEGIN
+    SELECT referencia INTO v_ref FROM pedido_a_exportar;
+
     SELECT id_pedido, estado
       INTO v_pedido, v_estado
       FROM public.pedidos
-     WHERE referencia = 'CUSTOM-40';
+     WHERE referencia = v_ref;
 
     IF v_pedido IS NULL THEN
         RAISE EXCEPTION
-            'No existe el pedido CUSTOM-40. Ejecuta antes 14_caso_custom_persistente.sql';
+            'No existe el pedido %. CUSTOM-40 lo crea 14_caso_custom_persistente.sql y SO024 la aplicacion Java',
+            v_ref;
     END IF;
 
     IF v_estado <> 'confirmado' THEN
         RAISE EXCEPTION
-            'CUSTOM-40 esta en estado "%" y solo se fabrica un pedido confirmado. Un pedido pendiente aun no se fabrica y uno cancelado ya no',
-            v_estado;
+            '% esta en estado "%" y solo se fabrica un pedido confirmado. Un pedido pendiente aun no se fabrica y uno cancelado ya no',
+            v_ref, v_estado;
     END IF;
 
     SELECT count(*),
@@ -119,22 +142,17 @@ BEGIN
 
     IF v_pares <> 40 THEN
         RAISE EXCEPTION
-            'CUSTOM-40 tiene % pares y la orden de fabricacion exige exactamente 40', v_pares;
-    END IF;
-
-    IF v_tallas <> 4 THEN
-        RAISE EXCEPTION
-            'CUSTOM-40 tiene % tallas distintas y se esperaban 4', v_tallas;
+            '% tiene % pares y la orden de fabricacion exige exactamente 40', v_ref, v_pares;
     END IF;
 
     IF v_lineas <> v_tallas THEN
         RAISE EXCEPTION
-            'CUSTOM-40 tiene % lineas para % tallas: hay tallas repetidas', v_lineas, v_tallas;
+            '% tiene % lineas para % tallas: hay tallas repetidas', v_ref, v_lineas, v_tallas;
     END IF;
 
     RAISE NOTICE
-        'PASS: CUSTOM-40 (id %) esta confirmado, con 4 lineas, 4 tallas y 40 pares.',
-        v_pedido;
+        'PASS: % (id %) esta confirmado, con % lineas, % tallas y 40 pares.',
+        v_ref, v_pedido, v_lineas, v_tallas;
 END
 $$;
 
@@ -163,7 +181,7 @@ JOIN public.linea_pedido l  ON l.id_pedido       = p.id_pedido
 JOIN public.producto_sku s  ON s.id_producto_sku = l.id_producto_sku
 JOIN public.variantes v     ON v.id_variante     = s.id_variante
 JOIN public.modelos m       ON m.id_modelo       = v.id_modelo
-WHERE p.referencia = 'CUSTOM-40'
+WHERE p.referencia = (SELECT referencia FROM pedido_a_exportar)
 ORDER BY s.talla;
 
 -- ---------------------------------------------------------------------
@@ -173,7 +191,7 @@ ORDER BY s.talla;
 \echo ''
 \echo '--- Exportacion'
 
-\copy (SELECT p.referencia, s.sku, c.nombre AS cliente, m.nombre AS modelo, v.color, p.personalizacion, s.talla, l.cantidad FROM public.pedidos p JOIN public.clientes c ON c.id_cliente = p.id_cliente JOIN public.linea_pedido l ON l.id_pedido = p.id_pedido JOIN public.producto_sku s ON s.id_producto_sku = l.id_producto_sku JOIN public.variantes v ON v.id_variante = s.id_variante JOIN public.modelos m ON m.id_modelo = v.id_modelo WHERE p.referencia = 'CUSTOM-40' AND p.estado = 'confirmado' ORDER BY s.talla) TO 'fabricacion_psp.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8')
+\copy (SELECT p.referencia, s.sku, c.nombre AS cliente, m.nombre AS modelo, v.color, p.personalizacion, s.talla, l.cantidad FROM public.pedidos p JOIN public.clientes c ON c.id_cliente = p.id_cliente JOIN public.linea_pedido l ON l.id_pedido = p.id_pedido JOIN public.producto_sku s ON s.id_producto_sku = l.id_producto_sku JOIN public.variantes v ON v.id_variante = s.id_variante JOIN public.modelos m ON m.id_modelo = v.id_modelo WHERE p.referencia = (SELECT referencia FROM pedido_a_exportar) AND p.estado = 'confirmado' ORDER BY s.talla) TO 'fabricacion_psp.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8')
 
 -- ---------------------------------------------------------------------
 -- 4. Comprobacion final, todavia en la misma transaccion.
@@ -189,16 +207,16 @@ BEGIN
       FROM public.pedidos p
       JOIN public.linea_pedido l ON l.id_pedido = p.id_pedido
       JOIN public.producto_sku s ON s.id_producto_sku = l.id_producto_sku
-     WHERE p.referencia = 'CUSTOM-40'
+     WHERE p.referencia = (SELECT referencia FROM pedido_a_exportar)
        AND p.estado = 'confirmado';
 
-    IF v_filas <> 4 OR v_tallas <> 4 OR v_pares <> 40 THEN
+    IF v_filas <> v_tallas OR v_pares <> 40 THEN
         RAISE EXCEPTION
-            'La orden exportada tiene % filas, % tallas y % pares; se esperaban 4, 4 y 40',
+            'La orden exportada tiene % filas, % tallas y % pares; se esperaba una fila por talla y 40 pares',
             v_filas, v_tallas, v_pares;
     END IF;
 
-    RAISE NOTICE 'PASS: la orden exportada son 4 filas, 4 tallas y 40 pares.';
+    RAISE NOTICE 'PASS: la orden exportada son % filas, % tallas y 40 pares.', v_filas, v_tallas;
 END
 $$;
 

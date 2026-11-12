@@ -47,14 +47,18 @@ cuándo se escribió cada uno.
 | 12 | `12_consultas_panel.sql` | Consultas parametrizadas de búsqueda e indicadores para el panel Java. Opcional | no |
 | 13 | `13_activar_usuarios.sql` | **Pone las contraseñas de las tres cuentas de demostración.** Pregunta por teclado; no guarda nada en el repositorio | **sí** |
 | 14 | `14_caso_custom_persistente.sql` | **Deja el pedido `CUSTOM-40` guardado de verdad**, con 40 pares en cuatro tallas. Va al final, después de las pruebas. Opcional | no |
-| 15 | `15_exportar_fabricacion.sql` | Exporta la orden de fabricación de `CUSTOM-40` a un CSV para PSP. Necesita que el 14 se haya ejecutado. Opcional | no |
+| 15 | `15_exportar_fabricacion.sql` | Exporta a un CSV para PSP la orden de fabricación de un pedido Custom confirmado de 40 pares: `CUSTOM-40` por defecto (necesita el 14) u otro con `-v referencia=SO024`. Opcional | no |
 | 16 | `16_exportar_csv_dashboard.sql` | Exporta los cinco CSV del contrato (clientes, modelos, pedidos, líneas y stock) para el dashboard. Solo lee. Opcional | no |
 | 17 | `17_usuario_java.sql` | **Crea `java_nova`, el usuario con el que se conecta la aplicación Java**, y deja al comercial marcar pedidos Custom. Pide la contraseña por teclado. Se puede lanzar después del 7 o al final | **sí** |
+| 18 | `18_datos_so024.sql` | **Datos del caso común SO024**: el cliente Club Halcones, el modelo Runner X con sus tallas 38–46 (SKU y existencias). **No crea el pedido**: SO024 se crea y confirma desde la aplicación Java. El precio, el color y el stock se pasan con `-v` hasta que se acuerden; sin ellos no inserta nada. Va al final, después de las pruebas | no |
 
 **Los tres últimos van al final, y el orden importa.** El orden correcto es:
 instalación (1–7) → pruebas (8–12) → contraseñas (13) → `CUSTOM-40` (14) →
-exportaciones (15 y 16). El 17 puede ir en cualquier momento después del 7:
-la batería `09_pruebas.sql` da 91 de 91 con él instalado.
+exportaciones (15 y 16) → datos de SO024 (18). El 17 puede ir en cualquier
+momento después del 7: la batería `09_pruebas.sql` da 91 de 91 con él instalado.
+El 18 no puede ir antes de las pruebas: con Runner X ya cargado, dos
+comprobaciones de `09_pruebas.sql` que cuentan los modelos de los datos de
+demostración dan `FAIL`.
 
 Dos razones, las dos comprobadas ejecutándolo:
 
