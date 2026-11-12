@@ -695,10 +695,10 @@ La instancia o máquina virtual, una copia o backup o evidencias suficientes par
 Las cinco que pide el enunciado (IM-INT-04): inicio, catálogo con 100 modelos (`01_Interfaces/cliente/js/modelos.js`), ficha de cada modelo con precio, descripción y tallas, el servicio Custom (`index.html:267`) y una parte corporativa («Nuestra visión») con contacto. El menú está en `index.html:31-36`.
 
 **P12.2 ¿Cómo la habéis hecho responsive?**
-Con CSS Grid y media queries: el catálogo tiene 4 columnas en escritorio (`css/inicio.css:627-632`) y pasa a 2 por debajo de 760 px (`:671` y `:685-688`); los títulos usan `clamp()` para ajustar el tamaño (`:144`) y las barras usan `flex-wrap`. Se probó en 11 anchos de 320 a 1440 px sin desplazamiento horizontal (H12).
+Con CSS Grid y media queries: el catálogo tiene 4 columnas en escritorio (`css/inicio.css:617-622`) y pasa a 2 por debajo de 760 px (`:649` y `:660-663`); los títulos usan `clamp()` para ajustar el tamaño (`:144`) y las barras usan `flex-wrap`. Se probó en 11 anchos de 320 a 1440 px sin desplazamiento horizontal (H12).
 
 **P12.3 ¿Qué habéis hecho para la accesibilidad?**
-Un enlace «Saltar al escaparate» (`index.html:23`), navegación con `aria-label`, una etiqueta en cada campo, las tallas agrupadas con `fieldset` y `legend` (`:348-349`), mensajes con `role="status"` y `aria-live` (`:366` y `:139`), foco visible (`css/inicio.css:30-32`) y menos animaciones si el usuario lo pide (`:555-565`). axe no da violaciones, hay 212/212 contrastes AA y Lighthouse da 100 en accesibilidad (11/11).
+Un enlace «Saltar al escaparate» (`index.html:23`), navegación con `aria-label`, una etiqueta en cada campo, las tallas agrupadas con `fieldset` y `legend` (`:348-349`), mensajes con `role="status"` y `aria-live` (`:366` y `:139`), foco visible (`css/inicio.css:30-32`) y menos animaciones si el usuario lo pide (`:545-555`). axe no da violaciones, hay 212/212 contrastes AA y Lighthouse da 100 en accesibilidad (11/11).
 
 **P12.4 ¿Qué estándar seguís y por qué?**
 WCAG 2.1 nivel AA, que es el que comprueban axe y Lighthouse (`01_Interfaces/evidencias/web/README.md:8-9`). Sirve para que la web la pueda usar más gente: con teclado, con lector de pantalla o con poca vista (contraste mínimo de 4,5:1 en texto normal).
@@ -713,15 +713,15 @@ Porque el enunciado pide «un formulario o prototipo de solicitud» (IM-INT-07) 
 Una ampliación que ningún enunciado pide: cuentas de cliente, carrito, pago simulado y «Mis pedidos», conectada a PostgreSQL a través del servidor y de las funciones del script 20. Conviene presentarla como ampliación: AD-136 dice que se valora más la coherencia que añadir cosas no pedidas.
 
 **P12.8 ¿Cómo evitáis el doble clic al pagar?**
-El navegador desactiva los botones mientras espera la respuesta (`01_Interfaces/cliente/js/tienda.js:852` y `:901`) y cada compra lleva una clave aleatoria creada al abrir el checkout (`:817`); si la misma compra llega dos veces, la base devuelve el mismo pedido (`20_tienda_web.sql:226-237`).
+El navegador desactiva los botones mientras espera la respuesta (`01_Interfaces/cliente/js/tienda.js:851` y `:900`) y cada compra lleva una clave aleatoria creada al abrir el checkout (`:817`); si la misma compra llega dos veces, la base devuelve el mismo pedido (`20_tienda_web.sql:226-237`).
 
 **P12.9 ¿De dónde saca los datos el panel de administración?**
-De la API `/api/admin/...` del servidor (`01_Interfaces/admin/script.js:62-100`), que lee PostgreSQL en transacciones de solo lectura (`servidor-admin/bd.js:45-61`). La única escritura es «Marcar en reparto», con su propio rol (`bd.js:69-83`).
+De la API `/api/admin/...` del servidor (`01_Interfaces/admin/script.js:62-100`), que lee PostgreSQL en transacciones de solo lectura (`servidor-admin/bd.js:61-72`, con el ayudante `enTransaccion` de `:40-56`). La única escritura es «Marcar en reparto», con su propio rol (`bd.js:80-83`).
 
 ### Código real
 
 - `01_Interfaces/cliente/js/custom.js:17-51` — suma de pares, aviso si no hay ninguno y mensaje de simulación.
-- `01_Interfaces/cliente/css/inicio.css:671-688` — la media query que pasa el catálogo de 4 a 2 columnas.
+- `01_Interfaces/cliente/css/inicio.css:649-666` — la media query que pasa el catálogo de 4 a 2 columnas.
 - `01_Interfaces/cliente/index.html:348-366` — `fieldset` de tallas con su `legend` y resultado con `role="status"`.
 
 ### Ejercicios
@@ -734,7 +734,7 @@ De la API `/api/admin/...` del servidor (`01_Interfaces/admin/script.js:62-100`)
 - **[PENDIENTE (los tres): la prueba de usabilidad con personas (RA4, CE i)].** El procedimiento está preparado en `01_Interfaces/memoria/PROCEDIMIENTO_USABILIDAD.md`. La estrategia de pruebas (RA8) está en `01_Interfaces/memoria/ESTRATEGIA_PRUEBAS_INTERFACES.md`.
 - El formulario Custom no pide la fecha objetivo ni enseña un número de pedido (el enunciado dice «Puede mostrarse o simularse»).
 - Runner X, el modelo de SO024, no está en el catálogo de la web.
-- Por debajo de 370 px se oculta el enlace «Nuestra visión» del menú (`css/inicio.css:544-546`); la sección sigue ahí bajando por la página.
+- Por debajo de 370 px se oculta el enlace «Nuestra visión» del menú (`css/inicio.css:534-536`); la sección sigue ahí bajando por la página.
 - En móvil, axe avisa de `scrollable-region-focusable` en las tablas del panel; el panel y el portal cargan Lucide (y el panel, Chart.js) de internet.
 - Las baterías de la web se repitieron el 13/11 sobre el código final: 136/136, 114/114, 81/81 y la compra 139/139 (`06_Intermodular/evidencias/regresion-final/05_web/`). Lighthouse es del 11/11.
 
@@ -766,19 +766,19 @@ Una para el panel (`sesion_nova`, ruta `/`) y otra para la tienda (`sesion_tiend
 Tras 5 fallos seguidos con el mismo usuario, el servidor responde 429 durante 5 minutos sin mirar la contraseña, aunque sea la buena (`servidor-admin/intentos.js:11-12` y `:41-43`; `servidor.js:120-124`). Se cuenta por nombre, exista o no la cuenta, y un acierto pone el contador a cero (`servidor.js:134`). Vale igual para el administrador y para el trabajador, porque entran por el mismo login. La tienda hace lo mismo con el correo (`servidor-admin/tienda.js:207-211`).
 
 **P13.8 ¿Qué roles de PostgreSQL hay y para qué sirve cada uno?**
-Los usuarios con LOGIN no tienen permisos propios (NOINHERIT): `java_nova`, `web_nova` y `tienda_nova`. Al conectarse pasan con `SET ROLE` a un rol sin login con los permisos justos: `nova_admin`, `nova_comercial` o `nova_trabajador` (Java), `panel_lectura` o `panel_reparto` (panel), `portal_trabajador` (portal) y `tienda_web` (tienda) (`17_usuario_java.sql:41-48`, `19_usuario_web.sql:111`, `23_portal_trabajador.sql:242`, `servidor-admin/bd.js:50`, `:74`, `:100`, `:117` y `:182`).
+Los usuarios con LOGIN no tienen permisos propios (NOINHERIT): `java_nova`, `web_nova` y `tienda_nova`. Al conectarse pasan con `SET ROLE` a un rol sin login con los permisos justos: `nova_admin`, `nova_comercial` o `nova_trabajador` (Java), `panel_lectura` o `panel_reparto` (panel), `portal_trabajador` (portal) y `tienda_web` (tienda) (`17_usuario_java.sql:41-48`, `19_usuario_web.sql:111`, `23_portal_trabajador.sql:242`, `servidor-admin/bd.js:71`, `:81`, `:96`, `:100` y `:153`).
 
 **P13.9 ¿Qué diferencia hay entre un rol de la aplicación y un rol de PostgreSQL?**
 El rol de la aplicación (administrador, comercial o trabajador) es del negocio y está en la tabla `roles`; el de PostgreSQL es un conjunto de permisos de la base. Java los une con `Sesion.rolPostgres` (`Sesion.java:110-121`). Y `admin.demo` no es un rol de PostgreSQL, sino una fila de la tabla `usuarios` (`20_tienda_web.sql:35-42`). Es lo que pide explicar AD-67.
 
 **P13.10 ¿Cómo se protegen el panel y el portal en cada petición?**
-`comprobarRol` comprueba la sesión y el rol, y vuelve a mirar en la base que la cuenta sigue activa y sigue teniendo ese rol; si no, borra la sesión (`servidor.js:187-203`). `soloRol` la convierte en un filtro de Express con 401 o 403 (`:205-219`), y de ahí salen `soloAdministrador` para `/api/admin` y `soloTrabajador` para `/api/trabajador` (`:221-225`). Además, las lecturas del panel van en una transacción READ ONLY con `panel_lectura` (`bd.js:45-61`), y el servidor solo escucha en 127.0.0.1 (`servidor.js:27`).
+`comprobarRol` comprueba la sesión y el rol, y vuelve a mirar en la base que la cuenta sigue activa y sigue teniendo ese rol; si no, borra la sesión (`servidor.js:187-203`). `soloRol` la convierte en un filtro de Express con 401 o 403 (`:205-219`), y de ahí salen `soloAdministrador` para `/api/admin` y `soloTrabajador` para `/api/trabajador` (`:221-225`). Además, las lecturas del panel van en una transacción READ ONLY con `panel_lectura` (`bd.js:40-56`), y el servidor solo escucha en 127.0.0.1 (`servidor.js:27`).
 
 ### Código real
 
 - `02_Acceso_Datos/sql/02_funciones.sql:1-39` — `iniciar_sesion`: comprueba la contraseña con bcrypt y deja el usuario firmado con HMAC para esa transacción.
 - `servidor-admin/sesiones.js:23-56` — opciones de la cookie y creación de la sesión con un token aleatorio.
-- `servidor-admin/bd.js:45-61` — transacción de solo lectura con `SET LOCAL ROLE panel_lectura`.
+- `servidor-admin/bd.js:61-72` — transacción de solo lectura con `SET LOCAL ROLE panel_lectura` (la abre `enTransaccion`, `:40-56`).
 
 ### Ejercicios
 
@@ -791,7 +791,7 @@ El rol de la aplicación (administrador, comercial o trabajador) es del negocio 
 - La cookie no lleva `Secure` porque el servidor usa HTTP en 127.0.0.1. En producción haría falta HTTPS y `Secure`.
 - El límite de intentos es por nombre de usuario, no por IP: alguien podría probar una misma contraseña con muchos usuarios.
 - Java no tiene límite de intentos y guarda la contraseña en memoria durante la sesión.
-- El pago es simulado y el resultado lo elige el navegador (`servidor-admin/tienda.js:275-276`); en una tienda real lo daría la pasarela de pago al servidor.
+- El pago es simulado y el resultado lo elige el navegador (`servidor-admin/tienda.js:284-285`); en una tienda real lo daría la pasarela de pago al servidor.
 - Los permisos de la tienda son por columnas, no por filas: que cada cliente vea solo lo suyo lo asegura el servidor, que filtra por el id de su sesión (`20_tienda_web.sql:27-29`).
 - `marcar_pedido_en_reparto` confía en el id de usuario que le pasa el servidor, que lo saca de la sesión, no del navegador (`22_reparto_panel.sql:46-67`).
 - El recibo por correo con Resend nunca se ha enviado con una clave real; Ethereal es solo para desarrollo.
@@ -904,13 +904,13 @@ El portal es de Berme: sus dos commits (`7341001`, las páginas y las rutas; `65
 Es para el taller y el almacén. Tiene cuatro páginas (`01_Interfaces/trabajador/`): Resumen (por preparar, en preparación, SKU con menos de 5 pares y pedidos de hoy), Pedidos con «Avanzar estado» (`confirmado` → `en_preparacion` → `enviado` → `entregado`), Inventario con «Guardar» la cantidad, y Personalizados. El panel de administración solo lee (salvo «Marcar en reparto»); el portal cambia estados y stock, pero solo con dos funciones del script 23.
 
 **P16.2 ¿Cómo se entra?**
-Por el login único, `/login.html` (`servidor.js:110-155`): `iniciar_sesion` comprueba la contraseña con bcrypt y el rol de la tabla `roles` decide adónde va cada uno (`PANELES`, `:38-41`): el administrador, a `/admin.html`; el trabajador, a `/trabajador/trabajador.html`. Un rol sin panel web (el comercial) recibe 403 y no se le crea sesión (`:136-143`). La cookie es la misma del panel (`sesion_nova`) y el límite de 5 intentos vale igual.
+Por el login único, `/login.html` (`servidor.js:110-155`): `iniciar_sesion` comprueba la contraseña con bcrypt y el rol de la tabla `roles` decide adónde va cada uno (`PANELES`, `:39-42`): el administrador, a `/admin.html`; el trabajador, a `/trabajador/trabajador.html`. Un rol sin panel web (el comercial) recibe 403 y no se le crea sesión (`:136-143`). La cookie es la misma del panel (`sesion_nova`) y el límite de 5 intentos vale igual.
 
 **P16.3 ¿Qué impide que un trabajador use el panel, o un administrador el portal?**
 `soloRol` (`servidor.js:205-219`) crea `soloAdministrador` y `soloTrabajador` (`:221-225`): sin sesión, 401; con otro rol, 403. Por debajo, `comprobarRol` (`:187-203`) vuelve a mirar en la base en cada petición: si la cuenta se desactiva o le cambian el rol, la sesión se borra en ese momento. Las páginas del portal también están protegidas (`protegerPortal`, `:408-416`).
 
 **P16.4 ¿Con qué usuario de PostgreSQL se conecta y a qué rol pasa?**
-Con `web_nova`, el mismo del panel. En cada transacción del portal hace `SET LOCAL ROLE portal_trabajador` (`bd.js:95-127`): las lecturas, en una transacción de solo lectura (`consultarComoTrabajador`), y los dos cambios en otra (`cambiarComoTrabajador`). `web_nova` no hereda los permisos del rol: solo puede pasar a él (`23_portal_trabajador.sql:242`, `WITH INHERIT FALSE, SET TRUE`).
+Con `web_nova`, el mismo del panel. En cada transacción del portal hace `SET LOCAL ROLE portal_trabajador` (`bd.js:95-102`): las lecturas, en una transacción de solo lectura (`consultarComoTrabajador`), y los dos cambios en otra (`cambiarComoTrabajador`). `web_nova` no hereda los permisos del rol: solo puede pasar a él (`23_portal_trabajador.sql:242`, `WITH INHERIT FALSE, SET TRUE`).
 
 **P16.5 ¿Qué puede hacer `portal_trabajador`?**
 Leer solo las columnas que enseña el portal (`23_portal_trabajador.sql:219-234`): nada de `password_hash`, `dni`, `email`, `telefono`, `direccion_entrega` ni `log_eventos`. Y ejecutar dos funciones (`:237-238`). No puede escribir en ninguna tabla (`:214`).
@@ -934,7 +934,7 @@ El conector (`odoo.js`) está desactivado mientras falten `ODOO_URL`, `ODOO_DB` 
 
 - `02_Acceso_Datos/sql/23_portal_trabajador.sql:52-131` — `avanzar_pedido_trabajador`: comprueba el rol, bloquea el pedido, un solo paso y la firma para la auditoría.
 - `servidor-admin/servidor.js:187-225` — `comprobarRol`, `soloRol`, `soloAdministrador` y `soloTrabajador`.
-- `servidor-admin/rutas-trabajador.js:78-104` — `PATCH /api/trabajador/pedidos/:id/estado`: valida la petición y llama a la función con el usuario de la sesión.
+- `servidor-admin/rutas-trabajador.js:77-103` — `PATCH /api/trabajador/pedidos/:id/estado`: valida la petición y llama a la función con el usuario de la sesión.
 
 ### Ejercicios
 
@@ -962,11 +962,11 @@ El conector (`odoo.js`) está desactivado mientras falten `ODOO_URL`, `ODOO_DB` 
 **E1.2** El bucle de `PedidoDAO.java:83-92` llama a `buscarSku`, que lanza «No existe la talla … para ese modelo y color» con código P0001 (`:128-130`). El `catch` de `:98-103` hace `hacerRollback()` y escribe en el TXT una línea `CREAR PEDIDO | rechazado`. Resultado: ninguna fila nueva en `pedidos` ni en `linea_pedido`, y tampoco el evento ALTA de `log_eventos`: se insertó dentro de la misma transacción y se deshace con ella. En el TXT sí queda el rechazo. Por eso el TXT y `log_eventos` no tienen los mismos eventos (AD-90).
 
 **E2.1** Cuatro barreras, de fuera a dentro:
-1. Navegador: al pulsar, desactiva los botones de pago (`01_Interfaces/cliente/js/tienda.js:901`).
-2. Servidor: `pg_advisory_xact_lock(idPedido)` hace que dos pagos del mismo pedido vayan uno detrás de otro (`servidor-admin/tienda.js:298`).
+1. Navegador: al pulsar, desactiva los botones de pago (`01_Interfaces/cliente/js/tienda.js:900`).
+2. Servidor: `pg_advisory_xact_lock(idPedido)` hace que dos pagos del mismo pedido vayan uno detrás de otro (`servidor-admin/tienda.js:303`).
 3. Base: `confirmar_compra_web` bloquea la fila con `FOR UPDATE` (`20_tienda_web.sql:346-354`); el segundo pago ve el pedido `confirmado` y `pagado` y sale sin hacer nada (`:361-363`).
 4. Aunque se repitiera el UPDATE, el trigger solo salta si antes no estaba confirmado (`03_triggers.sql:31`) y solo descuenta líneas con `stock_descontado = false` (`02_funciones.sql:461`).
-Resultado: un pago, un único descuento de stock y un solo recibo, porque solo el que lo pasa de pendiente a confirmado tiene `recienPagado` (`servidor-admin/tienda.js:302` y `:321-323`).
+Resultado: un pago, un único descuento de stock y un solo recibo, porque solo el que lo pasa de pendiente a confirmado tiene `recienPagado` (`servidor-admin/tienda.js:307` y `:326-328`).
 
 **E2.2** Primero salta BEFORE DELETE `trg_proteger_linea_pedido` (`03_triggers.sql:21-25`): con el pedido pendiente y sin stock descontado, la línea no está bloqueada y la deja borrar (`02_funciones.sql:381-391`). Después salta AFTER DELETE `trg_actualizar_totales` (`03_triggers.sql:2-6`), que recalcula los totales usando `OLD.id_pedido` (`02_funciones.sql:100-101`): bajan `cantidad_total` e `importe_total` (prueba D5). No se registra ningún evento de auditoría para la línea. Si el pedido estuviera confirmado, `estado_pedido <> 'pendiente'` hace que la línea esté bloqueada y salta «No se puede eliminar esta linea de pedido» (`02_funciones.sql:381-388`).
 
@@ -1004,7 +1004,7 @@ Resultado: un pago, un único descuento de stock y un solo recibo, porque solo e
 
 **E12.1** Con −3, el navegador lo para antes de enviar, por el `min="0"` del campo (`index.html:352`): el evento `submit` ni siquiera llega al JavaScript (lo explica `js/custom.js:29-31`). Con 0 en todas, el formulario sí se envía, pero el total es 0: sale «Indica cuántos pares quieres de al menos una talla» y el foco va a la primera talla (`js/custom.js:34-38`).
 
-**E12.2** Dos columnas: la media query `@media (max-width: 760px)` cambia `.catalogo-grid` a `repeat(2, minmax(0, 1fr))` (`css/inicio.css:671` y `:685-688`); en escritorio son 4 (`:627-632`). Por debajo de 370 px, además, se oculta el segundo enlace del menú, «Nuestra visión» (`:544-546`).
+**E12.2** Dos columnas: la media query `@media (max-width: 760px)` cambia `.catalogo-grid` a `repeat(2, minmax(0, 1fr))` (`css/inicio.css:649` y `:660-663`); en escritorio son 4 (`:617-622`). Por debajo de 370 px, además, se oculta el segundo enlace del menú, «Nuestra visión» (`:534-536`).
 
 **E13.1** Responde 429 «Demasiados intentos» con la cabecera `Retry-After`, sin comprobar la contraseña: `tiempoDeBloqueo` es mayor que 0 y el login sale antes de llamar a `iniciar_sesion` (`servidor.js:120-124`). El bloqueo lo puso el quinto fallo (`intentos.js:41-43`). Está probado en `01_Interfaces/evidencias/panel-admin/resultados/09_intentos_y_sesiones.txt` («6.o intento CON la contrasena buena -> 429»). Pasados 5 minutos puede volver a entrar.
 
@@ -1024,7 +1024,7 @@ Resultado: un pago, un único descuento de stock y un solo recibo, porque solo e
 
 **E16.1** `avanzar_pedido_trabajador` bloquea el pedido con `FOR UPDATE` (`23_portal_trabajador.sql:83-87`): el segundo espera a que el primero termine. Cuando entra, ya ve `en_preparacion`, pero pide otra vez `en_preparacion`, y la función lanza «Solo se puede pasar de en_preparacion a enviado» (`:104-106`). La ruta lo convierte en un 400 con ese mensaje (`rutas-trabajador.js:26-40`). En la base queda un solo cambio y un solo `CAMBIO_ESTADO` en `log_eventos`. Es la prueba 9d de `test:portal`.
 
-**E16.2** La ruta deja pasar `entregado` porque es un estado válido, pero la función solo permite un paso: «Solo se puede pasar de confirmado a en_preparacion» (`23_portal_trabajador.sql:104-106`) → 400. El `idUsuario` del cuerpo no se usa: la ruta toma el usuario de la sesión (`rutas-trabajador.js:92`) y la función vuelve a comprobar que es un trabajador activo (`23_portal_trabajador.sql:69-79`). Son las pruebas 10a y 10b de `test:portal`.
+**E16.2** La ruta deja pasar `entregado` porque es un estado válido, pero la función solo permite un paso: «Solo se puede pasar de confirmado a en_preparacion» (`23_portal_trabajador.sql:104-106`) → 400. El `idUsuario` del cuerpo no se usa: la ruta toma el usuario de la sesión (`rutas-trabajador.js:91`) y la función vuelve a comprobar que es un trabajador activo (`23_portal_trabajador.sql:69-79`). Son las pruebas 10a y 10b de `test:portal`.
 
 ---
 
