@@ -1,12 +1,14 @@
 """
 Pruebas de los filtros combinables (filtros.py), de las tablas de inventario
-con umbral y de la descarga CSV del dashboard (pipeline.csv_descarga).
+con umbral, de la descarga CSV del dashboard (pipeline.csv_descarga) y de los
+metadatos de cada DataFrame (metadatos.py).
 
 Usan los datos sinteticos (900 pedidos), generados en una carpeta temporal.
 Cada resultado filtrado se compara con lo que sale de filtrar a mano las
 lineas validas: asi se comprueba que los filtros cambian de verdad los
 calculos y que no duplican pedidos ni importes.
 """
+import importlib
 import io
 import tempfile
 import unittest
@@ -20,6 +22,7 @@ import config
 import filtros
 import generador_datos
 import kpis
+import metadatos
 import pipeline
 
 
@@ -200,6 +203,45 @@ class PruebasDescargaCsv(unittest.TestCase):
         self.assertEqual(set(leida["filtros"]), {"tipo: custom"})
         self.assertEqual(leida["id_pedido"].tolist(), tabla["id_pedido"].tolist())
         self.assertEqual(leida["importe"].astype(float).tolist(), tabla["importe"].tolist())
+
+    def test_descarga_con_sus_metadatos(self):
+        resultado = sinteticos()
+        elegidos = con_filtros(modelos=["SINT Runner"], tallas=[42], tipos=["custom"])
+        tablas = filtros.calcular_filtrado(resultado["datos"], resultado["validos"], elegidos)
+        datos_meta = metadatos.del_dashboard("modelos_abc", len(tablas["modelos_abc"]), resultado["datos"],
+                                             resultado["validos"], elegidos)
+        leida = pd.read_csv(io.BytesIO(pipeline.csv_descarga(tablas["modelos_abc"], "SINTÉTICO", "2026-11-13 10:00:00",
+                                                             datos_meta["filtros"], datos_meta)), dtype=str)
+        self.assertEqual(list(leida.columns[:7]), ["origen", "ejecucion", "filtros", "fecha_corte", "funcion",
+                                                   "reglas_de_negocio", "filas_origen"])
+        corte = resultado["datos"]["stock"]["fecha_corte"].max()
+        self.assertEqual(set(leida["fecha_corte"]), {f"{corte:%Y-%m-%d %H:%M:%S}"})
+        self.assertEqual(set(leida["funcion"]), {"analiticas.modelos_abc"})
+        self.assertTrue(leida["reglas_de_negocio"].str.contains("pedidos no cancelados").all())
+        # Las filas de origen son las que dejan los filtros
+        filtrados = filtros.filtrar_validos(resultado["validos"], elegidos)
+        self.assertIn(f"lineas_pedido: {len(filtrados['lineas_pedido'])} válidas", leida["filas_origen"].iloc[0])
+        self.assertIn(f"pedidos: {len(filtrados['pedidos'])} válidas", leida["filas_origen"].iloc[0])
+
+    def test_el_stock_solo_lleva_los_filtros_de_modelo_y_talla(self):
+        resultado = sinteticos()
+        elegidos = con_filtros(modelos=["SINT Runner"], tallas=[42], tipos=["custom"], desde="2026-01-01",
+                               hasta="2026-03-31")
+        datos_meta = metadatos.del_dashboard("stock_variantes", 1, resultado["datos"], resultado["validos"], elegidos)
+        self.assertEqual(datos_meta["filtros"], "modelo: SINT Runner · talla: 42")
+        stock = filtros.filtrar_stock(resultado["validos"], elegidos)
+        self.assertIn(f"stock: {len(stock)} válidas", datos_meta["filas_origen"])
+        global_ = metadatos.del_dashboard("predicciones", 1, resultado["datos"], resultado["validos"], elegidos)
+        self.assertEqual(global_["filtros"], "ninguno (resultado global)")
+
+    def test_cada_dataframe_dice_una_funcion_que_existe(self):
+        for nombre, (funcion, tablas, reglas, alcance) in metadatos.DATAFRAMES.items():
+            with self.subTest(dataframe=nombre):
+                modulo, nombre_funcion = funcion.split(".")
+                self.assertTrue(callable(getattr(importlib.import_module(modulo), nombre_funcion)))
+                self.assertTrue(set(tablas) <= set(config.ARCHIVOS))
+                self.assertGreater(len(reglas), 10)
+                self.assertIn(alcance, [metadatos.TODOS, metadatos.MODELO_Y_TALLA, metadatos.NINGUNO])
 
     def test_sin_datos_personales(self):
         tabla = pd.DataFrame({"id_cliente": ["1"], "nombre": ["Ana"], "correo": ["a@b.es"], "telefono": ["600"],

@@ -91,6 +91,33 @@ class PruebasEjecucionCompleta(PruebaTablas):
         self.assertFalse((salida / "modelos_abc.csv").exists())
         self.assertFalse((salida / "graficos").exists())
 
+    def test_metadatos_de_cada_dataframe(self):
+        self.escribir_sql()
+        _, salida = self.ejecutar()
+        tabla = self.leer(salida, "metadatos_dataframes.csv").set_index("archivo")
+        # Una fila por cada CSV de la carpeta (menos el propio archivo de metadatos)
+        archivos = sorted(ruta.name for ruta in salida.glob("*.csv") if ruta.name != "metadatos_dataframes.csv")
+        self.assertEqual(sorted(tabla.index), archivos)
+        for columna in ["fecha_corte", "reglas_de_negocio", "filtros", "filas_origen", "funcion"]:
+            self.assertTrue((tabla[columna].str.len() > 0).all(), columna)
+        self.assertEqual(set(tabla["fecha_corte"]), {"2026-11-09 19:00:00"})   # la de stock.csv
+        self.assertEqual(set(tabla["filtros"]), {"ninguno"})
+        pedidos = tabla.loc["pedidos_unicos.csv"]
+        self.assertEqual(pedidos["funcion"], "analiticas.df_pedidos_unicos")
+        self.assertEqual(pedidos["filas_origen"], "clientes: 2 válidas; pedidos: 2 válidas; lineas_pedido: 3 válidas")
+        self.assertEqual(pedidos["filas_resultado"], "2")
+        self.assertIn("leídas", tabla.loc["incidencias.csv", "filas_origen"])
+        # Se enlaza con cada CSV por su ejecucion
+        self.assertEqual(set(tabla["ejecucion"]), set(self.leer(salida, "kpis.csv")["ejecucion"]))
+
+    def test_metadatos_tambien_con_datos_bloqueados(self):
+        self.anadir("lineas_pedido.csv", "103,99,M1-40,1,40,1,79.99,79.99\n")   # linea huerfana
+        _, salida = self.ejecutar()
+        tabla = self.leer(salida, "metadatos_dataframes.csv")
+        self.assertEqual(sorted(tabla["archivo"]), ["estado_ejecucion.csv", "filas_rechazadas.csv", "incidencias.csv",
+                                                    "resumen_calidad.csv"])
+        self.assertTrue(tabla["filas_origen"].str.contains("lineas_pedido: 4 leídas").all())
+
     def test_si_no_cuadra_con_sql_lo_dice(self):
         self.escribir_sql({"P-A.csv": "pedidos,pares_solicitados,importe_ventas\n1,3,240.00\n"})
         codigo, salida = self.ejecutar()

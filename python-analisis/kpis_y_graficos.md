@@ -81,6 +81,10 @@ llegar a un número:
 - `matriz_modelo_mes` la pide el apartado 6.9.
 - `stock_bajo` es solo una vista filtrada de `stock_variantes` y no se cuenta aparte.
 
+Los metadatos de cada tabla (fecha de corte, reglas de negocio, filtros, filas de
+origen y función que la genera) van en `metadatos_dataframes.csv`, una fila por
+CSV (`metadatos.py`).
+
 Cada cruce lleva `validate=` e `indicator=True`, y las pruebas comprueban que las
 matrices, el ABC y las tallas suman exactamente los pares de demanda: nada se
 cuenta dos veces.
