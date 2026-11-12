@@ -14,7 +14,8 @@ El dashboard (app_dashboard.py) usa estas mismas funciones.
 Cada ejecucion deja estado_ejecucion.csv con su resultado y
 metadatos_dataframes.csv con la fecha de corte, las reglas, los filtros, las
 filas de origen y la funcion de cada CSV. Solo LEE la carpeta de entrada; los
-resultados van a la carpeta de salida (graficos en graficos/).
+resultados van a la carpeta de salida (los graficos, en graficos/ y
+graficos_prediccion/).
 
 Tres modos, cada uno con su entrada y su salida, para no mezclar nunca datos:
     real               entrada_acc/                     -> outputs/real/

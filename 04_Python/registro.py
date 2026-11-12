@@ -2,8 +2,8 @@
 Registro de eventos del procesamiento (apartados 6.12 y 6.17, paso 5).
 
 Un solo archivo CSV (config.ARCHIVO_REGISTRO) al que se anade una fila por
-operacion: cada comprobacion de 60 s, cada actualizacion manual, cada cambio
-de origen y cada descarga. No se crea un archivo nuevo en cada refresco.
+operacion: la carga inicial de cada origen, cada comprobacion de 60 s, cada
+actualizacion manual y cada descarga. No se crea un archivo nuevo en cada refresco.
 
 Solo se anotan datos del proceso: momento, origen, operacion, resultado,
 filas, incidencias, duracion y una explicacion. Nunca contrasenas, rutas

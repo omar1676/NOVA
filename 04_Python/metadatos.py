@@ -10,8 +10,8 @@ metadatos_dataframes.csv: una fila por CSV, que se enlaza por el nombre del
 archivo y la columna ejecucion.
 
 El dashboard, en cambio, lo mete dentro de cada descarga (columnas
-fecha_corte, funcion, reglas_de_negocio y filas_origen), con los filtros que
-se estan usando.
+fecha_corte, funcion, reglas_de_negocio y filas_origen), y en la columna
+filtros pone solo los que se le aplican a esa tabla (filtros_que_usa).
 """
 import pandas as pd
 
@@ -179,13 +179,15 @@ def tabla(guardados, datos, validos):
     calidad.evaluar.
     """
     corte = fecha_corte(datos)
+    leidas = contar(datos)
+    validas = contar(validos)
     filas = []
     for archivo, filas_resultado in guardados:
         nombre = archivo.removesuffix(".csv")
         if nombre in DE_FILAS_LEIDAS:
-            filas.append(fila(nombre, filas_resultado, corte, contar(datos), "leídas", "ninguno"))
+            filas.append(fila(nombre, filas_resultado, corte, leidas, "leídas", "ninguno"))
         else:
-            filas.append(fila(nombre, filas_resultado, corte, contar(validos), "válidas", "ninguno"))
+            filas.append(fila(nombre, filas_resultado, corte, validas, "válidas", "ninguno"))
     resultado = pd.DataFrame(filas)
     resultado.insert(1, "archivo", [archivo for archivo, _ in guardados])
     return resultado

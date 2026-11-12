@@ -8,7 +8,9 @@ solo se agrupan algunos datos para dibujarlos):
 - actualizacion.ciclo: comprobar los CSV, validarlos, recalcular todo y anotarlo;
 - filtros: las tablas y los KPIs del subconjunto filtrado (las mismas funciones de main.py);
 - visualizaciones: los graficos Matplotlib de main.py;
-- informe: las cinco conclusiones.
+- informe: las cinco conclusiones;
+- metadatos: lo que lleva cada descarga ademas de la tabla (fecha de corte,
+  funcion, reglas de negocio, filas de origen y filtros que se le aplican).
 
 Refresco cada 60 s: panel() es un st.fragment(run_every="60s"). Streamlit lo
 vuelve a ejecutar cada 60 segundos mientras la pagina esta abierta, y si han
@@ -78,6 +80,10 @@ def actualizar(nombre, operacion=None):
 # ---------------------------------------------------------------------
 
 def restablecer_filtros(sufijo, primero, ultimo):
+    """
+    Vuelve al periodo completo y vacia los demas filtros. Va en el on_click del
+    boton porque Streamlit solo deja cambiar el valor de un filtro antes de dibujarlo.
+    """
     st.session_state[f"periodo_{sufijo}"] = (primero, ultimo)
     for nombre in ["modelos", "tallas", "tipos", "estados", "clientes"]:
         st.session_state[f"{nombre}_{sufijo}"] = []
@@ -89,8 +95,35 @@ def lista_filtro(etiqueta, opciones, clave, format_func=str):
     return st.multiselect(etiqueta, opciones, key=clave, placeholder="Todos", format_func=format_func)
 
 
+def filtro_periodo(sufijo, primero, ultimo):
+    """
+    El filtro de periodo, entre la primera y la ultima fecha de pedido. Se
+    conserva el elegido, salvo en dos casos en que vuelve al periodo completo:
+    - si era el completo (nadie lo ha restringido) y llega una exportacion con
+      fechas nuevas: si no, los pedidos nuevos quedarian fuera sin avisar;
+    - si alguna fecha guardada se sale del periodo de la exportacion.
+    rango_N guarda el periodo completo de la vez anterior, para saber si se habia restringido.
+    """
+    clave = f"periodo_{sufijo}"
+    guardado = st.session_state.get(clave)
+    sin_restringir = guardado is None or tuple(guardado) == st.session_state.get(f"rango_{sufijo}")
+    fuera = False
+    if guardado is not None:
+        for dia in guardado:
+            if dia < primero or dia > ultimo:
+                fuera = True
+    if sin_restringir or fuera:
+        st.session_state[clave] = (primero, ultimo)
+    st.session_state[f"rango_{sufijo}"] = (primero, ultimo)
+    return st.date_input("Periodo (fecha del pedido)", min_value=primero, max_value=ultimo, key=clave,
+                         format="DD/MM/YYYY")
+
+
 def elegir_filtros(nombre, estado):
-    """Los seis filtros. Cada origen recuerda los suyos (clave con su numero)."""
+    """
+    Los seis filtros de la barra lateral. Cada origen recuerda los suyos: sus
+    claves llevan el numero del origen (modelos_0, modelos_1...).
+    """
     st.subheader("Filtros")
     publicado = estado["publicado"]
     if publicado is None or len(publicado["validos"]["pedidos"]) == 0:
@@ -101,29 +134,10 @@ def elegir_filtros(nombre, estado):
     lineas = publicado["tablas"]["lineas_enriquecidas"]
     primero = pedidos["fecha_pedido"].min().date()
     ultimo = pedidos["fecha_pedido"].max().date()
-
-    # Si el periodo era el completo (nadie lo ha restringido), sigue siendo el completo cuando una
-    # exportacion nueva trae fechas nuevas: si no, los pedidos nuevos quedarian fuera sin avisar
-    clave = f"periodo_{sufijo}"
-    guardado = st.session_state.get(clave)
-    sin_restringir = guardado is None or tuple(guardado) == st.session_state.get(f"rango_{sufijo}")
-    # Tambien se vuelve al periodo completo si alguna fecha guardada se sale del de la exportacion
-    fuera = False
-    if guardado is not None:
-        for dia in guardado:
-            if dia < primero or dia > ultimo:
-                fuera = True
-    if sin_restringir or fuera:
-        st.session_state[clave] = (primero, ultimo)
-    st.session_state[f"rango_{sufijo}"] = (primero, ultimo)
-    periodo = st.date_input("Periodo (fecha del pedido)", min_value=primero, max_value=ultimo, key=clave,
-                            format="DD/MM/YYYY")
+    periodo = filtro_periodo(sufijo, primero, ultimo)
     # Las opciones de los filtros de modelo y talla, ordenadas
     nombres_modelos = sorted(publicado["validos"]["modelos"]["nombre_modelo"])
-    tallas = []
-    for talla in lineas["talla"].dropna().unique():
-        tallas.append(int(talla))
-    tallas.sort()
+    tallas = sorted(int(talla) for talla in lineas["talla"].dropna().unique())
     # Clientes con algun pedido, por su id y su tipo: el nombre no hace falta para filtrar.
     # Los id son texto: ordenar por longitud y despues por texto pone el 2 antes que el 10
     clientes = publicado["validos"]["clientes"]
@@ -210,9 +224,8 @@ def tabla(datos, alto="auto"):
     datos = preparar(datos)
     # Las columnas de euros se ensenan con 2 decimales y el simbolo del euro
     formatos = {}
-    for columna in datos.columns:
-        nombre = str(columna)
-        if "importe" in nombre or "ticket" in nombre or "monetary" in nombre:
+    for columna in datos.columns:   # preparar ya las ha dejado como texto
+        if "importe" in columna or "ticket" in columna or "monetary" in columna:
             formatos[columna] = st.column_config.NumberColumn(format="%.2f €")
     st.dataframe(datos, hide_index=True, column_config=formatos, height=alto)
 
@@ -239,7 +252,7 @@ def descarga(datos, nombre, c):
         file_name=archivo, mime="text/csv", key=f"descarga_{nombre}", icon=":material/download:",
         on_click=anotar_descarga,
         args=(archivo, len(datos), c["estado"]["origen"], actualizacion.carpeta_relativa(c["estado"]["carpeta"]),
-              c["publicado"]["version"], texto_filtros))
+              publicado["version"], texto_filtros))
 
 
 def carpeta_graficos():
@@ -335,18 +348,20 @@ def pestana_direccion(c):
                "prioridad: primero la urgencia (alta: si no se actúa, se deja sin servir demanda que ya existe; "
                "media: sirve para planificar el próximo mes; baja: no hay datos para decidir o no hace falta cambiar "
                "nada) y, con la misma urgencia, el número.")
-    for fila in c["publicado"]["informe"].sort_values("prioridad").to_dict("records"):
+    for conclusion in c["publicado"]["informe"].sort_values("prioridad").to_dict("records"):
         with st.container(border=True):
-            st.markdown(f"**Prioridad {fila['prioridad']} · {fila['numero']}. {fila['titulo']}**")
-            if fila["procede_de"].startswith("Predicción"):
+            st.markdown(f"**Prioridad {conclusion['prioridad']} · {conclusion['numero']}. {conclusion['titulo']}**")
+            if conclusion["procede_de"].startswith("Predicción"):
                 color = "blue"
             else:
                 color = COLOR_ORIGEN.get(c["publicado"]["tipo"], "gray")
-            st.badge(fila["procede_de"], color=color)
-            st.markdown(f"**Evidencia.** {fila['evidencia']}  \n**Interpretación.** {fila['interpretacion']}  \n"
-                        f"**Decisión.** {fila['decision']}  \n**Impacto esperado.** {fila['impacto_esperado']}  \n"
-                        f"**Limitación o riesgo.** {fila['limitacion']}  \n**Urgencia.** {fila['urgencia']} · "
-                        f"**Sustento.** {fila['sustento']}")
+            st.badge(conclusion["procede_de"], color=color)
+            st.markdown(f"**Evidencia.** {conclusion['evidencia']}  \n"
+                        f"**Interpretación.** {conclusion['interpretacion']}  \n"
+                        f"**Decisión.** {conclusion['decision']}  \n"
+                        f"**Impacto esperado.** {conclusion['impacto_esperado']}  \n"
+                        f"**Limitación o riesgo.** {conclusion['limitacion']}  \n"
+                        f"**Urgencia.** {conclusion['urgencia']} · **Sustento.** {conclusion['sustento']}")
 
 
 def pestana_productos(c):
@@ -702,8 +717,8 @@ def panel(nombre, elegidos):
     cabecera(estado)
     publicado = publicacion_visible(estado)
 
-    # c: lo que necesitan las pestanas (estado, resultado publicado, filtros,
-    # tablas filtradas y pie de los graficos)
+    # c: lo que reciben las pestanas: el estado, lo publicado, los filtros (y su
+    # texto), el momento de los datos, el pie de los graficos y las tablas filtradas
     c = {"estado": estado, "publicado": publicado, "filtros": elegidos, "texto_filtros": filtros.describir(elegidos),
          "tablas": None}
     if publicado is not None:
