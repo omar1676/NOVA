@@ -30,6 +30,7 @@ una dependencia del proyecto). La aplicación es `app_dashboard.py`, servida con
 | `refresco_3_csv_ausente.png` | R4: sin `pedidos.csv`, «Error de carga», el aviso y ninguna cifra |
 | `refresco_3b_desactualizado.png` | el último resultado válido, que solo se ve si se pide, rotulado DESACTUALIZADO con su hora |
 | `refresco_4_recuperacion.png` | se vuelve a exportar `pedidos.csv` y, a los 60 s, vuelven las cifras |
+| `caso_k_0_carga_inicial.png` … `caso_k_3_ciclo_3.png` | caso K (13/11, versión candidata): el dashboard abierto durante tres ciclos de 60 s con la exportación de PRUEBA, sin tocar el navegador. Cambia la hora de comprobación en cada ciclo, el estado es «Sin cambios» y las cifras no cambian. El registro de la sesión está en `caso_k_registro.txt` |
 
 Las capturas `refresco_*` se hicieron con una COPIA de `entrada_acc/` en una
 carpeta temporal: los CSV originales de Acceso a Datos no se tocaron. El

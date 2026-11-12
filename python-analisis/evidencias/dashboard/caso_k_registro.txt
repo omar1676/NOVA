@@ -1,0 +1,22 @@
+Caso K (13/11/2026, rama integracion/candidata-2): app_dashboard.py servido con streamlit run en localhost,
+abierto en Microsoft Edge sin ventana (Playwright) con la exportacion de PRUEBA de entrada_acc (una copia).
+El navegador no recarga ni pulsa nada: solo espera a que el fragmento de 60 s se ejecute solo.
+
+[00:44:36] 0 carga inicial: Estado=Correcto | Última comprobación=00:44:28 | Última actualización válida=00:44:28 | Filas válidas=103 | Pedidos registrados=12 | Pares solicitados=90 | Importe confirmado=4.796,00 €
+   (ciclo detectado a los 61 s, sin tocar el navegador)
+[00:45:38] 1 ciclo de 60 s: Estado=Sin cambios | Última comprobación=00:45:31 | Última actualización válida=00:44:28 | Filas válidas=103 | Pedidos registrados=12 | Pares solicitados=90 | Importe confirmado=4.796,00 €
+   (ciclo detectado a los 60 s, sin tocar el navegador)
+[00:46:38] 2 ciclo de 60 s: Estado=Sin cambios | Última comprobación=00:46:31 | Última actualización válida=00:44:28 | Filas válidas=103 | Pedidos registrados=12 | Pares solicitados=90 | Importe confirmado=4.796,00 €
+   (ciclo detectado a los 60 s, sin tocar el navegador)
+[00:47:39] 3 ciclo de 60 s: Estado=Sin cambios | Última comprobación=00:47:31 | Última actualización válida=00:44:28 | Filas válidas=103 | Pedidos registrados=12 | Pares solicitados=90 | Importe confirmado=4.796,00 €
+PASS 4 horas de comprobación distintas (carga y 3 ciclos) -> 00:44:28, 00:45:31, 00:46:31, 00:47:31
+PASS los 3 ciclos dicen Sin cambios -> Correcto, Sin cambios, Sin cambios, Sin cambios
+PASS las cifras no cambian (ni la hora de la última actualización válida) -> {'Última actualización válida': '00:44:28', 'Filas válidas': '103', 'Pedidos registrados': '12', 'Pares solicitados': '90', 'Importe confirmado': '4.796,00 €'}
+PASS el registro tiene la carga inicial y 3 comprobaciones automáticas -> 3 automáticas
+Registro de eventos de la sesión:
+  fecha_hora,origen,carpeta,operacion,resultado,filas_procesadas,filas_validas,incidencias,bloqueantes,version_datos,duracion_s,detalle
+  2026-11-13 00:44:28,ACC · PRUEBA (base de prueba: no son ventas reales),entrada_acc,carga inicial del origen,CORRECTO,103,103,2,0,75c216a4,2.36,"Datos leídos, validados y publicados."
+  2026-11-13 00:45:31,ACC · PRUEBA (base de prueba: no son ventas reales),entrada_acc,comprobación automática (60 s),SIN CAMBIOS,103,103,2,0,75c216a4,2.03,"Los CSV no han cambiado: se han vuelto a leer, validar y calcular, con el mismo resultado."
+  2026-11-13 00:46:31,ACC · PRUEBA (base de prueba: no son ventas reales),entrada_acc,comprobación automática (60 s),SIN CAMBIOS,103,103,2,0,75c216a4,1.9,"Los CSV no han cambiado: se han vuelto a leer, validar y calcular, con el mismo resultado."
+  2026-11-13 00:47:31,ACC · PRUEBA (base de prueba: no son ventas reales),entrada_acc,comprobación automática (60 s),SIN CAMBIOS,103,103,2,0,75c216a4,2.13,"Los CSV no han cambiado: se han vuelto a leer, validar y calcular, con el mismo resultado."
+RESULTADO CASO K: 4 PASS, 0 FAIL
