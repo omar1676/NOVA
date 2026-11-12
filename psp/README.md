@@ -325,8 +325,13 @@ directamente.
 
   Se prepararon en la sesión de Omar con ayuda de Claude.
 - **Pendiente de acordar:** en el reparto, PSP-01 (`ProcesadorPedidosCustom`) y
-  PSP-04 (`GeneradorFichaTaller`) eran de Berme, que no ha subido nada de PSP.
-  Hay que decidir entre los tres quién los revisa y los defiende.
+  PSP-04 (`GeneradorFichaTaller`) eran de Berme. Estas dos clases las subió
+  Omar en el commit `81db6e5`. En su rama, Berme subió
+  `scripts/comprobar_psp.py` (commit `b3b0d45`), que compila y comprueba
+  `ValidadorPedidoCustom`, `LanzadorValidacion` y las pruebas del paquete
+  `Psp`, e `integracion/contrato-fabricacion.md` (commit `f3dda07`), que
+  describe los dos formatos de entrada. Hay que decidir entre los tres quién
+  revisa y defiende cada clase.
 
 ## Ejemplos del profesor utilizados
 
