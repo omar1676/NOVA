@@ -23,7 +23,7 @@
     <a class="saltar" href="#catalogo">Saltar al escaparate</a>
     <header class="cabecera">
       <a
-        class="marca marca-logo"
+        class="marca marca--logo"
         href="#inicio"
         aria-label="NOVA Sneakers, inicio"
         ><img src="images/logo-nova.png" alt=""
@@ -34,44 +34,44 @@
         ><a href="#custom">Custom</a
         ><a href="#contacto">Contacto</a>
       </nav>
-      <a class="cabecera-enlace" href="#catalogo"
+      <a class="cabecera__enlace" href="#catalogo"
         >EXPLORAR <span aria-hidden="true">↗</span></a
       >
     </header>
     <!-- Tienda online: cuenta y carrito (js/tienda.js). -->
     <div class="barra-tienda" aria-label="Tu cuenta y tu carrito" role="region">
-      <p class="barra-saludo" id="barra-saludo" hidden></p>
+      <p class="barra-tienda__saludo" id="barra-saludo" hidden></p>
       <a href="#acceso" id="abrir-acceso">Iniciar sesión</a>
       <button type="button" id="abrir-pedidos" hidden>Mis pedidos</button>
       <button type="button" id="cerrar-sesion" hidden>Cerrar sesión</button>
-      <button type="button" id="abrir-carrito" class="barra-carrito">
+      <button type="button" id="abrir-carrito" class="barra-tienda__carrito">
         Carrito <span id="carrito-contador">(0)</span>
       </button>
     </div>
     <main id="inicio">
       <section
-        class="coleccion"
+        class="escaparate"
         id="catalogo"
         aria-labelledby="titulo-coleccion"
       >
-        <div class="seccion-cabeza">
+        <div class="escaparate__cabeza">
           <div>
             <p class="etiqueta">NOVA SNEAKERS / COLECCIÓN 01</p>
             <h1 id="titulo-coleccion">El escaparate<span>.</span></h1>
             <p>Una colección. Muchas formas de avanzar.</p>
           </div>
-          <p class="instruccion">
+          <p class="escaparate__instruccion">
             <span>COLECCIÓN NOVA</span><br />SELECCIONA UN MODELO<br />PARA
             VERLO DE CERCA ↗
           </p>
         </div>
-        <div class="controles">
+        <div class="escaparate__controles">
           <fieldset>
             <legend>Filtrar por colección</legend>
-            <div class="filtros">
+            <div class="escaparate__filtros">
               <button
                 type="button"
-                class="filtro"
+                class="escaparate__filtro"
                 data-filtro="street"
                 aria-pressed="false"
               >
@@ -79,7 +79,7 @@
               </button>
               <button
                 type="button"
-                class="filtro"
+                class="escaparate__filtro"
                 data-filtro="luxe"
                 aria-pressed="false"
               >
@@ -87,7 +87,7 @@
               </button>
               <button
                 type="button"
-                class="filtro activo"
+                class="escaparate__filtro escaparate__filtro--activo"
                 data-filtro="casual"
                 aria-pressed="true"
               >
@@ -95,7 +95,7 @@
               </button>
               <button
                 type="button"
-                class="filtro"
+                class="escaparate__filtro"
                 data-filtro="hombre"
                 aria-pressed="false"
               >
@@ -103,7 +103,7 @@
               </button>
               <button
                 type="button"
-                class="filtro"
+                class="escaparate__filtro"
                 data-filtro="mujer"
                 aria-pressed="false"
               >
@@ -111,7 +111,7 @@
               </button>
               <button
                 type="button"
-                class="filtro"
+                class="escaparate__filtro"
                 data-filtro="unisex"
                 aria-pressed="false"
               >
@@ -119,7 +119,7 @@
               </button>
               <button
                 type="button"
-                class="filtro"
+                class="escaparate__filtro"
                 data-filtro="todos"
                 aria-pressed="false"
               >
@@ -127,7 +127,7 @@
               </button>
             </div>
           </fieldset>
-          <label class="buscar"
+          <label class="escaparate__buscar"
             ><span>BUSCAR MODELO</span
             ><input
               id="busqueda"
@@ -136,26 +136,26 @@
               autocomplete="off"
           /></label>
         </div>
-        <p class="resultados" id="resultados" aria-live="polite"></p>
-        <div class="estanterias" id="estanterias"></div>
-        <p id="vacio" class="vacio" hidden>
+        <p class="escaparate__resultados" id="resultados" aria-live="polite"></p>
+        <div class="escaparate__estanterias" id="estanterias"></div>
+        <p id="vacio" class="escaparate__vacio" hidden>
           No encontramos modelos con esa búsqueda. Prueba con otro nombre o
           colección.
         </p>
         <noscript>Activa JavaScript para explorar los modelos.</noscript>
-        <div class="escaparate-pie">
+        <div class="escaparate__pie">
           <span>DISEÑADO PARA MOVERTE</span>
-          <a class="ir-catalogo" href="#catalogo-completo"
+          <a class="escaparate__ir-catalogo" href="#catalogo-completo"
             >DESLIZA O VER CATÁLOGO <span aria-hidden="true">↓</span></a
           >
         </div>
       </section>
       <section
-        class="catalogo-completo"
+        class="catalogo"
         id="catalogo-completo"
         aria-labelledby="titulo-catalogo"
       >
-        <div class="catalogo-cabecera">
+        <div class="catalogo__cabecera">
           <div>
             <p class="etiqueta">02 / LA COLECCIÓN</p>
             <h2 id="titulo-catalogo">Todos los modelos<span>.</span></h2>
@@ -165,15 +165,15 @@
             verlo de cerca.
           </p>
         </div>
-        <div class="catalogo-herramientas">
+        <div class="catalogo__herramientas">
           <div
-            class="catalogo-filtros"
+            class="catalogo__filtros"
             role="group"
             aria-label="Filtrar catálogo por colección"
           >
             <button
               type="button"
-              class="catalogo-filtro activo"
+              class="catalogo__filtro catalogo__filtro--activo"
               data-coleccion="todos"
               aria-pressed="true"
             >
@@ -181,7 +181,7 @@
             </button>
             <button
               type="button"
-              class="catalogo-filtro c-street"
+              class="catalogo__filtro catalogo__filtro--street"
               data-coleccion="street"
               aria-pressed="false"
             >
@@ -189,7 +189,7 @@
             </button>
             <button
               type="button"
-              class="catalogo-filtro c-luxe"
+              class="catalogo__filtro catalogo__filtro--luxe"
               data-coleccion="luxe"
               aria-pressed="false"
             >
@@ -197,7 +197,7 @@
             </button>
             <button
               type="button"
-              class="catalogo-filtro c-casual"
+              class="catalogo__filtro catalogo__filtro--casual"
               data-coleccion="casual"
               aria-pressed="false"
             >
@@ -205,7 +205,7 @@
             </button>
             <button
               type="button"
-              class="catalogo-filtro c-hombre"
+              class="catalogo__filtro catalogo__filtro--hombre"
               data-coleccion="hombre"
               aria-pressed="false"
             >
@@ -213,7 +213,7 @@
             </button>
             <button
               type="button"
-              class="catalogo-filtro c-mujer"
+              class="catalogo__filtro catalogo__filtro--mujer"
               data-coleccion="mujer"
               aria-pressed="false"
             >
@@ -221,7 +221,7 @@
             </button>
             <button
               type="button"
-              class="catalogo-filtro c-unisex"
+              class="catalogo__filtro catalogo__filtro--unisex"
               data-coleccion="unisex"
               aria-pressed="false"
             >
@@ -237,7 +237,7 @@
           />
           <p id="catalogo-resultados" aria-live="polite"></p>
         </div>
-        <div class="catalogo-grid" id="catalogo-grid"></div>
+        <div class="catalogo__grid" id="catalogo-grid"></div>
         <p id="catalogo-vacio" hidden>
           No encontramos modelos con esa búsqueda y colección. Prueba con otros
           filtros.
@@ -265,14 +265,14 @@
         </div>
       </section>
       <section class="custom" id="custom" aria-labelledby="titulo-custom">
-        <div class="custom-intro">
+        <div class="custom__intro">
           <p class="etiqueta">04 / NOVA CUSTOM</p>
           <h2 id="titulo-custom">Zapatillas para tu equipo<span>.</span></h2>
           <p>
             Fabricamos pedidos personalizados para clubes y equipos. Así
             funciona:
           </p>
-          <ol class="custom-pasos">
+          <ol class="custom__pasos">
             <li>
               <strong>Solicitud.</strong> Nos indicas el modelo, la
               personalización y los pares de cada talla.
@@ -294,13 +294,13 @@
             talla 38 a la 46 con diseño personalizado.
           </p>
         </div>
-        <form class="custom-form" id="form-custom">
-          <p class="custom-aviso">
+        <form class="custom__formulario" id="form-custom">
+          <p class="custom__aviso">
             <strong>Prototipo:</strong> el envío es una simulación. No se envía
             ningún dato ni se registra ningún pedido.
           </p>
-          <div class="custom-campos">
-            <label class="campo"
+          <div class="custom__campos">
+            <label class="custom__campo"
               >Club o equipo
               <input
                 id="custom-club"
@@ -309,19 +309,19 @@
                 placeholder="Ej.: Club Halcones"
                 required
             /></label>
-            <label class="campo"
+            <label class="custom__campo"
               >Persona de contacto
               <input name="contacto" autocomplete="name" required
             /></label>
-            <label class="campo"
+            <label class="custom__campo"
               >Email
               <input name="email" type="email" autocomplete="email" required
             /></label>
-            <label class="campo"
+            <label class="custom__campo"
               >Teléfono (opcional)
               <input name="telefono" type="tel" autocomplete="tel"
             /></label>
-            <label class="campo"
+            <label class="custom__campo"
               >Modelo
               <input
                 id="custom-modelo"
@@ -330,13 +330,13 @@
                 placeholder="Ej.: Runner X"
                 required
             /></label>
-            <label class="campo"
+            <label class="custom__campo"
               >Colores (opcional)
               <input name="colores" placeholder="Ej.: azul y blanco"
             /></label>
           </div>
           <datalist id="custom-modelos"></datalist>
-          <label class="campo"
+          <label class="custom__campo"
             >Personalización
             <textarea
               name="personalizacion"
@@ -345,7 +345,7 @@
               required
             ></textarea>
           </label>
-          <fieldset class="custom-tallas">
+          <fieldset class="custom__tallas">
             <legend>Pares por talla (de la 38 a la 46)</legend>
             <label>38 <input type="number" min="0" step="1" data-talla="38" /></label>
             <label>39 <input type="number" min="0" step="1" data-talla="39" /></label>
@@ -357,19 +357,19 @@
             <label>45 <input type="number" min="0" step="1" data-talla="45" /></label>
             <label>46 <input type="number" min="0" step="1" data-talla="46" /></label>
           </fieldset>
-          <p class="custom-total">
+          <p class="custom__total">
             Total: <output id="custom-total">0</output> pares
           </p>
           <button class="boton" type="submit">
             SIMULAR ENVÍO <span aria-hidden="true">↗</span>
           </button>
-          <p class="custom-resultado" id="custom-resultado" role="status"></p>
+          <p class="custom__resultado" id="custom-resultado" role="status"></p>
         </form>
       </section>
     </main>
     <!-- Un solo pie de página: la sección de contacto y los datos finales.
          Antes eran dos bloques oscuros seguidos y parecían dos footers. -->
-    <footer id="contacto" aria-labelledby="titulo-contacto">
+    <footer class="pie" id="contacto" aria-labelledby="titulo-contacto">
       <div class="contacto">
         <div>
           <p class="etiqueta">05 / CONTACTO</p>
@@ -379,7 +379,7 @@
             o usa el formulario Custom.
           </p>
         </div>
-        <dl class="contacto-datos">
+        <dl class="contacto__datos">
           <div>
             <dt>Email</dt>
             <dd>
@@ -398,7 +398,7 @@
           </div>
         </dl>
       </div>
-      <div class="pie-final">
+      <div class="pie__final">
         <a class="marca" href="#inicio">NOVA<span> SNEAKERS</span></a>
         <p>Una nueva forma de avanzar.</p>
         <a href="#top">Volver arriba ↑</a>
@@ -408,21 +408,21 @@
       </div>
     </footer>
     <dialog id="detalle" aria-labelledby="detalle-titulo">
-      <div class="modal">
+      <div class="ficha">
         <button class="cerrar" type="button" aria-label="Cerrar ficha">
           ×
         </button>
-        <div class="modal-texto">
+        <div class="ficha__texto">
           <p class="etiqueta" id="detalle-coleccion"></p>
           <h2 id="detalle-titulo"></h2>
           <p id="detalle-descripcion"></p>
         </div>
-        <div class="modal-imagen">
+        <div class="ficha__imagen">
           <img id="detalle-imagen" alt="" />
-          <div class="repisa-grande" aria-hidden="true"></div>
+          <div class="ficha__repisa" aria-hidden="true"></div>
         </div>
-        <div class="modal-info">
-          <div class="ficha-precio">
+        <div class="ficha__info">
+          <div class="ficha__precio">
             <span id="detalle-etiqueta-precio">PRECIO ORIENTATIVO</span
             ><strong id="detalle-precio"></strong>
             <p id="detalle-nota-precio">
@@ -432,27 +432,27 @@
           <p id="detalle-tallas"></p>
           <!-- Compra (js/tienda.js): color, talla y cantidad con datos de
                PostgreSQL. Cada error sale junto a su campo. -->
-          <p class="compra-aviso" id="compra-aviso" hidden></p>
+          <p class="ficha__aviso" id="compra-aviso" hidden></p>
           <div class="compra" id="compra" hidden>
-            <fieldset class="compra-grupo">
+            <fieldset class="compra__grupo">
               <legend>
                 Color: <span id="compra-color-nombre"></span>
               </legend>
-              <div class="compra-colores" id="compra-colores"></div>
+              <div class="compra__colores" id="compra-colores"></div>
             </fieldset>
             <fieldset
-              class="compra-grupo"
+              class="compra__grupo"
               id="compra-grupo-talla"
               aria-describedby="compra-error-talla"
             >
               <legend>Talla (EU)</legend>
-              <div class="compra-tallas" id="compra-tallas"></div>
-              <p class="compra-error" id="compra-error-talla" role="alert"></p>
+              <div class="compra__tallas" id="compra-tallas"></div>
+              <p class="compra__error" id="compra-error-talla" role="alert"></p>
             </fieldset>
-            <p class="compra-stock" id="compra-stock"></p>
-            <div class="compra-cantidad">
+            <p class="compra__stock" id="compra-stock"></p>
+            <div class="compra__cantidad">
               <label for="compra-cantidad">Cantidad</label>
-              <div class="cantidad-control">
+              <div class="compra__control">
                 <button
                   type="button"
                   id="compra-menos"
@@ -481,12 +481,12 @@
                 </button>
               </div>
             </div>
-            <p class="compra-error" id="compra-error-cantidad" role="alert"></p>
-            <button class="boton compra-boton" type="button" id="compra-anadir">
+            <p class="compra__error" id="compra-error-cantidad" role="alert"></p>
+            <button class="boton compra__boton" type="button" id="compra-anadir">
               AÑADIR AL CARRITO
             </button>
-            <div class="compra-hecho">
-              <p class="compra-mensaje" id="compra-mensaje" role="status"></p>
+            <div class="compra__hecho">
+              <p class="compra__mensaje" id="compra-mensaje" role="status"></p>
               <button
                 type="button"
                 class="enlace-boton"
@@ -497,11 +497,11 @@
               </button>
             </div>
           </div>
-          <div class="ficha-acciones">
-            <button class="boton abrir-probador" type="button">
+          <div class="ficha__acciones">
+            <button class="boton ficha__probador" type="button">
               VER EN EL PROBADOR <span aria-hidden="true">↗</span>
             </button>
-            <button class="boton cerrar-secundario" type="button">
+            <button class="boton ficha__seguir" type="button">
               SEGUIR EXPLORANDO <span aria-hidden="true">↗</span>
             </button>
           </div>
@@ -509,44 +509,44 @@
       </div>
     </dialog>
     <dialog id="probador" aria-labelledby="titulo-probador">
-      <div class="probador-contenido">
+      <div class="probador">
         <button
-          class="cerrar cerrar-probador"
+          class="cerrar probador__cerrar"
           type="button"
           aria-label="Cerrar probador"
         >
           ×
         </button>
-        <div class="probador-vista" data-escenario="madrid">
+        <div class="probador__vista" data-escenario="madrid">
           <img
-            class="modelo-base"
+            class="probador__modelo"
             src="images/probador/modelo-base.png"
             alt="Figura de complexión media"
           />
-          <img id="escena-completa" class="escena-completa" alt="" hidden />
-          <img id="zapatilla-escena" class="zapatilla-escena" alt="" hidden />
-          <span id="aviso-sin-foto" class="aviso-sin-foto" hidden
+          <img id="escena-completa" class="probador__escena" alt="" hidden />
+          <img id="zapatilla-escena" class="probador__zapatilla" alt="" hidden />
+          <span id="aviso-sin-foto" class="probador__aviso" hidden
             >Aún no hay foto con este modelo puesto</span
           >
-          <span class="etiqueta-vista">VISTA CONCEPTUAL</span>
+          <span class="probador__etiqueta">VISTA CONCEPTUAL</span>
         </div>
-        <div class="probador-controles">
+        <div class="probador__controles">
           <p class="etiqueta">NOVA / PROBADOR</p>
           <h2 id="titulo-probador">Imagina tu estilo<span>.</span></h2>
           <p>Una primera vista del modelo y la zapatilla seleccionada.</p>
-          <div class="probador-zapatilla">
+          <div class="probador__miniatura">
             <img id="probador-zapatilla" alt="" />
             <div>
               <strong id="probador-nombre"></strong>
               <p>Modelo seleccionado</p>
             </div>
           </div>
-          <label class="probador-campo" for="elegir-zapatilla"
+          <label class="probador__campo" for="elegir-zapatilla"
             >Zapatilla
             <select id="elegir-zapatilla"></select>
           </label>
-          <div class="probador-medidas">
-            <label class="probador-campo" for="altura-modelo"
+          <div class="probador__medidas">
+            <label class="probador__campo" for="altura-modelo"
               >Estatura (cm)
               <input
                 id="altura-modelo"
@@ -558,7 +558,7 @@
                 aria-describedby="nota-medidas"
               />
             </label>
-            <label class="probador-campo" for="peso-modelo"
+            <label class="probador__campo" for="peso-modelo"
               >Peso (kg)
               <input
                 id="peso-modelo"
@@ -573,7 +573,7 @@
           </div>
           <!-- Las vistas «puesta» solo se ofrecen con su zapatilla (campo
                probador de modelos.js); las tres figuras, con todas. -->
-          <label class="probador-campo" for="tipo-modelo"
+          <label class="probador__campo" for="tipo-modelo"
             >Vista y complexión
             <select id="tipo-modelo">
               <option value="street01" data-puesta>
@@ -597,15 +597,15 @@
               <option value="producto">Zapatilla sola</option>
             </select>
           </label>
-          <p class="probador-nota" id="nota-medidas">
+          <p class="probador__nota" id="nota-medidas">
             Al cambiar la estatura o el peso se elige la figura más parecida
             (delgada, media o amplia).
           </p>
-          <p id="aviso-escena" class="probador-nota" hidden>
+          <p id="aviso-escena" class="probador__nota" hidden>
             Esta imagen tiene escenario y pose fijos; para cambiar de fondo,
             elige «Zapatilla sola».
           </p>
-          <fieldset class="escenarios">
+          <fieldset class="probador__escenarios">
             <legend>Elige un escenario</legend>
             <button type="button" data-escenario="madrid" aria-pressed="true">
               Madrid
@@ -614,46 +614,46 @@
               Tokio
             </button>
           </fieldset>
-          <p class="probador-nota">
+          <p class="probador__nota">
             Las opciones con «puesta» son imágenes generadas aproximadas de ese
             producto. Las figuras llevan un calzado genérico: tu zapatilla se
             ve a su lado. Esta vista no sirve para elegir talla.
           </p>
-          <p class="probador-nota">
+          <p class="probador__nota">
             La estatura cambia la escala visual. Cada figura es una imagen
             completa: pose, ropa y cuerpo no se cambian por separado. Pelo y
             tono de piel pendientes.
           </p>
-          <button class="boton cerrar-probador-secundario" type="button">
+          <button class="boton probador__volver" type="button">
             VOLVER A LA ZAPATILLA <span aria-hidden="true">↗</span>
           </button>
         </div>
       </div>
     </dialog>
     <!-- Inicio de sesión: diálogo de Álvaro (commit 52a8800). Solo se le ha
-         añadido el enlace para crear una cuenta. -->
+         añadido el enlace para crear una cuenta y sus clases están en BEM. -->
     <dialog id="acceso" class="acceso" aria-labelledby="titulo-acceso">
-      <form class="acceso-caja" id="formulario-acceso" novalidate>
-        <button class="cerrar cerrar-acceso" type="button" aria-label="Cerrar inicio de sesión">×</button>
+      <form class="acceso__caja" id="formulario-acceso" novalidate>
+        <button class="cerrar" type="button" aria-label="Cerrar inicio de sesión">×</button>
         <p class="etiqueta">NOVA / TU CUENTA</p>
         <h2 id="titulo-acceso">Iniciar sesión<span>.</span></h2>
         <p>Accede a tu cuenta NOVA.</p>
 
-        <label class="acceso-campo" for="acceso-usuario">Usuario o correo
+        <label class="acceso__campo" for="acceso-usuario">Usuario o correo
           <input id="acceso-usuario" name="usuario" type="text" autocomplete="username" required />
         </label>
 
-        <label class="acceso-campo" for="acceso-clave">Contraseña
-          <span class="acceso-clave">
+        <label class="acceso__campo" for="acceso-clave">Contraseña
+          <span class="acceso__clave">
             <input id="acceso-clave" name="clave" type="password" autocomplete="current-password" required />
             <button type="button" id="acceso-ver" aria-pressed="false">Mostrar</button>
           </span>
         </label>
 
-        <p class="acceso-error" id="acceso-error" role="alert" hidden></p>
+        <p class="acceso__error" id="acceso-error" role="alert" hidden></p>
 
         <button class="boton" type="submit">ENTRAR <span aria-hidden="true">↗</span></button>
-        <p class="acceso-pie">
+        <p class="acceso__pie">
           ¿No tienes cuenta?
           <button type="button" class="enlace-boton" id="ir-a-registro">Crear una cuenta</button>
         </p>
@@ -662,54 +662,54 @@
 
     <!-- Tienda online (js/tienda.js) -->
     <dialog id="registro" class="acceso" aria-labelledby="titulo-registro">
-      <form class="acceso-caja" id="formulario-registro" novalidate>
-        <button class="cerrar cerrar-dialogo" type="button" aria-label="Cerrar registro">×</button>
+      <form class="acceso__caja" id="formulario-registro" novalidate>
+        <button class="cerrar" type="button" aria-label="Cerrar registro">×</button>
         <p class="etiqueta">NOVA / TU CUENTA</p>
         <h2 id="titulo-registro">Crear cuenta<span>.</span></h2>
         <p>Con tu cuenta puedes comprar y ver tus pedidos.</p>
-        <label class="acceso-campo" for="registro-nombre">Nombre y apellidos
+        <label class="acceso__campo" for="registro-nombre">Nombre y apellidos
           <input id="registro-nombre" type="text" autocomplete="name" maxlength="120" required />
         </label>
-        <label class="acceso-campo" for="registro-email">Correo
+        <label class="acceso__campo" for="registro-email">Correo
           <input id="registro-email" type="email" autocomplete="email" maxlength="150" required />
         </label>
-        <label class="acceso-campo" for="registro-clave">Contraseña (8 caracteres o más)
+        <label class="acceso__campo" for="registro-clave">Contraseña (8 caracteres o más)
           <input id="registro-clave" type="password" autocomplete="new-password" minlength="8" maxlength="72" required />
         </label>
-        <label class="acceso-campo" for="registro-telefono">Teléfono (opcional)
+        <label class="acceso__campo" for="registro-telefono">Teléfono (opcional)
           <input id="registro-telefono" type="tel" autocomplete="tel" maxlength="30" />
         </label>
-        <label class="acceso-campo" for="registro-direccion">Dirección de entrega (opcional)
+        <label class="acceso__campo" for="registro-direccion">Dirección de entrega (opcional)
           <input id="registro-direccion" type="text" autocomplete="street-address" maxlength="300" />
         </label>
-        <p class="acceso-error" id="registro-error" role="alert" hidden></p>
+        <p class="acceso__error" id="registro-error" role="alert" hidden></p>
         <button class="boton" type="submit">CREAR CUENTA <span aria-hidden="true">↗</span></button>
-        <p class="acceso-pie">
+        <p class="acceso__pie">
           ¿Ya tienes cuenta?
           <button type="button" class="enlace-boton" id="ir-a-acceso">Iniciar sesión</button>
         </p>
       </form>
     </dialog>
 
-    <dialog id="carrito" class="dialogo-tienda" aria-labelledby="titulo-carrito">
-      <div class="tienda-caja">
-        <button class="cerrar cerrar-dialogo" type="button" aria-label="Cerrar carrito">×</button>
+    <dialog id="carrito" class="tienda carrito" aria-labelledby="titulo-carrito">
+      <div class="tienda__caja">
+        <button class="cerrar" type="button" aria-label="Cerrar carrito">×</button>
         <p class="etiqueta">NOVA / TIENDA ONLINE</p>
         <h2 id="titulo-carrito">Tu carrito<span>.</span></h2>
-        <ul class="carrito-avisos" id="carrito-avisos" role="status"></ul>
-        <p class="tienda-vacio" id="carrito-vacio">
+        <ul class="carrito__avisos" id="carrito-avisos" role="status"></ul>
+        <p class="carrito__vacio" id="carrito-vacio">
           Tu carrito está vacío. Elige un modelo en el catálogo y añádelo desde su ficha.
         </p>
-        <ul class="carrito-lista" id="carrito-lista"></ul>
-        <div class="carrito-pie" id="carrito-pie">
-          <p class="carrito-total">
+        <ul class="carrito__lista" id="carrito-lista"></ul>
+        <div class="carrito__pie" id="carrito-pie">
+          <p class="carrito__total">
             Total estimado <strong id="carrito-total"></strong>
           </p>
-          <p class="tienda-nota">
+          <p class="tienda__nota">
             El total definitivo lo calcula la base de datos de NOVA al revisar el pedido.
           </p>
-          <div class="tienda-botones">
-            <button class="boton boton-secundario" type="button" id="carrito-vaciar">
+          <div class="tienda__botones">
+            <button class="boton boton--secundario" type="button" id="carrito-vaciar">
               VACIAR CARRITO
             </button>
             <button class="boton" type="button" id="carrito-tramitar">
@@ -720,44 +720,44 @@
       </div>
     </dialog>
 
-    <dialog id="checkout" class="dialogo-tienda" aria-labelledby="titulo-checkout">
-      <div class="tienda-caja">
-        <button class="cerrar cerrar-dialogo" type="button" aria-label="Cerrar el pedido">×</button>
+    <dialog id="checkout" class="tienda checkout" aria-labelledby="titulo-checkout">
+      <div class="tienda__caja">
+        <button class="cerrar" type="button" aria-label="Cerrar el pedido">×</button>
         <p class="etiqueta">NOVA / TU PEDIDO</p>
         <h2 id="titulo-checkout">Tu pedido<span>.</span></h2>
-        <ol class="checkout-pasos" aria-label="Pasos de la compra">
+        <ol class="checkout__pasos" aria-label="Pasos de la compra">
           <li data-paso="entrega">1. Entrega</li>
           <li data-paso="pago">2. Pago simulado</li>
           <li data-paso="resultado">3. Resultado</li>
         </ol>
 
-        <form class="checkout-paso" id="paso-entrega" novalidate>
+        <form class="checkout__paso" id="paso-entrega" novalidate>
           <p>
             Comprueba tus datos y la dirección donde quieres recibir el pedido.
           </p>
-          <dl class="checkout-datos">
+          <dl class="checkout__datos">
             <div><dt>Nombre</dt><dd id="entrega-nombre"></dd></div>
             <div><dt>Correo</dt><dd id="entrega-email"></dd></div>
           </dl>
-          <label class="acceso-campo" for="entrega-telefono">Teléfono (opcional)
+          <label class="acceso__campo" for="entrega-telefono">Teléfono (opcional)
             <input id="entrega-telefono" type="tel" autocomplete="tel" maxlength="30" />
           </label>
-          <label class="acceso-campo" for="entrega-direccion">Dirección de entrega
+          <label class="acceso__campo" for="entrega-direccion">Dirección de entrega
             <textarea id="entrega-direccion" rows="2" autocomplete="street-address" maxlength="300" required></textarea>
           </label>
-          <p class="tienda-nota" id="entrega-resumen"></p>
-          <p class="acceso-error" id="entrega-error" role="alert" hidden></p>
+          <p class="tienda__nota" id="entrega-resumen"></p>
+          <p class="acceso__error" id="entrega-error" role="alert" hidden></p>
           <button class="boton" type="submit" id="entrega-continuar">
             REVISAR PEDIDO Y PAGAR <span aria-hidden="true">↗</span>
           </button>
         </form>
 
-        <div class="checkout-paso" id="paso-pago" hidden>
+        <div class="checkout__paso" id="paso-pago" hidden>
           <p>
             Pedido <strong id="pago-referencia"></strong> pendiente de pago. Estos
             son los precios y el total calculados por la base de datos de NOVA:
           </p>
-          <div class="tabla-tienda">
+          <div class="checkout__tabla">
             <table>
               <caption class="solo-lector">Líneas del pedido</caption>
               <thead>
@@ -769,34 +769,34 @@
               </tfoot>
             </table>
           </div>
-          <div class="pago-simulado">
-            <p class="pago-simulado-titulo">PAGO SIMULADO · PROYECTO ACADÉMICO</p>
+          <div class="checkout__pago">
+            <p class="checkout__pago-titulo">PAGO SIMULADO · PROYECTO ACADÉMICO</p>
             <p>
               NOVA Sneakers es un proyecto de clase: <strong>no se cobra nada</strong>
               y no se pide ningún dato bancario. Elige el resultado que quieres
               simular.
             </p>
-            <div class="tienda-botones">
+            <div class="tienda__botones">
               <button class="boton" type="button" id="pago-aceptar">
                 SIMULAR PAGO ACEPTADO <span aria-hidden="true">↗</span>
               </button>
-              <button class="boton boton-secundario" type="button" id="pago-rechazar">
+              <button class="boton boton--secundario" type="button" id="pago-rechazar">
                 SIMULAR PAGO RECHAZADO
               </button>
             </div>
           </div>
-          <p class="acceso-error" id="pago-error" role="alert" hidden></p>
-          <p class="tienda-nota">
+          <p class="acceso__error" id="pago-error" role="alert" hidden></p>
+          <p class="tienda__nota">
             <button type="button" class="enlace-boton" id="pago-cancelar">Cancelar el pedido</button>
             (si cierras esta ventana sin pagar, el pedido también se cancela).
           </p>
         </div>
 
-        <div class="checkout-paso" id="paso-resultado" hidden>
-          <p class="resultado-titulo" id="resultado-titulo" tabindex="-1"></p>
+        <div class="checkout__paso" id="paso-resultado" hidden>
+          <p class="checkout__resultado" id="resultado-titulo" tabindex="-1"></p>
           <p id="resultado-texto"></p>
-          <div class="tienda-botones">
-            <button class="boton boton-secundario" type="button" id="resultado-seguir">
+          <div class="tienda__botones">
+            <button class="boton boton--secundario" type="button" id="resultado-seguir">
               SEGUIR COMPRANDO
             </button>
             <button class="boton" type="button" id="resultado-pedidos">
@@ -807,13 +807,13 @@
       </div>
     </dialog>
 
-    <dialog id="pedidos" class="dialogo-tienda" aria-labelledby="titulo-pedidos">
-      <div class="tienda-caja">
-        <button class="cerrar cerrar-dialogo" type="button" aria-label="Cerrar mis pedidos">×</button>
+    <dialog id="pedidos" class="tienda pedidos" aria-labelledby="titulo-pedidos">
+      <div class="tienda__caja">
+        <button class="cerrar" type="button" aria-label="Cerrar mis pedidos">×</button>
         <p class="etiqueta">NOVA / TU CUENTA</p>
         <h2 id="titulo-pedidos">Mis pedidos<span>.</span></h2>
-        <p class="tienda-nota" id="pedidos-estado" role="status"></p>
-        <ul class="pedidos-lista" id="pedidos-lista"></ul>
+        <p class="tienda__nota" id="pedidos-estado" role="status"></p>
+        <ul class="pedidos__lista" id="pedidos-lista"></ul>
       </div>
     </dialog>
   </body>

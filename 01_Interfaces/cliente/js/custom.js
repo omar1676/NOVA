@@ -1,7 +1,7 @@
 // Formulario Custom: suma los pares por talla y simula el envío.
 // No hay servidor: no se envía ni se guarda ningún dato.
 const formularioCustom = document.querySelector("#form-custom");
-const camposTalla = document.querySelectorAll(".custom-tallas input");
+const camposTalla = document.querySelectorAll(".custom__tallas input");
 const totalPares = document.querySelector("#custom-total");
 const resultadoCustom = document.querySelector("#custom-resultado");
 

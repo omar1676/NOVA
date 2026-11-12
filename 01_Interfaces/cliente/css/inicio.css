@@ -72,20 +72,20 @@ nav {
   gap: 36px;
 }
 nav a,
-.cabecera-enlace {
+.cabecera__enlace {
   text-decoration: none;
   font-size: 0.7rem;
   letter-spacing: 0.1em;
 }
 nav a:hover,
-.cabecera-enlace:hover {
+.cabecera__enlace:hover {
   color: #efb17d;
 }
-.cabecera-enlace {
+.cabecera__enlace {
   border-bottom: 1px solid #bd8e6b;
   padding: 8px 0;
 }
-.coleccion {
+.escaparate {
   position: relative;
   overflow: hidden;
   min-height: calc(100vh - 72px);
@@ -98,7 +98,7 @@ nav a:hover,
     #202024 100%
   );
 }
-.coleccion:before {
+.escaparate:before {
   content: "";
   position: absolute;
   inset: 0;
@@ -112,18 +112,18 @@ nav a:hover,
       transparent 5px
     );
 }
-.seccion-cabeza,
-.controles,
-.estanterias,
-.resultados,
-.escaparate-pie,
-.vacio {
+.escaparate__cabeza,
+.escaparate__controles,
+.escaparate__estanterias,
+.escaparate__resultados,
+.escaparate__pie,
+.escaparate__vacio {
   position: relative;
   max-width: 1500px;
   margin-left: auto;
   margin-right: auto;
 }
-.seccion-cabeza {
+.escaparate__cabeza {
   display: flex;
   justify-content: space-between;
   align-items: end;
@@ -149,11 +149,11 @@ h1 {
 h1 span {
   color: #e6a26e;
 }
-.seccion-cabeza > div > p:last-child {
+.escaparate__cabeza > div > p:last-child {
   color: #c7bdb9;
   margin-bottom: 0;
 }
-.instruccion {
+.escaparate__instruccion {
   color: #c4b6b1;
   font-size: 0.6rem;
   letter-spacing: 0.15em;
@@ -161,10 +161,10 @@ h1 span {
   text-align: right;
   margin: 0;
 }
-.instruccion span {
+.escaparate__instruccion span {
   color: #edb68a;
 }
-.controles {
+.escaparate__controles {
   display: flex;
   align-items: end;
   justify-content: space-between;
@@ -173,24 +173,24 @@ h1 span {
   border-bottom: 1px solid #ffffff26;
   padding-bottom: 13px;
 }
-.controles fieldset {
+.escaparate__controles fieldset {
   border: 0;
   padding: 0;
   margin: 0;
 }
-.controles legend,
-.buscar span {
+.escaparate__controles legend,
+.escaparate__buscar span {
   position: absolute;
   width: 1px;
   height: 1px;
   overflow: hidden;
   clip-path: inset(50%);
 }
-.filtros {
+.escaparate__filtros {
   display: flex;
   gap: 24px;
 }
-.filtro {
+.escaparate__filtro {
   background: none;
   color: #c8bfbd;
   border: 0;
@@ -198,16 +198,16 @@ h1 span {
   font-size: 0.65rem;
   letter-spacing: 0.13em;
 }
-.filtro span {
+.escaparate__filtro span {
   font-size: 0.55rem;
   color: #b5aaa5;
   margin-left: 3px;
 }
-.filtro.activo {
+.escaparate__filtro--activo {
   color: #fff;
   border-bottom: 1px solid #f0ac7d;
 }
-.buscar input {
+.escaparate__buscar input {
   width: 175px;
   border: 0;
   border-bottom: 1px solid #ffffff4a;
@@ -216,26 +216,26 @@ h1 span {
   padding: 8px 0;
   font-size: 0.75rem;
 }
-.buscar input::placeholder {
+.escaparate__buscar input::placeholder {
   color: #c9c0bc;
 }
-.resultados {
+.escaparate__resultados {
   font-size: 0.62rem;
   letter-spacing: 0.12em;
   color: #c3b5b1;
   margin-top: 14px;
   margin-bottom: 0;
 }
-.estanterias {
+.escaparate__estanterias {
   display: grid;
   column-gap: 22px;
   row-gap: 24px;
   margin-top: 0;
 }
-.zapatilla {
+.escaparate__zapatilla {
   min-width: 0;
 }
-.tarjeta {
+.escaparate__tarjeta {
   display: flex;
   width: 100%;
   height: 100%;
@@ -247,7 +247,7 @@ h1 span {
   text-align: left;
   padding: 0;
 }
-.tarjeta img {
+.escaparate__tarjeta img {
   display: block;
   width: 100%;
   height: clamp(100px, 13vw, 190px);
@@ -255,11 +255,11 @@ h1 span {
   object-position: center bottom;
   transition: transform 0.35s ease;
 }
-.tarjeta:hover img,
-.tarjeta:focus-visible img {
+.escaparate__tarjeta:hover img,
+.escaparate__tarjeta:focus-visible img {
   transform: translateY(-10px) scale(1.04);
 }
-.datos {
+.escaparate__datos {
   width: 100%;
   position: relative;
   display: flex;
@@ -270,7 +270,7 @@ h1 span {
   letter-spacing: 0.03em;
   color: #e5dfdc;
 }
-.datos:before {
+.escaparate__datos:before {
   content: "";
   position: absolute;
   top: 0;
@@ -283,11 +283,11 @@ h1 span {
     0 13px 20px #0009;
   transform: perspective(150px) rotateX(-8deg);
 }
-.datos span {
+.escaparate__datos span {
   color: #c8b8b1;
   font-size: 0.62rem;
 }
-.escaparate-pie {
+.escaparate__pie {
   display: flex;
   justify-content: space-between;
   margin-top: 52px;
@@ -295,7 +295,7 @@ h1 span {
   color: #c5b8b3;
   letter-spacing: 0.14em;
 }
-.vacio {
+.escaparate__vacio {
   padding: 60px 0;
   color: #ddd;
 }
@@ -335,14 +335,14 @@ h1 span {
   color: #a8a09b;
   margin-top: 35px;
 }
-/* Pie de página único: arriba el contacto (.contacto, más abajo) y debajo
-   una línea final con la marca. La raya va dentro del mismo bloque. */
-footer {
+/* Pie de página único (.pie): arriba el contacto (.contacto, más abajo) y
+   debajo la línea final con la marca (.pie__final), separada por una raya. */
+.pie {
   max-width: 1500px;
   margin: auto;
   padding: 100px 6% 40px;
 }
-.pie-final {
+.pie__final {
   margin-top: 60px;
   padding-top: 28px;
   border-top: 1px solid #ffffff25;
@@ -354,13 +354,13 @@ footer {
   color: #b9bab5;
   font-size: 0.75rem;
 }
-.pie-final p {
+.pie__final p {
   margin: 0;
 }
-.pie-final .marca {
+.pie__final .marca {
   color: white;
 }
-.pie-final a:not(.marca) {
+.pie__final a:not(.marca) {
   text-decoration: none;
 }
 dialog {
@@ -381,7 +381,7 @@ dialog {
 dialog::backdrop {
   background: #080709dc;
 }
-.modal {
+.ficha {
   position: relative;
   min-height: 620px;
   padding: 50px;
@@ -390,22 +390,22 @@ dialog::backdrop {
   gap: 20px;
   align-items: center;
 }
-.modal-texto {
+.ficha__texto {
   align-self: start;
 }
-.modal-texto h2 {
+.ficha__texto h2 {
   font-size: clamp(2.3rem, 4vw, 4rem);
   letter-spacing: -0.06em;
   line-height: 1;
 }
-.modal-texto > p:not(.etiqueta),
-.modal-info p {
+.ficha__texto > p:not(.etiqueta),
+.ficha__info p {
   color: #c1b6b2;
 }
-.modal-imagen {
+.ficha__imagen {
   align-self: center;
 }
-.modal-imagen img {
+.ficha__imagen img {
   display: block;
   width: 100%;
   max-height: 340px;
@@ -413,14 +413,14 @@ dialog::backdrop {
   object-position: bottom;
   animation: entrar 0.45s ease;
 }
-.repisa-grande {
+.ficha__repisa {
   height: 12px;
   background: linear-gradient(#ffe7be, #bb815f 36%, #734232 65%, #412925);
   box-shadow:
     0 8px 24px #f4772a99,
     0 16px 60px #ef4d2788;
 }
-.modal-info {
+.ficha__info {
   align-self: end;
   font-size: 0.8rem;
 }
@@ -483,51 +483,51 @@ dialog::backdrop {
   nav a {
     font-size: 0.65rem;
   }
-  .cabecera-enlace {
+  .cabecera__enlace {
     display: none;
   }
-  .coleccion {
+  .escaparate {
     padding: 38px 5%;
   }
-  .seccion-cabeza {
+  .escaparate__cabeza {
     align-items: start;
   }
-  .instruccion {
+  .escaparate__instruccion {
     font-size: 0.5rem;
   }
-  .controles {
+  .escaparate__controles {
     gap: 15px;
   }
-  .buscar input {
+  .escaparate__buscar input {
     width: 125px;
   }
-  .estanterias {
+  .escaparate__estanterias {
     gap: 25px 16px;
   }
-  .tarjeta img {
+  .escaparate__tarjeta img {
     height: 125px;
   }
-  .datos {
+  .escaparate__datos {
     font-size: 0.68rem;
   }
-  .datos span {
+  .escaparate__datos span {
     font-size: 0.58rem;
   }
   .historia {
     grid-template-columns: 1fr;
     padding: 70px 5%;
   }
-  .modal {
+  .ficha {
     min-height: 0;
     grid-template-columns: 1fr;
   }
-  .modal-texto h2 {
+  .ficha__texto h2 {
     margin-bottom: 10px;
   }
-  .modal-texto p {
+  .ficha__texto p {
     margin-bottom: 0;
   }
-  .modal-imagen img {
+  .ficha__imagen img {
     height: 220px;
   }
 }
@@ -535,10 +535,10 @@ dialog::backdrop {
   nav a:nth-child(2) {
     display: none;
   }
-  .instruccion {
+  .escaparate__instruccion {
     display: none;
   }
-  .buscar input {
+  .escaparate__buscar input {
     width: 100px;
   }
 }
@@ -553,43 +553,43 @@ dialog::backdrop {
     animation: none !important;
   }
 }
-.catalogo-completo {
+.catalogo {
   background: #eeece6;
   color: #201e1d;
   padding: 100px 5%;
 }
-.catalogo-cabecera,
-.catalogo-herramientas,
-.catalogo-grid,
-.catalogo-completo .nota,
+.catalogo__cabecera,
+.catalogo__herramientas,
+.catalogo__grid,
+.catalogo .nota,
 #catalogo-vacio {
   max-width: 1500px;
   margin-left: auto;
   margin-right: auto;
 }
-.catalogo-cabecera {
+.catalogo__cabecera {
   display: flex;
   justify-content: space-between;
   align-items: end;
   gap: 30px;
 }
-.catalogo-cabecera .etiqueta {
+.catalogo__cabecera .etiqueta {
   color: #905c3e;
 }
-.catalogo-cabecera h2 {
+.catalogo__cabecera h2 {
   font-size: clamp(2.7rem, 5vw, 5rem);
   letter-spacing: -0.06em;
   line-height: 1;
   margin: 12px 0;
 }
-.catalogo-cabecera h2 span {
+.catalogo__cabecera h2 span {
   color: #c57f54;
 }
-.catalogo-cabecera > p {
+.catalogo__cabecera > p {
   color: #67615e;
   margin-bottom: 0;
 }
-.catalogo-herramientas {
+.catalogo__herramientas {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -597,11 +597,11 @@ dialog::backdrop {
   margin-top: 50px;
   padding-bottom: 16px;
 }
-.catalogo-herramientas label {
+.catalogo__herramientas label {
   font-size: 0.72rem;
   font-weight: bold;
 }
-.catalogo-herramientas input {
+.catalogo__herramientas input {
   width: 220px;
   border: 0;
   border-bottom: 1px solid #aaa29b;
@@ -609,90 +609,90 @@ dialog::backdrop {
   padding: 10px;
   color: #201e1d;
 }
-.catalogo-herramientas p {
+.catalogo__herramientas p {
   margin: 0 0 0 auto;
   color: #6d6761;
   font-size: 0.75rem;
 }
-.catalogo-grid {
+.catalogo__grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 30px 18px;
   margin-top: 28px;
 }
-.catalogo-tarjeta {
+.catalogo__tarjeta {
   padding: 0;
   text-align: left;
 }
-.catalogo-tarjeta img {
+.catalogo__tarjeta img {
   display: block;
   width: 100%;
   transition:
     filter 0.25s,
     transform 0.25s;
 }
-.catalogo-datos {
+.catalogo__datos {
   display: flex;
   justify-content: space-between;
 }
-.catalogo-datos span {
+.catalogo__datos span {
   color: #6f6762;
   font-size: 0.7rem;
 }
-.catalogo-completo .nota {
+.catalogo .nota {
   color: #706a65;
 }
-.catalogo-completo #catalogo-vacio {
+.catalogo #catalogo-vacio {
   padding: 40px 0;
   color: #655e58;
 }
 @media (max-width: 760px) {
-  .catalogo-completo {
+  .catalogo {
     padding: 70px 5%;
   }
-  .catalogo-cabecera {
+  .catalogo__cabecera {
     align-items: start;
     flex-direction: column;
   }
-  .catalogo-herramientas input {
+  .catalogo__herramientas input {
     width: 150px;
   }
-  .catalogo-grid {
+  .catalogo__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px 12px;
   }
-  .catalogo-datos {
+  .catalogo__datos {
     flex-direction: column;
   }
 }
 
-/* Transición entre el escaparate y el catálogo. */
-.ir-catalogo {
+/* Enlace «Desliza o ver catálogo», al pie del escaparate. */
+.escaparate__ir-catalogo {
   color: #f6e7dd;
   text-decoration: none;
   border-bottom: 1px solid #e6a26e;
   padding: 8px 0;
   transition: color 0.2s ease;
 }
-.ir-catalogo:hover {
+.escaparate__ir-catalogo:hover {
   color: #e6a26e;
 }
-.ir-catalogo span {
+.escaparate__ir-catalogo span {
   display: inline-block;
   margin-left: 8px;
   transition: transform 0.2s ease;
 }
-.ir-catalogo:hover span {
+.escaparate__ir-catalogo:hover span {
   transform: translateY(4px);
 }
 
 /* Filtros propios del catálogo. */
-.catalogo-filtros {
+.catalogo__filtros {
   display: flex;
   gap: 6px;
   margin-right: auto;
 }
-.catalogo-filtro {
+.catalogo__filtro {
   border: 1px solid #c8c1ba;
   background: transparent;
   color: #393431;
@@ -702,43 +702,43 @@ dialog::backdrop {
     background 0.2s ease,
     color 0.2s ease;
 }
-.catalogo-filtro:hover,
-.catalogo-filtro.activo {
+.catalogo__filtro:hover,
+.catalogo__filtro--activo {
   background: #252122;
   border-color: #252122;
   color: white;
 }
-.catalogo-herramientas p {
+.catalogo__herramientas p {
   margin-left: 0;
   white-space: nowrap;
 }
 @media (max-width: 760px) {
-  .catalogo-herramientas {
+  .catalogo__herramientas {
     gap: 12px;
   }
-  .catalogo-filtros {
+  .catalogo__filtros {
     width: 100%;
     margin-bottom: 6px;
   }
-  .catalogo-herramientas p {
+  .catalogo__herramientas p {
     margin-left: auto;
   }
-  .escaparate-pie {
+  .escaparate__pie {
     gap: 20px;
     align-items: center;
   }
-  .ir-catalogo {
+  .escaparate__ir-catalogo {
     text-align: right;
   }
 }
 /* La franja inferior admite el gesto sin impedir el desplazamiento del resto. */
-.escaparate-pie {
+.escaparate__pie {
   touch-action: pan-x;
   min-height: 50px;
 }
 
 /* Primera vista conceptual del probador. */
-.abrir-probador {
+.ficha__probador {
   margin-bottom: 10px;
   background: #ca875d;
   color: #1c1716;
@@ -748,23 +748,23 @@ dialog::backdrop {
   background: #f1ede8;
   color: #282320;
 }
-.probador-contenido {
+.probador {
   display: grid;
   grid-template-columns: 1fr 1fr;
   min-height: 620px;
   position: relative;
 }
-.probador-vista {
+.probador__vista {
   min-height: 600px;
   position: relative;
   overflow: hidden;
   background: center / cover url("../images/probador/madrid.png");
 }
-.probador-vista[data-escenario="tokio"] {
+.probador__vista[data-escenario="tokio"] {
   background-image: url("../images/probador/tokio.png");
 }
 /* El modelo ocupa menos espacio para que se vea completo. */
-.modelo-base {
+.probador__modelo {
   position: absolute;
   bottom: 0;
   left: 50%;
@@ -775,7 +775,7 @@ dialog::backdrop {
   object-position: bottom;
   filter: drop-shadow(0 6px 6px #0006);
 }
-.etiqueta-vista {
+.probador__etiqueta {
   position: absolute;
   bottom: 16px;
   left: 18px;
@@ -785,25 +785,25 @@ dialog::backdrop {
   font-size: 0.58rem;
   letter-spacing: 0.13em;
 }
-.probador-controles {
+.probador__controles {
   padding: 60px 9% 40px;
 }
-.probador-controles .etiqueta {
+.probador__controles .etiqueta {
   color: #905c3e;
 }
-.probador-controles h2 {
+.probador__controles h2 {
   font-size: clamp(2.3rem, 4vw, 3.8rem);
   letter-spacing: -0.06em;
   line-height: 1;
   margin-bottom: 15px;
 }
-.probador-controles h2 span {
+.probador__controles h2 span {
   color: #ba7952;
 }
-.probador-controles > p:not(.etiqueta) {
+.probador__controles > p:not(.etiqueta) {
   color: #5d5752;
 }
-.probador-zapatilla {
+.probador__miniatura {
   display: flex;
   gap: 16px;
   align-items: center;
@@ -811,54 +811,54 @@ dialog::backdrop {
   padding: 12px;
   background: white;
 }
-.probador-zapatilla img {
+.probador__miniatura img {
   width: 100px;
   height: 85px;
   object-fit: contain;
 }
-.probador-zapatilla p {
+.probador__miniatura p {
   margin: 4px 0 0;
   font-size: 0.75rem;
   color: #716a63;
 }
-.escenarios {
+.probador__escenarios {
   border: 0;
   padding: 0;
   margin: 20px 0;
 }
-.escenarios legend {
+.probador__escenarios legend {
   font-weight: bold;
   margin-bottom: 10px;
 }
-.escenarios button {
+.probador__escenarios button {
   border: 1px solid #b4a69c;
   background: transparent;
   padding: 9px 18px;
   color: #322b28;
 }
-.escenarios button[aria-pressed="true"] {
+.probador__escenarios button[aria-pressed="true"] {
   background: #2d2624;
   color: white;
   border-color: #2d2624;
 }
-.probador-nota {
+.probador__nota {
   font-size: 0.75rem;
   line-height: 1.5;
 }
-.cerrar-probador {
+.probador__cerrar {
   color: #27211e;
 }
 @media (max-width: 760px) {
-  .probador-contenido {
+  .probador {
     grid-template-columns: 1fr;
   }
-  .probador-vista {
+  .probador__vista {
     min-height: 380px;
   }
-  .probador-controles {
+  .probador__controles {
     padding: 32px 6%;
   }
-  .cerrar-probador {
+  .probador__cerrar {
     color: white;
     background: #201d1dc9;
     border-radius: 50%;
@@ -867,15 +867,15 @@ dialog::backdrop {
     line-height: 1;
   }
 }
-.probador-campo {
+.probador__campo {
   display: grid;
   gap: 6px;
   margin: 13px 0;
   font-size: 0.75rem;
   font-weight: bold;
 }
-.probador-campo select,
-.probador-campo input {
+.probador__campo select,
+.probador__campo input {
   width: 100%;
   padding: 10px;
   border: 1px solid #b7afa8;
@@ -883,38 +883,39 @@ dialog::backdrop {
   color: #24201e;
   font: inherit;
 }
-.probador-medidas {
+.probador__medidas {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
-.filtros,
-.catalogo-filtros {
+.escaparate__filtros,
+.catalogo__filtros {
   flex-wrap: wrap;
 }
-.catalogo-herramientas {
+.catalogo__herramientas {
   flex-wrap: wrap;
 }
-/* Las fotos que conservan el fondo de estudio llenan el hueco: así no queda un
-   recuadro gris dentro de la tarjeta. El encuadre 4:3 no corta ninguna zapatilla. */
-.catalogo-tarjeta.con-fondo img {
+/* Sin uso desde el rediseño de Álvaro (5f0ce57): ninguna tarjeta lleva --con-fondo.
+   Se queda hasta decidir si el catálogo vuelve a la foto con fondo (ver README).
+   El bloque va delante del modificador para ganar a .catalogo__tarjeta img. */
+.catalogo__tarjeta.catalogo__tarjeta--con-fondo img {
   object-fit: cover;
   padding: 0;
 }
 @media (max-width: 760px) {
-  .controles {
+  .escaparate__controles {
     flex-wrap: wrap;
   }
-  .filtros {
+  .escaparate__filtros {
     gap: 8px 16px;
   }
-  .buscar {
+  .escaparate__buscar {
     max-width: 100%;
   }
 }
 
 /* Una sombra suave bajo los pies ayuda a integrar el modelo en el suelo. */
-.probador-vista::after {
+.probador__vista::after {
   content: "";
   position: absolute;
   left: 50%;
@@ -927,54 +928,56 @@ dialog::backdrop {
   filter: blur(8px);
   pointer-events: none;
 }
-.modelo-base {
+.probador__modelo {
   z-index: 1;
 }
-.etiqueta-vista {
+.probador__etiqueta {
   z-index: 2;
 }
 /* La figura y su sombra comparten la misma línea de suelo. */
 @media (min-width: 761px) {
-  .modelo-base {
+  .probador__modelo {
     bottom: 5%;
     max-height: 80%;
   }
-  .probador-vista::after {
+  .probador__vista::after {
     bottom: 4%;
   }
 }
-.probador-vista.escena-fija {
+/* Escena fija: fondo liso. El bloque va delante del modificador para que gane
+   también a .probador__vista[data-escenario="tokio"]. */
+.probador__vista.probador__vista--escena-fija {
   background: #302d2a;
 }
-.probador-vista.escena-fija .modelo-base,
-.probador-vista.escena-fija::after {
+.probador__vista--escena-fija .probador__modelo,
+.probador__vista--escena-fija::after {
   display: none;
 }
-.escena-completa:not([hidden]) {
+.probador__escena:not([hidden]) {
   width: 100%;
   height: 100%;
   position: absolute;
   inset: 0;
 }
-.escenarios button:disabled {
+.probador__escenarios button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
 /* Las escenas completas rellenan el panel y conservan al modelo entero. */
 @media (min-width: 761px) {
-  .probador-vista.escena-fija {
+  .probador__vista--escena-fija {
     position: relative;
     height: 100%;
     min-height: 0;
     align-self: stretch;
   }
 }
-.escena-completa:not([hidden]) {
+.probador__escena:not([hidden]) {
   object-fit: cover;
   object-position: center;
 }
 @media (max-width: 760px) {
-  .probador-vista.escena-fija {
+  .probador__vista--escena-fija {
     aspect-ratio: 2 / 3;
     height: auto;
     min-height: 0;
@@ -984,17 +987,17 @@ dialog::backdrop {
   #probador {
     overflow: hidden;
   }
-  .probador-contenido {
+  .probador {
     height: min(90vh, 820px);
     min-height: 0;
   }
-  .probador-controles {
+  .probador__controles {
     overflow-y: auto;
   }
 }
 /* Todas las vistas ocupan la altura completa del panel en escritorio. */
 @media (min-width: 761px) {
-  .probador-vista {
+  .probador__vista {
     position: relative;
     height: 100%;
     min-height: 0;
@@ -1017,16 +1020,16 @@ dialog::backdrop {
   width: min(520px, 70vw);
   animation: entrada-logo 2.2s ease both;
 }
-.marca-logo {
+.marca--logo {
   display: flex;
   align-items: center;
 }
-.marca-logo img {
+.marca--logo img {
   display: block;
   width: 145px;
   height: auto;
 }
-.estanterias {
+.escaparate__estanterias {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 @keyframes entrada-fondo {
@@ -1056,10 +1059,10 @@ dialog::backdrop {
   }
 }
 @media (max-width: 760px) {
-  .marca-logo img {
+  .marca--logo img {
     width: 115px;
   }
-  .estanterias {
+  .escaparate__estanterias {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -1070,7 +1073,7 @@ dialog::backdrop {
 }
 /* Sin foto con la zapatilla puesta: la zapatilla elegida, sola y en grande, sobre el
    escenario, en lugar de una persona con otro calzado. */
-.zapatilla-escena {
+.probador__zapatilla {
   position: absolute;
   left: 50%;
   /* Siempre por encima de las etiquetas inferiores, también en móvil. */
@@ -1083,11 +1086,11 @@ dialog::backdrop {
   transform: translateX(-50%);
   filter: drop-shadow(0 16px 14px #0009);
 }
-.probador-vista.solo-zapatilla .modelo-base,
-.probador-vista.solo-zapatilla::after {
+.probador__vista--solo-zapatilla .probador__modelo,
+.probador__vista--solo-zapatilla::after {
   display: none;
 }
-.aviso-sin-foto {
+.probador__aviso {
   position: absolute;
   left: 18px;
   bottom: 52px;
@@ -1101,15 +1104,15 @@ dialog::backdrop {
 }
 /* Con una figura (delgada, media o amplia): la figura algo a la izquierda y
    la zapatilla elegida en una tarjeta blanca a su derecha. */
-.probador-vista.con-figura .modelo-base,
-.probador-vista.con-figura::after {
+.probador__vista--con-figura .probador__modelo,
+.probador__vista--con-figura::after {
   left: 38%;
 }
-.probador-vista.con-figura .aviso-sin-foto {
+.probador__vista--con-figura .probador__aviso {
   top: 14px;
   bottom: auto;
 }
-.probador-vista.con-figura .zapatilla-escena {
+.probador__vista--con-figura .probador__zapatilla {
   left: auto;
   right: 4%;
   bottom: 5%;
@@ -1122,26 +1125,26 @@ dialog::backdrop {
   filter: drop-shadow(0 8px 10px #0007);
 }
 
-/* Precio orientativo en el catálogo y en la ficha. */
-.catalogo-datos {
+/* Precio en la banda de datos de la tarjeta del catálogo. */
+.catalogo__datos {
   flex-wrap: wrap;
 }
-.catalogo-datos .catalogo-precio {
+.catalogo__datos .catalogo__precio {
   font-weight: bold;
 }
 /* Ficha: el nombre y la compra van sobre un panel oscuro liso; en escritorio,
    la foto a la izquierda y el panel a la derecha, como en una tienda. */
-.modal-texto,
-.modal-info {
+.ficha__texto,
+.ficha__info {
   background: #1c1a1d;
 }
-.modal-texto {
+.ficha__texto {
   padding: 26px 26px 6px;
 }
-.modal-info {
+.ficha__info {
   padding: 6px 26px 26px;
 }
-.ficha-precio {
+.ficha__precio {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
@@ -1150,7 +1153,7 @@ dialog::backdrop {
   padding-bottom: 16px;
   border-bottom: 1px solid #ffffff24;
 }
-.ficha-precio #detalle-etiqueta-precio {
+.ficha__precio #detalle-etiqueta-precio {
   width: 100%;
   margin-bottom: 2px;
 }
@@ -1160,28 +1163,28 @@ dialog::backdrop {
   letter-spacing: -0.02em;
   line-height: 1.1;
 }
-.modal-info #detalle-nota-precio {
+.ficha__info #detalle-nota-precio {
   margin: 0;
   font-size: 0.75rem;
 }
-.ficha-acciones {
+.ficha__acciones {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 10px;
 }
 /* Los dos botones de abajo son secundarios: el principal es «Añadir al carrito». */
-.ficha-acciones .boton,
-.ficha-acciones .abrir-probador {
+.ficha__acciones .boton,
+.ficha__acciones .ficha__probador {
   margin: 0;
   border-color: #ffffff8c;
   background: transparent;
   color: #f4ece4;
 }
-.ficha-acciones .boton:hover {
+.ficha__acciones .boton:hover {
   background: #ffffff14;
 }
 @media (min-width: 761px) {
-  .modal {
+  .ficha {
     grid-template-columns: minmax(0, 1.15fr) minmax(320px, 1fr);
     grid-template-rows: auto 1fr;
     grid-template-areas:
@@ -1191,30 +1194,30 @@ dialog::backdrop {
     align-items: start;
     padding: 44px;
   }
-  .modal-texto {
+  .ficha__texto {
     grid-area: texto;
   }
-  .modal-texto h2 {
+  .ficha__texto h2 {
     font-size: clamp(2rem, 3.2vw, 3.2rem);
   }
-  .modal-imagen {
+  .ficha__imagen {
     grid-area: imagen;
     align-self: center;
   }
-  .modal-info {
+  .ficha__info {
     grid-area: info;
     align-self: stretch;
   }
 }
 @media (max-width: 760px) {
-  .modal {
+  .ficha {
     padding: 55px 4% 24px;
     gap: 16px;
   }
-  .modal-texto {
+  .ficha__texto {
     padding: 18px 18px 6px;
   }
-  .modal-info {
+  .ficha__info {
     margin-top: 0;
     padding: 18px;
   }
@@ -1242,34 +1245,34 @@ dialog::backdrop {
 .custom .etiqueta {
   color: #905c3e;
 }
-.custom-pasos {
+.custom__pasos {
   padding-left: 20px;
   line-height: 1.8;
 }
 .custom .nota {
   color: #5f5853;
 }
-.custom-aviso {
+.custom__aviso {
   background: #f8e9d8;
   border-left: 4px solid #c57f54;
   padding: 12px 14px;
   font-size: 0.8rem;
 }
-.custom-campos {
+.custom__campos {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0 16px;
 }
-.campo {
+.custom__campo {
   display: grid;
   gap: 6px;
   margin: 10px 0;
   font-size: 0.75rem;
   font-weight: bold;
 }
-.campo input,
-.campo textarea,
-.custom-tallas input {
+.custom__campo input,
+.custom__campo textarea,
+.custom__tallas input {
   width: 100%;
   padding: 10px;
   border: 1px solid #8f877f;
@@ -1287,7 +1290,7 @@ dialog::backdrop {
   outline: 2px solid #8d492a;
   outline-offset: 2px;
 }
-.custom-tallas {
+.custom__tallas {
   border: 1px solid #c6c1ba;
   margin: 10px 0;
   padding: 12px 14px 16px;
@@ -1295,22 +1298,22 @@ dialog::backdrop {
   grid-template-columns: repeat(9, minmax(0, 1fr));
   gap: 8px;
 }
-.custom-tallas legend {
+.custom__tallas legend {
   font-size: 0.75rem;
   font-weight: bold;
   padding: 0 6px;
 }
-.custom-tallas label {
+.custom__tallas label {
   display: grid;
   gap: 4px;
   text-align: center;
   font-size: 0.75rem;
 }
-.custom-tallas input {
+.custom__tallas input {
   padding: 8px 2px;
   text-align: center;
 }
-.custom-total {
+.custom__total {
   font-size: 1rem;
   font-weight: bold;
 }
@@ -1322,7 +1325,7 @@ dialog::backdrop {
 .custom .boton:hover {
   background: #3d3638;
 }
-.custom-resultado {
+.custom__resultado {
   margin-top: 16px;
   font-weight: bold;
 }
@@ -1339,20 +1342,20 @@ dialog::backdrop {
 .contacto > div > p:last-child {
   color: #bcbdb7;
 }
-.contacto-datos {
+.contacto__datos {
   margin: 0;
   align-self: end;
   display: grid;
   gap: 18px;
 }
-.contacto-datos dt {
+.contacto__datos dt {
   font-size: 0.62rem;
   letter-spacing: 0.2em;
   font-weight: bold;
   color: #d8a77e;
   text-transform: uppercase;
 }
-.contacto-datos dd {
+.contacto__datos dd {
   margin: 4px 0 0;
 }
 
@@ -1373,21 +1376,21 @@ dialog::backdrop {
   .custom {
     padding: 70px 5%;
   }
-  footer {
+  .pie {
     padding: 70px 5% 35px;
   }
-  .pie-final {
+  .pie__final {
     margin-top: 45px;
   }
-  .custom-campos {
+  .custom__campos {
     grid-template-columns: 1fr;
   }
-  .custom-tallas {
+  .custom__tallas {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 @media (max-width: 370px) {
-  .marca-logo img {
+  .marca--logo img {
     width: 95px;
   }
   nav {
@@ -1395,26 +1398,27 @@ dialog::backdrop {
   }
 }
 
-/* Inicio de sesión: estilos de Álvaro (commit 52a8800), sin cambios. */
+/* Inicio de sesión: estilos de Álvaro (commit 52a8800). Solo cambian los
+   nombres de clase, pasados a BEM. */
 dialog.acceso {
   width: min(440px, 92vw);
 }
-.acceso-caja {
+.acceso__caja {
   position: relative;
   padding: 48px 32px 32px;
 }
-.acceso-caja h2 {
+.acceso__caja h2 {
   font-size: 2rem;
   letter-spacing: -0.04em;
   margin: 0.2em 0 0.3em;
 }
-.acceso-caja h2 span {
+.acceso__caja h2 span {
   color: var(--brillo);
 }
-.acceso-caja > p:not(.etiqueta):not(.acceso-error) {
+.acceso__caja > p:not(.etiqueta):not(.acceso__error) {
   color: #c1b6b2;
 }
-.acceso-campo {
+.acceso__campo {
   display: grid;
   gap: 6px;
   margin: 18px 0;
@@ -1422,7 +1426,7 @@ dialog.acceso {
   font-weight: bold;
   letter-spacing: 0.05em;
 }
-.acceso-campo input {
+.acceso__campo input {
   width: 100%;
   border: 0;
   border-bottom: 1px solid #ffffff4a;
@@ -1430,16 +1434,16 @@ dialog.acceso {
   color: white;
   padding: 10px 0;
 }
-.acceso-clave {
+.acceso__clave {
   display: flex;
   align-items: center;
   gap: 10px;
   border-bottom: 1px solid #ffffff4a;
 }
-.acceso-clave input {
+.acceso__clave input {
   border-bottom: 0;
 }
-.acceso-clave button {
+.acceso__clave button {
   border: 0;
   background: none;
   color: var(--suave);
@@ -1447,7 +1451,7 @@ dialog.acceso {
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.acceso-error {
+.acceso__error {
   color: #f2a38d;
   font-size: 0.78rem;
   margin: 0 0 14px;
@@ -1462,32 +1466,40 @@ dialog.acceso {
    - Su banda de datos es opaca, del tono oscuro (en su versión, negro
      translúcido sobre el degradado): nombre, precio y estado en claro.
    - El foco: su contorno claro (#f6c696) pegado a la tarjeta y otro oscuro
-     por fuera, que es el que contrasta con el fondo claro del catálogo. */
-.c-street {
+     por fuera, que es el que contrasta con el fondo claro del catálogo.
+   Cada colección pone su paleta (--col-claro y --col-oscuro) en el modificador
+   de la tarjeta y en el del filtro: catalogo__tarjeta--street, etc. */
+.catalogo__tarjeta--street,
+.catalogo__filtro--street {
   --col-claro: #3d5a73;
   --col-oscuro: #16222d;
 }
-.c-luxe {
+.catalogo__tarjeta--luxe,
+.catalogo__filtro--luxe {
   --col-claro: #4a3d1f;
   --col-oscuro: #0e0d0a;
 }
-.c-casual {
+.catalogo__tarjeta--casual,
+.catalogo__filtro--casual {
   --col-claro: #c98a5e;
   --col-oscuro: #7a4a30;
 }
-.c-hombre {
+.catalogo__tarjeta--hombre,
+.catalogo__filtro--hombre {
   --col-claro: #3a4f8a;
   --col-oscuro: #141b30;
 }
-.c-mujer {
+.catalogo__tarjeta--mujer,
+.catalogo__filtro--mujer {
   --col-claro: #9a4a5c;
   --col-oscuro: #3a1722;
 }
-.c-unisex {
+.catalogo__tarjeta--unisex,
+.catalogo__filtro--unisex {
   --col-claro: #5f7a6a;
   --col-oscuro: #1c2622;
 }
-.catalogo-tarjeta {
+.catalogo__tarjeta {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -1500,21 +1512,21 @@ dialog.acceso {
     transform 0.3s,
     box-shadow 0.3s;
 }
-.catalogo-tarjeta:hover {
+.catalogo__tarjeta:hover {
   transform: translateY(-6px);
   box-shadow: 0 22px 40px #0005;
 }
-.catalogo-tarjeta:focus-visible {
+.catalogo__tarjeta:focus-visible {
   outline: 3px solid #201e1d;
   outline-offset: 3px;
   box-shadow: 0 0 0 3px #f6c696;
 }
-.catalogo-foto {
+.catalogo__foto {
   position: relative;
   display: block;
   background: linear-gradient(160deg, var(--col-claro), var(--col-oscuro));
 }
-.catalogo-etiqueta {
+.catalogo__etiqueta {
   position: absolute;
   top: 12px;
   left: 12px;
@@ -1528,18 +1540,18 @@ dialog.acceso {
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
-.catalogo-tarjeta img {
+.catalogo__tarjeta img {
   aspect-ratio: 1.15;
   padding: 40px 10px 6px;
   background: none;
   object-fit: contain;
   filter: drop-shadow(0 20px 16px #0007);
 }
-.catalogo-tarjeta:hover img {
+.catalogo__tarjeta:hover img {
   filter: drop-shadow(0 20px 16px #0007);
   transform: scale(1.05) translateY(-4px);
 }
-.catalogo-datos {
+.catalogo__datos {
   flex: 1;
   align-items: baseline;
   gap: 4px 10px;
@@ -1548,20 +1560,20 @@ dialog.acceso {
   color: #fff;
   font-size: 0.85rem;
 }
-.catalogo-datos strong {
+.catalogo__datos strong {
   width: 100%;
 }
-.catalogo-tarjeta:hover .catalogo-datos strong {
+.catalogo__tarjeta:hover .catalogo__datos strong {
   color: #fff;
   text-decoration: underline;
 }
-.catalogo-datos .catalogo-precio {
+.catalogo__datos .catalogo__precio {
   order: 2;
   width: auto;
   color: #fff;
   font-size: 0.85rem;
 }
-.catalogo-datos .catalogo-accion {
+.catalogo__datos .catalogo__accion {
   order: 3;
   margin-left: auto;
   color: #f3ebe6;
@@ -1569,8 +1581,13 @@ dialog.acceso {
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
-/* Un punto con el color de la colección en cada filtro del catálogo */
-.catalogo-filtro[class*="c-"]::before {
+/* Un punto con el color de la colección en cada filtro del catálogo (menos en «Todos») */
+.catalogo__filtro--street::before,
+.catalogo__filtro--luxe::before,
+.catalogo__filtro--casual::before,
+.catalogo__filtro--hombre::before,
+.catalogo__filtro--mujer::before,
+.catalogo__filtro--unisex::before {
   content: "";
   display: inline-block;
   width: 0.75em;
@@ -1581,19 +1598,19 @@ dialog.acceso {
   background: linear-gradient(160deg, var(--col-claro), var(--col-oscuro));
   vertical-align: -1px;
 }
-.catalogo-filtro.activo::before,
-.catalogo-filtro:hover::before {
+.catalogo__filtro--activo::before,
+.catalogo__filtro:hover::before {
   border-color: #fff;
 }
 @media (max-width: 760px) {
-  .catalogo-tarjeta img {
+  .catalogo__tarjeta img {
     padding: 36px 6px 4px;
   }
-  .catalogo-datos {
+  .catalogo__datos {
     justify-content: flex-start;
     padding: 12px;
   }
-  .catalogo-datos .catalogo-accion {
+  .catalogo__datos .catalogo__accion {
     margin-left: 0;
   }
 }

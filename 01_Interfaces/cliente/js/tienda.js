@@ -223,14 +223,14 @@ function mostrarCompraEnFicha(modelo) {
 // pantalla); a la vista sale en la leyenda, «Color: ...».
 function crearMuestra(color, indice, marcada) {
   const etiqueta = document.createElement("label");
-  etiqueta.className = "compra-muestra";
+  etiqueta.className = "compra__muestra";
   const radio = document.createElement("input");
   radio.type = "radio";
   radio.name = "color";
   radio.value = String(indice);
   radio.checked = marcada;
   const circulo = document.createElement("span");
-  circulo.className = "muestra-color";
+  circulo.className = "compra__circulo";
   circulo.style.background = fondoMuestra(color);
   const nombre = document.createElement("span");
   nombre.className = "solo-lector";
@@ -245,7 +245,7 @@ function crearMuestra(color, indice, marcada) {
 function crearTalla(talla) {
   const agotada = talla.stock === 0;
   const etiqueta = document.createElement("label");
-  etiqueta.className = "compra-opcion";
+  etiqueta.className = "compra__talla";
   const radio = document.createElement("input");
   radio.type = "radio";
   radio.name = "talla";
@@ -286,7 +286,7 @@ function tallaElegida() {
 // El aviso de stock: estado "" (sin talla), "quedan", "pocos" o "agotado"
 function avisarStock(texto, estado) {
   textoStock.textContent = texto;
-  textoStock.className = estado ? `compra-stock ${estado}` : "compra-stock";
+  textoStock.className = estado ? `compra__stock compra__stock--${estado}` : "compra__stock";
 }
 
 // Lo más que se puede llevar de una talla: lo que queda en stock, y nunca más
@@ -355,7 +355,7 @@ campoCantidad.addEventListener("input", () => {
 // lo demás (añadido al carrito o carrito lleno).
 function errorEnTalla(texto) {
   errorTalla.textContent = texto;
-  grupoTalla.classList.add("con-error");
+  grupoTalla.classList.add("compra__grupo--error");
 }
 
 function errorEnCantidad(texto) {
@@ -365,13 +365,13 @@ function errorEnCantidad(texto) {
 
 function avisarEnFicha(texto, esError = false) {
   mensajeAnadir.textContent = texto;
-  mensajeAnadir.classList.toggle("error", esError);
+  mensajeAnadir.classList.toggle("compra__mensaje--error", esError);
   botonVerCarrito.hidden = !texto || esError;
 }
 
 function limpiarAvisos() {
   errorTalla.textContent = "";
-  grupoTalla.classList.remove("con-error");
+  grupoTalla.classList.remove("compra__grupo--error");
   errorCantidad.textContent = "";
   campoCantidad.removeAttribute("aria-invalid");
   avisarEnFicha("");
@@ -543,14 +543,14 @@ function pintarCarrito() {
     const producto = productosTienda.get(linea.sku);
     const descripcion = `${producto.modelo}, talla ${producto.talla}`;
     const item = document.createElement("li");
-    item.className = "carrito-linea";
+    item.className = "carrito__linea";
 
     const foto = document.createElement("img");
     foto.src = modelos.find((m) => m.nombre === producto.modelo)?.imagen || "";
     foto.alt = "";
 
     const datos = document.createElement("div");
-    datos.className = "carrito-datos";
+    datos.className = "carrito__datos";
     const nombre = document.createElement("strong");
     nombre.textContent = producto.modelo;
     const detalle = document.createElement("small");
@@ -558,7 +558,7 @@ function pintarCarrito() {
     datos.append(nombre, detalle);
 
     const etiqueta = document.createElement("label");
-    etiqueta.className = "carrito-cantidad";
+    etiqueta.className = "carrito__cantidad";
     etiqueta.textContent = "Pares ";
     const campo = document.createElement("input");
     campo.type = "number";
@@ -571,7 +571,7 @@ function pintarCarrito() {
     etiqueta.append(campo);
 
     const subtotal = document.createElement("strong");
-    subtotal.className = "carrito-subtotal";
+    subtotal.className = "carrito__subtotal";
     subtotal.textContent = formatoPrecio(producto.precio * linea.cantidad);
 
     const quitar = document.createElement("button");
@@ -800,7 +800,7 @@ function mostrarPaso(paso) {
   for (const nombre of ["entrega", "pago", "resultado"]) {
     document.querySelector(`#paso-${nombre}`).hidden = nombre !== paso;
   }
-  dialogoCheckout.querySelectorAll(".checkout-pasos li").forEach((item) => {
+  dialogoCheckout.querySelectorAll(".checkout__pasos li").forEach((item) => {
     if (item.dataset.paso === paso) item.setAttribute("aria-current", "step");
     else item.removeAttribute("aria-current");
   });
@@ -1019,13 +1019,13 @@ function crearFilaPedido(pedido) {
   const item = document.createElement("li");
   item.className = "pedido";
   const cabecera = document.createElement("div");
-  cabecera.className = "pedido-cabecera";
+  cabecera.className = "pedido__cabecera";
   const referencia = document.createElement("strong");
   referencia.textContent = pedido.referencia;
   const fecha = document.createElement("span");
   fecha.textContent = pedido.fecha;
   const estado = document.createElement("span");
-  estado.className = `pedido-estado estado-${pedido.estado}`;
+  estado.className = `pedido__estado pedido__estado--${pedido.estado}`;
   estado.textContent = NOMBRES_ESTADO[pedido.estado] || pedido.estado;
   const importe = document.createElement("span");
   importe.textContent = `${textoPares(pedido.pares)} · ${formatoPrecio(pedido.total)}`;
@@ -1035,7 +1035,7 @@ function crearFilaPedido(pedido) {
   boton.textContent = "Ver detalle";
   boton.setAttribute("aria-expanded", "false");
   const detalle = document.createElement("ul");
-  detalle.className = "pedido-lineas";
+  detalle.className = "pedido__lineas";
   detalle.id = `pedido-detalle-${pedido.id}`;
   detalle.hidden = true;
   boton.setAttribute("aria-controls", detalle.id);
@@ -1087,7 +1087,7 @@ botonMisPedidos.addEventListener("click", abrirMisPedidos);
 // ---------------------------------------------------------------------
 for (const dialogoTienda of [dialogoRegistro, dialogoCarrito, dialogoCheckout, dialogoPedidos]) {
   dialogoTienda
-    .querySelector(".cerrar-dialogo")
+    .querySelector(".cerrar")
     .addEventListener("click", () => dialogoTienda.close());
   if (dialogoTienda !== dialogoCheckout) {
     dialogoTienda.addEventListener("click", (evento) => {
