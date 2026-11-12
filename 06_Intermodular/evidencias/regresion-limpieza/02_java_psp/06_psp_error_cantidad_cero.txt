@@ -1,0 +1,5 @@
+===== NOVA Sneakers - PSP - 2026-11-13 12:18:01 =====
+Archivo: datos\prueba_cantidad_cero.csv
+Paso 1 ValidadorPedidoCustom: codigo 2 en 0,20 s
+  ERROR;La cantidad del registro 2 tiene que ser mayor que cero, y es 0
+Resultado: PEDIDO RECHAZADO (codigo 2). El paso 1 ha rechazado los datos del pedido

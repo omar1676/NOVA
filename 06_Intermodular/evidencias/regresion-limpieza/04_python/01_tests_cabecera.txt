@@ -1,0 +1,3 @@
+Inicio: 13/11/2026 12:18:04 | Python 3.13.5 | pandas 3.1.1 | streamlit 1.67.0
+unittest -> salida 0
+Fin: 13/11/2026 12:30:57 | Ran 265 tests in 720.164s | OK

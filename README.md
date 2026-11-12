@@ -47,7 +47,7 @@ Dentro de cada asignatura: `evidencias/` guarda los resultados y las capturas de
 | Instalación paso a paso y guion de la demostración | `06_Intermodular/manuales/` |
 | Caso común SO024 y los 7 datos pendientes | `06_Intermodular/SO024/` |
 | Defensa y presentación | `06_Intermodular/defensa/` |
-| Regresión completa del 13/11 | `06_Intermodular/evidencias/regresion-final/README.md` |
+| Regresión completa del 13/11 | `06_Intermodular/evidencias/regresion-final/README.md` y, sobre el árbol limpio, `06_Intermodular/evidencias/regresion-limpieza/README.md` |
 | Odoo (lo que falta) | `05_Odoo/CHECKLIST_ODOO_BERME.md` |
 
 ```
@@ -166,7 +166,7 @@ Todas sobre una base de **prueba**, nunca la del equipo: la batería Java deja p
 | Login único y portal | En `servidor-admin`: `npm run test:portal`, con `PRUEBA_TIENDA_BASE_DESECHABLE=si` y `PRUEBA_SUPERUSUARIO` | 24 de 24 | 24 / 24 |
 | Web en Edge | Scripts de Playwright y axe (fuera del repositorio: solo sus resultados) | Interfaces, web completa, mejoras, compra, reparto, login y portal, Ethereal | Ver `06_Intermodular/evidencias/regresion-final/README.md` |
 
-Los scripts de `package.json` leen `servidor-admin/.env` (`--env-file`): tiene que existir. Los resultados guardados y las capturas están en la carpeta `evidencias/` de cada asignatura. **La regresión completa del 13/11, con la fecha, el entorno y el resultado de cada batería, está en `06_Intermodular/evidencias/regresion-final/`.**
+Los scripts de `package.json` leen `servidor-admin/.env` (`--env-file`): tiene que existir. Los resultados guardados y las capturas están en la carpeta `evidencias/` de cada asignatura. **La regresión completa del 13/11, con la fecha, el entorno y el resultado de cada batería, está en `06_Intermodular/evidencias/regresion-final/`.** La misma regresión, repetida sobre el árbol ya reorganizado y simplificado, da lo mismo: `06_Intermodular/evidencias/regresion-limpieza/`.
 
 Hay además dos comprobaciones rápidas, desde la raíz:
 
