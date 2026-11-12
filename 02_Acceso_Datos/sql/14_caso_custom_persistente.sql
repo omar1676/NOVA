@@ -22,15 +22,15 @@
 --   como estaban.
 --
 -- QUE PERMISOS HACEN FALTA
---   Hay que lanzarlo como **postgres o con el rol nova_admin**. Necesita
---   leer la tabla usuarios para identificar al operador y actualizar
---   pedidos, y solo nova_admin tiene esos permisos. Comprobado rol por
---   rol: nova_comercial y nova_trabajador fallan con "permission denied
---   for table usuarios", y nova_cliente con "clientes".
+--   Hay que lanzarlo como postgres o con el rol nova_admin: crea el
+--   pedido, lo marca como Custom, lee log_eventos para comprobar la
+--   auditoria y usuarios para el resumen. Comprobado rol por rol (13/11):
+--   nova_comercial falla al leer log_eventos, nova_trabajador al llamar a
+--   realizar_compra y nova_cliente al leer pedidos ("permission denied").
 --
 -- QUE HAY QUE HABER EJECUTADO ANTES
 --   1. La instalacion completa, incluido 05_datos_prueba.sql.
---   2. **13_activar_usuarios.sql**, porque este script inicia sesion como
+--   2. 13_activar_usuarios.sql, porque este script inicia sesion como
 --      tienda.demo y las cuentas se instalan sin contrasena utilizable.
 --
 -- LA CONTRASENA NO SE GUARDA EN NINGUN SITIO
@@ -306,10 +306,9 @@ BEGIN
 
     -- La auditoria de ESTE pedido: el alta y el cambio de estado.
     --
-    -- Se filtra por id_registro, que es el id del pedido, para contar
-    -- solo sus eventos. Antes se miraba tambien tabla_afectada =
-    -- 'existencias', y eso recogia los movimientos de stock de
-    -- cualquier otro pedido.
+    -- Solo las filas de la tabla pedidos con id_registro = este pedido.
+    -- Los cambios de stock (tabla existencias) no se cuentan: su
+    -- id_registro es el de la existencia, no el del pedido.
     SELECT count(*), count(*) FILTER (WHERE id_usuario IS NULL)
       INTO v_eventos, v_sin_operador
       FROM public.log_eventos
