@@ -11,7 +11,7 @@ Navegador ──► http://127.0.0.1:3000 ──► Node + Express (esta carpeta
 - El navegador **nunca** habla con PostgreSQL. Pide datos a este servidor, y es el servidor el que hace las consultas.
 - El mismo servidor entrega las páginas del panel y de la tienda. Así, páginas y API tienen el mismo origen y no hace falta CORS.
 - Solo escucha en `127.0.0.1`: no se puede abrir desde otro ordenador.
-- **Panel y tienda van separados:** cada uno tiene su usuario de PostgreSQL, su cookie de sesión y sus rutas. El panel sigue sin poder escribir nada.
+- **Panel y tienda van separados:** cada uno tiene su usuario de PostgreSQL, su cookie de sesión y sus rutas. El panel solo lee, con una excepción: el botón «Marcar en reparto», que pasa un pedido confirmado a `enviado` a través de una única función (script 22, ver «La única escritura del panel»).
 - Los importes y el stock los calculan los triggers de PostgreSQL. El panel solo los lee; la tienda escribe únicamente a través de las funciones del script 20 (ver «La tienda web»).
 
 ## Puesta en marcha
@@ -46,12 +46,18 @@ Si `.env` dice `PGUSER=postgres`, el servidor se niega a arrancar.
 7. Escribir en `.env` `TIENDA_PGUSER=tienda_nova` y `TIENDA_PGPASSWORD` con la contraseña del paso 6, y volver a arrancar.
 8. Abrir `http://127.0.0.1:3000/tienda/`. Al arrancar, la consola dice si la tienda está configurada. Sin esas dos variables, el panel funciona igual y la tienda enseña el catálogo, pero no deja comprar.
 
+**Para el botón «Marcar en reparto»** del panel, después del 09, el 19 y el 20 (se puede repetir):
+
+9. ```
+   psql -U postgres -d nova_sneakers -f acceso-datos/sql/22_reparto_panel.sql
+   ```
+
 ## Archivos
 
 | Archivo | Qué hace |
 |---|---|
-| `servidor.js` | Arranca Express y entrega las páginas del panel y de la tienda. Tiene el login, el logout y las 8 rutas del panel, y comprueba la sesión y el rol en cada petición |
-| `bd.js` | Las dos conexiones con PostgreSQL. `consultarSoloLectura` (panel) abre `BEGIN ... READ ONLY` y `SET LOCAL ROLE panel_lectura`; `operarEnTienda` (tienda) abre una transacción con `SET LOCAL ROLE tienda_web` |
+| `servidor.js` | Arranca Express y entrega las páginas del panel y de la tienda. Tiene el login, el logout, las 8 rutas de lectura del panel y la de «Marcar en reparto», y comprueba la sesión y el rol en cada petición |
+| `bd.js` | Las dos conexiones con PostgreSQL. `consultarSoloLectura` (panel) abre `BEGIN ... READ ONLY` y `SET LOCAL ROLE panel_lectura`; `marcarEnReparto` (solo el botón del panel) abre una transacción aparte con `SET LOCAL ROLE panel_reparto`; `operarEnTienda` (tienda) abre una transacción con `SET LOCAL ROLE tienda_web` |
 | `consultas.js` | Las 8 consultas SQL del panel. Salen de `12_consultas_panel.sql` y de `PedidoDAO.verAuditoria` (Java) |
 | `tienda.js` | Las rutas de la tienda (`/api/tienda/...`): comprueban los datos y llaman a las funciones del script 20 con el cliente de la sesión |
 | `consultas-tienda.js` | El SQL de la tienda: catálogo, cuenta, historial y las llamadas a las funciones de compra |
@@ -79,6 +85,7 @@ Todas devuelven JSON. Las de `/api/admin/` necesitan una sesión de administrado
 | `GET /api/admin/trabajadores` | `estado`, `texto` | P-H, más `personal` para el nombre y el puesto. Nunca el DNI |
 | `GET /api/admin/auditoria` | `accion`, `texto` | `PedidoDAO.verAuditoria`: los últimos 100 eventos |
 | `GET /api/admin/estadisticas` | — | P-A del mes en curso, P-B, P-C y los ingresos por mes |
+| `POST /api/admin/pedidos/:id/reparto` | JSON `{}` | `marcar_pedido_en_reparto` (22): un pedido **confirmado** pasa a `enviado`. **200** con el pedido, **404** si no existe, **409** si no está confirmado, **415** si no llega JSON |
 
 - Los filtros siempre van como parámetros (`$1`, `$2`…), nunca pegados al SQL.
 - Un valor que no está en la lista permitida da **400**, por ejemplo `?estado=borrado`. También lo da un byte nulo.
@@ -104,6 +111,15 @@ Hay **dos barreras** contra escribir:
 2. el `READ ONLY` de cada transacción, que pone `bd.js`.
 
 Aunque el código olvidara una, la otra sigue funcionando. `REPEATABLE READ` hace, además, que todas las consultas de una petición vean los mismos datos.
+
+### La única escritura del panel: «Marcar en reparto» (script 22)
+
+Es una prueba: el administrador pulsa el botón en un pedido confirmado y el cliente lo ve «En reparto» en la tienda.
+
+- **La función** `marcar_pedido_en_reparto(p_id_usuario, p_id_pedido)` es `SECURITY DEFINER` con `search_path` fijo. Comprueba que el usuario existe, está activo y es administrador, y que el pedido existe y está `confirmado`; entonces lo pasa a `enviado`. Los triggers de 03 no tocan el stock (ya se descontó al confirmar).
+- **La auditoría** (08) apunta un `CAMBIO_ESTADO` a nombre del administrador. Para que `usuario_sesion()` lo reconozca, la función usa lo mismo que `iniciar_sesion`: la variable `nova.id_usuario` con el id y su firma, y al terminar la deja como estaba.
+- **El rol** `panel_reparto` no tiene login ni puede leer o escribir ninguna tabla: **solo ejecuta esa función**. `web_nova` pasa a él con `SET LOCAL ROLE` (sin heredar), igual que a `panel_lectura`. Nadie más puede llamarla: ni `PUBLIC`, ni `panel_lectura`, ni `tienda_web` o `tienda_nova`, ni los roles de Java.
+- **El servidor** la llama en una transacción de escritura aparte, solo para esta ruta, detrás de `soloAdministrador` (que vuelve a mirar el rol en la base). El usuario sale de la sesión, nunca del navegador, y solo acepta `Content-Type: application/json`, así que un formulario de otra web no puede lanzarla. Las demás rutas siguen con `READ ONLY` y `panel_lectura`.
 
 ### Login y sesiones
 
@@ -200,11 +216,15 @@ La web cliente (`interfaces/cliente/`) se sirve en `/tienda/`. Su JavaScript (`j
 - **Sugerencias, Mejoras y Configuración:** un aviso de «Prototipo».
 - **Accesibilidad:** nombres accesibles en buscadores, desplegables, interruptores y gráficos, y el tablero de Mejoras se alcanza con el teclado.
 - **`styles.css`:** al final, los estilos del login, del aviso de prototipo y de «No disponible», y el color de «sin cuenta».
+- **Botón «Marcar en reparto»** (solo se añade; el diseño no cambia):
+  - `pedidosAdmin.html`: una columna más, «Reparto», y un aviso vacío encima de la tabla (`role="status"`);
+  - `script.js`: el botón en los pedidos confirmados, con la confirmación, el aviso y la recarga de la lista;
+  - `styles.css`: al final, el tamaño del botón, su foco y los colores del aviso.
 - **`pedidosAdmin.html` y `productosAdmin.html`:** el icono de la pestaña apuntaba a una imagen que no existe. Se corrigió igual que lo hizo Berme en su rama.
 
 ## Pruebas
 
-`npm test` arranca el servidor en un puerto libre y comprueba, en 16 pruebas:
+`npm test` arranca el servidor en un puerto libre y comprueba, en 23 pruebas:
 - la conexión con `web_nova`;
 - las cabeceras y el rechazo de un Host ajeno;
 - el 401 sin sesión y el 403 con otro rol;
@@ -212,7 +232,9 @@ La web cliente (`interfaces/cliente/`) se sirve en `/tienda/`. Su JavaScript (`j
 - las 8 rutas, sin datos sensibles;
 - los filtros, el 400, los datos no válidos (400, 413 y 415) y un intento de inyección;
 - las rutas con `..`;
-- que `web_nova` **no puede pasar a `nova_admin` ni escribir ni leer el hash, aunque falte `READ ONLY`**.
+- que `web_nova` **no puede pasar a `nova_admin` ni escribir ni leer el hash, aunque falte `READ ONLY`**;
+- «Marcar en reparto»: 401, 403, 404, 409, 415, Host ajeno y `no-store`; que el resto del panel no puede llamar a la función y que `panel_reparto` no lee ni escribe ninguna tabla;
+- y, **solo con `PRUEBA_TIENDA_BASE_DESECHABLE=si`**, el 200: un pedido confirmado pasa a `enviado`, el stock no cambia y la auditoría apunta un `CAMBIO_ESTADO` con `admin.demo`. Es la única prueba de `npm test` que cambia algo; sin esa variable se salta.
 
 La desactivación de una cuenta con la sesión abierta se prueba aparte. Necesita cambiar un usuario en la base, y `web_nova` no tiene permiso para hacerlo. Los resultados de todas las pruebas, también las del navegador, están en `pruebas/panel-admin/`.
 
@@ -234,7 +256,7 @@ Sin esas variables, las pruebas que las necesitan se saltan y lo avisan.
 - doble clic al crear y al pagar, y dos clientes comprando los últimos pares a la vez;
 - falta de stock a mitad del pago;
 - historial privado;
-- que la compra sale en el panel.
+- que la compra sale en el panel, y que al marcarla en reparto el cliente la ve como `enviado`;
 
 **Registran clientes y crean pedidos de verdad**, así que solo se ejecutan si se confirma que la base es desechable:
 

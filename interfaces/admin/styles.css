@@ -797,3 +797,35 @@
   outline: 2px solid var(--adm-dorado);
   outline-offset: 1px;
 }
+
+/* ===== Pedidos: botón «Marcar en reparto» y su aviso ===== */
+.adm-boton-reparto {
+  padding: 6px 12px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.adm-boton-reparto:focus-visible,
+.adm-aviso-reparto:focus-visible {
+  outline: 2px solid var(--adm-dorado);
+  outline-offset: 2px;
+}
+
+.adm-boton-reparto:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* Vacío no ocupa sitio; con texto, queda entre el buscador y la tabla */
+.adm-aviso-reparto {
+  margin: 0 0 16px;
+  font-size: 14px;
+}
+
+.adm-aviso-reparto.adm-aviso-ok {
+  color: #5fc58a;
+}
+
+.adm-aviso-reparto.adm-aviso-error {
+  color: #e66a6a;
+}

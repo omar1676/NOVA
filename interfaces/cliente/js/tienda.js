@@ -27,7 +27,7 @@ const NOMBRES_ESTADO = {
   pendiente: "Pendiente de pago",
   confirmado: "Confirmado",
   en_preparacion: "En preparación",
-  enviado: "Enviado",
+  enviado: "En reparto", // lo marca el administrador en el panel («Marcar en reparto»)
   entregado: "Entregado",
   cancelado: "Cancelado",
 };

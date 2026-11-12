@@ -54,8 +54,9 @@ los scripts de `acceso-datos/sql/` con `psql -U postgres -d nova_sneakers -f
    `16_exportar_csv_dashboard.sql` (los cinco CSV de Python). Dejan los
    archivos en la carpeta desde la que se lanza `psql`.
 5. Usuarios de conexión y ampliaciones: `17_usuario_java.sql`,
-   `18_datos_so024.sql`, `19_usuario_web.sql`, `20_tienda_web.sql` y
-   `21_catalogo_web.sql`.
+   `18_datos_so024.sql`, `19_usuario_web.sql`, `20_tienda_web.sql`,
+   `21_catalogo_web.sql` y `22_reparto_panel.sql` (el botón «Marcar en
+   reparto» del panel; va después del 09, el 19 y el 20).
 
 **El 09 va antes del 18, el 20 y el 21.** Esos tres añaden modelos, tablas y
 funciones, y algunas comprobaciones del 09 cuentan los de la instalación

@@ -48,16 +48,21 @@ if (botonSalir) {
 // ===== Tablas con datos reales =====
 // Qué ruta pide cada página, qué filtro usa el desplegable y qué columnas
 // pinta, en el mismo orden que el <thead> del HTML.
-//   tipo "estado": la etiqueta de color (adm-estado)
-//   tipo "euros":  importe con formato 1.234,50 €
+//   tipo "estado":  la etiqueta de color (adm-estado)
+//   tipo "euros":   importe con formato 1.234,50 €
+//   tipo "reparto": el botón «Marcar en reparto» (solo en los pedidos confirmados)
+// Las columnas de un pedido: la página de Pedidos y los últimos pedidos del dashboard
+const COLUMNAS_PEDIDO = [
+  { campo: "referencia" }, { campo: "cliente" }, { campo: "fecha" },
+  { campo: "estado", tipo: "estado" }, { campo: "total", tipo: "euros" }
+];
+
 const TABLAS = {
   pedidos: {
     ruta: "/api/admin/pedidos",
     filtro: "estado",
-    columnas: [
-      { campo: "referencia" }, { campo: "cliente" }, { campo: "fecha" },
-      { campo: "estado", tipo: "estado" }, { campo: "total", tipo: "euros" }
-    ]
+    // En la página de Pedidos, además, la columna del botón de reparto
+    columnas: COLUMNAS_PEDIDO.concat({ campo: "id", tipo: "reparto" })
   },
   productos: {
     ruta: "/api/admin/productos",
@@ -144,6 +149,8 @@ function pintarFilas(cuerpo, filas, columnas) {
         celda.appendChild(etiqueta);
       } else if (columna.tipo === "euros") {
         celda.textContent = euros(valor);
+      } else if (columna.tipo === "reparto") {
+        if (datos.estado === "confirmado") celda.appendChild(botonReparto(datos));
       } else {
         celda.textContent = (valor === null || valor === "") ? "—" : valor;
       }
@@ -193,6 +200,67 @@ function filtrarTabla() {
 
     fila.style.display = (coincideTexto && coincideEstado) ? "" : "none";
   });
+}
+
+// ===== Pedidos: botón «Marcar en reparto» =====
+// Es lo único del panel que cambia algo en la base: pasa un pedido
+// confirmado a "enviado", que la tienda enseña como «En reparto». Lo hace
+// PostgreSQL con marcar_pedido_en_reparto (22_reparto_panel.sql), que vuelve
+// a comprobar que el usuario es administrador y lo apunta en la auditoría.
+const avisoReparto = document.getElementById("adm-aviso-reparto");
+
+function botonReparto(pedido) {
+  const boton = document.createElement("button");
+  boton.type = "button";
+  boton.className = "adm-boton adm-boton-secundario adm-boton-reparto";
+  boton.textContent = "Marcar en reparto";
+  // Para los lectores de pantalla: qué pedido es, sin cambiar el texto visible
+  boton.setAttribute("aria-label", "Marcar en reparto el pedido " + pedido.referencia);
+  boton.addEventListener("click", function () {
+    marcarEnReparto(pedido, boton);
+  });
+  return boton;
+}
+
+// El resultado se escribe en el aviso de encima de la tabla y el foco va a
+// él: al recargar la lista, el botón pulsado desaparece.
+function avisarReparto(texto, tipo) {
+  avisoReparto.textContent = texto;
+  avisoReparto.className = "adm-aviso adm-aviso-reparto adm-aviso-" + tipo;
+  avisoReparto.focus();
+}
+
+async function marcarEnReparto(pedido, boton) {
+  const seguro = window.confirm("¿Marcar el pedido " + pedido.referencia + " como «En reparto»?\n"
+    + "El cliente lo verá así en «Mis pedidos».");
+  if (!seguro) return;
+
+  boton.disabled = true; // un segundo clic no manda otra petición
+  try {
+    let respuesta;
+    try {
+      respuesta = await fetch("/api/admin/pedidos/" + pedido.id + "/reparto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{}"
+      });
+    } catch {
+      throw new Error("no hay conexión con el servidor");
+    }
+    if (respuesta.status === 401 || respuesta.status === 403) {
+      window.location.href = "login.html";
+      return;
+    }
+    if (!respuesta.ok) {
+      const datos = await respuesta.json().catch(function () { return {}; });
+      throw new Error(datos.error || "el servidor respondió " + respuesta.status);
+    }
+    avisarReparto("El pedido " + pedido.referencia + " está en reparto.", "ok");
+  } catch (error) {
+    avisarReparto("No se ha podido marcar en reparto el pedido " + pedido.referencia + ": " + error.message, "error");
+  }
+  // Se recarga la lista también si ha fallado: puede que el pedido ya haya cambiado
+  cargarTabla(TABLAS.pedidos);
 }
 
 // Solo activa el filtro si la página tiene buscador (el dashboard no)
@@ -304,7 +372,7 @@ function pintarDashboard(datos) {
     sugerencias.textContent = datos.sugerenciasPendientes;
   }
 
-  pintarFilas(document.getElementById("adm-ultimos"), datos.ultimosPedidos, TABLAS.pedidos.columnas);
+  pintarFilas(document.getElementById("adm-ultimos"), datos.ultimosPedidos, COLUMNAS_PEDIDO);
   pintarEstados(document.getElementById("adm-estados"), datos.pedidosPorEstado);
   pintarStockBajo(document.getElementById("adm-stock-bajo"), datos.stockBajo, datos.umbralStockBajo);
 

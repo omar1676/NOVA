@@ -561,3 +561,55 @@ test('panel: la compra sale en Pedidos, Dashboard, Inventario y Auditoria', { sk
   const stock = await panel('/api/admin/auditoria?accion=CAMBIO_STOCK&texto=' + encodeURIComponent(`SKU ${talla.sku}: 5 -> 3`));
   assert.equal(stock.filas.length, 1);
 });
+
+test('panel: el administrador marca la compra en reparto y el cliente la ve como enviada', { skip: sinAdmin }, async () => {
+  const cliente = await clienteNuevo();
+  const talla = await tallaLibre();
+  const pedido = (await crearPedido(cliente, [{ sku: talla.sku, cantidad: 2 }])).datos;
+  assert.equal((await cliente.pedir('POST', `/api/tienda/pedidos/${pedido.id}/pago`, { resultado: 'aceptado' })).codigo, 200);
+  assert.equal(await stockDe(talla.sku), 3);
+  const cancelado = (await crearPedido(cliente, [{ sku: talla.sku, cantidad: 1 }])).datos;
+  await cliente.pedir('POST', `/api/tienda/pedidos/${cancelado.id}/pago`, { resultado: 'rechazado' });
+
+  const login = await fetch(base + '/api/login', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ usuario: ADMIN, contrasena: CLAVE_ADMIN })
+  });
+  const cookieAdmin = login.headers.getSetCookie()[0].split(';')[0];
+  const reparto = (id, cookie) => fetch(`${base}/api/admin/pedidos/${id}/reparto`, {
+    method: 'POST', headers: { Cookie: cookie, 'Content-Type': 'application/json' }, body: '{}'
+  });
+
+  // La sesion del cliente no sirve para la ruta del panel
+  assert.equal((await reparto(pedido.id, cliente.cookie)).status, 401);
+  // Un pedido cancelado no se puede pasar a reparto
+  assert.equal((await reparto(cancelado.id, cookieAdmin)).status, 409);
+
+  const r = await reparto(pedido.id, cookieAdmin);
+  assert.equal(r.status, 200);
+  assert.equal((await r.json()).estado, 'enviado');
+
+  // El cliente lo ve en "Mis pedidos" (la web lo ensena como "En reparto")
+  const historial = (await cliente.pedir('GET', '/api/tienda/pedidos')).datos.pedidos;
+  assert.equal(historial.find((p) => p.id === pedido.id).estado, 'enviado');
+  const detalle = (await cliente.pedir('GET', `/api/tienda/pedidos/${pedido.id}`)).datos;
+  assert.equal(detalle.estado, 'enviado');
+  assert.equal(detalle.estadoPago, 'pagado');
+  // Ya no se puede cancelar desde la web y el stock no ha cambiado
+  assert.equal((await cliente.pedir('POST', `/api/tienda/pedidos/${pedido.id}/cancelacion`)).codigo, 409);
+  assert.equal(await stockDe(talla.sku), 3);
+
+  // La auditoria lo apunta a nombre del administrador
+  const auditoria = await (await fetch(base + '/api/admin/auditoria?texto='
+    + encodeURIComponent(`${pedido.referencia}: confirmado -> enviado`), { headers: { Cookie: cookieAdmin } })).json();
+  assert.equal(auditoria.filas.length, 1);
+  assert.equal(auditoria.filas[0].accion, 'CAMBIO_ESTADO');
+  assert.equal(auditoria.filas[0].usuario, ADMIN);
+});
+
+test('tienda_nova (rol tienda_web) no puede marcar pedidos en reparto ni pasar a panel_reparto', { skip: saltar }, async () => {
+  await assert.rejects(
+    bd.operarEnTienda((c) => c.query('SELECT public.marcar_pedido_en_reparto(1, 1)')), { code: '42501' });
+  await assert.rejects(
+    bd.operarEnTienda((c) => c.query('SET LOCAL ROLE panel_reparto')), { code: '42501' });
+});
