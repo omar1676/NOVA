@@ -32,22 +32,17 @@ pool.on('error', (error) => {
   console.error('Error en una conexion inactiva con PostgreSQL:', error.message);
 });
 
-// Ejecuta "trabajo" dentro de una transaccion de SOLO LECTURA y con los
-// permisos de panel_lectura (script 19). Hay dos barreras contra escribir:
-//   - SET LOCAL ROLE panel_lectura: web_nova no tiene permisos propios
-//     (NOINHERIT) y solo puede pasar a panel_lectura, que no tiene ningun
-//     permiso de escritura. Esta barrera la pone PostgreSQL.
-//   - READ ONLY: ademas, la transaccion rechaza cualquier INSERT, UPDATE o
-//     DELETE aunque hubiera permiso.
-// REPEATABLE READ hace que todas las consultas de una peticion vean la misma
-// "foto" de los datos: las cifras del dashboard cuadran entre si aunque
-// alguien este escribiendo a la vez.
-async function consultarSoloLectura(trabajo) {
-  const cliente = await pool.connect();
+// Abre una transaccion en una conexion de "conexiones" (el pool del panel o el
+// de la tienda), cambia al rol de PostgreSQL que toca y ejecuta "trabajo".
+// Si todo va bien, COMMIT; si algo falla, ROLLBACK y el error sigue hacia
+// arriba: no queda nada a medias. "inicio" y "cambioDeRol" son siempre textos
+// fijos de este archivo, nunca datos que lleguen del navegador.
+async function enTransaccion(conexiones, inicio, cambioDeRol, trabajo) {
+  const cliente = await conexiones.connect();
   let conexionRota = false;
   try {
-    await cliente.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
-    await cliente.query('SET LOCAL ROLE panel_lectura');
+    await cliente.query(inicio);
+    await cliente.query(cambioDeRol);
     const resultado = await trabajo(cliente);
     await cliente.query('COMMIT');
     return resultado;
@@ -60,6 +55,22 @@ async function consultarSoloLectura(trabajo) {
   }
 }
 
+// REPEATABLE READ hace que todas las consultas de una peticion vean la misma
+// "foto" de los datos: las cifras del dashboard cuadran entre si aunque
+// alguien este escribiendo a la vez.
+const SOLO_LECTURA = 'BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY';
+
+// Ejecuta "trabajo" dentro de una transaccion de SOLO LECTURA y con los
+// permisos de panel_lectura (script 19). Hay dos barreras contra escribir:
+//   - SET LOCAL ROLE panel_lectura: web_nova no tiene permisos propios
+//     (NOINHERIT) y aqui pasa a panel_lectura, que no tiene ningun
+//     permiso de escritura. Esta barrera la pone PostgreSQL.
+//   - READ ONLY: ademas, la transaccion rechaza cualquier INSERT, UPDATE o
+//     DELETE aunque hubiera permiso.
+async function consultarSoloLectura(trabajo) {
+  return enTransaccion(pool, SOLO_LECTURA, 'SET LOCAL ROLE panel_lectura', trabajo);
+}
+
 // La UNICA escritura del panel: el boton "Marcar en reparto" (script 22).
 // Va en una transaccion aparte, solo para esta llamada, con el rol
 // panel_reparto: no puede leer ni escribir ninguna tabla, solo ejecutar
@@ -67,19 +78,8 @@ async function consultarSoloLectura(trabajo) {
 // administrador y que el pedido esta confirmado. Todas las demas consultas
 // del panel siguen yendo por consultarSoloLectura.
 async function marcarEnReparto(idUsuario, idPedido) {
-  const cliente = await pool.connect();
-  let conexionRota = false;
-  try {
-    await cliente.query('BEGIN');
-    await cliente.query('SET LOCAL ROLE panel_reparto');
-    await cliente.query('SELECT public.marcar_pedido_en_reparto($1, $2)', [idUsuario, idPedido]);
-    await cliente.query('COMMIT');
-  } catch (error) {
-    await cliente.query('ROLLBACK').catch(() => { conexionRota = true; });
-    throw error;
-  } finally {
-    cliente.release(conexionRota);
-  }
+  await enTransaccion(pool, 'BEGIN', 'SET LOCAL ROLE panel_reparto', (cliente) =>
+    cliente.query('SELECT public.marcar_pedido_en_reparto($1, $2)', [idUsuario, idPedido]));
 }
 
 // ---------------------------------------------------------------------
@@ -93,37 +93,12 @@ async function marcarEnReparto(idUsuario, idPedido) {
 //     es un trabajador activo.
 // ---------------------------------------------------------------------
 async function consultarComoTrabajador(trabajo) {
-  const cliente = await pool.connect();
-  let conexionRota = false;
-  try {
-    await cliente.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
-    await cliente.query('SET LOCAL ROLE portal_trabajador');
-    const resultado = await trabajo(cliente);
-    await cliente.query('COMMIT');
-    return resultado;
-  } catch (error) {
-    await cliente.query('ROLLBACK').catch(() => { conexionRota = true; });
-    throw error;
-  } finally {
-    cliente.release(conexionRota);
-  }
+  return enTransaccion(pool, SOLO_LECTURA, 'SET LOCAL ROLE portal_trabajador', trabajo);
 }
 
 async function cambiarComoTrabajador(sql, parametros) {
-  const cliente = await pool.connect();
-  let conexionRota = false;
-  try {
-    await cliente.query('BEGIN');
-    await cliente.query('SET LOCAL ROLE portal_trabajador');
-    const resultado = await cliente.query(sql, parametros);
-    await cliente.query('COMMIT');
-    return resultado;
-  } catch (error) {
-    await cliente.query('ROLLBACK').catch(() => { conexionRota = true; });
-    throw error;
-  } finally {
-    cliente.release(conexionRota);
-  }
+  return enTransaccion(pool, 'BEGIN', 'SET LOCAL ROLE portal_trabajador', (cliente) =>
+    cliente.query(sql, parametros));
 }
 
 // Para /api/estado: comprueba que la base responde y con que usuario.
@@ -175,20 +150,7 @@ async function operarEnTienda(trabajo) {
     error.publico = true;
     throw error;
   }
-  const cliente = await poolTienda.connect();
-  let conexionRota = false;
-  try {
-    await cliente.query('BEGIN');
-    await cliente.query('SET LOCAL ROLE tienda_web');
-    const resultado = await trabajo(cliente);
-    await cliente.query('COMMIT');
-    return resultado;
-  } catch (error) {
-    await cliente.query('ROLLBACK').catch(() => { conexionRota = true; });
-    throw error;
-  } finally {
-    cliente.release(conexionRota);
-  }
+  return enTransaccion(poolTienda, 'BEGIN', 'SET LOCAL ROLE tienda_web', trabajo);
 }
 
 module.exports = {

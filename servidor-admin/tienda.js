@@ -250,6 +250,15 @@ rutas.get('/sesion', async (req, res) => {
 // Compras (con sesion)
 // ---------------------------------------------------------------------
 
+// cancelar_compra_web: cancela un pedido sin pagar del cliente (sin tocar el
+// stock) y lo devuelve ya cancelado. La usan el pago rechazado y la cancelacion.
+function cancelarPedido(idCliente, idPedido) {
+  return enTienda(async (c) => {
+    await consultas.cancelarCompra(c, idCliente, idPedido);
+    return consultas.pedido(c, idCliente, idPedido);
+  });
+}
+
 // Paso 1 del checkout: crea el pedido PENDIENTE y devuelve sus lineas con el
 // precio y el total que ha calculado PostgreSQL. No descuenta stock.
 rutas.post('/pedidos', soloCliente, async (req, res) => {
@@ -282,11 +291,7 @@ rutas.post('/pedidos/:id/pago', soloCliente, async (req, res) => {
   }
 
   if (resultado === 'rechazado') {
-    const pedido = await enTienda(async (c) => {
-      await consultas.cancelarCompra(c, req.cliente.id, idPedido);
-      return consultas.pedido(c, req.cliente.id, idPedido);
-    });
-    return res.json(pedido);
+    return res.json(await cancelarPedido(req.cliente.id, idPedido));
   }
 
   let pago;
@@ -326,11 +331,7 @@ rutas.post('/pedidos/:id/pago', soloCliente, async (req, res) => {
 // El cliente cancela un pedido que todavia no ha pagado
 rutas.post('/pedidos/:id/cancelacion', soloCliente, async (req, res) => {
   const idPedido = leerIdPedido(req);
-  const pedido = await enTienda(async (c) => {
-    await consultas.cancelarCompra(c, req.cliente.id, idPedido);
-    return consultas.pedido(c, req.cliente.id, idPedido);
-  });
-  res.json(pedido);
+  res.json(await cancelarPedido(req.cliente.id, idPedido));
 });
 
 // Historial: solo sus pedidos

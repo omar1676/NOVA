@@ -27,6 +27,7 @@ const PUERTO = Number(process.env.PUERTO) || 3000;
 const HOST = '127.0.0.1'; // solo este ordenador: el servidor no se abre a la red
 const CARPETA_PANEL = path.join(__dirname, '..', '01_Interfaces', 'admin');
 const CARPETA_TIENDA = path.join(__dirname, '..', '01_Interfaces', 'cliente');
+const CARPETA_PORTAL = path.join(__dirname, '..', '01_Interfaces', 'trabajador');
 
 // Login unico para el personal: cada rol de la tabla roles entra en su panel.
 //   administrador -> panel de administracion (01_Interfaces/admin)
@@ -39,7 +40,6 @@ const PANELES = {
   administrador: '/admin.html',
   trabajador: '/trabajador/trabajador.html'
 };
-const CARPETA_PORTAL = path.join(__dirname, '..', '01_Interfaces', 'trabajador');
 
 const app = express();
 app.disable('x-powered-by'); // no anunciar en cada respuesta que el servidor es Express
