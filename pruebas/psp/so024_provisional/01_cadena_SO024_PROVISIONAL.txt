@@ -1,0 +1,23 @@
+== Base nova_cierre_so024: scripts 01-23 (09-16: PASS 123 FAIL 0 ERROR 1)
+18_datos_so024.sql -v precio=99.90 -v color=PROVISIONAL -v stock=10 -> salida 0
+== Java (metodos de la pestana Nuevo pedido, lanzador SO024Provisional)
+Cliente 10, variante 114, 9 lineas, 40 pares (reparto PROVISIONAL)
+Creado SO024 con id 47 (pendiente)
+Confirmado SO024 (id 47)
+java -> salida 0
+== Comprobaciones en PostgreSQL
+pedido: SO024 | confirmado | 40 pares | 9 lineas | 3996.00 EUR
+reparto por talla: 38=2, 39=3, 40=5, 41=6, 42=7, 43=6, 44=5, 45=4, 46=2
+stock de Runner X tras confirmar (tallas 38 a 46): 8,7,5,4,3,4,5,6,8
+auditoria del pedido: ALTA/admin.demo, CAMBIO_ESTADO/admin.demo
+== 15_exportar_fabricacion.sql -v referencia=SO024
+15 -> salida 0; filas 9; pares 40
+== PSP
+Paso 1 ValidadorPedidoCustom: codigo 0 en 0,38 s
+  OK;SO024;9;40
+Paso 2 Psp.AnalizadorTallas: codigo 0 en 0,34 s
+  OK;SO024
+  9 combinaciones de modelo, color y talla; 9 tallas; 40 pares
+Paso 3 GeneradorFichaTaller: codigo 0 en 0,41 s
+  OK;SO024
+codigo de salida del padre: 0
