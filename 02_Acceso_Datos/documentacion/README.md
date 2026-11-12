@@ -123,6 +123,8 @@ Por qué este orden y no otro:
   `log_eventos` arranca vacía y solo registra lo que pase a partir de ahí.
   Si se quisiera auditar también la carga inicial, habría que lanzarlo antes.
 
+De los doce primeros de la tabla (los demás se explican en su fila):
+
 Scripts que **modifican el esquema**: 1, 2, 3, 4, 6 y 7.
 Scripts que **insertan datos de forma permanente**: solo el 5.
 Scripts que **solo consultan**: 8 y 12.
@@ -1230,10 +1232,13 @@ de reflejar el estado real de la cuenta hasta la siguiente transacción.
   variables de psql justamente para que se vea dónde va cada `?`.
 - Los filtros combinables se escriben con el patrón
   `(? = '' OR columna = ?)`, de forma que un filtro vacío no excluya filas.
-  Está probado en las consultas `C5` y `C6` de ese archivo.
+  Está probado en las consultas `C5` y `C6` de ese archivo. La aplicación Java
+  lo hace de otra forma, igual de segura: añade al `WHERE` solo los filtros que
+  se usan, cada uno con su `?` (`PedidoDAO.buscarPedidos`).
 - Las consultas que puede lanzar cada rol dependen de sus permisos de SELECT:
   `nova_cliente` no puede leer `pedidos`, así que el panel de indicadores solo
-  funciona para `nova_trabajador` y `nova_admin`.
+  funciona para `nova_admin`, `nova_trabajador` y `nova_comercial` (el
+  comercial de la aplicación Java).
 
 ## 14. Estado
 
@@ -1278,9 +1283,11 @@ Hay dos archivos y hacen cosas distintas, a propósito:
 #### Cómo se genera `fabricacion_psp.csv`
 
 Lo hace `15_exportar_fabricacion.sql`, y **lee el pedido guardado en la base**,
-no datos de una transacción que luego desaparece. Antes de escribir nada
-comprueba tres cosas: que `CUSTOM-40` existe, que suma exactamente 40 pares y
-que tiene cuatro tallas distintas. Si alguna falla, psql se detiene con un
+no datos de una transacción que luego desaparece. Por defecto exporta
+`CUSTOM-40`; otro pedido se indica con `-v referencia=…` (por ejemplo, SO024).
+Antes de escribir nada comprueba que el pedido existe, que está confirmado,
+que suma exactamente 40 pares y que no repite ninguna talla (una línea por
+talla). Si alguna falla, psql se detiene con un
 código de error y **el CSV anterior se queda intacto**, porque no llega a
 abrirlo.
 
@@ -1339,8 +1346,8 @@ se procesa el CSV cuando `psql` termina correctamente.
 
 #### Qué información recibe PSP
 
-Ocho columnas, todas con datos reales de PostgreSQL, y **solo las cuatro filas
-de `CUSTOM-40`**. No se mezcla con `NOVA-0011` ni con ningún otro pedido
+Ocho columnas, todas con datos reales de PostgreSQL, y **solo las filas del
+pedido exportado** (las cuatro de `CUSTOM-40`, por defecto). No se mezcla con `NOVA-0011` ni con ningún otro pedido
 personalizado: cada orden de fabricación es de un pedido.
 
 | Columna | De dónde sale | Para qué |

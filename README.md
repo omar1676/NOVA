@@ -194,7 +194,7 @@ Mientras tanto, el recorrido se ha probado de principio a fin con **datos PROVIS
 
 ## Odoo: PENDIENTE
 
-**No hay ninguna evidencia de Odoo en el repositorio (Berme).** `05_Odoo/` solo tiene la lista de tareas, la plantilla de su `README.md` y `05_Odoo/recorrido-manual-odoo.md`, un borrador de cómo se haría el recorrido a mano y el conector `servidor-admin/odoo.js` no se ha probado contra ningún Odoo. Lo que falta está en `05_Odoo/CHECKLIST_ODOO_BERME.md`.
+**No hay ninguna evidencia de Odoo en el repositorio (Berme).** `05_Odoo/` solo tiene la lista de tareas, la plantilla de su `README.md` y `05_Odoo/recorrido-manual-odoo.md`, un borrador de cómo se haría el recorrido a mano. El conector `servidor-admin/odoo.js` no se ha probado contra ningún Odoo. Lo que falta está en `05_Odoo/CHECKLIST_ODOO_BERME.md`.
 
 ## Ampliaciones
 

@@ -7,14 +7,14 @@ no afirma que las pruebas se hayan ejecutado sobre una base de datos.
 
 1. Ejecutar `python3 scripts/comprobar_web.py` para detectar rutas rotas.
 2. Arrancar `python3 -m http.server 8000 --bind 127.0.0.1`.
-3. Abrir `/interfaces/cliente/` y probar los seis filtros, búsquedas con y
+3. Abrir `/01_Interfaces/cliente/` y probar los seis filtros, búsquedas con y
    sin resultados, apertura/cierre de ficha y navegación con teclado.
 4. Abrir el probador con NOVA Street Vortex, NOVA Casual Marea, NOVA Casual
    Olivo y un modelo sin foto puesta. Elegir las tres complexiones y subir el
    peso: la figura tiene que cambiar y la zapatilla elegida verse a su lado.
 5. Abrir inicio de sesión: validar campos vacíos y comprobar que informa
    de la falta de servidor; no debe simular un acceso correcto.
-6. Abrir `/interfaces/admin/admin.html` y recorrer todos los enlaces del menú.
+6. Abrir `/01_Interfaces/admin/admin.html` y recorrer todos los enlaces del menú.
    El dashboard estático puede mostrar indicadores vacíos por falta de API.
 7. Revisar catálogo, tablas y menú a 375 px y 1280 px de ancho.
 

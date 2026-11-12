@@ -110,7 +110,7 @@ Todo lo que falta, con casillas: `05_Odoo/CHECKLIST_ODOO_BERME.md`.
 | Ampliación | Evidencia (13/11, árbol final) | Cómo enseñarla |
 |---|---|---|
 | Tienda online | `06_Intermodular/evidencias/regresion-final/05_web/04_compra_edge.txt` (139/139), `01_sql/05_sql_tienda.txt` (55/55), `03_node/03_test_tienda.txt` (39/39); capturas en `01_Interfaces/evidencias/tienda/capturas-2026-11-13/` | `06_Intermodular/manuales/MANUAL_DEMOSTRACION.md`, parte opcional |
-| Panel de administración (Álvaro) | `03_node/02_npm_test_desechable.txt` (23/23); `pruebas/tienda/capturas-2026-11-13/panel_*.png`; `01_Interfaces/evidencias/panel-admin/` (11/11) | Ídem |
+| Panel de administración (Álvaro) | `03_node/02_npm_test_desechable.txt` (23/23); `01_Interfaces/evidencias/tienda/capturas-2026-11-13/panel_*.png`; `01_Interfaces/evidencias/panel-admin/` (11/11) | Ídem |
 | Reparto | `01_sql/07_sql_reparto_con23.txt` (37/37), `05_web/05_recorrido_reparto.txt` (29/29); capturas en `01_Interfaces/evidencias/reparto-y-correo/` | Ídem |
 | Recibo con Resend y Ethereal | 7 + 7 pruebas simuladas dentro de `03_test_tienda.txt`; Ethereal sin red y sin respuesta 5/5 y 5/5 (`05_web/08_*`, `09_*`); compra real contra Ethereal con datos ficticios 16/16 (`05_web/07_ethereal_real.txt`); capturas y datos en `01_Interfaces/evidencias/correo-ethereal/` | Ídem |
 | 100 modelos, colores, bloque de compra y probador | `05_web/01_mejoras.txt` (81/81); contraste 212/212 (12/11, informe de integración). **[REVISIÓN (Álvaro) en la PR: la adaptación de su paleta]** | Ídem |

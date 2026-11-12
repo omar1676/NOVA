@@ -103,7 +103,7 @@ ningún sitio.
 | `PanelConsultas` | Filtros, JTable, detalle, confirmar, cancelar, CSV y auditoría |
 | `PanelIndicadores` | Las tablas de indicadores y el umbral de stock |
 | `PanelUsuarios` | Gestión de usuarios (solo administrador) |
-| `PruebasRubrica` | Las pruebas A–J, sin ventanas |
+| `PruebasRubrica` | Las pruebas L, A–J y P, sin ventanas |
 
 ## Cómo funciona un pedido
 
@@ -167,7 +167,8 @@ cada resultado con una consulta SQL. Deja en la base, como evidencia, pedidos
 distinto, así que se puede lanzar varias veces.
 
 Resultado el 9 de noviembre de 2026, sobre una base reconstruida desde cero
-con los scripts 1–17: **47 PASS, 0 FAIL**.
+con los scripts 1–17: **47 PASS, 0 FAIL**. El 13 de noviembre, con los scripts
+01–23, dio lo mismo (`../evidencias/java-pruebas-rubrica/`).
 
 | Prueba | Qué comprueba |
 |---|---|
@@ -185,8 +186,10 @@ con los scripts 1–17: **47 PASS, 0 FAIL**.
 | P | Operaciones denegadas por Java y por PostgreSQL sin que cambie ningún dato |
 
 **Lo que estas pruebas no cubren:** que los botones de las ventanas llamen
-a esos métodos. Eso se comprueba a mano en la demostración, con capturas de
-cada prueba para la memoria.
+a esos métodos. Eso lo comprobó aparte un programa de prueba que abrió las
+ventanas con los tres roles y comparó la pantalla con SQL: 76 PASS, más 1 sin
+conexión (`../evidencias/java-swing/`, con las capturas). Ese programa no está
+en el repositorio; en la demostración se enseña a mano.
 
 ## Correspondencia con el enunciado
 

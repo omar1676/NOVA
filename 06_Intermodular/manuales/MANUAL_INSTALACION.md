@@ -49,7 +49,7 @@ cd NOVA
 git switch main
 ```
 
-El repositorio es privado: el profesor necesita que le den acceso. Hasta que se fusione la pull request, la candidata final está en su propia rama (ver `PULL_REQUEST.md` del equipo); se cambia `main` por el nombre de esa rama.
+El repositorio es privado: el profesor necesita que le den acceso. Hasta que se fusione la pull request, la candidata final está en su propia rama (la que indica la pull request); se cambia `main` por el nombre de esa rama.
 
 ---
 
