@@ -24,8 +24,8 @@
 --      Aunque el codigo olvidara el READ ONLY, PostgreSQL no le dejaria
 --      escribir: panel_lectura no tiene permisos para hacerlo.
 --
---   3. Si web_nova venia de la version anterior de este script, le quita
---      nova_admin.
+--   3. Si web_nova se creo con un borrador anterior de este script, que le
+--      daba nova_admin, se lo quita.
 --
 --   No crea tablas, funciones ni triggers. Los roles no se llaman nova_*
 --   porque las pruebas de 09 (P1, A11b y G4) cuentan los roles con ese
@@ -94,7 +94,7 @@ CREATE ROLE web_nova LOGIN NOINHERIT;
 ALTER ROLE web_nova WITH LOGIN NOINHERIT PASSWORD :'clave_web';
 \unset clave_web
 
--- 3. La version anterior de este script le daba nova_admin: se le quita
+-- 3. Un borrador anterior de este script le daba nova_admin: si lo tiene, se le quita
 SELECT EXISTS (
     SELECT 1 FROM pg_auth_members
     WHERE member = 'web_nova'::regrole AND roleid = 'nova_admin'::regrole

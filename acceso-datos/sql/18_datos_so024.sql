@@ -6,6 +6,9 @@
 --   (Club Halcones, Runner X, 40 pares, tallas 38 a 46), pero NO crea el
 --   pedido: SO024 se da de alta y se confirma desde la aplicacion Java
 --   (pestana "Nuevo pedido").
+--   No es CUSTOM-40: ese pedido (10 y 14) es el caso Custom de Acceso a
+--   Datos y usa NOVA Velocity en lugar de Runner X. SO024 es el caso
+--   comun del proyecto intermodular y usa un Runner X de verdad.
 --     1. El cliente Club Halcones.
 --     2. El modelo Runner X, con un color.
 --     3. Sus nueve SKU, de la talla 38 a la 46, con el mismo formato que
@@ -21,9 +24,11 @@
 --   mismos). Se pasan al ejecutar; si falta alguno, el script se para
 --   sin insertar nada. Cuando se acuerden, se apuntan en
 --   integracion/caso-comun-SO024.md.
---     stock = pares de cada talla. Tiene que llegar, como minimo, a los
---             pares que pida SO024 en su talla mas pedida; si no, la
---             confirmacion fallara con "Stock insuficiente".
+--     precio = precio_base de Runner X, en euros y con punto (119.90).
+--     color  = el color de su unica variante.
+--     stock  = pares de cada talla. Tiene que llegar, como minimo, a los
+--              pares que pida SO024 en su talla mas pedida; si no, la
+--              confirmacion fallara con "Stock insuficiente".
 --
 -- SE PUEDE EJECUTAR LAS VECES QUE SE QUIERA
 --   Cada INSERT lleva ON CONFLICT DO NOTHING: si la fila ya existe, no
@@ -31,8 +36,10 @@
 --   no se vuelve a rellenar.
 --
 -- CUANDO SE EJECUTA
---   Con el usuario que instalo la base, al final, despues de 14, 15 y
---   16. Antes de las pruebas (09) no, porque 09 cuenta los datos de 05.
+--   Con el usuario que instalo la base, al final: despues de 14 y de
+--   exportar CUSTOM-40 con 15 y 16. Luego se crea SO024 en Java y se
+--   exporta con 15 -v referencia=SO024. Antes de las pruebas (09) no,
+--   porque 09 cuenta los datos de 05 (P2 y S1).
 --
 -- COMO SE EJECUTA
 --   psql -U postgres -d nova_sneakers -v precio=___ -v color=___ -v stock=___ -f 18_datos_so024.sql

@@ -21,13 +21,25 @@
 --      al confirmar es el trigger trg_descontar_stock_confirmacion (03) el
 --      que descuenta las existencias, una sola vez.
 --
---   3. Crea tienda_web, un rol sin login que solo LEE el catalogo, sus
---      propios datos de pedidos y clientes, y EJECUTA esas cinco funciones.
---      No tiene ningun permiso de INSERT, UPDATE ni DELETE en ninguna tabla.
+--   3. Crea tienda_web, un rol sin login que solo LEE el catalogo y algunas
+--      columnas de clientes, pedidos y lineas, y EJECUTA esas cinco
+--      funciones. No tiene ningun permiso de INSERT, UPDATE ni DELETE en
+--      ninguna tabla. Importante: los permisos son por columnas, no por
+--      filas. Que cada cliente vea solo sus datos lo controla el servidor,
+--      que filtra por el id_cliente de la sesion; PostgreSQL no lo impide.
 --
 --   4. Crea tienda_nova, el usuario con el que se conecta la parte de tienda
 --      del servidor (servidor-admin/). Como web_nova: NOINHERIT y solo puede
 --      pasar a tienda_web con SET ROLE. La contrasena se pide por teclado.
+--
+-- QUIEN ES QUIEN
+--   usuario con LOGIN   pasa con SET ROLE a                    lo usa
+--   java_nova   (17)    nova_admin, nova_comercial o           la aplicacion Java
+--                       nova_trabajador
+--   web_nova    (19)    panel_lectura                          el panel de administracion
+--   tienda_nova (20)    tienda_web                             la tienda web
+--   admin.demo, taller.demo y tienda.demo no son roles de PostgreSQL: son
+--   usuarios de la aplicacion (tabla usuarios).
 --
 -- QUE NO HACE
 --   No cambia ninguna tabla, funcion ni trigger de los scripts 01-19.
