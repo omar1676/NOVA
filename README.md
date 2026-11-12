@@ -161,7 +161,11 @@ python3 scripts/comprobar_psp.py
 La primera comprueba que existen los recursos locales que enlaza la web; no
 evalúa el diseño ni la API. La segunda necesita `java` y `javac` en el PATH,
 compila en una carpeta temporal y comprueba `ValidadorPedidoCustom`,
-`LanzadorValidacion` y las pruebas del paquete `Psp`. En Windows, `python3`
+`LanzadorValidacion` y las pruebas del paquete `Psp`. Ahora mismo se para en la
+primera comprobación: espera que el validador conteste solo
+`OK;CUSTOM-40;4;40`, y desde el commit `81db6e5` el validador añade después
+los datos normalizados. Si se compara solo esa primera línea, el resto pasa.
+En Windows, `python3`
 puede no existir: se usa `py`. La lista de comprobaciones manuales está en
 `docs/PRUEBAS_MANUALES.md` y se escribió antes de conectar el panel y la
 tienda.
