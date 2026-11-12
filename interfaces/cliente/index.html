@@ -10,9 +10,11 @@
     <title>NOVA Sneakers | El escaparate</title>
     <link rel="icon" type="image/png" href="images/favicon.png" />
     <link rel="stylesheet" href="css/inicio.css" />
+    <link rel="stylesheet" href="css/tienda.css" />
     <script src="js/modelos.js" defer></script>
     <script src="js/inicio.js" defer></script>
     <script src="js/custom.js" defer></script>
+    <script src="js/tienda.js" defer></script>
   </head>
   <body>
     <div class="entrada-nova" aria-hidden="true">
@@ -31,12 +33,21 @@
         ><a href="#historia">Nuestra visión</a
         ><a href="#custom">Custom</a
         ><a href="#contacto">Contacto</a>
-        <a href="#acceso" id="abrir-acceso">Iniciar sesión</a>
       </nav>
       <a class="cabecera-enlace" href="#catalogo"
         >EXPLORAR <span aria-hidden="true">↗</span></a
       >
     </header>
+    <!-- Tienda online: cuenta y carrito (js/tienda.js). -->
+    <div class="barra-tienda" aria-label="Tu cuenta y tu carrito" role="region">
+      <p class="barra-saludo" id="barra-saludo" hidden></p>
+      <a href="#acceso" id="abrir-acceso">Iniciar sesión</a>
+      <button type="button" id="abrir-pedidos" hidden>Mis pedidos</button>
+      <button type="button" id="cerrar-sesion" hidden>Cerrar sesión</button>
+      <button type="button" id="abrir-carrito" class="barra-carrito">
+        Carrito <span id="carrito-contador">(0)</span>
+      </button>
+    </div>
     <main id="inicio">
       <section
         class="coleccion"
@@ -412,9 +423,40 @@
           <div class="repisa-grande" aria-hidden="true"></div>
         </div>
         <div class="modal-info">
-          <span>PRECIO ORIENTATIVO</span><strong id="detalle-precio"></strong>
+          <span id="detalle-etiqueta-precio">PRECIO ORIENTATIVO</span
+          ><strong id="detalle-precio"></strong>
           <p id="detalle-tallas"></p>
-          <p>El precio final se confirma en el presupuesto.</p>
+          <p id="detalle-nota-precio">
+            El precio final se confirma en el presupuesto.
+          </p>
+          <!-- Compra (js/tienda.js): color, talla y cantidad con datos de PostgreSQL. -->
+          <p class="compra-aviso" id="compra-aviso" hidden></p>
+          <div class="compra" id="compra" hidden>
+            <fieldset class="compra-grupo">
+              <legend>Color</legend>
+              <div class="compra-opciones" id="compra-colores"></div>
+            </fieldset>
+            <fieldset class="compra-grupo">
+              <legend>Talla</legend>
+              <div class="compra-opciones compra-tallas" id="compra-tallas"></div>
+            </fieldset>
+            <p class="compra-stock" id="compra-stock"></p>
+            <label class="compra-cantidad" for="compra-cantidad"
+              >Cantidad
+              <input
+                id="compra-cantidad"
+                type="number"
+                min="1"
+                max="10"
+                step="1"
+                value="1"
+                inputmode="numeric"
+            /></label>
+            <button class="boton" type="button" id="compra-anadir">
+              AÑADIR AL CARRITO <span aria-hidden="true">↗</span>
+            </button>
+            <p class="compra-mensaje" id="compra-mensaje" role="status"></p>
+          </div>
           <button class="boton abrir-probador" type="button">
             VER EN EL PROBADOR <span aria-hidden="true">↗</span>
           </button>
@@ -562,6 +604,8 @@
         </div>
       </div>
     </dialog>
+    <!-- Inicio de sesión: diálogo de Álvaro (commit 52a8800). Solo se le ha
+         añadido el enlace para crear una cuenta. -->
     <dialog id="acceso" class="acceso" aria-labelledby="titulo-acceso">
       <form class="acceso-caja" id="formulario-acceso" novalidate>
         <button class="cerrar cerrar-acceso" type="button" aria-label="Cerrar inicio de sesión">×</button>
@@ -583,7 +627,168 @@
         <p class="acceso-error" id="acceso-error" role="alert" hidden></p>
 
         <button class="boton" type="submit">ENTRAR <span aria-hidden="true">↗</span></button>
+        <p class="acceso-pie">
+          ¿No tienes cuenta?
+          <button type="button" class="enlace-boton" id="ir-a-registro">Crear una cuenta</button>
+        </p>
       </form>
+    </dialog>
+
+    <!-- Tienda online (js/tienda.js) -->
+    <dialog id="registro" class="acceso" aria-labelledby="titulo-registro">
+      <form class="acceso-caja" id="formulario-registro" novalidate>
+        <button class="cerrar cerrar-dialogo" type="button" aria-label="Cerrar registro">×</button>
+        <p class="etiqueta">NOVA / TU CUENTA</p>
+        <h2 id="titulo-registro">Crear cuenta<span>.</span></h2>
+        <p>Con tu cuenta puedes comprar y ver tus pedidos.</p>
+        <label class="acceso-campo" for="registro-nombre">Nombre y apellidos
+          <input id="registro-nombre" type="text" autocomplete="name" maxlength="120" required />
+        </label>
+        <label class="acceso-campo" for="registro-email">Correo
+          <input id="registro-email" type="email" autocomplete="email" maxlength="150" required />
+        </label>
+        <label class="acceso-campo" for="registro-clave">Contraseña (8 caracteres o más)
+          <input id="registro-clave" type="password" autocomplete="new-password" minlength="8" maxlength="72" required />
+        </label>
+        <label class="acceso-campo" for="registro-telefono">Teléfono (opcional)
+          <input id="registro-telefono" type="tel" autocomplete="tel" maxlength="30" />
+        </label>
+        <label class="acceso-campo" for="registro-direccion">Dirección de entrega (opcional)
+          <input id="registro-direccion" type="text" autocomplete="street-address" maxlength="300" />
+        </label>
+        <p class="acceso-error" id="registro-error" role="alert" hidden></p>
+        <button class="boton" type="submit">CREAR CUENTA <span aria-hidden="true">↗</span></button>
+        <p class="acceso-pie">
+          ¿Ya tienes cuenta?
+          <button type="button" class="enlace-boton" id="ir-a-acceso">Iniciar sesión</button>
+        </p>
+      </form>
+    </dialog>
+
+    <dialog id="carrito" class="dialogo-tienda" aria-labelledby="titulo-carrito">
+      <div class="tienda-caja">
+        <button class="cerrar cerrar-dialogo" type="button" aria-label="Cerrar carrito">×</button>
+        <p class="etiqueta">NOVA / TIENDA ONLINE</p>
+        <h2 id="titulo-carrito">Tu carrito<span>.</span></h2>
+        <ul class="carrito-avisos" id="carrito-avisos" role="status"></ul>
+        <p class="tienda-vacio" id="carrito-vacio">
+          Tu carrito está vacío. Elige un modelo en el catálogo y añádelo desde su ficha.
+        </p>
+        <ul class="carrito-lista" id="carrito-lista"></ul>
+        <div class="carrito-pie" id="carrito-pie">
+          <p class="carrito-total">
+            Total estimado <strong id="carrito-total"></strong>
+          </p>
+          <p class="tienda-nota">
+            El total definitivo lo calcula la base de datos de NOVA al revisar el pedido.
+          </p>
+          <div class="tienda-botones">
+            <button class="boton boton-secundario" type="button" id="carrito-vaciar">
+              VACIAR CARRITO
+            </button>
+            <button class="boton" type="button" id="carrito-tramitar">
+              TRAMITAR PEDIDO <span aria-hidden="true">↗</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="checkout" class="dialogo-tienda" aria-labelledby="titulo-checkout">
+      <div class="tienda-caja">
+        <button class="cerrar cerrar-dialogo" type="button" aria-label="Cerrar el pedido">×</button>
+        <p class="etiqueta">NOVA / TU PEDIDO</p>
+        <h2 id="titulo-checkout">Tu pedido<span>.</span></h2>
+        <ol class="checkout-pasos" aria-label="Pasos de la compra">
+          <li data-paso="entrega">1. Entrega</li>
+          <li data-paso="pago">2. Pago simulado</li>
+          <li data-paso="resultado">3. Resultado</li>
+        </ol>
+
+        <form class="checkout-paso" id="paso-entrega" novalidate>
+          <p>
+            Comprueba tus datos y la dirección donde quieres recibir el pedido.
+          </p>
+          <dl class="checkout-datos">
+            <div><dt>Nombre</dt><dd id="entrega-nombre"></dd></div>
+            <div><dt>Correo</dt><dd id="entrega-email"></dd></div>
+          </dl>
+          <label class="acceso-campo" for="entrega-telefono">Teléfono (opcional)
+            <input id="entrega-telefono" type="tel" autocomplete="tel" maxlength="30" />
+          </label>
+          <label class="acceso-campo" for="entrega-direccion">Dirección de entrega
+            <textarea id="entrega-direccion" rows="2" autocomplete="street-address" maxlength="300" required></textarea>
+          </label>
+          <p class="tienda-nota" id="entrega-resumen"></p>
+          <p class="acceso-error" id="entrega-error" role="alert" hidden></p>
+          <button class="boton" type="submit" id="entrega-continuar">
+            REVISAR PEDIDO Y PAGAR <span aria-hidden="true">↗</span>
+          </button>
+        </form>
+
+        <div class="checkout-paso" id="paso-pago" hidden>
+          <p>
+            Pedido <strong id="pago-referencia"></strong> pendiente de pago. Estos
+            son los precios y el total calculados por la base de datos de NOVA:
+          </p>
+          <div class="tabla-tienda">
+            <table>
+              <caption class="solo-lector">Líneas del pedido</caption>
+              <thead>
+                <tr><th scope="col">Producto</th><th scope="col">Pares</th><th scope="col">Precio</th><th scope="col">Subtotal</th></tr>
+              </thead>
+              <tbody id="pago-lineas"></tbody>
+              <tfoot>
+                <tr><th scope="row" colspan="3">Total</th><td id="pago-total"></td></tr>
+              </tfoot>
+            </table>
+          </div>
+          <div class="pago-simulado">
+            <p class="pago-simulado-titulo">PAGO SIMULADO · PROYECTO ACADÉMICO</p>
+            <p>
+              NOVA Sneakers es un proyecto de clase: <strong>no se cobra nada</strong>
+              y no se pide ningún dato bancario. Elige el resultado que quieres
+              simular.
+            </p>
+            <div class="tienda-botones">
+              <button class="boton" type="button" id="pago-aceptar">
+                SIMULAR PAGO ACEPTADO <span aria-hidden="true">↗</span>
+              </button>
+              <button class="boton boton-secundario" type="button" id="pago-rechazar">
+                SIMULAR PAGO RECHAZADO
+              </button>
+            </div>
+          </div>
+          <p class="acceso-error" id="pago-error" role="alert" hidden></p>
+          <p class="tienda-nota">
+            <button type="button" class="enlace-boton" id="pago-cancelar">Cancelar el pedido</button>
+            (si cierras esta ventana sin pagar, el pedido también se cancela).
+          </p>
+        </div>
+
+        <div class="checkout-paso" id="paso-resultado" hidden>
+          <p class="resultado-titulo" id="resultado-titulo" tabindex="-1"></p>
+          <p id="resultado-texto"></p>
+          <div class="tienda-botones">
+            <button class="boton boton-secundario" type="button" id="resultado-seguir">
+              SEGUIR COMPRANDO
+            </button>
+            <button class="boton" type="button" id="resultado-pedidos">
+              VER MIS PEDIDOS <span aria-hidden="true">↗</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="pedidos" class="dialogo-tienda" aria-labelledby="titulo-pedidos">
+      <div class="tienda-caja">
+        <button class="cerrar cerrar-dialogo" type="button" aria-label="Cerrar mis pedidos">×</button>
+        <p class="etiqueta">NOVA / TU CUENTA</p>
+        <h2 id="titulo-pedidos">Mis pedidos<span>.</span></h2>
+        <p class="tienda-nota" id="pedidos-estado" role="status"></p>
+        <ul class="pedidos-lista" id="pedidos-lista"></ul>
+      </div>
     </dialog>
   </body>
 </html>

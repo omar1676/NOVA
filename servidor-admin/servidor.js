@@ -1,10 +1,14 @@
-// servidor.js — servidor del panel de administracion de NOVA Sneakers.
+// servidor.js — servidor de NOVA Sneakers: el panel de administracion y la
+// tienda web.
 //
-//   navegador (panel HTML)  -->  este servidor (Express)  -->  PostgreSQL
+//   navegador (panel HTML)  -->  este servidor (Express)  -->  PostgreSQL (web_nova)
+//   navegador (tienda web)  -->  este servidor (Express)  -->  PostgreSQL (tienda_nova)
 //
 // El navegador nunca habla con PostgreSQL: pide /api/... a este servidor, que
-// hace las consultas con el usuario web_nova. El mismo servidor entrega los
-// archivos del panel, asi que panel y API tienen el mismo origen (sin CORS).
+// hace las consultas. El mismo servidor entrega los archivos del panel y de la
+// tienda, asi que paginas y API tienen el mismo origen (sin CORS).
+//   http://127.0.0.1:3000/admin.html   panel (solo administradores)
+//   http://127.0.0.1:3000/tienda/      tienda web (rutas en tienda.js)
 
 const path = require('node:path');
 const express = require('express');
@@ -12,10 +16,12 @@ const bd = require('./bd');
 const sesiones = require('./sesiones');
 const intentos = require('./intentos');
 const consultas = require('./consultas');
+const tienda = require('./tienda');
 
 const PUERTO = Number(process.env.PUERTO) || 3000;
 const HOST = '127.0.0.1'; // solo este ordenador: el servidor no se abre a la red
 const CARPETA_PANEL = path.join(__dirname, '..', 'interfaces', 'admin');
+const CARPETA_TIENDA = path.join(__dirname, '..', 'interfaces', 'cliente');
 
 // El panel es solo para el rol "administrador" de la tabla roles.
 const ROL_PANEL = 'administrador';
@@ -244,10 +250,29 @@ app.get('/api/admin/estadisticas', async (req, res) => {
   res.json(await bd.consultarSoloLectura((cliente) => consultas.estadisticas(cliente)));
 });
 
+// La tienda web: sus rutas estan en tienda.js. Usa su propia sesion (cookie
+// sesion_tienda) y su propio usuario de PostgreSQL (tienda_nova).
+app.use('/api/tienda', tienda.rutas);
+
 // Cualquier otra ruta /api/... que no exista
 app.use('/api', (req, res) => {
   res.status(404).json({ error: 'Esa ruta de la API no existe' });
 });
+
+// ---------------------------------------------------------------------
+// Archivos de la tienda web: publicos, en /tienda/
+//
+// Van antes que los del panel para que protegerPanel no los pida. Sin la
+// barra final, el navegador buscaria css/ y js/ fuera de /tienda/, asi que
+// /tienda se redirige a /tienda/. express.static no sirve nada que este
+// fuera de interfaces/cliente (rechaza las rutas con ..).
+// ---------------------------------------------------------------------
+app.use((req, res, next) => {
+  if (req.path === '/tienda') return res.redirect('/tienda/');
+  next();
+});
+app.use('/tienda', express.static(CARPETA_TIENDA));
+app.use('/tienda', (req, res) => res.status(404).send('No encontrado')); // y no al login del panel
 
 // ---------------------------------------------------------------------
 // Archivos del panel
@@ -316,6 +341,9 @@ if (require.main === module) {
       process.exit(1);
     }
     console.log(`Panel de NOVA en http://${HOST}:${PUERTO}`);
+    console.log(bd.poolTienda
+      ? `Tienda web en http://${HOST}:${PUERTO}/tienda/`
+      : 'Tienda web sin configurar (faltan TIENDA_PGUSER y TIENDA_PGPASSWORD en .env)');
   });
 }
 

@@ -52,6 +52,8 @@ cuándo se escribió cada uno.
 | 17 | `17_usuario_java.sql` | **Crea `java_nova`, el usuario con el que se conecta la aplicación Java**, y deja al comercial marcar pedidos Custom. Pide la contraseña por teclado. Se puede lanzar después del 7 o al final | **sí** |
 | 18 | `18_datos_so024.sql` | **Datos del caso común SO024**: el cliente Club Halcones, el modelo Runner X con sus tallas 38–46 (SKU y existencias). **No crea el pedido**: SO024 se crea y confirma desde la aplicación Java. El precio, el color y el stock se pasan con `-v` hasta que se acuerden; sin ellos no inserta nada. Va al final, después de las pruebas | no |
 | 19 | `19_usuario_web.sql` | **Crea `panel_lectura`, un rol de solo lectura, y `web_nova`, el usuario con el que se conecta el servidor del panel de administración** (`servidor-admin/`). `web_nova` solo puede pasar a `panel_lectura` con `SET ROLE` y no hereda nada. `panel_lectura` no puede escribir en ninguna tabla ni leer `password_hash`, `dni` ni `direccion_entrega`. Pide la contraseña por teclado. Se puede lanzar después del 7 o al final | **sí** |
+| 20 | `20_tienda_web.sql` | **Tienda web.** Crea `cuentas_cliente` (las contraseñas de los clientes que se registran en la web, aparte de las de los trabajadores) y cinco funciones: `registrar_cliente`, `iniciar_sesion_cliente`, `crear_compra_web`, `confirmar_compra_web` y `cancelar_compra_web`. Las de compra usan `realizar_compra`, `anadir_linea_pedido` y los triggers de siempre. Crea también `tienda_web`, un rol que no puede escribir en ninguna tabla salvo a través de esas funciones, y `tienda_nova`, el usuario de la tienda en `servidor-admin/`. Pide la contraseña por teclado. **Va después de la batería** | **sí** |
+| 21 | `21_catalogo_web.sql` | **Inserta los 12 modelos de la web que se pueden comprar** (el 01 y el 02 de cada colección): un color, las tallas de su colección y 5 pares por talla. Se puede repetir. **Va después de la batería** | no |
 
 **Los tres últimos van al final, y el orden importa.** El orden correcto es:
 instalación (1–7) → pruebas (8–12) → contraseñas (13) → `CUSTOM-40` (14) →
@@ -72,6 +74,17 @@ Dos razones, las dos comprobadas ejecutándolo:
   pedidos ni 14 líneas. Las comprobaciones de `09_pruebas.sql` que dependían de
   esas cifras se reescribieron para medir integridad y diferencias antes/después,
   así que **ahora pasan igual con `CUSTOM-40` guardado o sin él**.
+
+**El 20 y el 21 (tienda web) van después de la batería**, igual que el 13 y
+el 14. `09_pruebas.sql` comprueba la instalación original:
+- **P1:** 14 tablas y 19 funciones; el 20 añade una tabla y cinco funciones.
+- **P2:** 7 modelos, 12 variantes y 60 SKU; el 21 añade 12, 12 y 106.
+- **S1:** el cliente ve 7 modelos.
+
+Con el 20 y el 21 ya instalados, esas tres dan `FAIL` con toda la razón (y A1
+y A2, por el 13, como se explica arriba). Las demás siguen dando `PASS`
+(86 de 91). Ninguno de los dos cambia tablas, funciones ni triggers de los
+scripts anteriores.
 
 El primer script necesita permisos de administrador porque crea una
 extensión. `CREATE EXTENSION pgcrypto` solo lo puede hacer un superusuario o

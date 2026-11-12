@@ -1,0 +1,73 @@
+Funciones y permisos de la tienda, probados directamente en PostgreSQL (prueba_tienda.sql, en una copia de la base).
+Cada prueba de la tienda se hace con SET ROLE tienda_web.
+Base desechable nova_tienda (PostgreSQL 17.11, puerto 55433), montada desde cero con los scripts 01-21.
+Pasada final: inicio 11/11/2026 23:43:54 · fin 11/11/2026 23:45:09.
+Resultado: 55 de 55.
+
+===== Resultados =====
+=== Permisos de tienda_web
+PASS T1 no inserta pedidos: 42501 permission denied for table pedidos
+PASS T2 no cambia el estado de un pedido: 42501 permission denied for table pedidos
+PASS T3 no cambia importes: 42501 permission denied for table pedidos
+PASS T4 no toca existencias: 42501 permission denied for table existencias
+PASS T5 no toca lineas: 42501 permission denied for table linea_pedido
+PASS T6 no lee cuentas_cliente: 42501 permission denied for table cuentas_cliente
+PASS T7 no lee hashes de trabajadores: 42501 permission denied for table usuarios
+PASS T8 no lee la auditoria: 42501 permission denied for table log_eventos
+PASS T9 no llama a realizar_compra: 42501 permission denied for function realizar_compra
+PASS T10 no cambia datos de clientes: 42501 permission denied for table clientes
+PASS T11 no borra pedidos: 42501 permission denied for table pedidos
+PASS T12 lee el catalogo web con su stock: 106 SKU con existencias
+=== Registro e inicio de sesion
+PASS R1 correo repetido (en otras mayusculas): P0001 Ese correo ya esta registrado
+PASS R2 correo de un cliente dado de alta por un trabajador: P0001 Ese correo ya esta registrado
+PASS R3 contrasena corta: P0001 La contrasena debe tener al menos 8 caracteres
+PASS R4 correo mal escrito: P0001 El correo no es valido
+PASS R5 nombre vacio: P0001 Escribe tu nombre (maximo 120 caracteres)
+PASS L1 login correcto (correo en minusculas)
+PASS L2 login con el correo en mayusculas
+PASS L3 contrasena incorrecta: P0001 Correo o contrasena incorrectos
+PASS L4 correo que no existe (mismo mensaje): P0001 Correo o contrasena incorrectos
+PASS L5 un cliente sin cuenta web no entra: P0001 Correo o contrasena incorrectos
+PASS L6 la cuenta de admin.demo no sirve en la tienda: P0001 Correo o contrasena incorrectos
+PASS R6 la contrasena se guarda como hash bcrypt, no en claro
+PASS R7 el cliente queda en clientes (correo en minusculas)
+=== Crear la compra (pedido pendiente)
+PASS C2 la misma referencia otra vez (doble clic) devuelve el mismo pedido
+PASS C3 otro cliente con la referencia de Ana: P0001 Referencia no valida
+PASS C4 carrito vacio: P0001 El carrito no es valido
+PASS C5 cantidad 0: P0001 Cada producto admite de 1 a 10 pares
+PASS C6 cantidad 11: P0001 Cada producto admite de 1 a 10 pares
+PASS C7 cantidad negativa: P0001 Cada producto admite de 1 a 10 pares
+PASS C8 el mismo SKU dos veces: P0001 Hay productos repetidos en el carrito
+PASS C9 listas de distinto tamano: P0001 El carrito no es valido
+PASS C10 SKU que no existe: P0001 Producto no disponible
+PASS C11 mas pares de los que hay: P0001 No queda stock suficiente de NOVA Luxe 02 (Crema, talla 44)
+PASS C12 sin direccion de entrega: P0001 Escribe la direccion de entrega (maximo 300 caracteres)
+PASS C13 referencia con otro formato: P0001 Referencia no valida
+PASS C14 cliente sin cuenta web: P0001 Cliente no valido
+PASS C15 mas de 20 productos: P0001 El carrito no es valido
+PASS C16 solo hay un pedido con esa referencia
+PASS C1 pedido pendiente, con precio y total de la base: 3 pares, 319.70 EUR
+PASS C17 cada linea lleva el precio del modelo y su subtotal; nada descontado aun
+PASS C18 crear el pedido no descuenta stock
+=== Confirmar (pago aceptado) y cancelar
+PASS P1 Bea no puede pagar el pedido de Ana: P0001 El pedido no existe
+PASS P2 Bea no puede cancelar el pedido de Ana: P0001 El pedido no existe
+
+
+PASS P3 Ana paga: confirmado y pagado
+PASS P4 el stock baja exactamente lo comprado, una sola vez (pagado dos veces)
+PASS P5 un pedido pagado no se cancela desde la web: P0001 Un pedido pagado no se puede cancelar desde la web
+
+
+PASS P6 un pedido cancelado no se puede pagar: P0001 Este pedido ya no se puede pagar
+PASS P7 pago rechazado o cancelado: el pedido queda cancelado
+PASS P8 cancelar un pendiente no cambia el stock
+PASS P9 un pedido de Java (no WEB-) no se paga desde la web: P0001 El pedido no existe
+=== Error a mitad de la confirmacion: no queda nada a medias
+PASS E1 falta stock de la segunda linea al pagar: P0001 Stock insuficiente o producto no encontrado
+PASS E2 no se descuenta la primera linea y el pedido sigue pendiente
+=== Auditoria automatica (triggers de 08)
+PASS A1 la auditoria registra alta, pago (cambio de estado), stock y cancelacion
+=== Fin
