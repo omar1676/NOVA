@@ -56,6 +56,7 @@ cuándo se escribió cada uno.
 | 20 | `20_tienda_web.sql` | **Tienda web.** Crea `cuentas_cliente` (las contraseñas de los clientes que se registran en la web, aparte de las de los trabajadores) y cinco funciones: `registrar_cliente`, `iniciar_sesion_cliente`, `crear_compra_web`, `confirmar_compra_web` y `cancelar_compra_web`. Las de compra usan `realizar_compra`, `anadir_linea_pedido` y los triggers de siempre. Crea también `tienda_web`, un rol que no puede escribir en ninguna tabla salvo a través de esas funciones, y `tienda_nova`, el usuario de la tienda en `servidor-admin/`. Pide la contraseña por teclado. **Va después de la batería** | **sí** |
 | 21 | `21_catalogo_web.sql` | **Inserta los 100 modelos de la web, todos a la venta**, con su nombre comercial (NOVA Street Vortex, NOVA Luxe Onyx...): un color, las tallas de su colección y 5 pares por talla en los 12 que ya se vendían o 20 en los otros 88. Se puede repetir y renombra los 12 si la base tenía los nombres antiguos (NOVA Street 01...). **Va después de la batería** | no |
 | 22 | `22_reparto_panel.sql` | **Botón «Marcar en reparto» del panel** (prueba). Crea `marcar_pedido_en_reparto`, una función `SECURITY DEFINER` que comprueba que el usuario es un administrador activo y que el pedido está confirmado, y lo pasa a `enviado` con los triggers de siempre (sin tocar el stock; la auditoría apunta el cambio a nombre del administrador). Crea también `panel_reparto`, un rol sin login que solo puede ejecutar esa función y al que `web_nova` pasa con `SET ROLE`. `panel_lectura` no cambia. Se puede repetir. **Va después del 09, el 19 y el 20** | **sí** |
+| 23 | `23_portal_trabajador.sql` | **Portal del trabajador** (el de Berme, en `interfaces/trabajador/`). Crea dos funciones `SECURITY DEFINER` con `search_path` fijo: `avanzar_pedido_trabajador` (un pedido avanza un paso: confirmado → en preparación → enviado → entregado) y `ajustar_existencias_trabajador` (cambia la cantidad de un SKU en una nave, de 0 a 99999). Las dos comprueban que el usuario es un **trabajador activo** y dejan el cambio en `log_eventos` a su nombre, con el mismo mecanismo que el 22. Crea también `portal_trabajador`, un rol sin login que solo lee las columnas que enseña el portal (nada de `password_hash`, `dni`, `email`, `telefono`, `direccion_entrega` ni la auditoría), no escribe en ninguna tabla y ejecuta esas dos funciones; `web_nova` pasa a él con `SET ROLE`, sin heredar. `panel_lectura` y `panel_reparto` no cambian. No pide contraseñas. Se puede repetir. **Va después del 22** | **sí** |
 
 **Los tres últimos van al final, y el orden importa.** El orden correcto es:
 instalación (1–7) → pruebas (8–12) → contraseñas (13) → `CUSTOM-40` (14) →
@@ -87,6 +88,19 @@ Con el 20 y el 21 ya instalados, esas tres dan `FAIL` con toda la razón (y A1
 y A2, por el 13, como se explica arriba). Las demás siguen dando `PASS`
 (86 de 91). Ninguno de los dos cambia tablas, funciones ni triggers de los
 scripts anteriores.
+
+**El 22 y el 23 van los últimos**, en ese orden: el 22 necesita `web_nova`
+(19) y las tablas de la tienda (20), y el 23 va detrás del 22. Tampoco
+cambian nada de lo anterior: solo añaden funciones y roles sin login que no
+se llaman `nova_*`, porque el 09 cuenta los roles con ese prefijo.
+
+**Roles de la web y matriz de permisos.** Las cuentas son las mismas que en
+Java (`usuarios` y `roles`), y la web sigue la matriz de
+`acceso-datos/java/README.md`: el administrador entra en el panel de
+administración (`panel_lectura` y, para «Marcar en reparto», `panel_reparto`),
+el trabajador en el portal del trabajador (`portal_trabajador`) y el comercial
+no tiene panel web (trabaja con la aplicación Java). Lo explica
+`servidor-admin/README.md`, en «Login único y roles».
 
 El primer script necesita permisos de administrador porque crea una
 extensión. `CREATE EXTENSION pgcrypto` solo lo puede hacer un superusuario o

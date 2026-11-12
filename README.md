@@ -16,8 +16,9 @@ para preparar la fabricación y análisis de datos en Python.
 | `psp/src/Psp/` | Analizador de tallas con protocolo de líneas; el coordinador lo usa como segundo hijo |
 | `python-analisis/` | Calidad de datos, KPIs, gráficos, estadística, segmentación, predicción y dashboard Streamlit |
 | `interfaces/cliente/` | Web de la marca: escaparate, catálogo con precios, ficha, probador, formulario Custom, contacto, inicio de sesión y tienda |
-| `interfaces/admin/` | Panel de administración |
-| `servidor-admin/` | Servidor Node + Express que conecta el panel y la tienda con PostgreSQL |
+| `interfaces/admin/` | Panel de administración y página de acceso única del personal |
+| `interfaces/trabajador/` | Portal del trabajador (Berme): resumen, pedidos, inventario y personalizados |
+| `servidor-admin/` | Servidor Node + Express que conecta el panel, el portal del trabajador y la tienda con PostgreSQL |
 | `integracion/` | Caso común SO024, formatos de fabricación y borrador del recorrido con Odoo |
 | `pruebas/` | Resultados y capturas de las pruebas de cada parte, y la muestra `fixtures/custom40.csv` |
 | `scripts/` | Comprobaciones rápidas de la web y de PSP |
@@ -55,8 +56,9 @@ los scripts de `acceso-datos/sql/` con `psql -U postgres -d nova_sneakers -f
    archivos en la carpeta desde la que se lanza `psql`.
 5. Usuarios de conexión y ampliaciones: `17_usuario_java.sql`,
    `18_datos_so024.sql`, `19_usuario_web.sql`, `20_tienda_web.sql`,
-   `21_catalogo_web.sql` y `22_reparto_panel.sql` (el botón «Marcar en
-   reparto» del panel; va después del 09, el 19 y el 20).
+   `21_catalogo_web.sql`, `22_reparto_panel.sql` (el botón «Marcar en
+   reparto» del panel; va después del 09, el 19 y el 20) y
+   `23_portal_trabajador.sql` (el portal del trabajador; va después del 22).
 
 **El 09 va antes del 18, el 20 y el 21.** Esos tres añaden modelos, tablas y
 funciones, y algunas comprobaciones del 09 cuentan los de la instalación
@@ -125,14 +127,17 @@ py -m http.server 8000 --bind 127.0.0.1
 
 Así funcionan el escaparate, el catálogo, la ficha, el probador, Custom y
 Contacto en `http://127.0.0.1:8000/interfaces/cliente/`. El inicio de sesión,
-la tienda y los datos del panel necesitan `servidor-admin`:
+la tienda, los datos del panel y el portal del trabajador necesitan
+`servidor-admin`:
 
-1. Lanzar `19_usuario_web.sql`; para la tienda, también el 20 y el 21.
+1. Lanzar `19_usuario_web.sql`; para la tienda, también el 20 y el 21; para
+   el portal del trabajador, el 22 y el 23.
 2. En `servidor-admin`, `npm ci`.
 3. Copiar `.env.example` como `.env` y escribir las contraseñas de `web_nova`
    y, para la tienda, de `tienda_nova`. El `.env` no se sube a Git.
-4. `npm start` y abrir `http://127.0.0.1:3000` (panel, con `admin.demo`) o
-   `http://127.0.0.1:3000/tienda/` (tienda).
+4. `npm start` y abrir `http://127.0.0.1:3000/login.html`, la página de
+   acceso única del personal: `admin.demo` pasa al panel y `taller.demo`, al
+   portal del trabajador. La tienda está en `http://127.0.0.1:3000/tienda/`.
 
 Más detalle en `servidor-admin/README.md`.
 
@@ -144,8 +149,9 @@ Más detalle en `servidor-admin/README.md`.
 | Java | `acceso-datos\java\pruebas.bat` (pide las contraseñas de demostración) | 47 PASS, 0 FAIL |
 | PSP | En `psp`, tras compilar: `java -cp clases PruebasPsp` | 27 de 27 |
 | Python | En `python-analisis`: `.venv\Scripts\python.exe -m unittest discover -s tests -v` | 249 pruebas OK |
-| Panel | En `servidor-admin`: `npm test` (con las variables `PRUEBA_*` de su README) | 16 de 16 |
-| Tienda | En `servidor-admin`: `npm run test:tienda`, solo con `PRUEBA_TIENDA_BASE_DESECHABLE=si` | 23 de 23 |
+| Panel | En `servidor-admin`: `npm test` (con las variables `PRUEBA_*` de su README) | 23 de 23 con `PRUEBA_TIENDA_BASE_DESECHABLE=si` (sin ella, 22 y 1 saltada) |
+| Tienda | En `servidor-admin`: `npm run test:tienda`, solo con `PRUEBA_TIENDA_BASE_DESECHABLE=si` | 39 de 39 |
+| Login único y portal | En `servidor-admin`: `npm run test:portal`, con `PRUEBA_TIENDA_BASE_DESECHABLE=si` y `PRUEBA_SUPERUSUARIO` | 24 de 24 |
 
 `pruebas.bat` deja pedidos `PRUEBA-*` en la base y las pruebas de la tienda
 crean clientes y pedidos de verdad: conviene lanzarlas sobre una base de
@@ -192,10 +198,12 @@ borrador de cómo se haría el recorrido a mano, no una prueba.
 
 ## Ampliaciones
 
-La tienda online (cuentas de cliente, carrito y pago simulado) y la conexión
-del panel de administración con PostgreSQL a través de `servidor-admin` son
-**ampliaciones que no pide ninguna rúbrica**. El panel es solo de lectura y en
-la tienda no se cobra nada.
+La tienda online (cuentas de cliente, carrito y pago simulado), la conexión
+del panel de administración con PostgreSQL a través de `servidor-admin` y el
+portal del trabajador con su login único son **ampliaciones que no pide
+ninguna rúbrica**. El panel solo lee (salvo «Marcar en reparto»), el portal
+solo cambia algo con las dos funciones del script 23 y en la tienda no se
+cobra nada.
 
 ## Limitaciones conocidas
 
