@@ -149,6 +149,24 @@ class PruebasFiltros(unittest.TestCase):
         normal = tablas["custom_vs_estandar"].set_index("tipo_pedido").loc["normal"]
         self.assertEqual(normal["pedidos_registrados"], 0)
 
+    def test_cliente_es_del_pedido(self):
+        pedidos = self.resultado["validos"]["pedidos"]
+        cliente = pedidos["id_cliente"].value_counts().index[0]          # el que mas pedidos tiene
+        tablas = calcular(clientes=[cliente])
+        suyos = pedidos[pedidos["id_cliente"] == cliente]
+        self.assertEqual(sorted(tablas["pedidos_unicos"]["id_pedido"]), sorted(suyos["id_pedido"]))
+        # Todas sus lineas, de cualquier modelo
+        lineas = self.lineas[self.lineas["id_cliente"] == cliente]
+        self.assertEqual(sorted(tablas["lineas_enriquecidas"]["id_linea"]), sorted(lineas["id_linea"]))
+        self.assertEqual(valor(tablas, "K01"), len(suyos))
+        # Combinado con modelo y tipo (Y): solo sus lineas de ese modelo en pedidos de ese tipo
+        combinado = calcular(clientes=[cliente], modelos=["SINT Runner"], tipos=["normal"])
+        esperadas = lineas[(lineas["nombre_modelo"] == "SINT Runner") & (lineas["tipo_pedido"] == "normal")]
+        self.assertGreater(len(esperadas), 0)
+        self.assertEqual(sorted(combinado["lineas_enriquecidas"]["id_linea"]), sorted(esperadas["id_linea"]))
+        self.assertEqual(filtros.describir(con_filtros(clientes=[cliente], tipos=["normal"])),
+                         f"tipo: normal · cliente: {cliente}")
+
     def test_filtro_sin_resultados(self):
         tablas = calcular(desde="2030-01-01", hasta="2030-12-31")
         self.assertEqual(len(tablas["pedidos_unicos"]), 0)
