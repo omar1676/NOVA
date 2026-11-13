@@ -244,7 +244,7 @@ Las hojas firmadas **no se suben al repositorio** (tienen la firma). Se guardan 
 
 ## 12. Informe breve para la memoria (plantilla)
 
-Cuando esté hecha, se resume en el apartado 3.4 de `06_Intermodular/memoria/MEMORIA.md` con esta estructura (una página como mucho):
+Cuando esté hecha, se resume en el apartado 3.4 de `06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf` con esta estructura (una página como mucho):
 
 1. **Cuándo y con quién:** fecha, número de participantes y perfiles (sin nombres), dispositivos y versión de la web.
 2. **Resultados por tarea:** la tabla resumen.
