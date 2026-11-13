@@ -14,8 +14,9 @@ la del equipo).
 - **Los nuestros:** las clases de `03_PSP/` tal como están en esta rama.
 - **El analizador de Álvaro:** `Psp.AnalizadorTallas`, compilado **sin cambios**
   desde su rama, `origin/feature/AlvaroBaz` (sus archivos de PSP son los de su
-  commit `6b7f4c1`). Se sacó con `git archive` a una carpeta temporal: no se ha
-  copiado a esta rama.
+  commit `6b7f4c1`). Se sacó con `git archive` a una carpeta temporal, porque
+  ese día su rama todavía no estaba en la nuestra (se fusionó el 12/11, en
+  `7715f83`, con esos mismos archivos).
 
 **Las rutas.** Las ejecuciones se hicieron en una carpeta temporal, con rutas
 relativas, para que no aparezcan rutas personales. En los comandos que se

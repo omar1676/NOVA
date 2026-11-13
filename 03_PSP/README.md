@@ -310,15 +310,17 @@ directamente.
   - **Riesgo de bloqueo:** también puede bloquearse si el hijo escribe mucho
     por stderr, porque lee primero toda la salida y después los errores.
   - **No se ha cambiado su archivo:** es una propuesta para que la revise él.
-- **Para integrarlo de verdad:** que Álvaro fusione su rama (o abra su PR), así
-  su autoría queda en su commit `6b7f4c1`. Esta rama no copia sus archivos.
+- **Cómo está integrado:** su rama se fusionó en el commit `7715f83` (12/11),
+  así que su autoría sigue en su commit `6b7f4c1`. Sus archivos no se han
+  copiado a mano: son idénticos a los de ese commit.
 
 ## Autoría
 
 - **Commit `f4847d4`** (Omar, 8 de noviembre): `ValidadorPedidoCustom`,
   `LectorCsv`, `LanzadorValidacion` y el `AnalizadorTallas` de la raíz.
-- **Commit `6b7f4c1`** (Álvaro, 9 de noviembre), en su rama: `03_PSP/src/Psp/`.
-- **10 de noviembre, en la rama de Omar y sin commit:**
+- **Commit `6b7f4c1`** (Álvaro, 9 de noviembre), en su rama, fusionada en
+  `7715f83`: `03_PSP/src/Psp/`.
+- **Commit `81db6e5`** (Omar, 11 de noviembre; preparado el 10 en su rama):
   - nuevos: `ProcesadorPedidosCustom`, `GestorProcesos`,
     `GeneradorFichaTaller`, `pruebas/` y `datos/`;
   - cambios en `ValidadorPedidoCustom`: datos normalizados, comprobación de

@@ -1,5 +1,15 @@
 # Formatos actuales de fabricación
 
+> **Nota del 13/11, añadida en la limpieza (el texto de abajo es el de Berme
+> del 4/11; solo se le cambiaron las rutas al reorganizar las carpetas).** La cabecera y las reglas del CSV siguen igual, pero
+> desde entonces ha cambiado esto: el CSV lo procesa el coordinador
+> `03_PSP/ProcesadorPedidosCustom.java` con sus tres hijos (`LanzadorValidacion`
+> es la versión anterior); el 15 exporta cualquier pedido confirmado de 40
+> pares con una línea por talla (`CUSTOM-40` por defecto u otro con
+> `-v referencia=…`), y el validador añade, debajo de su línea `OK;…`, el cliente, la
+> personalización y el bloque `PEDIDO / LINEA / FIN` que lee el paquete `Psp`. El estado
+> actual está en `03_PSP/README.md`.
+
 Este documento describe los formatos presentes en el código. No establece un
 contrato nuevo de Odoo ni afirma que los dos analizadores sean intercambiables.
 
