@@ -25,12 +25,12 @@ const odoo = require('./odoo'); // conector de Berme: desactivado sin configurac
 
 const PUERTO = Number(process.env.PUERTO) || 3000;
 const HOST = '127.0.0.1'; // solo este ordenador: el servidor no se abre a la red
-const CARPETA_PANEL = path.join(__dirname, '..', 'interfaces', 'admin');
-const CARPETA_TIENDA = path.join(__dirname, '..', 'interfaces', 'cliente');
+const CARPETA_PANEL = path.join(__dirname, '..', '01_Interfaces', 'admin');
+const CARPETA_TIENDA = path.join(__dirname, '..', '01_Interfaces', 'cliente');
 
 // Login unico para el personal: cada rol de la tabla roles entra en su panel.
-//   administrador -> panel de administracion (interfaces/admin)
-//   trabajador    -> portal del trabajador (interfaces/trabajador, de Berme)
+//   administrador -> panel de administracion (01_Interfaces/admin)
+//   trabajador    -> portal del trabajador (01_Interfaces/trabajador, de Berme)
 // Un rol que no esta aqui (comercial) no tiene panel web: trabaja con la
 // aplicacion Java, asi que el login le deniega el acceso.
 const ROL_PANEL = 'administrador';
@@ -39,7 +39,7 @@ const PANELES = {
   administrador: '/admin.html',
   trabajador: '/trabajador/trabajador.html'
 };
-const CARPETA_PORTAL = path.join(__dirname, '..', 'interfaces', 'trabajador');
+const CARPETA_PORTAL = path.join(__dirname, '..', '01_Interfaces', 'trabajador');
 
 const app = express();
 app.disable('x-powered-by'); // no anunciar en cada respuesta que el servidor es Express
@@ -361,7 +361,7 @@ app.use('/api', (req, res) => {
 // Van antes que los del panel para que protegerPanel no los pida. Sin la
 // barra final, el navegador buscaria css/ y js/ fuera de /tienda/, asi que
 // /tienda se redirige a /tienda/. express.static no sirve nada que este
-// fuera de interfaces/cliente (rechaza las rutas con ..).
+// fuera de 01_Interfaces/cliente (rechaza las rutas con ..).
 // ---------------------------------------------------------------------
 app.use((req, res, next) => {
   if (req.path === '/tienda') return res.redirect('/tienda/');

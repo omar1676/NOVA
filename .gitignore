@@ -9,9 +9,14 @@ node_modules/
 
 # Java y salidas generadas
 *.class
-psp/clases/
+clases/
 fabricacion_psp.csv
 salidas/
+
+# Python: entorno virtual y cachés (04_Python/.gitignore ignora además outputs/ y logs/)
+.venv/
+__pycache__/
+*.pyc
 
 # Copias, volcados, registros y temporales
 *.backup
@@ -27,8 +32,23 @@ salidas/
 Thumbs.db
 Desktop.ini
 
-# Acceso a Datos: credenciales de conexion de Java (ver conexion.properties.ejemplo)
-acceso-datos/java/conexion.properties
+# Acceso a Datos: credenciales de conexion de Java (ver conexion.properties.ejemplo).
+# Sin carpeta delante, para que tampoco se suba una copia que se quede en otra ruta.
+conexion.properties
 
-# Driver JDBC descargado localmente (ver acceso-datos/java/README.md)
-acceso-datos/java/lib/*.jar
+# Driver JDBC descargado localmente (ver 02_Acceso_Datos/java/README.md)
+**/java/lib/*.jar
+
+# Carpetas de antes de la reorganización por asignaturas (13/11/2026). En un clon
+# que ya existía pueden quedar con archivos privados o generados (.venv,
+# conexion.properties, clases, outputs): se ignoran para no subirlos por error.
+# Lo que haga falta se pasa a mano a la carpeta nueva (README, «Si vienes de la
+# estructura anterior»).
+/interfaces/
+/acceso-datos/
+/psp/
+/python-analisis/
+/odoo/
+/integracion/
+/docs/
+/pruebas/
