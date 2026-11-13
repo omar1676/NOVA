@@ -41,7 +41,6 @@ function errorConocido(error) {
 
 function crearRutasTrabajador(bd, sesiones) {
   const router = express.Router();
-  router.use(express.json());
 
   // Lecturas: solo lectura y con el rol portal_trabajador
   function leer(sql, parametros) {
