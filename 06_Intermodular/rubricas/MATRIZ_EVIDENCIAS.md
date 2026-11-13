@@ -2,11 +2,11 @@
 
 Para cada asignatura, una tabla corta: **bloque de requisitos → archivo que lo demuestra → cómo enseñarlo**. El detalle requisito por requisito, con su estado y su riesgo, está en `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` (los IDs son los mismos).
 
-**Rutas.** Las rutas completas parten de la raíz del repositorio; los nombres abreviados se refieren al archivo de su asignatura o a la carpeta de evidencias indicada. El cierre publicado conserva las pruebas nuevas en `06_Intermodular/evidencias/cierre-entrega-20261113/`. La regresión anterior del **13/11/2026** (`1bcbb10`) está en `06_Intermodular/evidencias/regresion-final/`; su `README.md` dice la hora, el entorno y el resultado de cada batería. Lo poco que sigue fuera del repositorio se dice expresamente («en el informe de integración»).
+**Rutas.** Las rutas completas parten de la raíz del repositorio; los nombres abreviados se refieren al archivo de su asignatura o a la carpeta de evidencias indicada. El cierre publicado conserva las pruebas nuevas en `06_Intermodular/evidencias/cierre-entrega-20261113/`. Es la regresión del código entregado (`4f09742`). La regresión anterior del **13/11/2026** (`1bcbb10`, antes `8cdc08c`, sobre un árbol anterior con la estructura de carpetas antigua) está en `06_Intermodular/evidencias/regresion-final/` y es **histórica**: se cita para lo que no se repitió en el cierre (memoria, §7.2). Su `README.md` dice la hora, el entorno y el resultado de cada batería. Lo poco que sigue fuera del repositorio se dice expresamente («en el informe de integración»).
 
 **Estado:** OK = hecho y probado el 13/11 (o, si se dice, antes) · PARCIAL = hecho, pero falta una parte o la prueba es anterior · PROVISIONAL = solo con los datos provisionales de SO024 · PENDIENTE = no está hecho.
 
-**Marcas:** [PENDIENTE (quién)] = falta de verdad · [DUDA PARA EL PROFESOR (Dn)] · [POR DECIDIR (los tres)] · [REVISIÓN (Álvaro o Berme) en la PR].
+**Marcas:** [PENDIENTE (quién)] = falta de verdad · [DUDA PARA EL PROFESOR (Dn)] · [POR DECIDIR (los tres)] · [EQUIPO], [OMAR], [ÁLVARO] o [BERME] = lo tiene que confirmar o completar esa persona · **Límite declarado** = no está hecho y se entrega así.
 
 ---
 
@@ -19,7 +19,7 @@ Para cada asignatura, una tabla corta: **bloque de requisitos → archivo que lo
 | Catálogo | IM-INT-06 | OK | `02_interfaces.txt` (100 tarjetas con precio y 6 fichas) y `01_mejoras.txt` (las 100 fichas) | Filtrar una colección y abrir una ficha |
 | Servicio Custom | IM-INT-07, 12 | OK | `02_interfaces.txt`; capturas `01_Interfaces/evidencias/web/capturas/*_04_*.png` a `*_06_*.png` | Enviar vacío, sin pares y bien (§1 de `06_Intermodular/manuales/MANUAL_DEMOSTRACION.md`) |
 | Calidad, accesibilidad | IM-INT-08, RA4 a)-i) | OK (salvo usabilidad) | axe sin violaciones (`02_interfaces.txt`, `01_mejoras.txt`, 13/11); contraste 212/212 (12/11, informe de integración); `01_Interfaces/evidencias/web/lighthouse/` (100/100, 11/11); `01_Interfaces/evidencias/web/README.md` (checklists) | Abrir el informe de Lighthouse; navegar con el tabulador; explicar WCAG 2.1 AA |
-| Usabilidad con personas | RA4 i) | PENDIENTE | `01_Interfaces/memoria/PROCEDIMIENTO_USABILIDAD.md` (procedimiento y plantillas vacías). **[PENDIENTE (los tres): la prueba con 3 a 5 personas y su informe]** | Enseñar las hojas rellenadas y la SUS **cuando se haga** |
+| Usabilidad con personas | RA4 i) | PENDIENTE | `01_Interfaces/memoria/PROCEDIMIENTO_USABILIDAD.md` (procedimiento y plantillas vacías). **Límite declarado:** no se ha hecho la prueba con 3 a 5 personas. **[EQUIPO: si se hace, añadir el informe]** | Enseñar las hojas rellenadas y la SUS **cuando se haga** |
 | Estrategia e integración | RA8 a), b), g) | OK | `01_Interfaces/memoria/ESTRATEGIA_PRUEBAS_INTERFACES.md`; `06_Intermodular/evidencias/regresion-final/05_web/04_compra_edge.txt` (web → API → PostgreSQL → panel, 139/139) y `03_web.txt` (114/114) | Explicar los niveles de prueba y la tabla de trazabilidad |
 | Memoria, punto 3 | IM-COM-23 | OK (redactado) | `06_Intermodular/memoria/MEMORIA.md` §3 | — |
 
@@ -51,7 +51,7 @@ Para cada asignatura, una tabla corta: **bloque de requisitos → archivo que lo
 | Coordinador y procesos hijos | IM-PSP-04, 06, 07, 16, 23, 28 | OK | `03_PSP/ProcesadorPedidosCustom.java`, `GestorProcesos.java`; `06_Intermodular/evidencias/regresion-final/02_java_psp/04_psp_pruebas.txt` (27/27) y `05_psp_custom40.txt` | §3 de la demo |
 | Comunicación stdin/stdout | IM-PSP-08, 24, 25 | OK | Pruebas 06a, 06b y 07 de `PruebasPsp`; `03_PSP/evidencias/03_hijos_por_separado.txt` | Lanzar un hijo suelto con una tubería (`03_PSP/memoria/DOCUMENTACION_PSP.md` §12) |
 | Códigos, errores y tiempos | IM-PSP-09, 17, 26, 27 | OK | Pruebas 08 a 12m; `02_java_psp/06_psp_error_no_existe.txt` (código 1) y `06_psp_error_cantidad_cero.txt` (código 2) | Lanzar `prueba_cantidad_cero.csv`; explicar la tabla de códigos |
-| Función auxiliar sin sustituir a Odoo | IM-PSP-05, 15 | OK | `03_PSP/README.md` («Lo que no hace»); pie de la ficha | Leer el pie de la ficha de SO024 |
+| Función auxiliar sin sustituir a Odoo | IM-PSP-05, 15 | OK | `03_PSP/README.md` («Lo que no hace»); pie de la ficha | Leer el pie de `03_PSP/evidencias/ficha_taller_CUSTOM-40.txt` |
 | Salida relacionada con el pedido de Odoo | IM-PSP-10, 14, 29 | PARCIAL (sin trazabilidad acreditada de S00005 hacia PSP) | `ficha_taller_<ref>.txt`, `registro_psp.txt`; `03_PSP/evidencias/so024_provisional/ficha_taller_SO024_PROVISIONAL.txt`. S00005 existe en el PDF, pero no hay una exportación/ficha acreditada de ese pedido en PSP. | Señalar la referencia SO024 en el CSV, la respuesta `OK;`, la ficha y el registro |
 | Documentación y depuración | IM-PSP-RA1-i, IM-COM-25 | OK (redactada; `03_PSP/README.md` al día) | `03_PSP/memoria/DOCUMENTACION_PSP.md`; `03_PSP/README.md` | — |
 | Comprobación rápida de Berme | — | CORRECTA EN EL CIERRE | `06_Intermodular/evidencias/cierre-entrega-20261113/psp_comprobador.txt` | Corrección de Berme incorporada en 4f09742; el fallo anterior se conserva como histórico |
@@ -68,7 +68,7 @@ Para cada asignatura, una tabla corta: **bloque de requisitos → archivo que lo
 | RFM y KMeans | PY-91 a 96 | OK (sintético) | `segmentacion_y_prediccion.md` | Pestaña Clientes con el origen sintético |
 | Predicción y baseline | PY-102 a 109 | OK (sintético) | `segmentacion_y_prediccion.md` §3; `metricas_prediccion.csv` | Pestaña Predicción: MAE y RMSE y por qué no mejora |
 | Dashboard, filtros y refresco de 60 s | PY-17, 129 a 141, 161 a 175 | OK | `app_dashboard.py`; `filtros.py` (6 filtros: periodo, modelo, talla, tipo, estado y cliente); `dashboard.md`; caso K en Edge (`04_Python/evidencias/dashboard/caso_k_*`, 13/11); pruebas del refresco que conserva filtros y pestaña y de R6 en `04_python/02_unittest.txt` | §4 de la demo |
-| Datos reales frente a sintéticos | PY-29 a 41 | OK, salvo la exportación REAL | `entrada_acc/ORIGEN.txt` (`Tipo: PRUEBA`); `datos_sinteticos.md`. **[PENDIENTE (los tres): la exportación REAL de la base del equipo]** | Cambiar el origen y ver el color y el aviso |
+| Datos reales frente a sintéticos | PY-29 a 41 | OK, salvo la exportación REAL | `entrada_acc/ORIGEN.txt` (`Tipo: PRUEBA`); `datos_sinteticos.md`. **Límite declarado:** se entrega la exportación de PRUEBA; no hay exportación REAL de la base del equipo | Cambiar el origen y ver el color y el aviso |
 | Pruebas R1–R6 y casos A–O | PY-183 a 189, 197 a 211 | PARCIAL | `04_Python/memoria/INFORME_TECNICO_PYTHON.md` (tabla A–O). R6, A, K y N hechos; los que piden un alta o un cambio real en ACC siguen limitados por la exportación REAL y evidencias de alta/cambios en ACC; no exigen el identificador SO024 | — |
 | Informes técnico y ejecutivo | PY-110, 111, 194, 215 | OK (redactados) | `04_Python/memoria/INFORME_TECNICO_PYTHON.md`; `04_Python/informe_ejecutivo.md` (cinco decisiones con prioridad, urgencia, impacto esperado y sustento) | Leer la decisión de prioridad 1 y su tabla de sustento |
 
@@ -83,24 +83,24 @@ Para cada asignatura, una tabla corta: **bloque de requisitos → archivo que lo
 | Clientes, productos y venta | IM-SGE-10 a 12, 17 | DOCUMENTAL; perfiles/alcance pendientes según matriz | PDF pp. 10, 13 y 16: clientes, venta S00005 y variantes; sin correspondencia acreditada con los módulos auxiliares | Mostrar S00005 como caso de Odoo; SO024 es el ejemplo y su ensayo se conserva por separado |
 | Fabricación, inventario y factura | IM-SGE-13 a 15 | EVIDENCIA DOCUMENTAL | PDF pp. 7–12 y 17: recorrido histórico; no ejecución en vivo aquí | Mostrar como evidencia documental y explicar límites; ver estado final |
 | Trazabilidad y exportación | IM-SGE-16, 21; RA3, RA4 | PARCIAL | PDF pp. 10–12; sin CSV acreditado de S00005 hacia los módulos auxiliares | Mostrar como evidencia documental y explicar límites; ver estado final |
-| Copia de seguridad | IM-COM-16 | PENDIENTE | No se aporta backup/restauración verificable de Odoo en este cierre | Mostrar como evidencia documental y explicar límites; ver estado final |
+| ERP configurado y copia de seguridad | IM-COM-16 | PARCIAL | Configuración documentada en el PDF (pp. 3-8 y 16-17) y procedimiento de copia (p. 19). Falta la copia de seguridad de Berme: no consta ninguna copia hecha ni restaurada. **[BERME: datos de la copia y de la restauración, o confirmar que no hay]** | Enseñar la p. 19 y decir que la copia no está registrada |
 
-Todo lo que falta, con casillas: `05_Odoo/CHECKLIST_ODOO_BERME.md`.
+Correspondencia de la lista histórica de tareas con el PDF: `05_Odoo/CHECKLIST_ODOO_BERME.md`, tabla inicial. La lista de casillas que sigue es del plan SO024, ya sustituido.
 
 ## 6. Proyecto Intermodular (común e integración)
 
 | Bloque | Requisitos | Estado | Evidencia | Cómo enseñarlo |
 |---|---|---|---|---|
-| Memoria técnica | IM-COM-18, 21 a 29 | PARCIAL (faltan el punto 4, Odoo, y el 9, reparto real e IA) | `06_Intermodular/memoria/MEMORIA.md` | — |
+| Memoria técnica | IM-COM-18, 21 a 29 | PARCIAL (versión de entrega; faltan los campos [EQUIPO], [OMAR], [ÁLVARO] y [BERME] del punto 9: reparto real y uso de la IA de cada persona) | `06_Intermodular/memoria/MEMORIA.md` | — |
 | Manual de demostración | IM-COM-19, 32 | PARCIAL (ERP documental, sin ejecución en vivo ni trazabilidad entre sistemas) | `06_Intermodular/manuales/MANUAL_DEMOSTRACION.md` | Ensayarlo entero al menos una vez |
 | Documentación reproducible | IM-COM-05 | OK | `06_Intermodular/manuales/MANUAL_INSTALACION.md`, seguido el 13/11 en un clon nuevo y una base nueva (`06_Intermodular/evidencias/regresion-final/08_manual_instalacion/`); `README.md` | — |
-| Presentación | IM-COM-20 | PARCIAL | Guion vigente: `06_Intermodular/defensa/PRESENTACION.md`. El `.pptx` anterior se conserva como borrador histórico | Usar el guion Markdown, no las afirmaciones antiguas del PowerPoint |
-| Repositorio publicado | IM-COM-02, 15 | OK (documentado) | `main`: cierre publicado mediante la PR #2 (`4a25d5a`); revisión posterior exclusivamente documental | Enseñar las PR y el historial con las aportaciones de los tres |
+| Presentación | IM-COM-20 | PARCIAL | Guion vigente: `06_Intermodular/defensa/PRESENTACION.md`, actualizado con S00005. El `.pptx` tiene todavía el contenido anterior a S00005 y contradice el guion. **[EQUIPO: corregirlo diapositiva a diapositiva o retirarlo]** | Usar el guion Markdown, no las afirmaciones antiguas del PowerPoint |
+| Repositorio publicado | IM-COM-02, 15 | OK (documentado) | `main`: cierre publicado mediante la PR #2 (`4a25d5a`) y revisión documental con la PR #3 (`372f811`). La historia publicada se reescribió el 13/11 (`06_Intermodular/EQUIVALENCIAS_COMMITS.md`) | Enseñar las PR y el historial con las aportaciones de los tres |
 | Sin credenciales y datos ficticios | IM-COM-03, 04 | OK | `.gitignore`; búsqueda de las claves de las pruebas en las evidencias y la documentación (entonces `pruebas/` y `docs/`): 0 coincidencias (`06_Intermodular/evidencias/regresion-final/README.md`). **[DUDA PARA EL PROFESOR (D12): cómo se le dan las contraseñas de demostración]** | — |
 | Modelo de datos común | IM-ITG-09 a 15 | PARCIAL (sin correspondencia de S00005 acreditada) | `06_Intermodular/memoria/MEMORIA.md` §6; `06_Intermodular/SO024/caso-comun-SO024.md`; `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md` | Distinguir el modelo del ensayo de la falta de correspondencia acreditada de S00005 |
 | Ensayo histórico SO024 PROVISIONAL, no S00005 | IM-ITG-04, 16, 18 | PROVISIONAL | `06_Intermodular/evidencias/regresion-final/06_so024_provisional/00_cadena.txt` (de principio a fin, 13/11). No acredita S00005; los siete acuerdos del plan SO024 ya no son una obligación de entrega. | Mostrar el PDF de S00005 y reconocer que no hay prueba de ese pedido en todos los módulos |
 | Frontera ERP/auxiliar y ampliaciones productivas | IM-ITG-06 | OK (redactada) | `06_Intermodular/memoria/MEMORIA.md` §2.3 y §2.4 | Explicarlo en el cierre |
-| Reparto real | IM-COM-29, 33 | PENDIENTE | `06_Intermodular/memoria/MEMORIA.md` §9 (datos de Git y huecos). **[PENDIENTE (los tres): el reparto real y el uso de la IA]** | Cada uno explica lo suyo y lo de otro |
+| Reparto real | IM-COM-29, 33 | PARCIAL | `06_Intermodular/memoria/MEMORIA.md` §9: datos de Git (113/25/9 y 1 de «t»), declaración de la IA de Omar y huecos. **[EQUIPO: completar el reparto real y el uso de la IA de cada persona]** | Cada uno explica lo suyo y lo de otro |
 | Datos de integración | IM-COM-17 | PARCIAL (no hay exportación acreditada de S00005 desde Odoo) | `03_PSP/pruebas/custom40.csv`, `03_PSP/datos/`, `04_Python/entrada_acc/`, `03_PSP/evidencias/so024_provisional/SO024_PROVISIONAL_fabricacion.csv` | — |
 
 ## 7. Ampliaciones (no obligatorias)
@@ -113,5 +113,5 @@ Todo lo que falta, con casillas: `05_Odoo/CHECKLIST_ODOO_BERME.md`.
 | Panel de administración (Álvaro) | `03_node/02_npm_test_desechable.txt` (23/23); `01_Interfaces/evidencias/tienda/capturas-2026-11-13/panel_*.png`; `01_Interfaces/evidencias/panel-admin/` (11/11) | Ídem |
 | Reparto | `01_sql/07_sql_reparto_con23.txt` (37/37), `05_web/05_recorrido_reparto.txt` (29/29); capturas en `01_Interfaces/evidencias/reparto-y-correo/` | Ídem |
 | Recibo con Resend y Ethereal | 7 + 7 pruebas simuladas dentro de `03_test_tienda.txt`; Ethereal sin red y sin respuesta 5/5 y 5/5 (`05_web/08_*`, `09_*`); compra real contra Ethereal con datos ficticios 16/16 (`05_web/07_ethereal_real.txt`); capturas y datos en `01_Interfaces/evidencias/correo-ethereal/` | Ídem |
-| 100 modelos, colores, bloque de compra y probador | `05_web/01_mejoras.txt` (81/81); contraste 212/212 (12/11, informe de integración). **[REVISIÓN (Álvaro) en la PR: la adaptación de su paleta]** | Ídem |
-| Portal del trabajador y login único (Berme) | `03_node/04_test_portal.txt` (24/24), `01_sql/08_sql_portal.txt` (50/50), `05_web/06_edge_portal.txt` (82/82, axe 0); capturas en `01_Interfaces/evidencias/portal-trabajador/capturas/`. **[REVISIÓN (Berme) en la PR: los cambios en sus archivos]** | Entrar en `login.html` como `admin.demo`, `taller.demo` y `tienda.demo`; avanzar un pedido en el portal y verlo en la auditoría del panel |
+| 100 modelos, colores, bloque de compra y probador | `05_web/01_mejoras.txt` (81/81); contraste 212/212 (12/11, informe de integración). **[ÁLVARO: confirmar si da por buena la adaptación de su paleta]** | Ídem |
+| Portal del trabajador y login único (Berme) | `03_node/04_test_portal.txt` (24/24), `01_sql/08_sql_portal.txt` (50/50), `05_web/06_edge_portal.txt` (82/82, axe 0); capturas en `01_Interfaces/evidencias/portal-trabajador/capturas/`. **[BERME: revisar y confirmar los cambios en sus archivos]** | Entrar en `login.html` como `admin.demo`, `taller.demo` y `tienda.demo`; avanzar un pedido en el portal y verlo en la auditoría del panel |

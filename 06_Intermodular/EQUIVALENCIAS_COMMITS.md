@@ -27,8 +27,8 @@ Las evidencias anteriores a esa hora (`06_Intermodular/evidencias/regresion-fina
 | `39b8b7c` | `8cd8aeb` | main | Ivan Bermejo | docs: documentar los modulos y el arranque de NOVA |
 | `43605eb` | `9ff33b0` | main | Ivan Bermejo | docs: preparar la verificacion de la integracion |
 | `654ad8b` | `a52341e` | main | Ivan Bermejo | feat(server): add Odoo order connector and order creation routes |
-| `9cb42c7` | `a52341e` | main | Ivan Bermejo | feat(server): add Odoo order connector and order creation routes |
-| `67d6cf0` | `b8e5fe1` | main | Ivan Bermejo | feat(interfaces): add worker panel pages and API routes |
+| `9cb42c7` | `a52341e` (cherry-pick en main); original en `feature/berme`: `c24a27e` | main y feature/berme | Ivan Bermejo | feat(server): add Odoo order connector and order creation routes |
+| `67d6cf0` | `b8e5fe1` (cherry-pick en main); original en `feature/berme`: `b5a02ce` | main y feature/berme | Ivan Bermejo | feat(interfaces): add worker panel pages and API routes |
 | `7341001` | `b8e5fe1` | main | Ivan Bermejo | feat(interfaces): add worker panel pages and API routes |
 | `1682935` | `d8678b2` | feature/berme | Ivan Bermejo | test(java): add Swing window test results and notes |
 | `f2ea8bd` | `e352e0d` | main | Ivan Bermejo | test(web): comprobar enlaces y recursos locales |

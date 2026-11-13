@@ -4,7 +4,7 @@ Decisión del equipo del 13/11/2026, documentada después de publicar main `4a25
 
 ## Evidencia y alcance
 
-La fuente es el [PDF original de Berme](../odoo/documentacion/Odoo-NOVA-Sneakers.pdf), que se conserva sin cambios, junto con sus capturas y autoría. Sus páginas 10–12 documentan la venta S00005, la fabricación WH/MO/00002, la entrega WH/OUT/00005 y la factura INV/2026/00001. La venta muestra 40 pares a 89 €/par: 3.560 € sin IVA y 4.307,60 € con IVA. Las variantes y precios posteriores del producto se muestran en otros momentos del PDF; no se trasladan a esa venta.
+La fuente es el [PDF original de Berme](../odoo/documentacion/Odoo-NOVA-Sneakers.pdf), que se conserva sin cambios, junto con sus capturas y autoría. Sus páginas 10–12 documentan la venta S00005, la fabricación WH/MO/00002, la entrega WH/OUT/00005 y la factura INV/2026/00001. La venta muestra 40 pares de Runner X, en una sola línea y sin talla, a 89 €/par: 3.560 € sin IVA y 4.307,60 € con IVA (p. 10). Todas las capturas muestran el precio de 89 €; el de 99,90 € solo lo dice el texto del PDF, como un cambio posterior (pp. 7 y 17), y no se traslada a esa venta. Las variantes por talla (p. 16) también son posteriores. La correspondencia documental con los datos de PostgreSQL (qué coincide y qué no) está en `memoria/MEMORIA.md` §6.1.
 
 «Real documentado» significa que el pedido figura en la evidencia del entorno Odoo de Berme. No acredita una venta comercial externa ni una ejecución comprobada en nuestro entorno actual.
 
@@ -26,7 +26,7 @@ Se conservan las pruebas históricas rotuladas SO024 PROVISIONAL: son ensayos co
 
 Elegir S00005 resuelve qué caso de Odoo se presenta, pero **no demuestra la trazabilidad del mismo pedido entre todos los sistemas**. Los requisitos que la exigen continúan parciales. Coincidir en 40 pares o en el nombre del cliente no acredita equivalencia entre S00005 y CUSTOM-40.
 
-No se cambian SKU, identificadores, bases, datos de prueba ni código. Las diferencias de Runner X y NOVA Velocity siguen documentadas en [la revisión técnica](SO024/INTEGRACION_ODOO_SO024.md). El conector NOVA → Odoo no se ha verificado contra una instalación real accesible desde este entorno y `pedidos.js` continúa sin montarse.
+No se cambian SKU, identificadores, bases, datos de prueba ni código. Las diferencias de Runner X y NOVA Velocity siguen documentadas en [la revisión técnica](SO024/INTEGRACION_ODOO_SO024.md). El conector NOVA → Odoo no se ha verificado contra una instalación real accesible desde este entorno y `pedidos.js` continúa sin montarse; el PDF documenta pruebas de Berme en su entorno con una versión anterior del servidor (pp. 13-15).
 
 ## Frase para la defensa
 

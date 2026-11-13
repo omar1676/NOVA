@@ -1,6 +1,6 @@
 # NOVA Sneakers · Guía de defensa
 
-13/11/2026 · Para Omar, Álvaro y Berme (2.º DAM) · rama `integracion/candidata-2`
+13/11/2026 · Para Omar, Álvaro y Berme (2.º DAM) · rama `main` (código de `4f09742`)
 
 > Los tres tenéis que poder contestar sobre **todo**. El enunciado lo dice así: «los roles sirven para organizar el trabajo; no justifican que un integrante desconozca el resto de la solución. La defensa podrá incluir preguntas individuales» (IM-COM-09). Y Acceso a Datos añade: «Todos los miembros deben comprender el modelo y poder explicar consultas representativas» (AD-135).
 >
@@ -16,8 +16,8 @@
 
 **Convenciones**
 
-- Las rutas de código y de resultados son relativas a la raíz del repositorio, rama `integracion/candidata-2` (las líneas se han comprobado con el código de `1bcbb10`, el que pasó la regresión del 13/11). Si alguien toca un archivo, las líneas pueden moverse: repasad las citas la víspera.
-- Los resultados de las pruebas están en `06_Intermodular/evidencias/regresion-final/` (regresión completa del 13/11, con la hora y el entorno de cada batería).
+- Las rutas de código y de resultados son relativas a la raíz del repositorio, rama `main`. El código entregado es el de `4f09742`; las líneas se comprobaron con el de `1bcbb10` (antes `8cdc08c`, el de la regresión histórica) y se actualizaron en los archivos que cambiaron después. Si alguien toca un archivo, las líneas pueden moverse: repasad las citas la víspera.
+- Los resultados de las pruebas del código entregado están en `06_Intermodular/evidencias/cierre-entrega-20261113/`. Los de la regresión histórica del 13/11, sobre un árbol anterior, están en `06_Intermodular/evidencias/regresion-final/`, con la hora y el entorno de cada batería. Las evidencias citan los identificadores de commit anteriores a la reescritura del 13/11 (`06_Intermodular/EQUIVALENCIAS_COMMITS.md`).
 - Las citas de los archivos modificados se han actualizado durante la limpieza basada en `a6151db`; las evidencias conservan sus resultados originales.
 - `archivo:12-20` significa «líneas 12 a 20».
 - **[PENDIENTE (quién)]**: no hay evidencias o falta hacerlo. **[PROVISIONAL]**: funciona con los datos de SO024 inventados. **[POR DECIDIR (los tres)]**: decisión del equipo. **[DUDA PARA EL PROFESOR (Dn)]**: pregunta abierta de la matriz de rúbricas.
@@ -71,11 +71,11 @@ PostgreSQL --15_exportar_fabricacion.sql (1 CSV)--> PSP: ProcesadorPedidosCustom
                                                      --> salidas/ficha_taller_<ref>.txt y registro_psp.txt
 PostgreSQL --16_exportar_csv_dashboard.sql (5 CSV)--> 04_Python/entrada_acc/
                                                      --> main.py (consola) y app_dashboard.py (Streamlit, cada 60 s)
-Odoo (pedido de venta, fabricación, entrega, factura) ............................ [PENDIENTE (Berme)]
+Odoo: S00005 documental (venta, fabricación, entrega, factura; PDF de Berme, pp. 10-12) .. sin conexión verificada
 (servidor-admin/odoo.js, el conector de Berme, está desactivado: sin ODOO_* no llama a nada)
 ```
 
-**Cifras que hay que saber** (regresión completa del 13/11 sobre el código final, salvo donde se indica; todo en `06_Intermodular/evidencias/regresion-final/`)
+**Cifras que hay que saber.** En el cierre, sobre el código entregado (`4f09742`), se repitieron SQL (123/0/1), `PruebasRubrica` (47/47), `PruebasPsp` (27/27), el analizador (8/8), el comprobador de PSP, `unittest` (265) y Node (23/39/24), además de 9 controles en Edge (`06_Intermodular/evidencias/cierre-entrega-20261113/`). El resto de esta tabla es de la regresión histórica del 13/11 (rama anterior), y la columna «Dónde» apunta a `06_Intermodular/evidencias/regresion-final/`
 
 | Qué | Resultado | Dónde |
 |---|---|---|
@@ -352,7 +352,7 @@ La primera tiene una fila por línea, con los datos de su pedido, cliente, model
 Veinte, de K01 a K20, cada uno con su fórmula, la población que usa y su origen (`kpis.py:67-166`). Ejemplo: K09, el ticket medio, es el importe confirmado entre los pedidos confirmados, y «se divide entre pedidos, nunca entre líneas» (`kpis.py:87-88`).
 
 **P5.8 ¿Qué es una «venta»?**
-Se calculan tres criterios: todos los pedidos registrados, los no cancelados (el criterio del panel Java) y los confirmados en adelante (el de la rúbrica de Python) (`analiticas.py:155-181`). **[POR DECIDIR (los tres): cuál es el oficial y si los importes llevan IVA]** (`config.py:156`: «pendiente de confirmar»).
+Se calculan tres criterios: todos los pedidos registrados, los no cancelados (el criterio del panel Java) y los confirmados en adelante (el de la rúbrica de Python) (`analiticas.py:155-181`). **[EQUIPO: elegir el oficial, si se quiere unificar; hoy los importes van sin IVA y Odoo usa el 21 %]** (`config.py:156`: «pendiente de confirmar»).
 
 **P5.9 ¿Cómo sabéis que Python cuadra con PostgreSQL?**
 Con la conciliación: tres consultas SQL de Acceso a Datos (P-A, P-B y P-C, en `entrada_acc/conciliacion_sql/`) se comparan con los KPIs (`kpis.py:170` en adelante). Con la exportación del 16 salen calidad 100 %, 12 pedidos, 90 pares y 10.686,45 €, igual que en SQL. Además está el caso N: tres consultas más de `12_consultas_panel.sql` (`:244-289`; N-1, ingresos de un mes; N-2, la matriz talla × modelo; N-3, clientes únicos) se contrastan con pandas en `conciliacion.contrastar_caso_n` (`conciliacion.py:176`): 17 de 17 cifras coinciden (`04_Python/conciliacion_sql.md`).
@@ -379,7 +379,7 @@ Primero por la urgencia (alta: se puede dejar sin servir demanda que ya existe; 
 
 ### Limitaciones que conviene decir antes de que pregunten
 
-- Los CSV de `entrada_acc` son de PRUEBA (`entrada_acc/ORIGEN.txt`): una base reconstruida con los scripts el 9/11, no la base del equipo. **[PENDIENTE (los tres): exportar la base del equipo y poner «Tipo: REAL» antes de la defensa.]**
+- Los CSV de `entrada_acc` son de PRUEBA (`entrada_acc/ORIGEN.txt`): una base reconstruida con los scripts el 9/11, no la base del equipo. **Límite declarado:** se entrega así, como PRUEBA; no hay exportación REAL de la base del equipo (`06_Intermodular/ESTADO_ENTREGA_FINAL.md`).
 - Con esos datos (6 clientes y 12 pedidos de un solo día), RFM, KMeans, la predicción y el bootstrap salen NO CALCULABLE. Se demuestran con los sintéticos (900 pedidos, 40 clientes y 12 modelos).
 - El informe técnico está en `04_Python/memoria/INFORME_TECNICO_PYTHON.md`; la exportación REAL y ciertas pruebas manuales siguen pendientes allí; no hace falta crear un SO024 oficial.
 
@@ -617,7 +617,7 @@ Los filtros (periodo, modelo, talla, tipo, estado y cliente) se guardan en `st.s
 
 ### Limitaciones que conviene decir antes de que pregunten
 
-- La exportación de `entrada_acc` es de PRUEBA, así que la procedencia sale «PRUEBA» y no «ACC · REAL» (PY-130 y PY-138). **[PENDIENTE (los tres): la exportación REAL.]**
+- La exportación de `entrada_acc` es de PRUEBA, así que la procedencia sale «PRUEBA» y no «ACC · REAL» (PY-130 y PY-138). **Límite declarado:** no hay exportación REAL.
 - R1–R3 se han probado con pruebas automáticas o con CSV editados a mano (capturas `04_Python/evidencias/dashboard/refresco_1_sin_cambios.png` y `refresco_2_pedido_nuevo.png`, del 10/11), no con un alta real en Acceso a Datos durante la sesión. R6 (filtrado cruzado) tiene su prueba automática: `test_filtrado_cruzado_R6` (`tests/test_dashboard.py:275`).
 - El caso K está hecho: el 13/11 el dashboard estuvo abierto en Edge tres ciclos de 60 s sin tocarlo, con las cifras iguales y el registro de cada comprobación (`04_Python/evidencias/dashboard/caso_k_*`). Con datos de PRUEBA.
 
@@ -672,7 +672,7 @@ La instancia o máquina virtual, una copia o backup o evidencias suficientes par
 
 - `05_Odoo/recorrido-manual-odoo.md:1-20` — borrador de un recorrido manual PostgreSQL → CSV → Odoo. Dice expresamente que el 10/11 no se pudo comprobar Odoo desde este ordenador.
 - `odoo/documentacion/Odoo-NOVA-Sneakers.pdf`, pp. 10–12 — evidencia documental de S00005, fabricación, entrega y factura. `06_Intermodular/CASO_COMUN_S00005.md` distingue esa evidencia de los ensayos auxiliares.
-- `servidor-admin/odoo.js` (de Berme, integrado con su autoría en `a52341e`): un conector con la API JSON-2 de Odoo que lee la clave de `ODOO_API_KEY` y espera como mucho 15 s (`odoo.js:33`). Está **desactivado** mientras falte `ODOO_URL`, `ODOO_DB` u `ODOO_API_KEY` (`odoo.js:3-23`), y la consola lo dice al arrancar (`servidor.js:473`). Es código; no se ha probado contra ningún Odoo. La única prueba es que se queda desactivado sin configuración (`test:portal`).
+- `servidor-admin/odoo.js` (de Berme, integrado con su autoría en `a52341e`): un conector con la API JSON-2 de Odoo que lee la clave de `ODOO_API_KEY` y espera como mucho 15 s (`odoo.js:33`). Está **desactivado** mientras falte `ODOO_URL`, `ODOO_DB` u `ODOO_API_KEY` (`odoo.js:3-23`), y la consola lo dice al arrancar (`servidor.js:473`). Es código; en la versión entregada no se ha verificado contra ningún Odoo desde este entorno (el PDF documenta pruebas de Berme con una versión anterior, pp. 13-15). La única prueba aquí es que se queda desactivado sin configuración (`test:portal`).
 - `servidor-admin/pedidos.js` (de Berme): rutas para crear pedidos y enviarlos a Odoo. **No se montan** (`pedidos.js:1-11` explica por qué). No se activan para esta entrega.
 
 ### Ejercicios
@@ -732,12 +732,12 @@ De la API `/api/admin/...` del servidor (`01_Interfaces/admin/script.js:62-100`)
 
 ### Limitaciones que conviene decir antes de que pregunten
 
-- **[PENDIENTE (los tres): la prueba de usabilidad con personas (RA4, CE i)].** El procedimiento está preparado en `01_Interfaces/memoria/PROCEDIMIENTO_USABILIDAD.md`. La estrategia de pruebas (RA8) está en `01_Interfaces/memoria/ESTRATEGIA_PRUEBAS_INTERFACES.md`.
+- **Límite declarado: no se ha hecho la prueba de usabilidad con personas (RA4, CE i).** El procedimiento está preparado en `01_Interfaces/memoria/PROCEDIMIENTO_USABILIDAD.md`. La estrategia de pruebas (RA8) está en `01_Interfaces/memoria/ESTRATEGIA_PRUEBAS_INTERFACES.md`.
 - El formulario Custom no pide la fecha objetivo ni enseña un número de pedido (el enunciado dice «Puede mostrarse o simularse»).
 - Runner X, el modelo de SO024, no está en el catálogo de la web.
 - Por debajo de 761 px se oculta el enlace «Nuestra visión» del menú (`css/inicio.css:1362-1366`; la regla de 370 px, `:534-536`, repite lo mismo); la sección sigue ahí bajando por la página.
 - En móvil, axe avisa de `scrollable-region-focusable` en las tablas del panel; el panel y el portal cargan Lucide (y el panel, Chart.js) de internet.
-- Las baterías de la web se repitieron el 13/11 sobre el código final: 136/136, 114/114, 81/81 y la compra 139/139 (`06_Intermodular/evidencias/regresion-final/05_web/`). Lighthouse es del 11/11.
+- Las baterías de la web (136/136, 114/114, 81/81 y la compra 139/139) son de la regresión histórica del 13/11, sobre un árbol anterior (`06_Intermodular/evidencias/regresion-final/05_web/`); en el cierre solo se repitieron 9 controles en Edge (`06_Intermodular/evidencias/cierre-entrega-20261113/web-navegador.json`). Lighthouse es del 11/11.
 
 ---
 
@@ -804,7 +804,7 @@ El rol de la aplicación (administrador, comercial o trabajador) es del negocio 
 ### Preguntas probables
 
 **P14.1 ¿Cómo os organizasteis con Git?**
-Con ramas por persona y tarea (`feature/omar-*`, `feature/alvaro` y `feature/berme`), una rama de integración donde se fusionan (`b3d5680`, `492c4e8` y `8c3d874`), la candidata final `integracion/candidata-2` y worktrees para tener varias ramas abiertas a la vez en carpetas distintas.
+Con ramas por persona (hoy en GitHub: `feature/omar`, `feature/alvaro` y `feature/berme`), fusiones por persona (`b3d5680`, Omar; `492c4e8`, Álvaro, 25 commits; `8c3d874`, Berme), ramas de integración locales y la publicación en `main` con pull requests: `9cde323` (PR #1), `5fe83f5`, `4a25d5a` (PR #2) y `372f811` (PR #3). Las ramas de integración y de limpieza que citan las evidencias (`integracion/candidata-2`, `refactor/limpieza-final-nova`) fueron locales y no se publicaron con ese nombre. Para tener varias ramas abiertas a la vez se usaron worktrees. **[EQUIPO: confirmar si se siguen usando worktrees]**
 
 **P14.2 ¿Qué es un worktree?**
 Otra carpeta de trabajo del mismo repositorio con otra rama. Comparten el historial: en un worktree, `.git` es un archivo que apunta a la carpeta `.git/worktrees/...` del repositorio principal. Sirve para no tener que cambiar de rama con trabajo a medias (RT-GIT-01). `git worktree list` los enseña todos.
@@ -813,7 +813,7 @@ Otra carpeta de trabajo del mismo repositorio con otra rama. Comparten el histor
 Une dos historias. Si las dos ramas han avanzado, crea un commit de fusión con dos padres. Los commits de la rama fusionada no cambian: conservan su autor y su fecha.
 
 **P14.4 ¿Cómo se ve quién hizo qué?**
-Con `git log`, `git shortlog -sn` y `git blame`. Por ejemplo, `git log 492c4e8^1..492c4e8^2` lista los 25 commits que entraron con esa fusión, todos con su autor original (`Alvarobaz`), aunque el commit de fusión lo firme otra persona (`omar1676`). Lo mismo pasa con los dos commits del portal de Berme: entraron con `git cherry-pick -x` (`b8e5fe1` y `a52341e`), así que conservan su autor y su fecha del 11/11 y llevan la línea «cherry picked from commit …». Las cifras 74/25/8 pertenecen a un corte anterior. El historial publicado conserva las aportaciones de `omar1676`, `Alvarobaz` e `Ivan Bermejo`; las cifras actuales se consultan con `git shortlog -sn main`. El número de commits no mide la contribución: **[PENDIENTE (los tres): el reparto real, punto 9 de la memoria]**.
+Con `git log`, `git shortlog -sn` y `git blame`. Por ejemplo, `git log 492c4e8^1..492c4e8^2` lista los 25 commits que entraron con esa fusión, todos con su autor original (`Alvarobaz`), aunque el commit de fusión lo firme otra persona (`omar1676`). Lo mismo pasa con los dos commits del portal de Berme: entraron con `git cherry-pick -x` (`b8e5fe1` y `a52341e`), así que conservan su autor y llevan la línea «cherry picked from commit …» (sus originales, `b5a02ce` y `c24a27e`, siguen en `origin/feature/berme`). Las fechas no sirven: la historia publicada se reescribió el 13/11 y cambiaron fechas e identificadores, no autores (`06_Intermodular/EQUIVALENCIAS_COMMITS.md`). `git shortlog -sn main` da 113 commits de `omar1676` (7 son fusiones), 25 de `Alvarobaz`, 9 de `Ivan Bermejo` y 1 del autor «t». El número de commits no mide la contribución, y el autor de un commit no prueba quién hizo el trabajo: **[EQUIPO: el reparto real, punto 9 de la memoria]**.
 
 **P14.5 ¿Qué no se sube y por qué?**
 `.env`, `conexion.properties`, los `.class`, las salidas, los logs y el driver JDBC (`.gitignore:5-8`, `:11-14`, `:24`, `:37` y `:40`). Las contraseñas de las cuentas de la base se piden por teclado al ejecutar los scripts (`17_usuario_java.sql:35`) y en el repositorio solo hay plantillas vacías (`servidor-admin/.env.example` y `02_Acceso_Datos/java/conexion.properties.ejemplo`).
@@ -840,7 +840,8 @@ El cierre de código está en `main` desde la PR #2 (`4a25d5a`). Esta revisión 
 
 ### Limitaciones que conviene decir antes de que pregunten
 
-- En el historial solo hay una fusión hecha con Pull Request (`9cde323`); las demás se hicieron en local.
+- En `main` hay fusiones hechas con pull request (`9cde323`, PR #1; `4a25d5a`, PR #2; y `372f811`, PR #3; `5fe83f5` lleva «(#1)» en el mensaje). Las fusiones por persona (`b3d5680`, `492c4e8` y `8c3d874`) se hicieron en local.
+- La historia publicada se reescribió el 13/11 con *force-push* (desde la cuenta `ivanberme-crypto`, según el registro de GitHub): se conservaron archivos, autores y mensajes, y cambiaron fechas e identificadores. El motivo: **[EQUIPO: explicar]**.
 - El reparto del plan del equipo (RT) no coincide del todo con quién hizo cada cosa. El punto 9 de la memoria tiene que contarlo como fue, sin inventar.
 - Contar commits no mide el trabajo: hay revisión, pruebas y trabajo fuera del repositorio (Odoo).
 
@@ -891,7 +892,7 @@ La trazabilidad del mismo pedido entre Odoo y los módulos auxiliares sigue parc
 
 ## 16. Portal del trabajador (ampliación, de Berme)
 
-El portal es de Berme: sus dos commits (`b8e5fe1`, las páginas y las rutas; `a52341e`, el conector de Odoo y las rutas de pedidos) entraron con `cherry-pick -x` y conservan su autor y su fecha del 11/11. Se integró en `servidor-admin`, detrás del login único y con el rol `portal_trabajador` del script 23. **Es una ampliación:** ningún enunciado lo pide, y el inventario y la fabricación «de verdad» siguen siendo de Odoo.
+El portal es de Berme: sus dos commits (`b8e5fe1`, las páginas y las rutas; `a52341e`, el conector de Odoo y las rutas de pedidos) entraron con `cherry-pick -x` desde `b5a02ce` y `c24a27e` (`origin/feature/berme`) y conservan su autor; las fechas son las reescritas el 13/11. Se integró en `servidor-admin`, detrás del login único y con el rol `portal_trabajador` del script 23. **Es una ampliación:** ningún enunciado lo pide, y el inventario y la fabricación «de verdad» siguen siendo de Odoo.
 
 ### Preguntas probables
 
