@@ -280,11 +280,11 @@ def segmentar_clientes(pedidos_unicos, clientes, fecha_corte):
     tabla_rfm = rfm(pedidos_unicos, clientes, fecha_corte)
     resumen = resumen_segmentos(tabla_rfm)
     # kmeans_clientes devuelve tres cosas: la eleccion de k, los grupos y la tabla RFM con la columna cluster
-    seleccion_k, clusters, tabla_rfm = kmeans_clientes(tabla_rfm)
+    seleccion_k, clusters, rfm_con_cluster = kmeans_clientes(tabla_rfm)
     return {
-        "rfm_clientes": tabla_rfm,
+        "rfm_clientes": rfm_con_cluster,
         "rfm_segmentos": resumen,
         "kmeans_seleccion_k": seleccion_k,
         "kmeans_clusters": clusters,
-        "rfm_frente_a_kmeans": comparar_rfm_kmeans(tabla_rfm),
+        "rfm_frente_a_kmeans": comparar_rfm_kmeans(rfm_con_cluster),
     }

@@ -1,5 +1,6 @@
 """
-Filtros combinables (apartados 6.12 y 6.16), para el dashboard y la consola.
+Filtros combinables del dashboard (apartados 6.12 y 6.16). main.py no filtra:
+sus CSV son siempre de todos los datos validos.
 
 Seis filtros: periodo, modelo, talla, tipo de pedido, estado del pedido y
 cliente (su id_cliente). Un filtro vacio (None o lista vacia) no restringe nada.

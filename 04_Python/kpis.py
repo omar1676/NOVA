@@ -133,11 +133,11 @@ def calcular_kpis(pedidos, tabla_abc, tabla_tallas, tabla_stock, tabla_meses):
 def variacion_mensual(tabla_meses):
     """Variacion del importe de venta del ultimo mes frente al anterior. Hacen falta 2 meses."""
     formula = "(importe del último mes / importe del mes anterior - 1) x 100"
-    if es_no_calculable(tabla_meses) or len(tabla_meses) < 2:
-        if es_no_calculable(tabla_meses):
-            meses = 0   # no hay ningun mes con ventas
-        else:
-            meses = len(tabla_meses)
+    if es_no_calculable(tabla_meses):
+        meses = 0   # no hay ningun mes con ventas
+    else:
+        meses = len(tabla_meses)
+    if meses < 2:
         return kpi_no_calculable("K19", "Variación mensual del importe", "%", formula, "venta",
                                  "ventas_por_periodo", f"hacen falta 2 meses con ventas y hay {meses}")
     ultimo = tabla_meses.iloc[-1]

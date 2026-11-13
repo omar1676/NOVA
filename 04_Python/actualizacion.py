@@ -237,12 +237,8 @@ def anotar_ciclo(estado, operacion, archivo_registro=None):
         validas = 0
     else:
         incidencias = resultado["incidencias"]
-        leidas = 0
-        for tabla in resultado["datos"].values():
-            leidas += len(tabla)
-        validas = 0
-        for tabla in resultado["validos"].values():
-            validas += len(tabla)
+        leidas = sum(len(tabla) for tabla in resultado["datos"].values())
+        validas = sum(len(tabla) for tabla in resultado["validos"].values())
     registro.anotar(
         archivo_registro or config.ARCHIVO_REGISTRO,
         fecha_hora=estado["comprobado"].strftime(config.FORMATO_FECHA),
