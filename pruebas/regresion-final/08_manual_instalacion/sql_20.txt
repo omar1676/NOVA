@@ -1,0 +1,70 @@
+===== Tienda web: cuentas de cliente, compras y usuario tienda_nova =====
+
+Contrasena para tienda_nova (la que ira en servidor-admin/.env): BEGIN
+CREATE TABLE
+REVOKE
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+REVOKE
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+ALTER ROLE
+GRANT ROLE
+psql:acceso-datos/sql/20_tienda_web.sql:480: NOTICE:  role "tienda_nova" has already been granted membership in role "tienda_web" by role "postgres"
+COMMIT
+
+--- Comprobacion: tienda_nova solo puede pasar a tienda_web y no hereda
+    rol     | hereda_permisos | puede_set_role 
+------------+-----------------+----------------
+ tienda_web | f               | t
+(1 fila)
+
+
+--- Comprobacion: sin SET ROLE, tienda_nova no lee nada ni compra (se esperan tres f)
+ lee_modelos | lee_pedidos | compra 
+-------------+-------------+--------
+ f           | f           | f
+(1 fila)
+
+
+--- Comprobacion: tienda_web no puede escribir en ninguna tabla de public (se espera 0)
+ tablas_en_las_que_puede_escribir 
+----------------------------------
+                                0
+(1 fila)
+
+
+--- Comprobacion: tienda_web no ve contrasenas ni datos internos (se esperan cinco f)
+ lee_cuentas | lee_hash_trabajadores | lee_dni | lee_auditoria | lee_personalizacion 
+-------------+-----------------------+---------+---------------+---------------------
+ f           | f                     | f       | f             | f
+(1 fila)
+
+
+--- Comprobacion: tienda_web no llama directamente a las funciones originales (se esperan cinco f)
+ realizar_compra | anadir_linea | descontar_stock | login_trabajadores | crear_usuario 
+-----------------+--------------+-----------------+--------------------+---------------
+ f               | f            | f               | f                  | f
+(1 fila)
+
+
+--- Comprobacion: las cinco funciones de la tienda (tienda_web t, PUBLIC f)
+        funcion         | tienda_web | cualquiera | security_definer | fija_search_path 
+------------------------+------------+------------+------------------+------------------
+ cancelar_compra_web    | t          | f          | t                | t
+ confirmar_compra_web   | t          | f          | t                | t
+ crear_compra_web       | t          | f          | t                | t
+ iniciar_sesion_cliente | t          | f          | t                | t
+ registrar_cliente      | t          | f          | t                | t
+(5 filas)
+
+
+===== FIN =====

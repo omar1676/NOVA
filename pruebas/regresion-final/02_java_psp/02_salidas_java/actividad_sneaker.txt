@@ -1,0 +1,64 @@
+2026-11-13 01:01:51 | admin.demo | administrador | LOGIN | correcto | conectado como nova_admin
+2026-11-13 01:01:51 | tienda.demo | comercial | LOGIN | correcto | conectado como nova_comercial
+2026-11-13 01:01:51 | taller.demo | trabajador | LOGIN | correcto | conectado como nova_trabajador
+2026-11-13 01:01:51 | - | - | LOGIN | rechazado | usuario intentado admin.demo; Usuario o contrasena incorrectos
+2026-11-13 01:01:51 | tienda.demo | comercial | LOGIN | correcto | conectado como nova_comercial
+2026-11-13 01:01:51 | tienda.demo | comercial | CREAR PEDIDO | correcto | id_pedido 47, referencia PRUEBA-A-110189, 2 lineas
+2026-11-13 01:01:51 | tienda.demo | comercial | CONFIRMAR PEDIDO | correcto | id_pedido 47
+2026-11-13 01:01:52 | admin.demo | administrador | LOGIN | correcto | conectado como nova_admin
+2026-11-13 01:01:52 | tienda.demo | comercial | LOGIN | correcto | conectado como nova_comercial
+2026-11-13 01:01:52 | tienda.demo | comercial | CREAR PEDIDO | correcto | id_pedido 48, referencia PRUEBA-B-110189, 1 lineas
+2026-11-13 01:01:52 | tienda.demo | comercial | CONFIRMAR PEDIDO | rechazado | id_pedido 48; Stock insuficiente o producto no encontrado
+2026-11-13 01:01:52 | tienda.demo | comercial | CANCELAR PEDIDO | correcto | id_pedido 48
+2026-11-13 01:01:52 | taller.demo | trabajador | LOGIN | correcto | conectado como nova_trabajador
+2026-11-13 01:01:52 | taller.demo | trabajador | CANCELAR PEDIDO | correcto | id_pedido 47
+2026-11-13 01:01:52 | admin.demo | administrador | LOGIN | correcto | conectado como nova_admin
+2026-11-13 01:01:52 | tienda.demo | comercial | LOGIN | correcto | conectado como nova_comercial
+2026-11-13 01:01:52 | tienda.demo | comercial | CREAR PEDIDO | correcto | id_pedido 49, referencia PRUEBA-D-110189, 1 lineas
+2026-11-13 01:01:52 | admin.demo | administrador | LOGIN | correcto | conectado como nova_admin
+2026-11-13 01:01:52 | tienda.demo | comercial | LOGIN | correcto | conectado como nova_comercial
+2026-11-13 01:01:52 | admin.demo | administrador | LOGIN | correcto | conectado como nova_admin
+2026-11-13 01:01:52 | tienda.demo | comercial | LOGIN | correcto | conectado como nova_comercial
+2026-11-13 01:01:52 | tienda.demo | comercial | CANCELAR PEDIDO | correcto | id_pedido 49
+2026-11-13 01:01:52 | taller.demo | trabajador | LOGIN | correcto | conectado como nova_trabajador
+2026-11-13 01:01:52 | taller.demo | trabajador | CONSULTA PEDIDOS | correcto | 15 filas; cliente=null, modelo=null, estado=null, desde=null, hasta=null
+2026-11-13 01:01:52 | taller.demo | trabajador | CONSULTA PEDIDOS | correcto | 1 filas; cliente=6, modelo=null, estado=pendiente, desde=null, hasta=null
+2026-11-13 01:01:52 | taller.demo | trabajador | CONSULTA PEDIDOS | correcto | 3 filas; cliente=6, modelo=2, estado=null, desde=2026-10-14, hasta=2026-11-13
+2026-11-13 01:01:52 | taller.demo | trabajador | CONSULTA PEDIDOS | correcto | 15 filas; cliente=null, modelo=null, estado=null, desde=null, hasta=null
+2026-11-13 01:01:52 | tienda.demo | comercial | LOGIN | correcto | conectado como nova_comercial
+2026-11-13 01:01:52 | tienda.demo | comercial | CONSULTA PEDIDOS | correcto | 0 filas; cliente=null, modelo=null, estado=entregado, desde=2000-01-01, hasta=2000-01-02
+2026-11-13 01:01:52 | tienda.demo | comercial | VER AUDITORIA | rechazado | Acceso denegado: el rol comercial no puede ver la auditoría
+2026-11-13 01:01:52 | tienda.demo | administrador | VER AUDITORIA | rechazado | Acceso denegado: la base de datos no permite esta operación a tu rol (permission denied for table log_eventos)
+2026-11-13 01:01:52 | tienda.demo | comercial | LOGIN | correcto | conectado como nova_comercial
+2026-11-13 01:01:52 | taller.demo | trabajador | LOGIN | correcto | conectado como nova_trabajador
+2026-11-13 01:01:52 | taller.demo | trabajador | CONSULTA PEDIDOS | correcto | 15 filas; cliente=null, modelo=null, estado=null, desde=null, hasta=null
+2026-11-13 01:01:52 | taller.demo | trabajador | CONSULTA PEDIDOS | correcto | 1 filas; cliente=6, modelo=null, estado=pendiente, desde=null, hasta=null
+2026-11-13 01:01:52 | taller.demo | trabajador | CONSULTA PEDIDOS | correcto | 0 filas; cliente=null, modelo=null, estado=entregado, desde=2000-01-01, hasta=2000-01-02
+2026-11-13 01:01:52 | tienda.demo | comercial | LOGIN | correcto | conectado como nova_comercial
+2026-11-13 01:01:52 | tienda.demo | comercial | CREAR PEDIDO | correcto | id_pedido 50, referencia PRUEBA-H-110189, 1 lineas
+2026-11-13 01:01:52 | tienda.demo | comercial | CONFIRMAR PEDIDO | correcto | id_pedido 50
+2026-11-13 01:01:52 | tienda.demo | comercial | CONSULTA PEDIDOS | correcto | 1 filas; cliente=4, modelo=null, estado=confirmado, desde=null, hasta=null
+2026-11-13 01:01:52 | tienda.demo | comercial | CREAR PEDIDO | rechazado | referencia PRUEBA-H-110189, 1 lineas; Ese dato ya existe y no se puede repetir, por ejemplo la referencia del pedido o el nombre de usuario (duplicate key value violates unique constraint "pedidos_referencia_uq")
+2026-11-13 01:01:52 | admin.demo | administrador | LOGIN | correcto | conectado como nova_admin
+2026-11-13 01:01:52 | admin.demo | administrador | LOGIN | correcto | conectado como nova_admin
+2026-11-13 01:01:52 | admin.demo | administrador | CREAR USUARIO | correcto | usuario prueba.110189, rol comercial
+2026-11-13 01:01:52 | admin.demo | administrador | EXPORTAR USUARIOS JSON | correcto | 4 usuarios
+2026-11-13 01:01:52 | prueba.110189 | comercial | LOGIN | correcto | conectado como nova_comercial
+2026-11-13 01:01:52 | admin.demo | administrador | LOGIN | correcto | conectado como nova_admin
+2026-11-13 01:01:52 | admin.demo | administrador | CAMBIAR ROL | correcto | id_usuario 5 a trabajador
+2026-11-13 01:01:52 | admin.demo | administrador | EXPORTAR USUARIOS JSON | correcto | 4 usuarios
+2026-11-13 01:01:52 | admin.demo | administrador | DESACTIVAR USUARIO | correcto | id_usuario 5
+2026-11-13 01:01:52 | admin.demo | administrador | EXPORTAR USUARIOS JSON | correcto | 4 usuarios
+2026-11-13 01:01:52 | tienda.demo | comercial | LOGIN | correcto | conectado como nova_comercial
+2026-11-13 01:01:52 | tienda.demo | comercial | EXPORTAR USUARIOS JSON | rechazado | Acceso denegado: el rol comercial no puede gestionar usuarios
+2026-11-13 01:01:53 | admin.demo | administrador | LOGIN | correcto | conectado como nova_admin
+2026-11-13 01:01:53 | admin.demo | administrador | CONSULTA PEDIDOS | correcto | 11 filas; cliente=null, modelo=null, estado=pendiente, desde=null, hasta=null
+2026-11-13 01:01:53 | taller.demo | trabajador | LOGIN | correcto | conectado como nova_trabajador
+2026-11-13 01:01:53 | taller.demo | trabajador | CREAR PEDIDO | rechazado | referencia PRUEBA-P1-110189, 1 lineas; Acceso denegado: el rol trabajador no puede crear pedidos
+2026-11-13 01:01:53 | taller.demo | comercial | CREAR PEDIDO | rechazado | referencia PRUEBA-P2-110189, 1 lineas; Acceso denegado: la base de datos no permite esta operación a tu rol (permission denied for function realizar_compra)
+2026-11-13 01:01:53 | taller.demo | trabajador | LOGIN | correcto | conectado como nova_trabajador
+2026-11-13 01:01:53 | admin.demo | administrador | LOGIN | correcto | conectado como nova_admin
+2026-11-13 01:01:53 | tienda.demo | comercial | LOGIN | correcto | conectado como nova_comercial
+2026-11-13 01:01:53 | tienda.demo | administrador | CREAR USUARIO | rechazado | usuario intruso.110189, rol administrador; Acceso denegado: la base de datos no permite esta operación a tu rol (permission denied for function crear_usuario)
+2026-11-13 01:01:53 | admin.demo | administrador | LOGIN | correcto | conectado como nova_admin
+2026-11-13 01:01:53 | admin.demo | administrador | LOGOUT | correcto | 

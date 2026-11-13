@@ -1,0 +1,6 @@
+== Node. Inicio: 13/11/2026 01:02:43. node v24.15.0, npm 11.12.1. Dependencias:  express@5.3.0  nodemailer@10.5.0  pg@8.23.1  
+npm test (solo lectura) -> salida 0 | ℹ tests 23 ℹ pass 22 ℹ fail 0 ℹ skipped 1 
+npm test (base desechable) -> salida 0 | ℹ tests 23 ℹ pass 23 ℹ fail 0 ℹ skipped 0 
+npm run test:tienda -> salida 0 | ℹ tests 39 ℹ pass 39 ℹ fail 0 ℹ skipped 0 
+npm run test:portal -> salida 0 | ℹ tests 24 ℹ pass 24 ℹ fail 0 ℹ skipped 0 
+Fin: 13/11/2026 01:04:05

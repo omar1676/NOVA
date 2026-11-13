@@ -1,0 +1,35 @@
+
+> nova-servidor-admin@1.0.0 test
+> node --env-file=.env --test pruebas/api.test.js
+
+✔ el servidor responde y se conecta con web_nova, no con postgres (189.426ms)
+✔ las respuestas llevan cabeceras de proteccion y la API no se guarda en cache (9.9413ms)
+✔ una peticion con otro nombre de host se rechaza (DNS rebinding) (4.7678ms)
+✔ los datos no validos dan 4xx y no 500 (33.1766ms)
+✔ las rutas con .. o mal codificadas dan 400 y lo publico se ve sin sesion (14.41ms)
+✔ sin sesion, las 8 rutas responden 401 (7.1499ms)
+✔ sin sesion, las paginas del panel llevan al login (4.7124ms)
+✔ una contrasena incorrecta da 401 y no crea sesion (15.8254ms)
+✔ un usuario que no es administrador recibe 403 (14.3255ms)
+✔ el administrador recibe JSON de las 8 rutas, sin datos sensibles (67.1901ms)
+✔ el dashboard marca las sugerencias como no disponibles y usa el umbral 10 (11.3113ms)
+✔ los filtros se aplican y un valor no permitido da 400 (25.6194ms)
+✔ consultar no puede escribir: la transaccion es de solo lectura (1.9662ms)
+✔ despues del logout la sesion ya no sirve (11.192ms)
+✔ web_nova no puede pasar a nova_admin ni escribir, aunque falte READ ONLY (4.0902ms)
+✔ reparto: sin sesion responde 401 (1.3077ms)
+✔ reparto: un usuario que no es administrador recibe 403 (6.5813ms)
+✔ reparto: 404 si el pedido no existe, 415 sin JSON y las protecciones de siempre (20.7222ms)
+✔ reparto: un pedido pendiente da 409 y no cambia (9.5928ms)
+✔ reparto: un pedido confirmado pasa a enviado, sin tocar el stock, y la auditoria apunta al administrador (19.2302ms)
+✔ reparto: el resto del panel sigue siendo de solo lectura (4.0392ms)
+✔ reparto: las rutas de lectura no aceptan POST y las de reparto no aceptan GET (8.1755ms)
+✔ tras 5 fallos el usuario queda bloqueado (429), exista o no, y despues puede entrar (1764.744ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8558.8514

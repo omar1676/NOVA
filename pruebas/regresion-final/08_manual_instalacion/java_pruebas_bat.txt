@@ -1,0 +1,76 @@
+Contrase�a de admin.demo: Contrase�a de tienda.demo (comercial): Contrase�a de taller.demo (trabajador): 
+--- Inicio de sesion y rol de conexion
+PASS L1 login de admin.demo -> rol administrador, conectado como nova_admin
+PASS L1 login de tienda.demo -> rol comercial, conectado como nova_comercial
+PASS L1 login de taller.demo -> rol trabajador, conectado como nova_trabajador
+PASS L2 contrasena incorrecta -> Usuario o contrasena incorrectos
+
+--- Prueba A: pedido Custom valido
+PASS A1 cabecera -> PRUEBA-A-192116 confirmado y personalizado
+PASS A2 lineas -> 2 lineas, tallas 41 y 42
+PASS A3 total calculado por PostgreSQL -> importe_total 599.50 = suma de lineas 599.50, 5 pares
+PASS A4 stock tras confirmar -> talla 41: 20 -> 18, talla 42: 20 -> 17
+PASS A5 auditoria con usuario y hora -> tienda.demo: ALTA 01:19:53, CAMBIO_ESTADO 01:19:54
+PASS A6 auditoria del stock -> 2 cambios de stock firmados por tienda.demo
+
+--- Prueba B: stock insuficiente
+PASS B1 confirmacion rechazada -> Stock insuficiente o producto no encontrado
+PASS B2 sin cambios parciales -> estado pendiente, stock 20 -> 20
+
+--- Prueba C: cancelacion
+PASS C1 estado cancelado -> estado cancelado
+PASS C2 stock devuelto -> talla 41: 18 -> 20, talla 42: 17 -> 20
+PASS C3 cancelacion auditada -> taller.demo BAJA_LOGICA: Pedido PRUEBA-A-192116: confirmado -> cancelado. Usuario del pedido: 3
+
+--- Prueba D: ROLLBACK deliberado
+PASS D1 dentro de la transaccion si habia cambiado -> stock 20 -> 19 antes del ROLLBACK
+PASS D2 el ROLLBACK lo deshace todo -> estado pendiente, stock 20
+PASS D3 la auditoria tambien se deshace -> 1 eventos antes y 1 despues
+
+--- Prueba E: consultas y filtros
+PASS E1 sin filtros -> 15 filas, SQL 15
+PASS E2 dos filtros (cliente y estado) -> 1 filas, SQL 1
+PASS E3 tres filtros (cliente, modelo y fechas) -> 3 filas, SQL 3
+PASS E4 limpiar filtros vuelve a todo -> 15 filas
+
+--- Prueba F: sin coincidencias y sin permiso
+PASS F1 busqueda sin coincidencias -> 0 filas
+PASS F2 el comercial no ve la auditoria (Java) -> Acceso denegado: el rol comercial no puede ver la auditor�a
+PASS F3 PostgreSQL lo deniega aunque se salte Java -> Acceso denegado: la base de datos no permite esta operaci�n a tu rol (permission denied for table log_eventos)
+
+--- Prueba G: registro TXT
+     2026-11-13 01:19:54 | taller.demo | trabajador | CONSULTA PEDIDOS | correcto | 15 filas; cliente=null, modelo=null, estado=null, desde=null, hasta=null
+     2026-11-13 01:19:54 | taller.demo | trabajador | CONSULTA PEDIDOS | correcto | 1 filas; cliente=6, modelo=null, estado=pendiente, desde=null, hasta=null
+     2026-11-13 01:19:54 | taller.demo | trabajador | CONSULTA PEDIDOS | correcto | 0 filas; cliente=null, modelo=null, estado=entregado, desde=2000-01-01, hasta=2000-01-02
+PASS G1 tres consultas, tres lineas nuevas -> 3 lineas
+
+--- Prueba H: pedido completo y error forzado
+PASS H1 tablas actualizadas -> confirmado, 2 x 129.99
+PASS H2 aparece en la consulta visual -> PRUEBA-H-192116
+PASS H3 TXT de la creacion y la confirmacion -> las dos lineas estan
+PASS H4 error forzado: TXT rechazado y ningun pedido nuevo -> Ese dato ya existe y no se puede repetir, por ejemplo la referencia del pedido o el nombre de usuario (duplicate key value violates unique constraint "pedidos_referencia_uq")
+PASS H5 en log_eventos solo queda el alta buena -> 1 alta
+
+--- Prueba I: usuarios y JSON
+PASS I1 el usuario nuevo aparece en el JSON -> 4 usuarios en el JSON
+PASS I2 el JSON no lleva contrasenas ni hashes -> sin password ni $2a$
+PASS I3 el usuario nuevo puede entrar -> rol comercial
+PASS I4 cambio de rol y desactivacion en el JSON, sin perder a nadie -> 4 usuarios en el JSON
+PASS I5 el comercial no puede exportar -> Acceso denegado: el rol comercial no puede gestionar usuarios
+
+--- Prueba J: indicadores y CSV filtrado
+PASS J1 resumen = SQL (P-A) -> 13 pedidos, 92 pares, 10946.43 EUR
+PASS J2 pedidos por estado suman el total -> 16 = 16
+PASS J3 pares por talla suman los pares vendidos -> 92 = 92
+PASS J4 pares por modelo suman los pares vendidos -> primero: NOVA Velocity con 82 pares
+PASS J5 stock bajo con umbral 19 -> 111 referencias, SQL 111
+PASS J6 CSV = tabla filtrada -> 11 filas y 9 columnas en consulta_pedidos.csv
+
+--- Permisos: el trabajador no crea pedidos y el comercial no crea usuarios
+PASS P1 trabajador crea pedido (Java) -> Acceso denegado: el rol trabajador no puede crear pedidos
+PASS P2 trabajador crea pedido saltandose Java -> Acceso denegado: la base de datos no permite esta operaci�n a tu rol (permission denied for function realizar_compra)
+PASS P3 ningun pedido nuevo -> 16 -> 16
+PASS P4 comercial crea usuario saltandose Java -> Acceso denegado: la base de datos no permite esta operaci�n a tu rol (permission denied for function crear_usuario)
+PASS P5 ningun usuario nuevo -> 4 -> 4
+
+RESULTADO: 47 PASS, 0 FAIL

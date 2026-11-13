@@ -1,0 +1,43 @@
+Carpeta temporal de trabajo: nova_psp_pruebas_17058185672907403256
+
+=== 1. Pedido Custom valido (exportacion real de CUSTOM-40) ===
+[SUPERADA] 01 CUSTOM-40 de principio a fin -> codigo 0, Resultado: CORRECTO (codigo 0). Pedido CUSTOM-40 procesado
+=== 2. Varias tallas y cantidades (pedido de prueba, no real) ===
+[SUPERADA] 02 Nueve tallas (38 a 46), dos colores y una talla repetida -> codigo 0; 9 tallas, la 42 suma 6 + 2 + 4 = 12, total 40
+=== 3. Validacion correcta (el validador, solo) ===
+[SUPERADA] 03 El validador acepta CUSTOM-40 y normaliza sus 4 lineas -> primera linea: OK;CUSTOM-40;4;40
+=== 4. Agrupacion de tallas (validador -> analizador de Alvaro) ===
+[SUPERADA] 04 Agrupa por variante y por talla -> Rojo 42 = 6 + 2 = 8; talla 42 = 12; total 40
+=== 5. Generacion de la ficha auxiliar ===
+[SUPERADA] 05 Ficha de CUSTOM-40 con sus datos y registro del procesamiento -> ficha de 29 lineas y registro_psp.txt
+=== 6. Comunicacion entre procesos ===
+[SUPERADA] 06a Lo que el padre envia por stdin vuelve igual por stdout -> recibido: [OK;eco, uno, dos;tres, cuatro, con coma]
+[SUPERADA] 06b La personalizacion de 2 lineas cruza los tres procesos y llega a la ficha -> las dos lineas, con la coma y las comillas
+=== 7. Captura de stdout y stderr por separado ===
+[SUPERADA] 07 stdout y stderr llegan cada uno a su lista -> stdout [OK;salida] / stderr [AVISO;esto va por stderr]
+=== 8. Codigos de salida ===
+[SUPERADA] 08a Se recoge el codigo exacto del hijo -> codigo 7
+[SUPERADA] 08b El validador rechaza con 2, ERROR; por stderr y nada por stdout -> codigo 2, [ERROR;La cantidad del registro 1 tiene que ser un numero entero, y es: diez]
+=== 9. Fallo controlado de un proceso ===
+[SUPERADA] 09a Un hijo que revienta con una excepcion -> codigo 1, Exception in thread "main" java.lang.RuntimeException: fallo provocado por la prueba
+[SUPERADA] 09b Un hijo que no se puede cargar -> codigo 1, Error: Could not find or load main class ClaseQueNoExiste
+=== 10. Tiempo de espera agotado ===
+[SUPERADA] 10 Un hijo que no termina se cancela a los 2 s -> codigo -2 (TIEMPO_AGOTADO) en 2,0 s, en vez de 60
+=== 11. Archivo inexistente ===
+[SUPERADA] 11 El padre avisa y no lanza ningun hijo -> Resultado: ERROR EN EL ARCHIVO (codigo 1). No existe el archivo: no_existe.csv
+=== 12. Datos mal formados (el padre debe parar) ===
+[SUPERADA] 12a Comilla sin cerrar -> codigo 2, sin ficha: ERROR;El CSV esta mal formado: falta la comilla de cierre al final del archivo
+[SUPERADA] 12b Cabecera distinta -> codigo 2, sin ficha: ERROR;La cabecera no es la esperada. Esperaba: referencia,sku,cliente,modelo,color,personalizacion,talla,cantidad / He recibido: referencia,talla,cantidad
+[SUPERADA] 12c Cantidad que no es un numero -> codigo 2, sin ficha: ERROR;La cantidad del registro 1 tiene que ser un numero entero, y es: diez
+[SUPERADA] 12d Cantidad cero -> codigo 2, sin ficha: ERROR;La cantidad del registro 1 tiene que ser mayor que cero, y es 0
+[SUPERADA] 12e Cantidad negativa -> codigo 2, sin ficha: ERROR;La cantidad del registro 1 tiene que ser mayor que cero, y es -5
+[SUPERADA] 12f Falta la talla -> codigo 2, sin ficha: ERROR;Falta la talla en el registro 1
+[SUPERADA] 12g Falta el modelo -> codigo 2, sin ficha: ERROR;Falta el modelo en el registro 1
+[SUPERADA] 12h Solo la cabecera -> codigo 2, sin ficha: ERROR;El pedido solo trae la cabecera, sin ningun registro de pedido
+[SUPERADA] 12i Registro con campos de menos -> codigo 2, sin ficha: ERROR;El registro 1 tiene 7 campos y tendria que tener 8
+[SUPERADA] 12j Dos pedidos en el mismo archivo -> codigo 2, sin ficha: ERROR;El registro 2 es del pedido OTRO-99 pero las anteriores son del pedido MALO-10: un pedido por archivo
+[SUPERADA] 12k Talla 99: la acepta el validador y la rechaza el analizador (paso 2) -> codigo 2, sin ficha: ERROR;L�nea 2: talla fuera de rango (20-55)
+[SUPERADA] 12l Archivo vacio -> codigo 1, sin ficha: Resultado: ERROR EN EL ARCHIVO (codigo 1). El archivo esta vacio
+[SUPERADA] 12m Formato que no es CSV -> Resultado: ERROR EN EL ARCHIVO (codigo 1). Formato no admitido: el pedido tiene que venir en un archivo .csv
+
+Pruebas superadas: 27 de 27

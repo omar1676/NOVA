@@ -1,0 +1,8 @@
+Datos sintéticos (semilla 2026) en <clon_nuevo>\python-analisis\datos_sinteticos
+  clientes           40 filas
+  modelos            12 filas
+  pedidos           900 filas
+  lineas_pedido    1777 filas
+  stock             216 filas
+  meses con pedidos: 18 (2025-05 a 2026-10)
+  copia con errores: 12 errores introducidos (<clon_nuevo>\python-analisis\datos_sinteticos\con_errores\errores_introducidos.csv)

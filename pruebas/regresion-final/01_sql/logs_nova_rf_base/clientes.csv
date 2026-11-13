@@ -1,0 +1,7 @@
+id_cliente,nombre,tipo,correo,telefono,activo
+1,Daniel Jan,particular,daniel.jan@example.com,,true
+2,Jose Ferrer,particular,jose.ferrer@example.com,,true
+3,Santi Cruz,particular,santi.cruz@example.com,,true
+4,Nuria Soto,particular,nuria.soto@example.com,,true
+5,Aitor Parras,particular,aitor.parras@example.com,,true
+6,Club Atletico NOVA,empresa,club.atletico@example.com,600000000,true

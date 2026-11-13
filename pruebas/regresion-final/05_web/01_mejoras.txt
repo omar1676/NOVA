@@ -1,0 +1,91 @@
+OK    [escritorio] 100 nombres comerciales distintos, «NOVA <Colección> <Nombre>», sin números -> ['NOVA Street Vortex', 'NOVA Street Drift', 'NOVA Street Flux', 'NOVA Street Metro']
+OK    [escritorio] los 100 nombres de la web están en la base (/api/tienda/catalogo) -> []
+OK    [escritorio] ningún «NOVA <Colección> 01/02» en textos visibles, aria-label, alt ni opciones -> []
+OK    [escritorio] filtro todos: 100 tarjetas con su color, su etiqueta y su nombre -> 100 tarjetas; banda rgb(22, 34, 45)
+OK    [escritorio] filtro street: 10 tarjetas con su color, su etiqueta y su nombre -> 10 tarjetas; banda rgb(22, 34, 45)
+OK    [escritorio] filtro luxe: 10 tarjetas con su color, su etiqueta y su nombre -> 10 tarjetas; banda rgb(14, 13, 10)
+OK    [escritorio] filtro casual: 20 tarjetas con su color, su etiqueta y su nombre -> 20 tarjetas; banda rgb(122, 74, 48)
+OK    [escritorio] filtro hombre: 20 tarjetas con su color, su etiqueta y su nombre -> 20 tarjetas; banda rgb(20, 27, 48)
+OK    [escritorio] filtro mujer: 20 tarjetas con su color, su etiqueta y su nombre -> 20 tarjetas; banda rgb(58, 23, 34)
+OK    [escritorio] filtro unisex: 20 tarjetas con su color, su etiqueta y su nombre -> 20 tarjetas; banda rgb(28, 38, 34)
+OK    [escritorio] las 6 colecciones tienen colores distintos -> {'street': 'rgb(22, 34, 45)', 'luxe': 'rgb(14, 13, 10)', 'casual': 'rgb(122, 74, 48)', 'hombre': 'rgb(20, 27, 48)', 'mujer': 'rgb(58, 23, 34)', 'unisex': 'rgb(28, 38, 34)'}
+OK    [escritorio] estantería: los 7 filtros siguen funcionando (máximo 8) -> {'street': 8, 'luxe': 8, 'casual': 8, 'hombre': 8, 'mujer': 8, 'unisex': 8, 'todos': 8}
+OK    [escritorio] buscar por el nombre nuevo («vortex») -> 1 modelo
+OK    [escritorio] sin desplazamiento horizontal en la página -> [1440, 1440]
+OK    [escritorio] axe WCAG 2.1 A/AA: catálogo con los colores de colección -> 0 violaciones
+OK    [escritorio] las 100 fichas: bloque de compra, color de la base con su muestra, tallas de su colección con stock -> las 100 bien
+OK    [escritorio] sin talla: el error sale debajo de las tallas (role=alert, aria-describedby) y el foco va a la primera talla -> {'texto': 'Elige una talla.', 'dentro': True, 'rol': 'alert', 'describe': 'compra-error-talla', 'foco': 'talla', 'borde': 'rgb(242, 163, 141)'}
+OK    [escritorio] con las flechas se elige talla; el error se borra y sale el stock -> ['37', 'Quedan 5 pares de la talla 37.', '']
+OK    [escritorio] la talla enfocada con el teclado se ve (contorno) -> solid
+OK    [escritorio] + con el teclado sube hasta el tope (5 = stock) y se queda ahí sin perder el foco -> ['5', 'true', 'compra-mas']
+OK    [escritorio] − baja hasta 1 y se desactiva (aria-disabled) -> ['1', 'true']
+OK    [escritorio] cantidad 0: error debajo de la cantidad y encima del botón, aria-invalid y foco en el campo -> {'texto': 'La cantidad tiene que ser un número entero, de 1 en adelante.', 'invalido': 'true', 'foco': 'compra-cantidad', 'describe': 'compra-error-cantidad', 'debajo': True}
+OK    [escritorio] añadido: mensaje bajo el botón y «Ver el carrito» -> ['Añadido al carrito: NOVA Mujer Aurora, talla 37 (2 pares).', True, None]
+OK    [escritorio] axe WCAG 2.1 A/AA: ficha con el bloque de compra (tras añadir) -> 0 violaciones
+OK    [escritorio] «Ver el carrito» abre el carrito con la línea -> NOVA Mujer Aurora
+Rosa y granate · Talla 37 · 99,90 € el par
+Pares
+199,80 €
+Quitar
+OK    [escritorio] axe WCAG 2.1 A/AA: carrito con un producto -> 0 violaciones
+OK    [escritorio] probador: 300 combinaciones de cuerpo y zapatilla (figura y zapatilla visibles, cargadas y dentro del escenario) -> 100 zapatillas x 3 cuerpos, todas bien
+OK    [escritorio] axe WCAG 2.1 A/AA: probador con la figura amplia -> 0 violaciones
+OK    [escritorio] subir o bajar el peso (o la estatura) cambia la figura: delgada < 20 <= media < 27 <= amplia (IMC) -> [(175, 50, 'delgado'), (175, 75, 'base'), (175, 120, 'ancho'), (150, 75, 'ancho'), (200, 75, 'delgado'), (175, 85, 'ancho')]
+OK    [escritorio] desde «Zapatilla sola», poner 110 kg muestra la figura amplia -> ['ancho', 'probador-vista con-figura']
+OK    [escritorio] al cambiar de zapatilla se conserva la figura elegida y se ofrecen sus vistas «puesta» -> ['ancho', ['street01', 'delgado', 'base', 'ancho', 'producto']]
+OK    [escritorio] las fotos «puesta» solo con su zapatilla (Vortex, Marea, Olivo, Paseo) y cargan -> bien
+OK    [escritorio] sin errores ni avisos en la consola -> ninguno
+OK    [movil] filtro todos: 100 tarjetas con su color, su etiqueta y su nombre -> 100 tarjetas; banda rgb(22, 34, 45)
+OK    [movil] filtro street: 10 tarjetas con su color, su etiqueta y su nombre -> 10 tarjetas; banda rgb(22, 34, 45)
+OK    [movil] filtro luxe: 10 tarjetas con su color, su etiqueta y su nombre -> 10 tarjetas; banda rgb(14, 13, 10)
+OK    [movil] filtro casual: 20 tarjetas con su color, su etiqueta y su nombre -> 20 tarjetas; banda rgb(122, 74, 48)
+OK    [movil] filtro hombre: 20 tarjetas con su color, su etiqueta y su nombre -> 20 tarjetas; banda rgb(20, 27, 48)
+OK    [movil] filtro mujer: 20 tarjetas con su color, su etiqueta y su nombre -> 20 tarjetas; banda rgb(58, 23, 34)
+OK    [movil] filtro unisex: 20 tarjetas con su color, su etiqueta y su nombre -> 20 tarjetas; banda rgb(28, 38, 34)
+OK    [movil] las 6 colecciones tienen colores distintos -> {'street': 'rgb(22, 34, 45)', 'luxe': 'rgb(14, 13, 10)', 'casual': 'rgb(122, 74, 48)', 'hombre': 'rgb(20, 27, 48)', 'mujer': 'rgb(58, 23, 34)', 'unisex': 'rgb(28, 38, 34)'}
+OK    [movil] estantería: los 7 filtros siguen funcionando (máximo 8) -> {'street': 8, 'luxe': 8, 'casual': 8, 'hombre': 8, 'mujer': 8, 'unisex': 8, 'todos': 8}
+OK    [movil] buscar por el nombre nuevo («vortex») -> 1 modelo
+OK    [movil] sin desplazamiento horizontal en la página -> [390, 390]
+OK    [movil] axe WCAG 2.1 A/AA: catálogo con los colores de colección -> 0 violaciones
+OK    [movil] las 100 fichas: bloque de compra, color de la base con su muestra, tallas de su colección con stock -> las 100 bien
+OK    [movil] sin talla: el error sale debajo de las tallas (role=alert, aria-describedby) y el foco va a la primera talla -> {'texto': 'Elige una talla.', 'dentro': True, 'rol': 'alert', 'describe': 'compra-error-talla', 'foco': 'talla', 'borde': 'rgb(242, 163, 141)'}
+OK    [movil] con las flechas se elige talla; el error se borra y sale el stock -> ['37', 'Quedan 5 pares de la talla 37.', '']
+OK    [movil] la talla enfocada con el teclado se ve (contorno) -> solid
+OK    [movil] + con el teclado sube hasta el tope (5 = stock) y se queda ahí sin perder el foco -> ['5', 'true', 'compra-mas']
+OK    [movil] − baja hasta 1 y se desactiva (aria-disabled) -> ['1', 'true']
+OK    [movil] cantidad 0: error debajo de la cantidad y encima del botón, aria-invalid y foco en el campo -> {'texto': 'La cantidad tiene que ser un número entero, de 1 en adelante.', 'invalido': 'true', 'foco': 'compra-cantidad', 'describe': 'compra-error-cantidad', 'debajo': True}
+OK    [movil] añadido: mensaje bajo el botón y «Ver el carrito» -> ['Añadido al carrito: NOVA Mujer Aurora, talla 37 (2 pares).', True, None]
+OK    [movil] axe WCAG 2.1 A/AA: ficha con el bloque de compra (tras añadir) -> 0 violaciones
+OK    [movil] «Ver el carrito» abre el carrito con la línea -> NOVA Mujer Aurora
+Rosa y granate · Talla 37 · 99,90 € el par
+Pares
+199,80 €
+Quitar
+OK    [movil] axe WCAG 2.1 A/AA: carrito con un producto -> 0 violaciones
+OK    [movil] probador: 300 combinaciones de cuerpo y zapatilla (figura y zapatilla visibles, cargadas y dentro del escenario) -> 100 zapatillas x 3 cuerpos, todas bien
+OK    [movil] axe WCAG 2.1 A/AA: probador con la figura amplia -> 0 violaciones
+OK    [movil] subir o bajar el peso (o la estatura) cambia la figura: delgada < 20 <= media < 27 <= amplia (IMC) -> [(175, 50, 'delgado'), (175, 75, 'base'), (175, 120, 'ancho'), (150, 75, 'ancho'), (200, 75, 'delgado'), (175, 85, 'ancho')]
+OK    [movil] desde «Zapatilla sola», poner 110 kg muestra la figura amplia -> ['ancho', 'probador-vista con-figura']
+OK    [movil] al cambiar de zapatilla se conserva la figura elegida y se ofrecen sus vistas «puesta» -> ['ancho', ['street01', 'delgado', 'base', 'ancho', 'producto']]
+OK    [movil] las fotos «puesta» solo con su zapatilla (Vortex, Marea, Olivo, Paseo) y cargan -> bien
+OK    [movil] sin errores ni avisos en la consola -> ninguno
+OK    [movil_320] filtro todos: 100 tarjetas con su color, su etiqueta y su nombre -> 100 tarjetas; banda rgb(22, 34, 45)
+OK    [movil_320] filtro street: 10 tarjetas con su color, su etiqueta y su nombre -> 10 tarjetas; banda rgb(22, 34, 45)
+OK    [movil_320] filtro luxe: 10 tarjetas con su color, su etiqueta y su nombre -> 10 tarjetas; banda rgb(14, 13, 10)
+OK    [movil_320] filtro casual: 20 tarjetas con su color, su etiqueta y su nombre -> 20 tarjetas; banda rgb(122, 74, 48)
+OK    [movil_320] filtro hombre: 20 tarjetas con su color, su etiqueta y su nombre -> 20 tarjetas; banda rgb(20, 27, 48)
+OK    [movil_320] filtro mujer: 20 tarjetas con su color, su etiqueta y su nombre -> 20 tarjetas; banda rgb(58, 23, 34)
+OK    [movil_320] filtro unisex: 20 tarjetas con su color, su etiqueta y su nombre -> 20 tarjetas; banda rgb(28, 38, 34)
+OK    [movil_320] las 6 colecciones tienen colores distintos -> {'street': 'rgb(22, 34, 45)', 'luxe': 'rgb(14, 13, 10)', 'casual': 'rgb(122, 74, 48)', 'hombre': 'rgb(20, 27, 48)', 'mujer': 'rgb(58, 23, 34)', 'unisex': 'rgb(28, 38, 34)'}
+OK    [movil_320] estantería: los 7 filtros siguen funcionando (máximo 8) -> {'street': 8, 'luxe': 8, 'casual': 8, 'hombre': 8, 'mujer': 8, 'unisex': 8, 'todos': 8}
+OK    [movil_320] buscar por el nombre nuevo («vortex») -> 1 modelo
+OK    [movil_320] sin desplazamiento horizontal en la página -> [320, 320]
+OK    [movil_320] probador: 18 combinaciones de cuerpo y zapatilla (figura y zapatilla visibles, cargadas y dentro del escenario) -> 6 zapatillas x 3 cuerpos, todas bien
+OK    [movil_320] subir o bajar el peso (o la estatura) cambia la figura: delgada < 20 <= media < 27 <= amplia (IMC) -> [(175, 50, 'delgado'), (175, 75, 'base'), (175, 120, 'ancho'), (150, 75, 'ancho'), (200, 75, 'delgado'), (175, 85, 'ancho')]
+OK    [movil_320] desde «Zapatilla sola», poner 110 kg muestra la figura amplia -> ['ancho', 'probador-vista con-figura']
+OK    [movil_320] al cambiar de zapatilla se conserva la figura elegida y se ofrecen sus vistas «puesta» -> ['ancho', ['street01', 'delgado', 'base', 'ancho', 'producto']]
+OK    [movil_320] las fotos «puesta» solo con su zapatilla (Vortex, Marea, Olivo, Paseo) y cargan -> bien
+OK    [movil_320] sin errores ni avisos en la consola -> ninguno
+OK    [anchos] ficha con el bloque de compra sin salirse ni desplazamiento horizontal en 11 anchos (320-1440) -> bien
+
+81 de 81 comprobaciones correctas
