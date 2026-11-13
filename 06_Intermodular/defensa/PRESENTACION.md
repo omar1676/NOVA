@@ -1,18 +1,18 @@
 # NOVA Sneakers · Presentación ante el tribunal
 
-13/11/2026 · 15 diapositivas · 15 minutos · rama `integracion/candidata-2`
+13/11/2026 · 15 diapositivas · 15 minutos · rama `main` (código de `4f09742`; documentación de `372f811`)
 
 > La presentación ante el tribunal vale un **20 %** del proyecto intermodular y se valoran la «síntesis, estructura, comunicación profesional, gestión del tiempo y respuesta a preguntas» (IM, p. 8). Por eso cada diapositiva tiene un tiempo y unas notas del orador: se ensaya con reloj.
 
 ## Antes de empezar
 
 - **Duración prevista: 15:00.** **[DUDA PARA EL PROFESOR (D12): cuánto dura la exposición ante el tribunal.]** Si os dan menos tiempo, ved «Si hay que recortar» al final.
-- **Quién presenta cada diapositiva: [POR DECIDIR (los tres)].** Lo recomendable es repartirlas de forma que cada uno hable de módulos que no son «los suyos»: así se demuestra que los tres conocen todo el proyecto (IM-COM-07).
+- **Quién presenta cada diapositiva: [EQUIPO: decidirlo y apuntarlo aquí].** Lo recomendable es repartirlas de forma que cada uno hable de módulos que no son «los suyos»: así se demuestra que los tres conocen todo el proyecto (IM-COM-07).
 - **Las rutas de las figuras** son relativas a la raíz del repositorio y todas existen en la rama final. La captura del catálogo de la diapositiva 1 es de la regresión del 13/11 (`06_Intermodular/evidencias/regresion-final/05_web/capturas_interfaces/escritorio_01_catalogo_con_precios.png`, reducida en el repositorio).
-- **Odoo:** mostrar S00005 en el PDF original de Berme, pp. 10–12. Es evidencia documental; no una conexión en vivo. El `.pptx` conservado es un borrador histórico anterior a esta decisión: usar este guion actualizado, no sus afirmaciones antiguas.
+- **Odoo:** mostrar S00005 en el PDF original de Berme, pp. 10–12. Es evidencia documental; no una conexión en vivo. El `.pptx` todavía cuenta el estado anterior a esta decisión: usar este guion actualizado, no sus afirmaciones antiguas.
 - **SO024:** ejemplo del enunciado y ensayo histórico PROVISIONAL, no venta realizada en Odoo. No se renombran sus resultados como S00005.
 - **Sin contraseñas** en ninguna diapositiva ni captura.
-- Hay una versión en PowerPoint con el mismo contenido, las mismas notas y algunas capturas: `PRESENTACION.pptx` (generada el 13/11 con las capturas del repositorio).
+- `PRESENTACION.pptx` (generada el 13/11 con las capturas del repositorio) **no tiene todavía el mismo contenido que este guion**: 10 de sus 15 diapositivas (1, 2, 3, 4, 6, 8, 11, 13, 14 y 15) necesitan cambios: cuentan el plan SO024 y un Odoo «pendiente», dejan el reparto en «[PENDIENTE]» o presentan como del código final pruebas que no se repitieron en el cierre. **[EQUIPO: corregirlo con el texto de este guion o retirarlo antes de entregar]**.
 
 ## Resumen de tiempos
 
@@ -74,7 +74,7 @@ La solución tiene cinco piezas. La web es la cara pública. Odoo, según el enu
 - Cada cliente entra con su usuario y pasa con `SET ROLE` a un rol con los permisos justos: `panel_lectura`, `panel_reparto`, `portal_trabajador`, `tienda_web` o los `nova_*` de Java.
 - Login único del personal: el administrador va al panel, el trabajador al portal y un comercial no tiene panel web.
 - Integración por archivos: un CSV para PSP (script 15) y cinco CSV para Python (script 16).
-- Odoo queda fuera por ahora; la frontera entre el ERP y lo auxiliar está explicada.
+- Odoo: S00005 documental, sin conexión verificada con lo demás; la frontera entre el ERP y lo auxiliar está explicada (memoria, §2.3).
 
 **Figura recomendada:** el diagrama de la sección 0 de `GUIA_DEFENSA.md` (en el `.pptx` está dibujado con cajas y flechas).
 
@@ -101,7 +101,7 @@ Elegimos el pedido ya documentado, S00005. Conservamos sus capturas y el PDF sin
 **Puntos**
 - Las cinco partes que pide el enunciado; 100 modelos con precio, descripción y tallas.
 - Responsive con CSS Grid y media queries: probada en 11 anchos, de 320 a 1440 px.
-- Accesibilidad WCAG 2.1 AA: axe sin violaciones, 212/212 contrastes y Lighthouse 100 (11/11).
+- Accesibilidad WCAG 2.1 AA: axe sin violaciones y Lighthouse 100 (11/11, antes del cambio a BEM).
 - Formulario Custom con validación y suma de pares; el envío es una simulación.
 - Ampliaciones no pedidas: tienda con pago simulado, panel de administración y portal del trabajador, con un login único.
 
@@ -150,7 +150,7 @@ En la base de datos tomamos una decisión clara: lo importante lo calcula Postgr
 - PreparedStatement, filtros combinables y transacciones con ROLLBACK.
 - Dos barreras de permisos: la matriz en Java y el `SET ROLE` en PostgreSQL.
 - Archivos externos: TXT de actividad, JSON de usuarios y CSV de la consulta.
-- 47 de 47 pruebas; ventanas Swing, 76 de 76 (13/11).
+- 47 de 47 pruebas (cierre, `4f09742`); ventanas Swing, 76 de 76 (13/11, en un árbol anterior).
 
 **Figura recomendada:** `02_Acceso_Datos/evidencias/java-swing/06-admin.demo-consulta-filtrada.png` (13/11: consulta con dos filtros, «Buscar / Consultar» y «Limpiar filtros»).
 
@@ -166,7 +166,7 @@ La aplicación Java crea pedidos con varias líneas en una sola transacción, lo
 - Comunicación por stdin y stdout a través del padre; los errores, por stderr.
 - Un hilo por tubería para que no se llenen; espera máxima de 10 s por hijo.
 - Códigos de salida 0, 1, 2 y 3; si un paso falla, no se lanza el siguiente.
-- Ficha para el taller y registro de cada ejecución: 27 de 27 pruebas; con el CSV de SO024 (provisional), código 0.
+- Ficha para el taller y registro de cada ejecución: 27 de 27 pruebas y el analizador 8 de 8 (cierre); con el CSV del ensayo SO024 (provisional), código 0 (histórico).
 
 **Figura recomendada:** el texto de la ficha real `03_PSP/evidencias/ficha_taller_CUSTOM-40.txt` (en el `.pptx` está copiado tal cual, en letra de máquina).
 
@@ -195,22 +195,20 @@ Python lee los cinco CSV que exporta la base y los pasa por doce reglas de calid
 
 **Puntos** (tabla)
 
-| Bloque | Resultado | Fecha |
+| Bloque | Cierre (código entregado, `4f09742`) | Anterior (13/11, árbol anterior; 11/11 Lighthouse) |
 |---|---|---|
-| SQL: scripts 01–23 y batería 09–16 | 123 PASS · 0 FAIL · 1 error previsto | 13/11 |
-| Java: `PruebasRubrica` · ventanas Swing | 47/47 · 76/76 | 13/11 |
-| PSP (`PruebasPsp`) | 27/27 | 13/11 |
-| Python: `unittest` · salidas de `main.py` | 265 OK · 93 salidas comparadas (91 iguales, 2 con columnas nuevas a propósito y 4 archivos nuevos a propósito) | 13/11 |
-| Web: interfaces · web completa · mejoras | 136/136 · 114/114 · 81/81 | 13/11 |
-| Edge: compra · reparto · login único y portal | 139/139 · 29/29 · 82/82 | 13/11 |
-| Node: panel · tienda · portal; SQL de la tienda | 23/23 · 39/39 · 24/24; 55/55 | 13/11 |
-| SO024 de punta a punta (provisional) | 40 pares · 9 líneas · 3.996 € · PSP 0 | 13/11 |
-| Lighthouse | Accesibilidad 100 | 11/11 |
+| SQL: scripts y batería 09–16 | 123 PASS · 0 FAIL · 1 error previsto | SQL de la tienda, reparto y portal: 55/55 · 37/37 · 50/50 |
+| Java | `PruebasRubrica` 47/47 | Ventanas Swing 76/76 |
+| PSP | `PruebasPsp` 27/27 · analizador 8/8 · comprobador correcto | Ensayo SO024 provisional: 40 pares · 9 líneas · 3.996 € · PSP 0 |
+| Python | `unittest` 265 OK | 93 salidas de `main.py` comparadas (91 iguales, 2 con columnas nuevas y 4 archivos nuevos, a propósito) |
+| Node: panel · tienda · portal | 23/23 · 39/39 · 24/24 | — |
+| Web en Edge | 9 controles (catálogo, BEM, login, dashboard en el panel, portal) | Interfaces 136/136 · web 114/114 · mejoras 81/81 · compra 139/139 · reparto 29/29 · portal 82/82 |
+| Lighthouse | — | Accesibilidad 100 (11/11) |
 
-**Figura recomendada:** la propia tabla. Fuentes: `06_Intermodular/evidencias/regresion-final/` (la regresión completa del 13/11 sobre el código final, con la hora y el entorno de cada batería) y `01_Interfaces/evidencias/web/lighthouse/` (11/11).
+**Figura recomendada:** la propia tabla. Fuentes: `06_Intermodular/evidencias/cierre-entrega-20261113/` (la regresión del código entregado) y, para lo anterior, `06_Intermodular/evidencias/regresion-final/` y `01_Interfaces/evidencias/web/lighthouse/` (11/11).
 
 **Notas del orador**
-Todo lo que os hemos contado está probado con la regresión completa del 13 de noviembre, sobre el código final, salvo Lighthouse, que es del 11. El único error de la batería SQL es a propósito: comprueba que un rol sin permiso no puede descontar stock. Las pruebas no solo miran que funcione lo bueno: también fuerzan errores, como pagar dos veces, un hijo que no termina, un CSV roto o un trabajador que intenta entrar en el panel. Lo que falta por probar lo tenemos apuntado y os lo contamos ahora.
+La regresión del código entregado es la del cierre, en un clon nuevo: SQL, Java, PSP, Python, Node y nueve controles en Edge. Lo de la derecha se probó el 13 de noviembre en un árbol anterior, y Lighthouse el 11, y lo decimos así. El único error de la batería SQL es a propósito: comprueba que un rol sin permiso no puede descontar stock. Las pruebas no solo miran que funcione lo bueno: también fuerzan errores, como pagar dos veces, un hijo que no termina, un CSV roto o un trabajador que intenta entrar en el panel. Lo que falta por probar lo tenemos apuntado y os lo contamos ahora.
 
 ---
 
@@ -235,33 +233,34 @@ Las dificultades nos han enseñado más que lo que salió a la primera. Descubri
 **Puntos**
 - S00005 está documentado en Odoo, sin trazabilidad probada hacia PostgreSQL, PSP y Python.
 - SO024 se conserva como ensayo PROVISIONAL del ejemplo; no hay que crear una venta oficial ni cambiar Runner X.
-- Python usa una exportación de PRUEBA (**[PENDIENTE (los tres): la exportación REAL]**); el aprendizaje automático solo se ha podido calcular con datos sintéticos.
-- Faltan la prueba de usabilidad con personas, el reparto real y el uso de la IA en la memoria, y el diagrama E-R en imagen.
+- Python usa una exportación de PRUEBA (límite declarado: no hay exportación REAL); el aprendizaje automático solo se ha podido calcular con datos sintéticos.
+- Faltan la prueba de usabilidad con personas, la copia de seguridad de Odoo y el diagrama E-R en imagen; el reparto y el uso de la IA de cada uno se completan en la memoria (§9).
 - Es una demo: HTTP local, sesiones en memoria y pago simulado.
 
 **Figura recomendada:** ninguna. Fuente: `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md`.
 
 **Notas del orador**
-Queremos ser claros con lo que no está terminado. El PDF documenta S00005, pero no prueba su recorrido en los módulos auxiliares. SO024 es un ejemplo y su ensayo sigue siendo provisional, sin una venta realizada en Odoo. Python trabaja con una exportación de prueba y el análisis avanzado solo se puede calcular con datos sintéticos. Faltan la prueba de usabilidad con personas, el reparto real y el uso de la IA en la memoria, y el diagrama E-R en imagen. Y la seguridad está pensada para una demostración en local: en producción haría falta HTTPS, sesiones persistentes y una pasarela de pago real.
+Queremos ser claros con lo que no está terminado. El PDF documenta S00005, pero no prueba su recorrido en los módulos auxiliares. SO024 es un ejemplo y su ensayo sigue siendo provisional, sin una venta realizada en Odoo. Python trabaja con una exportación de prueba y el análisis avanzado solo se puede calcular con datos sintéticos. Faltan la prueba de usabilidad con personas, la copia de seguridad de Odoo y el diagrama E-R en imagen. Y la seguridad está pensada para una demostración en local: en producción haría falta HTTPS, sesiones persistentes y una pasarela de pago real.
 
 ---
 
 ## Diapositiva 14 · Reparto del trabajo · 0:45
 
-**Puntos** **[PENDIENTE (los tres): el reparto real]**
+**Puntos** (los mismos datos que el §9 de la memoria; si alguien no confirma su fila, se quitan las celdas y se deja «Reparto: ver memoria §9»)
 
 | Persona | Qué hizo | Qué revisó | Qué cambió del trabajo de otro |
 |---|---|---|---|
-| Omar | [PENDIENTE] | [PENDIENTE] | [PENDIENTE] |
-| Álvaro | [PENDIENTE] | [PENDIENTE] | [PENDIENTE] |
-| Berme | [PENDIENTE] | [PENDIENTE] | [PENDIENTE] |
+| Omar | **[OMAR]** | **[OMAR]** | **[OMAR]** |
+| Álvaro | **[ÁLVARO]** | **[ÁLVARO]** | **[ÁLVARO]** |
+| Berme | **[BERME]** | **[BERME]** | **[BERME]** |
 
+- Uso de IA: Omar usó Claude Code (Anthropic) y Codex (OpenAI) para escribir, revisar y probar código y documentación (memoria, §9.4). Álvaro: **[ÁLVARO]**. Berme: **[BERME]**.
 - Los tres podemos explicar todos los módulos: lo hemos ensayado con el mismo simulacro.
 
 **Figura recomendada:** ninguna. Tiene que coincidir con el punto 9 de la memoria («Reparto real del trabajo y contribuciones», IM-COM-29). No usar el número de commits como medida.
 
 **Notas del orador**
-**[PENDIENTE (los tres): lo escribe el equipo.]** Contadlo tal como fue, aunque no coincida con el plan inicial, y terminad diciendo que los tres podemos responder sobre cualquier parte.
+**[EQUIPO: lo escribe el equipo.]** Contadlo tal como fue, también el uso de la IA,, aunque no coincida con el plan inicial, y terminad diciendo que los tres podemos responder sobre cualquier parte.
 
 ---
 

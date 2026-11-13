@@ -1,6 +1,6 @@
 # NOVA Sneakers · Simulacro de defensa
 
-13/11/2026 · Un guion de 15 minutos para cada uno: Omar, Álvaro y Berme · rama `integracion/candidata-2`
+13/11/2026 · Un guion de 15 minutos para cada uno: Omar, Álvaro y Berme · rama `main` (código de `4f09742`)
 
 > El guion es **el mismo para los tres**. No asume quién hizo qué: el tribunal puede preguntar cualquier cosa a cualquiera (IM-COM-09) y en Acceso a Datos «todos los miembros deben comprender el modelo» (AD-135). Las respuestas de referencia están en `GUIA_DEFENSA.md`; la columna «Guía» dice en qué sección.
 
@@ -40,7 +40,7 @@
 | 11:50–12:20 | Odoo | **13.** ¿Qué pide el enunciado de Odoo y cómo se relaciona con PSP? | Núcleo del flujo: venta → fabricación → entrega → factura; instalación, roles, cliente, venta, MRP y backup. S00005 documentado en el PDF; no hay ficha PSP acreditada de ese pedido ni backup/restauración verificados aquí. | §11 |
 | 12:20–12:35 | **Trampa Odoo** | **T8.** «¿Qué factura podéis mostrar y qué demuestra?» | Mostrar INV/2026/00001 en el PDF de Berme, p. 12, del flujo S00005. No es una factura SO024 ni prueba su procesamiento en PSP/PostgreSQL. | §11 |
 | 12:35–13:25 | **Cruzada 1** | **14.** ¿Podéis seguir S00005 desde Odoo hasta el dashboard y distinguirlo del ensayo SO024? | No hay prueba de S00005 en esa cadena. Explicar por separado el PDF de Odoo y el flujo de PRUEBA PostgreSQL → 15 → PSP / 16 → Python. No cambiar identificadores para unirlos. | §15 |
-| 13:25–14:05 | **Cruzada 2** | **15.** El panel Java y el dashboard pueden dar importes de venta distintos con los mismos datos. ¿Cuál está mal? | Ninguno: criterios distintos. Java suma los no cancelados (`IndicadoresDAO.java:20-26`); K07 suma los confirmados en adelante; Python calcula los tres (`analiticas.py:155-181`). **[POR DECIDIR (los tres): el oficial.]** | §5, P5.8 |
+| 13:25–14:05 | **Cruzada 2** | **15.** El panel Java y el dashboard pueden dar importes de venta distintos con los mismos datos. ¿Cuál está mal? | Ninguno: criterios distintos. Java suma los no cancelados (`IndicadoresDAO.java:20-26`); K07 suma los confirmados en adelante; Python calcula los tres (`analiticas.py:155-181`). **[EQUIPO: elegir el oficial, si se quiere unificar]** | §5, P5.8 |
 | 14:05–14:30 | **Trampa Integración** | **T9.** «¿Elegir S00005 demuestra la integración completa?» | No. El PDF acredita el caso de Odoo; faltan exportación y correspondencia verificadas con PostgreSQL, PSP y Python. SO024 es solo un ejemplo y su ensayo no prueba S00005. | §15 |
 | (reserva) | **Trampa Portal** | **T10.** «El portal del trabajador cambia el estado y el stock con un `UPDATE` directo, como lo dejó Berme.» | No: el servidor pasa a `portal_trabajador`, que no puede escribir en ninguna tabla; solo ejecuta `avanzar_pedido_trabajador` y `ajustar_existencias_trabajador` (script 23), que comprueban que es un trabajador activo y firman la auditoría a su nombre. | §16 |
 | 14:30–15:00 | Cierre | **16.** ¿Qué mejorarías primero y cuál ha sido tu parte del trabajo? | Explicar los límites de trazabilidad, sin prometer nuevas funciones para esta entrega. La parte propia, contada tal como fue: la decide el equipo, no esta guía. | §0 |
@@ -56,7 +56,7 @@
 | T5 (Interfaces) | Supone que hay backend en el formulario | `evento.preventDefault()` y mensaje «SIMULACIÓN» (`js/custom.js:32` y `:48-51`) |
 | T6 (Seguridad) | Confunde hash con cifrado | `crypt(p, hash) <> hash` para comprobar (`02_funciones.sql:25`); contraseña nueva con `establecer_password` (`:427-446`) |
 | T7 (Git) | Confunde el autor de la fusión con el de los commits | `git log --format='%an' 492c4e8^1..492c4e8^2` → 25 commits de `Alvarobaz` |
-| T8 (Odoo) | Pide una evidencia que no existe | No hay nada en `05_Odoo/`; `05_Odoo/recorrido-manual-odoo.md` es un borrador |
+| T8 (Odoo) | Pide la factura de SO024 | No existe: SO024 es el ejemplo del enunciado, no una venta de Odoo. Enseñar INV/2026/00001 en el PDF de Berme, p. 12, y aclarar que es del flujo S00005 (`05_Odoo/README.md`; `odoo/documentacion/Odoo-NOVA-Sneakers.pdf`) |
 | T9 (Integración) | Confunde el caso documental con integración demostrada | `06_Intermodular/CASO_COMUN_S00005.md` (sin prueba de S00005 fuera de Odoo); `03_PSP/evidencias/so024_provisional/README.md` y `06_Intermodular/evidencias/regresion-final/06_so024_provisional/00_cadena.txt` (lanzador, datos PROVISIONALES) |
 | T10 (Portal) | Supone que el portal escribe en las tablas | `23_portal_trabajador.sql:218-250` (rol sin escritura y solo dos `GRANT EXECUTE`); `servidor-admin/rutas-trabajador.js:77-103` llama a la función con el usuario de la sesión |
 
@@ -77,7 +77,7 @@
 | Seguridad | «Como la cookie es HttpOnly, la web ya es segura frente a todo.» | HttpOnly protege el token frente a XSS; contra CSRF está SameSite=Strict; falta `Secure` porque es HTTP local. |
 | Git | «El `.gitignore` impide subir el `.env` aunque se use `git add -f`.» | No: `-f` se lo salta, y tampoco protege un archivo ya en seguimiento. |
 | Portal | «Con la sesión del portal se puede entrar en el panel de administración.» | No: el login único lleva a cada rol a su panel y las rutas `/api/admin/` le responden 403 al trabajador (`servidor.js:221-225`; prueba 8 de `test:portal`). |
-| Odoo | «El portal ya manda los pedidos a Odoo.» | No: `odoo.js` está desactivado sin `ODOO_URL`, `ODOO_DB` y `ODOO_API_KEY`, y las rutas de `pedidos.js` no se montan. No se ha probado contra ningún Odoo. |
+| Odoo | «El portal ya manda los pedidos a Odoo.» | No: `odoo.js` está desactivado sin `ODOO_URL`, `ODOO_DB` y `ODOO_API_KEY`, y las rutas de `pedidos.js` no se montan. En la versión entregada no se ha verificado contra ningún Odoo; el PDF documenta pruebas de Berme con una versión anterior en su entorno (pp. 13-15). |
 
 **Cruzadas de reserva**
 
