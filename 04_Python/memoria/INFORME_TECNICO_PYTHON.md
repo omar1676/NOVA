@@ -8,7 +8,7 @@ Ampliación de Python: ciencia de datos y dashboard. Es el informe técnico que 
 - **[POR DECIDIR (los tres): …]**: una decisión del equipo;
 - **[DUDA PARA EL PROFESOR (Dn): …]**: una pregunta abierta.
 
-**Versión:** rama `integracion/candidata-2`, commit `8cdc08c`. Todas las cifras de pruebas son de la **regresión final del 13/11/2026**, sobre ese árbol exportado con `git archive` (`06_Intermodular/evidencias/regresion-final/`).
+**Versión:** rama `integracion/candidata-2`, commit `1bcbb10`. Todas las cifras de pruebas son de la **regresión final del 13/11/2026**, sobre ese árbol exportado con `git archive` (`06_Intermodular/evidencias/regresion-final/`).
 
 ---
 
@@ -24,7 +24,7 @@ La rúbrica obliga a no mezclar nunca datos reales y sintéticos, ni a presentar
 
 **Ninguna cifra de este informe es una venta real de NOVA.** Los datos de PRUEBA son 12 pedidos de un solo día y 6 clientes, de los que solo uno tiene una compra válida (`04_Python/kpis_y_graficos.md`).
 
-**[PENDIENTE (los tres): antes de la defensa, exportar los cinco CSV desde la base del equipo con `16_exportar_csv_dashboard.sql`, poner «Tipo: REAL» en `entrada_acc/ORIGEN.txt` y regenerar P-A, P-B, P-C y N-1 a N-3 (pasos en `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md` §4 y `04_Python/conciliacion_sql.md`).]** **[DUDA PARA EL PROFESOR (D11): ¿cuenta como REAL una base de prueba montada con los scripts?]**
+**Decisión de entrega (13/11):** los cinco CSV se entregan como PRUEBA (`entrada_acc/ORIGEN.txt`, «Tipo: PRUEBA»); no hay exportación REAL de la base del equipo. Si se hiciera, los pasos están en `04_Python/conciliacion_sql.md` (exportar con el 16 y regenerar a la vez P-A, P-B, P-C y N-1 a N-3). **[DUDA PARA EL PROFESOR (D11): ¿cuenta como REAL una base de prueba montada con los scripts?]**
 
 ---
 

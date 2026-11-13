@@ -8,7 +8,7 @@
 // imagen: foto sin fondo; es la que se ve en la estantería, el catálogo, la ficha,
 //   el probador y el carrito.
 // imagenCatalogo y catalogoConFondo: la foto con fondo de estudio que usaba antes el
-//   catálogo. No se usan desde el rediseño de Álvaro (5f0ce57); ver el README.
+//   catálogo. No se usan desde el rediseño de Álvaro (202c1d0); ver el README.
 const modelos = [
   {
     nombre: "NOVA Street Vortex",

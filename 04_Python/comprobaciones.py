@@ -157,7 +157,7 @@ def comprobar_periodo(datos):
     detalle = f"del {fechas.min():%Y-%m-%d} al {fechas.max():%Y-%m-%d}, {meses} mes(es) distinto(s)"
     if meses < 2:
         return resultado("Periodo de los pedidos", "AVISO",
-                         detalle + ": no hay historial para series mensuales con los datos reales")
+                         detalle + ": no hay historial para series mensuales con estos datos")
     return resultado("Periodo de los pedidos", "OK", detalle)
 
 

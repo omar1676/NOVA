@@ -16,7 +16,7 @@
 
 **Convenciones**
 
-- Las rutas de código y de resultados son relativas a la raíz del repositorio, rama `integracion/candidata-2` (las líneas se han comprobado con el código de `8cdc08c`, el que pasó la regresión del 13/11). Si alguien toca un archivo, las líneas pueden moverse: repasad las citas la víspera.
+- Las rutas de código y de resultados son relativas a la raíz del repositorio, rama `integracion/candidata-2` (las líneas se han comprobado con el código de `1bcbb10`, el que pasó la regresión del 13/11). Si alguien toca un archivo, las líneas pueden moverse: repasad las citas la víspera.
 - Los resultados de las pruebas están en `06_Intermodular/evidencias/regresion-final/` (regresión completa del 13/11, con la hora y el entorno de cada batería).
 - Las citas de los archivos modificados se han actualizado durante la limpieza basada en `a6151db`; las evidencias conservan sus resultados originales.
 - `archivo:12-20` significa «líneas 12 a 20».
@@ -319,9 +319,9 @@ De `02_Acceso_Datos/sql/15_exportar_fabricacion.sql`, que exporta con `\copy` la
 - El padre guarda en memoria todo lo que escribe cada hijo, sin tope.
 - El validador solo comprueba que la talla sea positiva; el rango de 20 a 55 lo comprueba el analizador (prueba 12k).
 - En la consola de Windows, los acentos de los mensajes del analizador salen mal si no se usa `-Dfile.encoding=UTF-8` (se ve en `06_Intermodular/evidencias/regresion-final/02_java_psp/04_psp_pruebas.txt`).
-- La ficha todavía no se puede relacionar con un pedido de Odoo, porque no existe (PSP-10 y PSP-29). **[PENDIENTE (Berme): el pedido de Odoo y la equivalencia de su número y sus SKU.]**
+- La ficha se relaciona con un pedido de Odoo por la referencia del CSV (PSP-10 y PSP-29). Hoy no hay ninguna exportación de Odoo procesada por PSP. Sin programar, se puede demostrar con un pedido cuya referencia sea la «Referencia del cliente» de una venta de Odoo: S00001 ↔ `NOVA-0011` según el PDF de Berme (p. 13), que hay que comprobar en su Odoo. S00005 no tiene CSV ni ficha en PSP.
 - SO024 solo se ha probado con datos PROVISIONALES: el script 18 lo prepara en PostgreSQL y la cadena llega a PSP con código 0 (`03_PSP/evidencias/so024_provisional/`; lo explica también `03_PSP/README.md`).
-- `scripts/comprobar_psp.py` falla en la primera comprobación, y se sabe por qué: espera la respuesta antigua del validador (`06_Intermodular/evidencias/regresion-final/02_java_psp/07_comprobar_psp.txt`). El arreglo de Berme (`862e37d`, en `feature/berme`) no está en esta rama.
+- `scripts/comprobar_psp.py` ya funciona: el arreglo de Berme (`4f09742`, con su autoría) está en `main`, y en la regresión de cierre da OK (`06_Intermodular/evidencias/cierre-entrega-20261113/psp_comprobador.txt`). El fallo anterior queda en `06_Intermodular/evidencias/regresion-final/02_java_psp/07_comprobar_psp.txt`.
 - `LanzadorAnalizador.java` tiene el problema del ejercicio E4.2. El coordinador no lo usa: usa `GestorProcesos`.
 
 ---
@@ -672,7 +672,7 @@ La instancia o máquina virtual, una copia o backup o evidencias suficientes par
 
 - `05_Odoo/recorrido-manual-odoo.md:1-20` — borrador de un recorrido manual PostgreSQL → CSV → Odoo. Dice expresamente que el 10/11 no se pudo comprobar Odoo desde este ordenador.
 - `odoo/documentacion/Odoo-NOVA-Sneakers.pdf`, pp. 10–12 — evidencia documental de S00005, fabricación, entrega y factura. `06_Intermodular/CASO_COMUN_S00005.md` distingue esa evidencia de los ensayos auxiliares.
-- `servidor-admin/odoo.js` (de Berme, integrado con su autoría en `654ad8b`): un conector con la API JSON-2 de Odoo que lee la clave de `ODOO_API_KEY` y espera como mucho 15 s (`odoo.js:33`). Está **desactivado** mientras falte `ODOO_URL`, `ODOO_DB` u `ODOO_API_KEY` (`odoo.js:3-23`), y la consola lo dice al arrancar (`servidor.js:473`). Es código; no se ha probado contra ningún Odoo. La única prueba es que se queda desactivado sin configuración (`test:portal`).
+- `servidor-admin/odoo.js` (de Berme, integrado con su autoría en `a52341e`): un conector con la API JSON-2 de Odoo que lee la clave de `ODOO_API_KEY` y espera como mucho 15 s (`odoo.js:33`). Está **desactivado** mientras falte `ODOO_URL`, `ODOO_DB` u `ODOO_API_KEY` (`odoo.js:3-23`), y la consola lo dice al arrancar (`servidor.js:473`). Es código; no se ha probado contra ningún Odoo. La única prueba es que se queda desactivado sin configuración (`test:portal`).
 - `servidor-admin/pedidos.js` (de Berme): rutas para crear pedidos y enviarlos a Odoo. **No se montan** (`pedidos.js:1-11` explica por qué). No se activan para esta entrega.
 
 ### Ejercicios
@@ -735,7 +735,7 @@ De la API `/api/admin/...` del servidor (`01_Interfaces/admin/script.js:62-100`)
 - **[PENDIENTE (los tres): la prueba de usabilidad con personas (RA4, CE i)].** El procedimiento está preparado en `01_Interfaces/memoria/PROCEDIMIENTO_USABILIDAD.md`. La estrategia de pruebas (RA8) está en `01_Interfaces/memoria/ESTRATEGIA_PRUEBAS_INTERFACES.md`.
 - El formulario Custom no pide la fecha objetivo ni enseña un número de pedido (el enunciado dice «Puede mostrarse o simularse»).
 - Runner X, el modelo de SO024, no está en el catálogo de la web.
-- Por debajo de 370 px se oculta el enlace «Nuestra visión» del menú (`css/inicio.css:534-536`); la sección sigue ahí bajando por la página.
+- Por debajo de 761 px se oculta el enlace «Nuestra visión» del menú (`css/inicio.css:1362-1366`; la regla de 370 px, `:534-536`, repite lo mismo); la sección sigue ahí bajando por la página.
 - En móvil, axe avisa de `scrollable-region-focusable` en las tablas del panel; el panel y el portal cargan Lucide (y el panel, Chart.js) de internet.
 - Las baterías de la web se repitieron el 13/11 sobre el código final: 136/136, 114/114, 81/81 y la compra 139/139 (`06_Intermodular/evidencias/regresion-final/05_web/`). Lighthouse es del 11/11.
 
@@ -804,7 +804,7 @@ El rol de la aplicación (administrador, comercial o trabajador) es del negocio 
 ### Preguntas probables
 
 **P14.1 ¿Cómo os organizasteis con Git?**
-Con ramas por persona y tarea (`feature/omar-*`, `feature/AlvaroBaz` y `feature/berme`), una rama de integración donde se fusionan (`6439bbc`, `7715f83` y `150d02f`), la candidata final `integracion/candidata-2` y worktrees para tener varias ramas abiertas a la vez en carpetas distintas.
+Con ramas por persona y tarea (`feature/omar-*`, `feature/alvaro` y `feature/berme`), una rama de integración donde se fusionan (`b3d5680`, `492c4e8` y `8c3d874`), la candidata final `integracion/candidata-2` y worktrees para tener varias ramas abiertas a la vez en carpetas distintas.
 
 **P14.2 ¿Qué es un worktree?**
 Otra carpeta de trabajo del mismo repositorio con otra rama. Comparten el historial: en un worktree, `.git` es un archivo que apunta a la carpeta `.git/worktrees/...` del repositorio principal. Sirve para no tener que cambiar de rama con trabajo a medias (RT-GIT-01). `git worktree list` los enseña todos.
@@ -813,13 +813,13 @@ Otra carpeta de trabajo del mismo repositorio con otra rama. Comparten el histor
 Une dos historias. Si las dos ramas han avanzado, crea un commit de fusión con dos padres. Los commits de la rama fusionada no cambian: conservan su autor y su fecha.
 
 **P14.4 ¿Cómo se ve quién hizo qué?**
-Con `git log`, `git shortlog -sn` y `git blame`. Por ejemplo, `git log 7715f83^1..7715f83^2` lista los 25 commits que entraron con esa fusión, todos con su autor original (`Alvarobaz`), aunque el commit de fusión lo firme otra persona (`omar1676`). Lo mismo pasa con los dos commits del portal de Berme: entraron con `git cherry-pick -x` (`7341001` y `654ad8b`), así que conservan su autor y su fecha del 11/11 y llevan la línea «cherry picked from commit …». Las cifras 74/25/8 pertenecen a un corte anterior. El historial publicado conserva las aportaciones de `omar1676`, `Alvarobaz` e `Ivan Bermejo`; las cifras actuales se consultan con `git shortlog -sn main`. El número de commits no mide la contribución: **[PENDIENTE (los tres): el reparto real, punto 9 de la memoria]**.
+Con `git log`, `git shortlog -sn` y `git blame`. Por ejemplo, `git log 492c4e8^1..492c4e8^2` lista los 25 commits que entraron con esa fusión, todos con su autor original (`Alvarobaz`), aunque el commit de fusión lo firme otra persona (`omar1676`). Lo mismo pasa con los dos commits del portal de Berme: entraron con `git cherry-pick -x` (`b8e5fe1` y `a52341e`), así que conservan su autor y su fecha del 11/11 y llevan la línea «cherry picked from commit …». Las cifras 74/25/8 pertenecen a un corte anterior. El historial publicado conserva las aportaciones de `omar1676`, `Alvarobaz` e `Ivan Bermejo`; las cifras actuales se consultan con `git shortlog -sn main`. El número de commits no mide la contribución: **[PENDIENTE (los tres): el reparto real, punto 9 de la memoria]**.
 
 **P14.5 ¿Qué no se sube y por qué?**
 `.env`, `conexion.properties`, los `.class`, las salidas, los logs y el driver JDBC (`.gitignore:5-8`, `:11-14`, `:24`, `:37` y `:40`). Las contraseñas de las cuentas de la base se piden por teclado al ejecutar los scripts (`17_usuario_java.sql:35`) y en el repositorio solo hay plantillas vacías (`servidor-admin/.env.example` y `02_Acceso_Datos/java/conexion.properties.ejemplo`).
 
 **P14.6 ¿Qué convención de commits seguís?**
-Al principio, la del plan del equipo (`feat(web): …`, `test(psp): …`; se ve en los commits que entraron con `150d02f`). Ahora, mensajes en inglés, en imperativo y sin prefijo, por ejemplo `4203fe7 Note the known failure of the PSP quick check`.
+Al principio, la del plan del equipo (`feat(web): …`, `test(psp): …`; se ve en los commits que entraron con `8c3d874`). Ahora, mensajes en inglés, en imperativo y sin prefijo, por ejemplo `2ccfed5 Note the known failure of the PSP quick check`.
 
 **P14.7 ¿Qué es un conflicto y cómo se resuelve?**
 Pasa cuando dos ramas cambian las mismas líneas y Git no sabe con cuál quedarse: marca el archivo con `<<<<<<<`, `=======` y `>>>>>>>`. Se edita a mano, se prueba, se hace `git add` y se termina la fusión con un commit.
@@ -829,18 +829,18 @@ El cierre de código está en `main` desde la PR #2 (`4a25d5a`). Esta revisión 
 
 ### Código real (historial)
 
-- `7715f83` — fusión de la rama `feature/AlvaroBaz` (25 commits con su autor original).
-- `150d02f` — fusión de la rama de Berme (6 commits con su autor original).
+- `492c4e8` — fusión de la rama `feature/alvaro` (25 commits con su autor original).
+- `8c3d874` — fusión de la rama de Berme (6 commits con su autor original).
 - `.gitignore:4-8` y `:35-37` — los archivos con credenciales que no se suben.
 
 ### Ejercicios
 
-- **E14.1** ¿Qué comando usarías para ver solo los commits que entraron con la fusión `7715f83`, y quién es su autor?
+- **E14.1** ¿Qué comando usarías para ver solo los commits que entraron con la fusión `492c4e8`, y quién es su autor?
 - **E14.2** Alguien hace commit de `servidor-admin/.env` por error. ¿Lo impide el `.gitignore`? Si ya se ha subido, ¿qué hay que hacer?
 
 ### Limitaciones que conviene decir antes de que pregunten
 
-- En el historial solo hay una fusión hecha con Pull Request (`558cab3`); las demás se hicieron en local.
+- En el historial solo hay una fusión hecha con Pull Request (`9cde323`); las demás se hicieron en local.
 - El reparto del plan del equipo (RT) no coincide del todo con quién hizo cada cosa. El punto 9 de la memoria tiene que contarlo como fue, sin inventar.
 - Contar commits no mide el trabajo: hay revisión, pruebas y trabajo fuera del repositorio (Odoo).
 
@@ -891,7 +891,7 @@ La trazabilidad del mismo pedido entre Odoo y los módulos auxiliares sigue parc
 
 ## 16. Portal del trabajador (ampliación, de Berme)
 
-El portal es de Berme: sus dos commits (`7341001`, las páginas y las rutas; `654ad8b`, el conector de Odoo y las rutas de pedidos) entraron con `cherry-pick -x` y conservan su autor y su fecha del 11/11. Se integró en `servidor-admin`, detrás del login único y con el rol `portal_trabajador` del script 23. **Es una ampliación:** ningún enunciado lo pide, y el inventario y la fabricación «de verdad» siguen siendo de Odoo.
+El portal es de Berme: sus dos commits (`b8e5fe1`, las páginas y las rutas; `a52341e`, el conector de Odoo y las rutas de pedidos) entraron con `cherry-pick -x` y conservan su autor y su fecha del 11/11. Se integró en `servidor-admin`, detrás del login único y con el rol `portal_trabajador` del script 23. **Es una ampliación:** ningún enunciado lo pide, y el inventario y la fabricación «de verdad» siguen siendo de Odoo.
 
 ### Preguntas probables
 
@@ -999,13 +999,13 @@ Resultado: un pago, un único descuento de stock y un solo recibo, porque solo e
 
 **E12.1** Con −3, el navegador lo para antes de enviar, por el `min="0"` del campo (`index.html:352`): el evento `submit` ni siquiera llega al JavaScript (lo explica `js/custom.js:29-31`). Con 0 en todas, el formulario sí se envía, pero el total es 0: sale «Indica cuántos pares quieres de al menos una talla» y el foco va a la primera talla (`js/custom.js:34-38`).
 
-**E12.2** Dos columnas: la media query `@media (max-width: 760px)` cambia `.catalogo-grid` a `repeat(2, minmax(0, 1fr))` (`css/inicio.css:649` y `:660-663`); en escritorio son 4 (`:617-622`). Por debajo de 370 px, además, se oculta el segundo enlace del menú, «Nuestra visión» (`:534-536`).
+**E12.2** Dos columnas: la media query `@media (max-width: 760px)` cambia `.catalogo__grid` a `repeat(2, minmax(0, 1fr))` (`css/inicio.css:649` y `:660-663`); en escritorio son 4 (`:617-622`). En el móvil (por debajo de 761 px) se oculta, además, el segundo enlace del menú, «Nuestra visión» (`:1362-1366`; la regla de 370 px, `:534-536`, repite lo mismo).
 
 **E13.1** Responde 429 «Demasiados intentos» con la cabecera `Retry-After`, sin comprobar la contraseña: `tiempoDeBloqueo` es mayor que 0 y el login sale antes de llamar a `iniciar_sesion` (`servidor.js:120-124`). El bloqueo lo puso el quinto fallo (`intentos.js:41-43`). Está probado en `01_Interfaces/evidencias/panel-admin/resultados/09_intentos_y_sesiones.txt` («6.o intento CON la contrasena buena -> 429»). Pasados 5 minutos puede volver a entrar.
 
 **E13.2** `usuario_sesion()` separa el id y la firma por `:`. Con `'1'` no hay firma, así que devuelve NULL (`02_funciones.sql:59-64`): el evento queda **sin operador**, no a nombre del administrador. Si se inventa una firma, el HMAC no coincide y también devuelve NULL (`:76-78`). La clave de la firma es el hash bcrypt del usuario, que ningún rol de la aplicación puede leer (`07_seguridad.sql:99-101`). Son las pruebas F1–F4 (`documentacion/README.md:506-559`).
 
-**E14.1** `git log --oneline 7715f83^1..7715f83^2`: muestra lo que está en el segundo padre (la rama fusionada) y no en el primero (la rama de integración). Salen 25 commits; con `--format='%an'` se ve que el autor de todos es `Alvarobaz`, aunque el commit de fusión lo firme `omar1676`.
+**E14.1** `git log --oneline 492c4e8^1..492c4e8^2`: muestra lo que está en el segundo padre (la rama fusionada) y no en el primero (la rama de integración). Salen 25 commits; con `--format='%an'` se ve que el autor de todos es `Alvarobaz`, aunque el commit de fusión lo firme `omar1676`.
 
 **E14.2** No siempre: `.gitignore` (`:5-8`) solo ignora archivos que no estaban ya en seguimiento, y `git add -f` se lo salta. Si ya se ha subido, hay que dar la contraseña por comprometida: cambiarla en PostgreSQL (los scripts 19 y 20 se pueden volver a ejecutar para ponerle otra a `web_nova` y `tienda_nova`), sacar el archivo del repositorio con `git rm --cached` y, si hace falta, limpiar el historial. Nunca se pone la contraseña en el mensaje del commit.
 

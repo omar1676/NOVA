@@ -88,7 +88,7 @@
 | R22 | 01:32 | Ethereal real con datos ficticios; Ethereal sin red y sin respuesta (simulados) | 16 de 16; 5 de 5 y 5 de 5 | `RF/05_web/07_*.txt` a `09_*.txt`; `01_Interfaces/evidencias/correo-ethereal/` |
 | R23 | 01:06 | **SO024 PROVISIONAL** de principio a fin: 18 → métodos Java de «Nuevo pedido» → 15 → PSP → 16 → Python | 40 pares, 9 líneas y 3.996,00 €; cada talla baja una vez; auditoría de `admin.demo`; PSP con código 0; en Python, un solo pedido | `RF/06_so024_provisional/`; `03_PSP/evidencias/so024_provisional/` |
 | R24 | 01:19–08:44 | **El manual de instalación seguido al pie de la letra** en un clon nuevo y una base vacía: base, Java, PSP, entorno Python nuevo con `requirements.txt`, Streamlit, `npm ci`, `.env`, login único y `npm test` | 23 scripts con salida 0, 123/0/1, `pruebas.bat` 47/47, 27/27, `npm test` 23/23. Salieron dos errores del manual, ya corregidos | `RF/08_manual_instalacion/` |
-| R25 | 00:44–00:47 | Caso K: el dashboard abierto en Edge tres ciclos de 60 s sin tocarlo (mismo código, `8cdc08c`) | 4 PASS: cuatro horas de comprobación distintas, «Sin cambios» y las mismas cifras | `04_Python/evidencias/dashboard/caso_k_*` |
+| R25 | 00:44–00:47 | Caso K: el dashboard abierto en Edge tres ciclos de 60 s sin tocarlo (mismo código, `1bcbb10`) | 4 PASS: cuatro horas de comprobación distintas, «Sin cambios» y las mismas cifras | `04_Python/evidencias/dashboard/caso_k_*` |
 | R26 | 13/11 | Búsqueda de las cinco contraseñas de demostración en las evidencias y la documentación (entonces `pruebas/` y `docs/`), `README.md` y los resultados | 0 coincidencias. El escaneo de todos los blobs nuevos de la rama se hace al preparar la PR | `RF/README.md` («Sin contraseñas») |
 
 **Anteriores al 13/11 (no repetidas):**
@@ -110,7 +110,7 @@
 
 ### 0.2 Limpieza final (13/11, por la tarde)
 
-La rama `refactor/limpieza-final-nova` sale de la candidata 2 (`9d589ae`) y hace tres cosas:
+La rama `refactor/limpieza-final-nova` sale de la candidata 2 (`ab357ed`) y hace tres cosas:
 - **Reorganiza el repositorio por asignaturas.** Las carpetas pasan a `01_Interfaces` … `06_Intermodular`, con `git mv`, y `servidor-admin` sigue siendo una sola carpeta compartida. Las rutas de esta matriz ya son las nuevas.
 - **Quita 14 archivos sin uso.** Son 6 imágenes del probador, 1 captura repetida y 7 `.gitkeep`. Ninguno es una evidencia que cite esta matriz.
 - **Simplifica código sin cambiar resultados.** Afecta a Python, la web, el servidor, PSP y los comentarios SQL.
@@ -378,7 +378,7 @@ Las 130 filas obligatorias de la rúbrica de AD.
 | IM-PSP-25 | Lectura separada de stdout y stderr (cuando proceda) | CRITERIO (condicional) | `GestorProcesos.java` (3 hilos) | 07 | R09 (13/11) | DPSP §5.1; MEM §5 | CUMPLIDO Y PROBADO | — |
 | IM-PSP-26 | `waitFor` y tratamiento de los códigos de salida | CRITERIO | Ídem | 08a (código 7 recogido exacto) | R09 (13/11) | DPSP §6; MEM §5 | CUMPLIDO Y PROBADO | — |
 | IM-PSP-27 | Procesos bloqueados o que tardan demasiado (si se ha trabajado en clase) | CRITERIO (condicional) | `GestorProcesos.java` (`waitFor` con límite y `destroyForcibly`) | 10: se cancela a los 2,0 s en vez de 60 | R09 (13/11) | DPSP §7; MEM §5 | CUMPLIDO Y PROBADO | El `LanzadorAnalizador` de Álvaro, que el coordinador no usa, no aplica el tiempo máximo. [REVISIÓN (Álvaro) en la PR] |
-| IM-PSP-28 | Separación de responsabilidades y código legible | CRITERIO | Tres hijos y un gestor; limpieza de comentarios (`b2a7379`) | 03–05 prueban cada hijo por separado | R09 (27/27 tras la limpieza de comentarios) | DPSP §2; MEM §5 | CUMPLIDO Y PROBADO | [POR DECIDIR (los tres)]: qué se hace con la versión anterior (`LanzadorValidacion` y el `AnalizadorTallas` de la raíz) |
+| IM-PSP-28 | Separación de responsabilidades y código legible | CRITERIO | Tres hijos y un gestor; limpieza de comentarios (`eae5fc5`) | 03–05 prueban cada hijo por separado | R09 (27/27 tras la limpieza de comentarios) | DPSP §2; MEM §5 | CUMPLIDO Y PROBADO | [POR DECIDIR (los tres)]: qué se hace con la versión anterior (`LanzadorValidacion` y el `AnalizadorTallas` de la raíz) |
 | IM-PSP-29 | Registro que permita seguir el pedido y relacionarlo con su referencia de Odoo | CRITERIO | `registro_psp.txt` | 05 | R09 (13/11) | DPSP §9.3; MEM §5 | PARCIAL | [PENDIENTE (Berme): Odoo]: la referencia real de Odoo en `registro_psp.txt` |
 | IM-PSP-RA1-cefg | RA1 CE c), e)-g): subprocesos, compartir información, sincronizar y valores de retorno | CRITERIO (RA/CE) | `03_PSP/` | 01–10 | R09 (13/11) | DPSP §5 y §10; MEM §5 | CUMPLIDO Y PROBADO | Aquí sincronizar es esperar con `waitFor`, un hijo tras otro. [DUDA PARA EL PROFESOR (D9)]: si la sincronización obliga a usar hilos |
 | IM-PSP-RA1-i | RA1 CE i): depurar y documentar | CRITERIO (RA/CE) | `03_PSP/README.md`; `scripts/comprobar_psp.py` | Regresión final: 27/27 y comprobador rápido correcto con el cambio de Berme | cierre-entrega-20261113/psp_pruebas.txt y psp_comprobador.txt | DPSP §10 y §13; MEM §5 | CUMPLIDO Y PROBADO | — |
@@ -739,7 +739,7 @@ En el apartado 2.6 hay dos filas más que también son de Berme: el entregable �
 | Dashboard de Python dentro del panel de Álvaro («Análisis de datos») | `01_Interfaces/admin/analisisAdmin.html`, `analisis.js`; `04_Python/.streamlit/config.toml` (`[theme.dark]`) | En Edge, en 1440, 820 y 390 px: solo entra el administrador (el trabajador, el comercial y un cliente de la tienda, no); la opción sale una vez en las 12 páginas del panel; las cifras, las 6 pestañas, los filtros, una descarga y el refresco de 60 s funcionan dentro del panel; las Estadísticas y el Dashboard de Álvaro siguen igual; axe sin violaciones nuevas; Streamlit solo escucha en 127.0.0.1; sin Streamlit, la página explica cómo arrancarlo | `01_Interfaces/evidencias/panel-admin/analisis-datos/` (45/45 y la escucha de Streamlit, 13/11) | CUMPLIDO Y PROBADO | Streamlit no tiene login propio: solo se abre desde este ordenador. El dashboard sigue existiendo por su cuenta, como pide la rúbrica de Python. **[REVISIÓN (Álvaro) en la PR]:** una línea más en el menú de sus 12 páginas |
 | Conector de Odoo y rutas de pedidos de Berme | `servidor-admin/odoo.js`, `pedidos.js` | El arranque dice «Conector de Odoo desactivado» (R24); `pedidos.js` no se monta | R24 | **No activo y sin probar** | Desde este equipo no se llega a ningún Odoo. Escribe en `log_eventos` directamente: habría que adaptarlo antes de montarlo |
 
-No son ampliaciones, pero mejoran la calidad: la simplificación del Python y la limpieza de comentarios de Java y PSP (`f404def` y `b2a7379`). Las salidas siguen iguales a la referencia (R15) y las pruebas pasan (R06, R09 y R14).
+No son ampliaciones, pero mejoran la calidad: la simplificación del Python y la limpieza de comentarios de Java y PSP (`d0490cf` y `eae5fc5`). Las salidas siguen iguales a la referencia (R15) y las pruebas pasan (R06, R09 y R14).
 
 **Aviso de alcance:** AD-136 dice que «se valorará la coherencia con el proyecto de fábrica más que incorporar funcionalidades no solicitadas». Las ampliaciones no suman por sí solas y no deben quitar tiempo a lo obligatorio que falta. **[DUDA PARA EL PROFESOR (D6)]**
 
@@ -749,7 +749,7 @@ No son ampliaciones, pero mejoran la calidad: la simplificación del Python y la
 
 No es una lista de nuevas ampliaciones ni una espera de trabajo de compañeros. Se entrega lo existente con estos límites: S00005 sin trazabilidad entre sistemas; códigos Runner X sin conciliar; exportación ACC de PRUEBA; usabilidad con personas y parte de evidencias manuales no repetidas; ERP documental sin API verificada aquí; backup/restauración Odoo no acreditados en este entorno; atribuciones personales no confirmadas. Véase `06_Intermodular/ESTADO_ENTREGA_FINAL.md` y el guion disponible.
 
-La corrección del comprobador PSP ya está incorporada con autoría de Berme (`4f09742`, origen `0baf61f`) y verificada. No se borran sus pruebas ni las evidencias del fallo anterior. Los cambios adicionales al catálogo, seguridad, algoritmo de predicción o integración ERP quedan fuera del cierre.
+La corrección del comprobador PSP ya está incorporada con autoría de Berme (`4f09742`) y verificada. No se borran sus pruebas ni las evidencias del fallo anterior. Los cambios adicionales al catálogo, seguridad, algoritmo de predicción o integración ERP quedan fuera del cierre.
 
 ## 5. Dudas para el profesor
 

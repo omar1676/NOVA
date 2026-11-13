@@ -18,7 +18,7 @@ repositorio (`01_Interfaces`, `02_Acceso_Datos`, `03_PSP`…).
 | **Tecnologías** | Python 3.12 o superior con pandas, numpy, matplotlib, scikit-learn y Streamlit (versiones exactas en `requirements.txt`) |
 | **Qué necesita** | Un entorno virtual con `requirements.txt` y los CSV de `entrada_acc/` (los genera `02_Acceso_Datos/sql/16_exportar_csv_dashboard.sql`) |
 | **Cómo se inicia** | `main.py` por consola y `streamlit run app_dashboard.py` para el dashboard (apartado «Instalación» de este README) |
-| **Pruebas** | `python -m unittest discover -s tests -v`: 265 pruebas. Además, las 93 salidas de `main.py` se comparan con una referencia guardada |
+| **Pruebas** | `python -m unittest discover -s tests -v`: 265 pruebas. Además, las 97 salidas de datos de `main.py` (tres modos) y del generador se comparan con una referencia guardada (`06_Intermodular/evidencias/regresion-limpieza/`) |
 | **Rúbrica** | 214 requisitos, 200 cumplidos; falta sobre todo la exportación REAL. Detalle en `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` (§2.4) |
 | **Conexión con otras asignaturas** | Lee lo que exporta Acceso a Datos y concilia sus cifras con las consultas de `02_Acceso_Datos/sql/12_consultas_panel.sql`. El ensayo SO024 PROVISIONAL tiene resultados históricos; no hay una exportación acreditada de S00005 en Python |
 | **Evidencias y memoria** | `evidencias/dashboard/` (casos del dashboard y refresco de 60 s) y `memoria/INFORME_TECNICO_PYTHON.md` (el informe técnico que pide la rúbrica) |
@@ -256,7 +256,7 @@ completo) todo sale como NO CALCULABLE. Detalle en `segmentacion_y_prediccion.md
 
 Seis pestañas: Dirección, Productos, Clientes, Inventario, Calidad y Predicción.
 
-**También dentro del panel de administración.** La página «Análisis de datos» del panel de Álvaro (`01_Interfaces/admin/analisisAdmin.html`) carga este mismo dashboard en un marco, sin su barra de Streamlit y con la variante oscura del tema (`[theme.dark]` en `.streamlit/config.toml`, con los colores del panel). Dentro del panel funcionan igual los filtros, las descargas y el refresco de 60 s. Solo entra el administrador del panel. Abierto por su cuenta, el dashboard sigue con el tema claro de siempre. Para verlo en el panel hacen falta los dos servidores: `npm start` (en `servidor-admin`) y `streamlit run app_dashboard.py` (aquí).
+**También dentro del panel de administración.** La página «Análisis de datos» del panel de Álvaro (`01_Interfaces/admin/analisisAdmin.html`) carga este mismo dashboard en un marco, sin su barra de Streamlit y con la variante oscura del tema (`[theme.dark]` en `.streamlit/config.toml`, con los colores del panel). Dentro del panel funcionan igual los filtros, las descargas y el refresco de 60 s. A la página «Análisis de datos» solo entra el administrador del panel, pero el dashboard (puerto 8501) no tiene login propio: solo escucha en este ordenador, y aquí `http://localhost:8501` se abre sin pasar por el panel. Abierto por su cuenta, el dashboard sigue con el tema claro de siempre. Para verlo en el panel hacen falta los dos servidores: `npm start` (en `servidor-admin`) y `streamlit run app_dashboard.py` (aquí).
 
 - **Origen siempre visible.** Puede ser la exportación de ACC (ahora PRUEBA), los
   sintéticos limpios o los sintéticos con errores, y nunca se mezclan.

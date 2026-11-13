@@ -157,7 +157,7 @@ un pedido confirmado y no se puede estimar ningún intervalo.
 
 - **Que personalizar un pedido haga gastar más a un cliente.** H1 compara grupos
   distintos de clientes; no es un experimento.
-- **Que la demanda de NOVA crezca o no crezca.** Con los datos reales no hay
+- **Que la demanda de NOVA crezca o no crezca.** Con los datos de PRUEBA no hay
   historial (1 mes). Con los sintéticos, la diferencia no es concluyente, y eso
   tampoco demuestra que no haya crecimiento.
 - **Qué tallas habrá que fabricar el mes que viene.** Depende de los pedidos de

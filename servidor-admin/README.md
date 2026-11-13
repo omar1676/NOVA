@@ -269,6 +269,7 @@ La web cliente (`01_Interfaces/cliente/`) se sirve en `/tienda/`. Su JavaScript 
 |---|---|---|
 | Auditoría con las acciones crear, modificar, eliminar y acceso | `ALTA`, `CAMBIO_ESTADO`, `CAMBIO_STOCK` y `BAJA_LOGICA`, con los mismos colores | Son las que guardan los triggers de `08_auditoria.sql`. Los accesos no se registran en la base |
 | Stock bajo con «10 unidades o menos» | **Menos de 10** | Es el criterio de C8, de P-E y del panel de Java |
+| Stock bajo en el portal del trabajador | **Menos de 5** (`01_Interfaces/trabajador/script.js:185` y `/api/trabajador/resumen`) | El portal de Berme usa su propio umbral: una talla con 5 a 9 pares sale «bajo» en el panel y «suficiente» en el portal. Es una diferencia conocida; no se ha cambiado el código |
 | Sugerencias pendientes | «No disponible» | No hay tabla de sugerencias |
 | Trabajadores: activo o inactivo | También «sin cuenta» | Personal sin usuario en la tabla `usuarios`. Las cuentas sin ficha de personal (las de `crear_usuario`) salen con el nombre en blanco |
 | Productos: activo o inactivo | Inactivo si lo está el SKU **o su modelo** | Es la regla de `anadir_linea_pedido`: un SKU de un modelo dado de baja no se puede vender |
@@ -300,7 +301,7 @@ La web cliente (`01_Interfaces/cliente/`) se sirve en `/tienda/`. Su JavaScript 
 
 ## Cambios en los archivos de Berme (los tiene que revisar él)
 
-Sus commits (`67d6cf0` y `9cb42c7`, del 11/11) se han traído con `git cherry-pick -x`, así que siguen a su nombre. Después:
+Sus commits (`b8e5fe1` y `a52341e`, del 11/11) se han traído con `git cherry-pick -x`, así que siguen a su nombre. Después:
 
 - **`servidor/` pasa a `servidor-admin/`**, sin cambios en ese commit: sus rutas necesitan Express y un pool de PostgreSQL, y el único servidor es este.
 - **`rutas-trabajador.js`:** las mismas rutas, consultas, mensajes y reglas. Cambia cómo llegan a la base: en lugar de `pool.query` con permisos de quien se conectara, lee con `portal_trabajador` y sus dos `UPDATE` pasan a las funciones del script 23 (que comprueban el usuario y dejan la auditoría). Además, los cambios solo aceptan JSON (415) y los ids, como mucho 9 cifras (un número que no cabía en un `integer` daba un error 500 en PostgreSQL).

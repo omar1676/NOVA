@@ -140,5 +140,5 @@ No basta con poner una clave en .env: antes hay que resolver los códigos, revis
 ## 7. Trabajo remoto ya localizado
 
 - El PDF de `origin/feature/berme` es idéntico al de main; no hace falta volver a incorporarlo.
-- Berme ya tiene un arreglo del comprobador PSP, `0baf61f`. La corrección se incorporó en el cierre como `4f09742`, conservando autor y fecha originales, sin traer la rama completa. Se revisó y aplicó de forma aislada, conservando su autoría y las rutas actuales, sin incorporar su rama entera. El comprobador y las pruebas principales de PSP pasan en el cierre.
+- El arreglo del comprobador PSP de Berme se incorporó en el cierre (`4f09742`), conservando su autoría, sin traer la rama completa. Se revisó y aplicó de forma aislada, conservando su autoría y las rutas actuales, sin incorporar su rama entera. El comprobador y las pruebas principales de PSP pasan en el cierre.
 - `777868a` y `d24fa27` permanecen intactos. Toda esta preparación se hace en la misma candidata, sin ramas nuevas, sin merge y sin push.

@@ -253,7 +253,7 @@ y abrir `http://127.0.0.1:8000/01_Interfaces/cliente/`. También funciona abrien
    ```powershell
    npm start
    ```
-   - **Login único del personal:** `http://127.0.0.1:3000/login.html`. `admin.demo` (administrador) entra al panel; `taller.demo` (trabajador), al portal del trabajador; `tienda.demo` (comercial) recibe «sin permiso», porque trabaja con la aplicación Java.
+   - **Login único del personal:** `http://127.0.0.1:3000/login.html`. `admin.demo` (administrador) entra al panel; `taller.demo` (trabajador), al portal del trabajador; `tienda.demo` (comercial) recibe «Acceso denegado» (no tiene ningún panel web), porque trabaja con la aplicación Java.
    - Panel: `http://127.0.0.1:3000/admin.html`. Portal: `http://127.0.0.1:3000/trabajador/`.
    - Tienda: `http://127.0.0.1:3000/tienda/`.
    - Al arrancar, la consola dice si la tienda, el correo y Odoo están configurados.
@@ -264,7 +264,7 @@ y abrir `http://127.0.0.1:8000/01_Interfaces/cliente/`. También funciona abrien
 
 - **Portal del trabajador (Berme), integrado.** Cuatro páginas (`01_Interfaces/trabajador/`): resumen, pedidos («Avanzar estado»: `confirmado` → `en_preparacion` → `enviado` → `entregado`), inventario («Guardar» la cantidad) y personalizados. Se entra por el login único con una cuenta de rol **trabajador** (`taller.demo`). El servidor se conecta como `web_nova` y, para el portal, pasa al rol `portal_trabajador` (script 23), que solo lee las columnas que enseña el portal y solo cambia algo con dos funciones que dejan la auditoría a nombre del trabajador.
 - **Lo que de Berme no está activo:** el conector de Odoo (`odoo.js`) está **desactivado** sin `ODOO_*`, y las rutas de `pedidos.js` (crear pedidos y enviarlos a Odoo) **no se montan** (`servidor-admin/README.md`, «Lo que falta del portal»).
-- **Odoo:** **[PENDIENTE (Berme)]**: máquina virtual, versión, instalación, módulos, usuarios de demostración (sin contraseñas en el repositorio) y cómo restaurar la copia de seguridad. Ver `05_Odoo/CHECKLIST_ODOO_BERME.md`.
+- **Odoo:** está en el ordenador de Berme (Ubuntu 24.04 en OrbStack, Odoo 19 y base `nova_sneaker`). La instalación, los módulos, los usuarios de demostración y los comandos del servicio están en `odoo/documentacion/Odoo-NOVA-Sneakers.pdf` (pp. 3-6, 17 y 19), sin contraseñas. Falta guardar una copia de seguridad (`/web/database/manager` → Backup) y comprobar que se restaura: lo tiene que hacer Berme.
 
 ---
 

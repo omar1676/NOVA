@@ -1224,9 +1224,9 @@ de reflejar el estado real de la cuenta hasta la siguiente transacción.
   permiso, y además se saltaría el descuento de stock.
 - **Nada de tocar a mano `existencias.cantidad`, `pedidos.importe_total`,
   `pedidos.cantidad_total` ni `log_eventos`.** Los calculan los triggers. Los
-  permisos ya lo impiden para `nova_cliente` y `nova_trabajador`; para
-  `nova_admin` es una norma del contrato, porque sí tiene permiso sobre
-  `pedidos` y `existencias` para los ajustes de inventario.
+  permisos ya lo impiden para `nova_cliente`. Para `nova_trabajador` (que sí puede
+  cambiar `existencias.cantidad`, `07_seguridad.sql`) y para `nova_admin` (con permiso
+  sobre `pedidos` y `existencias` para los ajustes de inventario) es una norma del contrato.
 - **Todas las consultas con `PreparedStatement` y `?`**, nunca concatenando
   texto. Las consultas de `12_consultas_panel.sql` están escritas con
   variables de psql justamente para que se vea dónde va cada `?`.

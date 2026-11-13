@@ -1,5 +1,11 @@
 # Comprobación de la rama integrada
 
+> **Documento histórico.** Es la lista de la rama integrada, anterior al servidor:
+> no describe el estado final (el login, el carrito, el pago simulado y el servidor
+> ya existen). Las pruebas del código entregado están en
+> `06_Intermodular/evidencias/cierre-entrega-20261113/` y el recorrido actual, en
+> `MANUAL_DEMOSTRACION.md`.
+
 Ejecutar desde la raíz y registrar el resultado real de cada paso. Esta lista
 no afirma que las pruebas se hayan ejecutado sobre una base de datos.
 

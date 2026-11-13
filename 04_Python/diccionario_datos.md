@@ -3,7 +3,7 @@
 Columnas de los cinco CSV que exporta Acceso a Datos con
 `02_Acceso_Datos/sql/16_exportar_csv_dashboard.sql`. Los nombres, el orden y los
 tipos se han comprobado contra ese script, contra el esquema
-(`sneaker-factory-esquema.sql` y `04_xnova.sql`) y contra una exportación real del
+(`sneaker-factory-esquema.sql` y `04_xnova.sql`) y contra la exportación de PRUEBA del
 9 de noviembre de 2026. Acceso a Datos tiene su propio diccionario en
 `02_Acceso_Datos/documentacion/README.md`, apartado «Exportación de los cinco CSV del
 contrato».
@@ -122,17 +122,22 @@ equivalencias:
 | lineas_pedido | `id_linea`, `id_pedido`, `id_modelo`, `talla`, `cantidad`, `precio_unitario` | los mismos, más `sku` e `importe_linea` |
 | stock | `id_modelo`, `talla`, `stock_disponible`, `fecha_corte` | los mismos, más `sku`, `color` y `activo` |
 
-## Lo que falta o hay que decidir para cumplir la rúbrica
+## Lo que se vio en la exportación de PRUEBA (fase 1, histórico)
+
+> Lista escrita en la fase 1. Varios puntos ya están resueltos en el código: el
+> histórico sintético (`generador_datos.py`), la regla 08 con tallas 20-55 y la talla
+> del SKU (`calidad.py`), la regla 11 por modelo, color y talla, y R2
+> (`tests/test_actualizacion.py`). Se conserva como registro de lo que se decidió.
 
 Visto en la exportación del 9 de noviembre de 2026 (base de prueba reconstruida
 con los scripts del repositorio):
 
 1. **No hay historial.** Los 12 pedidos son del mismo día (un solo mes). Con
-   los datos reales no se pueden hacer series mensuales, estacionalidad, cohortes
+   los datos de PRUEBA no se pueden hacer series mensuales, estacionalidad, cohortes
    ni predicción: hará falta el histórico sintético de `generador_datos.py`
    (apartado 5), separado y etiquetado.
 2. **Hay pocos clientes (6), y solo uno con compras.** RFM da una fila por cliente,
-   pero ni los segmentos ni KMeans son defendibles con los datos reales (apartado
+   pero ni los segmentos ni KMeans son defendibles con los datos de PRUEBA (apartado
    6.8). Salen como NO CALCULABLE y se demuestran con el sintético (ver
    `segmentacion_y_prediccion.md`).
 3. **No hay coste unitario.** El margen (DataFrame 11) será «NO CALCULABLE».
@@ -164,8 +169,8 @@ con los scripts del repositorio):
     aparecen, saldrán como atípicas.
 12. **Solo `stock.csv` lleva fecha de corte.** Los otros cuatro no llevan la
     hora de exportación; el manifiesto usa la fecha de modificación del archivo.
-13. **No son datos de la base principal del equipo.** Antes de la defensa hay que
-    exportar desde la base del equipo y actualizar `entrada_acc/ORIGEN.txt`.
+13. **No son datos de la base principal del equipo.** Decisión de entrega (13/11):
+    se entregan como PRUEBA y así lo dice `entrada_acc/ORIGEN.txt`; no hay exportación REAL.
 
 ## DataFrames de análisis (fase 2)
 

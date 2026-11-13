@@ -107,6 +107,5 @@ psql -U postgres -d nova_sneakers --csv -f P-C.sql > P-C.csv
 Si la base cambia entre la exportación y las consultas, las cifras no cuadrarán.
 No es un error de Python: hay que volver a hacer las dos cosas seguidas.
 
-**Nota:** el `ORDER BY` de P-C tiene un criterio de desempate que está en los
-cambios locales de Java/SQL pendientes de revisar por Berme (M2). Solo cambia el
-orden de las filas, no los valores.
+**Nota:** P-C ordena por `pares DESC, modelo` (`02_Acceso_Datos/sql/12_consultas_panel.sql:161`).
+El desempate solo cambia el orden de las filas, no los valores.

@@ -222,10 +222,10 @@ def preparar(tabla):
 def tabla(datos, alto="auto"):
     """Una tabla consultable (ordenable y con busqueda), con los euros formateados."""
     datos = preparar(datos)
-    # Las columnas de euros se ensenan con 2 decimales y el simbolo del euro
+    # Las columnas de euros se ensenan con 2 decimales y el euro (no porcentajes ni rankings)
     formatos = {}
     for columna in datos.columns:   # preparar ya las ha dejado como texto
-        if "importe" in columna or "ticket" in columna or "monetary" in columna:
+        if ("importe" in columna or "ticket" in columna or "monetary" in columna) and not columna.endswith("_pct") and not columna.startswith(("porcentaje", "ranking")):
             formatos[columna] = st.column_config.NumberColumn(format="%.2f €")
     st.dataframe(datos, hide_index=True, column_config=formatos, height=alto)
 
@@ -722,7 +722,7 @@ def panel(nombre, elegidos):
     c = {"estado": estado, "publicado": publicado, "filtros": elegidos, "texto_filtros": filtros.describir(elegidos),
          "tablas": None}
     if publicado is not None:
-        c["ejecucion"] = f"{publicado['actualizado']:%Y-%m-%d %H:%M:%S} (versión {publicado['version']})"
+        c["ejecucion"] = f"{publicado['actualizado']:%Y-%m-%d %H:%M:%S} (versión {publicado['version']})" + (" · DESACTUALIZADO" if estado["desactualizado"] else "")
         c["pie"] = (f"Origen: {estado['origen']} · Corte: {publicado['corte']:%Y-%m-%d %H:%M} · Datos: {c['ejecucion']}"
                     f" · Filtros: {c['texto_filtros']} · IVA {config.IVA}")
 

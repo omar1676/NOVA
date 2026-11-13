@@ -142,7 +142,7 @@ Hoy está integrado y **desactivado**; activarlo es opcional y no sustituye a na
 
 - [ ] `ODOO_URL`, `ODOO_DB` y `ODOO_API_KEY` solo en `servidor-admin/.env`, que no se sube. Con las tres puestas, la consola del servidor dice al arrancar «Conector de Odoo configurado…». **Ojo:** el único que lo llama es `pedidos.js`, que no se monta (punto siguiente), así que configurarlo no basta para que se envíe nada.
 - [ ] Usuario de Odoo con los permisos justos para lo que hace el conector.
-- [ ] Las rutas de `servidor-admin/pedidos.js` (crear pedidos y enviarlos a Odoo) **no se montan**: escriben directamente en `pedidos` y en `log_eventos`, y en esta base ningún rol de la web puede hacerlo fuera de las funciones y los triggers. Para usarlas, habría que pasarlas a funciones `SECURITY DEFINER` con auditoría, como las de los scripts 22 y 23. **[REVISIÓN (Berme) en la PR: confirmar que está de acuerdo con dejarlas sin montar y con los cambios en sus archivos (`90c57e0`).]**
+- [ ] Las rutas de `servidor-admin/pedidos.js` (crear pedidos y enviarlos a Odoo) **no se montan**: escriben directamente en `pedidos` y en `log_eventos`, y en esta base ningún rol de la web puede hacerlo fuera de las funciones y los triggers. Para usarlas, habría que pasarlas a funciones `SECURITY DEFINER` con auditoría, como las de los scripts 22 y 23. **[REVISIÓN (Berme) en la PR: confirmar que está de acuerdo con dejarlas sin montar y con los cambios en sus archivos (`12af0b4`).]**
 - [ ] Probar el conector contra el Odoo de la máquina virtual y guardar la prueba en `05_Odoo/`.
 - [ ] Explicarlo en la memoria como un paso hacia la integración productiva (`06_Intermodular/memoria/MEMORIA.md` §2.4), no como requisito.
 

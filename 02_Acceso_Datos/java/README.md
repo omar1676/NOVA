@@ -68,7 +68,7 @@ cambio y gestiona usuarios.
    `Sesion.comprobarPermiso(...)`, y la ventana solo enseña las pestañas que
    el rol puede usar.
 2. **PostgreSQL**: Java se conecta con `java_nova`, que es `NOINHERIT` y por
-   sí solo no puede leer ni una tabla. Al iniciar sesión hace `SET ROLE` al
+   sí solo únicamente lee lo que necesita el login (`roles` y cuatro columnas de `usuarios`, script 17). Al iniciar sesión hace `SET ROLE` al
    rol de la base que corresponde. Si alguien se saltara la comprobación de
    Java, la base rechazaría la operación igual (pruebas F3, P2 y P4).
 

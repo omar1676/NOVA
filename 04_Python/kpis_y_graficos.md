@@ -61,7 +61,7 @@ pares) y K05 (40) cuentan pedidos distintos.
 | 01 | `pedidos_unicos.csv` | una fila por pedido (sin el nombre del cliente) | 12 |
 | — | `pedidos_por_estado.csv` | pedidos, pares e importe de los 6 estados del catálogo | 6 |
 | 02 | `ventas_por_periodo.csv` | venta por mes: ticket, variación, media de 3 meses previos e interanual | 1 |
-| 03 | `modelos_abc.csv` | ventas por modelo: pares, pedidos, importe, rankings y clase ABC | 7 |
+| 03 | `modelos_abc.csv` | demanda por modelo (pedidos no cancelados): pares, pedidos, importe, rankings y clase ABC | 7 |
 | — | `ventas_por_talla.csv` | pares de demanda por talla y su peso | 5 |
 | 04 | `matriz_modelo_talla.csv` y `matriz_modelo_talla_proporcion.csv` | pares por modelo × talla, y qué parte de cada modelo es de cada talla | 6 × 5 |
 | 6.9 | `matriz_modelo_mes.csv` | pares por modelo × mes | 6 × 1 |

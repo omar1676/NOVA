@@ -19,7 +19,7 @@ archivos en `salidas/`.
 | **Tecnologías** | Java 17 (`ProcessBuilder`, hilos para leer la salida de cada hijo, esperas con límite). Sin librerías |
 | **Qué necesita** | JDK 17 |
 | **Cómo se inicia** | Desde esta carpeta: `javac -encoding UTF-8 -d clases *.java pruebas\*.java src\Psp\*.java` y `java -cp clases ProcesadorPedidosCustom datos\custom40_fabricacion_psp.csv` |
-| **Pruebas** | `java -cp clases PruebasPsp`: 27 de 27. `scripts/comprobar_psp.py` (raíz del repositorio) correcto en la regresión de cierre; corrección original de Berme `0baf61f` incorporada como `4f09742` |
+| **Pruebas** | `java -cp clases PruebasPsp`: 27 de 27. `scripts/comprobar_psp.py` (raíz del repositorio) correcto en la regresión de cierre; corrección de Berme incorporada en `4f09742`, con su autoría |
 | **Rúbrica** | IM §4.3 y anexo: 19 requisitos, 17 cumplidos; falta relacionar la ficha con el pedido de Odoo. Detalle en `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` (§2.3) |
 | **Conexión con otras asignaturas** | Lee el CSV que genera `02_Acceso_Datos/sql/15_exportar_fabricacion.sql`, con el formato de `06_Intermodular/SO024/contrato-fabricacion.md`. La ficha se demuestra con CUSTOM-40; SO024 es un ensayo provisional y no hay ficha acreditada de S00005 |
 | **Evidencias y memoria** | `evidencias/` (ejecución de CUSTOM-40, errores controlados, hijos por separado, pruebas y SO024 provisional) y `memoria/DOCUMENTACION_PSP.md` |
@@ -38,7 +38,7 @@ archivos en `salidas/`.
 | `pruebas/HijoDePrueba` | hijo solo para pruebas | — | Tarda, falla o devuelve un código raro a propósito |
 
 `Psp.AnalizadorTallas` es la clase de Álvaro (`03_PSP/src/Psp/`, en su rama
-`feature/AlvaroBaz`). **Se usa sin cambiarla**: el padre la lanza por su nombre
+`feature/alvaro`). **Se usa sin cambiarla**: el padre la lanza por su nombre
 y el validador le prepara la entrada en el formato que ella ya leía.
 
 ## Cómo se comunican los procesos
@@ -268,7 +268,7 @@ El script deja `fabricacion_psp.csv` en la carpeta desde la que se lanza.
 
 ## La versión anterior: `LanzadorValidacion` y `AnalizadorTallas`
 
-Del 8 de noviembre (commit `f4847d4`). `LanzadorValidacion` lanza el validador
+Del 8 de noviembre (commit `f5426cb`). `LanzadorValidacion` lanza el validador
 y el `AnalizadorTallas` de la raíz, que solo agrupa por talla y lee el CSV
 directamente.
 
@@ -298,17 +298,17 @@ directamente.
   - **Riesgo de bloqueo:** también puede bloquearse si el hijo escribe mucho
     por stderr, porque lee primero toda la salida y después los errores.
   - **No se ha cambiado su archivo:** es una propuesta para que la revise él.
-- **Cómo está integrado:** su rama se fusionó en el commit `7715f83` (12/11),
-  así que su autoría sigue en su commit `6b7f4c1`. Sus archivos no se han
+- **Cómo está integrado:** su rama se fusionó en el commit `492c4e8` (12/11),
+  así que su autoría sigue en su commit `e71947e`. Sus archivos no se han
   copiado a mano: son idénticos a los de ese commit.
 
 ## Autoría
 
-- **Commit `f4847d4`** (Omar, 8 de noviembre): `ValidadorPedidoCustom`,
+- **Commit `f5426cb`** (Omar, 8 de noviembre): `ValidadorPedidoCustom`,
   `LectorCsv`, `LanzadorValidacion` y el `AnalizadorTallas` de la raíz.
-- **Commit `6b7f4c1`** (Álvaro, 9 de noviembre), en su rama, fusionada en
-  `7715f83`: `03_PSP/src/Psp/`.
-- **Commit `81db6e5`** (Omar, 11 de noviembre; preparado el 10 en su rama):
+- **Commit `e71947e`** (Álvaro, 9 de noviembre), en su rama, fusionada en
+  `492c4e8`: `03_PSP/src/Psp/`.
+- **Commit `9dc66ac`** (Omar, 11 de noviembre; preparado el 10 en su rama):
   - nuevos: `ProcesadorPedidosCustom`, `GestorProcesos`,
     `GeneradorFichaTaller`, `pruebas/` y `datos/`;
   - cambios en `ValidadorPedidoCustom`: datos normalizados, comprobación de
@@ -317,10 +317,10 @@ directamente.
   Se prepararon en la sesión de Omar con ayuda de Claude.
 - **Pendiente de acordar:** en el reparto, PSP-01 (`ProcesadorPedidosCustom`) y
   PSP-04 (`GeneradorFichaTaller`) eran de Berme. Estas dos clases las subió
-  Omar en el commit `81db6e5`. En su rama, Berme subió
-  `scripts/comprobar_psp.py` (commit `b3b0d45`), que compila y comprueba
+  Omar en el commit `9dc66ac`. En su rama, Berme subió
+  `scripts/comprobar_psp.py` (commit `f1983d2`), que compila y comprueba
   `ValidadorPedidoCustom`, `LanzadorValidacion` y las pruebas del paquete
-  `Psp`, e `06_Intermodular/SO024/contrato-fabricacion.md` (commit `f3dda07`), que
+  `Psp`, e `06_Intermodular/SO024/contrato-fabricacion.md` (commit `0f7d27d`), que
   describe los dos formatos de entrada. Hay que decidir entre los tres quién
   revisa y defiende cada clase.
 
