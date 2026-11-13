@@ -9,7 +9,7 @@ Lo que une las asignaturas: el caso documentado S00005 de Odoo y las pruebas ind
 | **Qué necesita** | Para repetir el recorrido: la base montada con los scripts 01–23, Java 17, Python con su entorno y el PDF original de Odoo para la parte documental |
 | **Cómo se inicia** | Instalación completa: `manuales/MANUAL_INSTALACION.md` (probado sobre un clon nuevo y una base vacía). Guion de la demostración: `manuales/MANUAL_DEMOSTRACION.md` |
 | **Pruebas** | `evidencias/cierre-entrega-20261113/README.md`: la regresión del código entregado (`4f09742`, clon nuevo): SQL, Java, PSP, Python, Node y 9 controles en Edge. Las anteriores, históricas y sobre árboles anteriores: `evidencias/regresion-final/README.md` (web en Edge, SO024 provisional, ventanas Swing y el manual seguido desde cero) y `evidencias/regresion-limpieza/README.md` |
-| **Evidencias** | `evidencias/cierre-entrega-20261113/` (código entregado); históricas: `evidencias/regresion-final/`, `evidencias/regresion-limpieza/` y la cadena SO024 PROVISIONAL (`evidencias/regresion-final/06_so024_provisional/` y `03_PSP/evidencias/so024_provisional/`). Las históricas citan identificadores de commit anteriores a la reescritura del 13/11: ver `EQUIVALENCIAS_COMMITS.md` |
+| **Evidencias** | `evidencias/cierre-entrega-20261113/` (código entregado); históricas: `evidencias/regresion-final/`, `evidencias/regresion-limpieza/` y la cadena SO024 PROVISIONAL (`evidencias/regresion-final/06_so024_provisional/` y `03_PSP/evidencias/so024_provisional/`). |
 
 ## Carpetas
 
