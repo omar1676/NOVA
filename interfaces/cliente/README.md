@@ -6,7 +6,7 @@ Para **comprar**, la web tiene que abrirse desde el servidor: `http://127.0.0.1:
 
 ## Dónde está cada cosa
 
-- `index.html`: el contenido de la página: cabecera, estantería, catálogo, ficha, servicio Custom y contacto.
+- `index.html`: el contenido de la página: cabecera, estantería, catálogo, ficha, servicio Custom y un único pie de página (`<footer id="contacto">`) con el contacto, la marca y «Volver arriba».
 - `css/inicio.css`: colores, tamaños, distribución y diseño para móviles.
 - `js/modelos.js`: lista de zapatillas, con su nombre comercial, colección y rutas de imágenes, y `datosColeccion`, con el precio orientativo, las tallas y la descripción de cada colección. Es el único sitio de la web donde se escriben los nombres.
 - `js/inicio.js`: muestra las zapatillas y controla los filtros, las búsquedas y la ficha.
