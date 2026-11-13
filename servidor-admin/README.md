@@ -6,6 +6,7 @@ Conecta con PostgreSQL el panel de Álvaro (`01_Interfaces/admin/`), el portal d
 Navegador ──► http://127.0.0.1:3000 ──► Node + Express (esta carpeta) ──► PostgreSQL
   acceso: /login.html                    · login único del personal (administrador y trabajador)
   panel: /admin.html                     · páginas del panel y /api/admin/...       usuario web_nova (solo lectura)
+         /analisisAdmin.html             · el dashboard de Python (Streamlit, puerto 8501) dentro del panel
   portal: /trabajador/                   · portal de Berme y /api/trabajador/...    usuario web_nova (rol portal_trabajador)
   tienda: /tienda/                       · web cliente y /api/tienda/...            usuario tienda_nova
 ```

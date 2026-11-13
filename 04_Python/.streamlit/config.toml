@@ -9,6 +9,17 @@ textColor = "#201e1d"
 borderColor = "#e5dfdc"
 headingFont = "serif"
 
+# Variante oscura: solo se usa cuando el dashboard se ve dentro del panel de
+# administracion (pagina «Analisis de datos», que lo abre con embed_options=dark_theme).
+# Fondos y textos del panel de Alvaro; el cobre de la marca para los botones,
+# porque con el texto blanco de los botones sigue cumpliendo el contraste AA.
+[theme.dark]
+primaryColor = "#9b6343"
+backgroundColor = "#18181b"
+secondaryBackgroundColor = "#0f0f10"
+textColor = "#e7e7ea"
+borderColor = "#2a2a2e"
+
 [client]
 # Sin el boton "Deploy": es un panel interno, no se publica en la nube
 toolbarMode = "viewer"
