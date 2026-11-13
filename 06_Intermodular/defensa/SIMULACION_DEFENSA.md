@@ -51,7 +51,7 @@
 |---|---|---|
 | T1 (AD-SQL) | Da por hecho que se puede volver a confirmar un cancelado | `devolver_stock_cancelacion` lanza «No se puede reactivar un pedido cancelado» (`02_funciones.sql:334-337`); `confirmarPedido` exige `estado = 'pendiente'` (`PedidoDAO.java:184-188`) |
 | T2 (AD-Java) | Mezcla PreparedStatement con una orden que no admite parámetros | `SET ROLE` va concatenado con una lista blanca de tres roles (`ConexionBD.java:63-78`) |
-| T3 (PSP) | Atribuye al validador una comprobación que no hace | Validador: talla positiva (`ValidadorPedidoCustom.java:181-187`); analizador: 20–55 (`03_PSP/src/Psp/AnalizadorTallas.java:85-87`) |
+| T3 (PSP) | Atribuye al validador una comprobación que no hace | Validador: talla positiva (`ValidadorPedidoCustom.java:144-150`); analizador: 20–55 (`03_PSP/src/Psp/AnalizadorTallas.java:85-87`) |
 | T4 (Python) | Confunde líneas con pedidos | K09 = K07 / K02, «se divide entre pedidos, nunca entre líneas» (`kpis.py:87-88`) |
 | T5 (Interfaces) | Supone que hay backend en el formulario | `evento.preventDefault()` y mensaje «SIMULACIÓN» (`js/custom.js:32` y `:48-51`) |
 | T6 (Seguridad) | Confunde hash con cifrado | `crypt(p, hash) <> hash` para comprobar (`02_funciones.sql:25`); contraseña nueva con `establecer_password` (`:427-446`) |
@@ -68,7 +68,7 @@
 |---|---|---|
 | SQL | «SECURITY DEFINER significa que la función solo la puede ejecutar el administrador.» | No: significa que se ejecuta con los permisos de su dueño. Quién la puede ejecutar lo deciden `REVOKE`/`GRANT EXECUTE` (`07_seguridad.sql:66-85`). |
 | Java | «El JSON de usuarios se genera antes del COMMIT, para tenerlo listo.» | No: después del COMMIT, para no publicar un cambio deshecho (`UsuarioDAO.java:139-147`). |
-| PSP | «`waitFor(10, SECONDS)` mata al hijo a los 10 segundos.» | No: `waitFor` solo espera y devuelve false. Lo cancelan `destroy()` y `destroyForcibly()` (`GestorProcesos.java:138-153`). |
+| PSP | «`waitFor(10, SECONDS)` mata al hijo a los 10 segundos.» | No: `waitFor` solo espera y devuelve false. Lo cancelan `destroy()` y `destroyForcibly()` (`GestorProcesos.java:106-121`). |
 | Estadística | «H3 sale con evidencia insuficiente: o sea, la demanda no crece.» | No: no se puede afirmar ni que crezca ni que no (`estadistica.py:189-199`). |
 | RFM | «Un cliente que solo tiene pedidos cancelados no sale en el RFM.» | Sí sale, en «Sin compras válidas», con F = 0 y M = 0 (`segmentacion.py:54-59`). |
 | KMeans | «Elegisteis k = 5 porque tiene la menor inercia.» | No: k = 4 por el silhouette más alto; la inercia siempre baja al subir k. |

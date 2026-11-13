@@ -1,20 +1,7 @@
-// sesiones.js — las sesiones del personal (panel y portal) y las de la tienda.
-//
-// Cuando alguien entra con su usuario y su contrasena, el servidor crea un
-// identificador aleatorio (token) y se lo da al navegador en una cookie
-// HttpOnly: el JavaScript de la pagina no puede leerla, el navegador solo la
-// envia en cada peticion. El servidor guarda en memoria a quien corresponde
-// cada token. La contrasena no se guarda en ningun sitio.
-//
-// Hay DOS almacenes separados, cada uno con su cookie y su propio Map:
-//   - sesion_nova:   el personal que entra por login.html (el administrador
-//                    va al panel y el trabajador, al portal).
-//   - sesion_tienda: clientes de la tienda web. Esta cookie solo se envia a
-//                    /api/tienda, asi que nunca llega a las rutas del panel.
-// Un token de un almacen no existe en el otro: una sesion de cliente no
-// sirve para el panel ni para el portal, ni una del personal para comprar.
-//
-// Al reiniciar el servidor las sesiones se pierden y hay que volver a entrar.
+// Sesiones en memoria: token aleatorio en una cookie HttpOnly, sin contrasena.
+// Personal y clientes tienen cookies y almacenes separados; no comparten tokens.
+// sesion_nova usa /; sesion_tienda solo se envia a /api/tienda.
+// Reiniciar el servidor cierra todas las sesiones.
 
 const crypto = require('node:crypto');
 

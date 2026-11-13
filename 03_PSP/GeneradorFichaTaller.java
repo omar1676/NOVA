@@ -5,40 +5,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 /**
- * NOVA Sneakers - PSP - Proceso hijo 3: ficha auxiliar para el taller
- * (tarea PSP-04 del reparto)
- *
- * QUE RECIBE por su entrada estandar (stdin)
- *   Lo prepara el proceso padre con lo que le han devuelto los otros dos
- *   hijos: los datos del pedido que da el validador y el resumen que da el
- *   analizador de tallas.
- *
- *       PEDIDO;CUSTOM-40
- *       ORIGEN;custom40_fabricacion_psp.csv
- *       CLIENTE;Club Atletico NOVA
- *       PERSONALIZACION;Club Atletico NOVA: logo bordado y ...
- *       VARIANTE_TALLA;NOVA Velocity;Rojo;40;10
- *       ...
- *       TALLA;40;10
- *       ...
- *       TOTAL;40
- *       FIN
- *
- * QUE DEVUELVE por su salida estandar (stdout)
- *   Una primera linea OK;CUSTOM-40 y, debajo, la ficha ya escrita. El padre
- *   la guarda en salidas/ficha_taller_CUSTOM-40.txt. Codigo de salida 0.
- *
- *   Si los datos no tienen esa forma, o las cantidades no cuadran, escribe
- *   ERROR;motivo en su salida de error y termina con codigo 2.
- *
- * LO QUE NO ES
- *   La ficha es un documento AUXILIAR para leer en el taller. No es la orden
- *   de fabricacion: esa la lleva Odoo. Este programa no escribe en ningun
- *   sitio, solo transforma los datos que recibe.
- *
- * COMO SE PRUEBA SUELTO
- *   Se le puede escribir la entrada a mano y terminar con FIN:
- *   java -cp clases GeneradorFichaTaller
+ * Recibe el pedido normalizado y el analisis de tallas; genera la ficha del taller.
+ * Es una ficha auxiliar: no sustituye la orden de fabricacion de Odoo.
+ * El padre guarda su salida; este proceso solo utiliza stdin, stdout y stderr.
  */
 public class GeneradorFichaTaller {
 

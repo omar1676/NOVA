@@ -318,39 +318,11 @@ def huella_de_pedidos(lineas):
     return partes.groupby(lineas["id_pedido"]).agg(lambda valores: " | ".join(sorted(valores)))
 
 
-def regla_12_coherencia(datos, textos):
-    """
-    Conflictos entre fechas e incoherencias comerciales:
-    - un pedido no puede ser posterior al momento de la exportacion (fecha_corte)
-    - stock.csv tiene que ser una sola foto: una sola fecha_corte (si no, bloqueante)
-    - importe_linea = cantidad x precio_unitario
-    - los totales del pedido = suma de sus lineas
-    - un pedido custom lleva personalizacion y uno normal no (aviso)
-    - reembolsado solo tiene sentido si el pedido esta cancelado (aviso)
-    - pedido sin lineas (aviso)
-    - dos pedidos del mismo cliente con exactamente las mismas lineas: posible
-      pedido repetido. NO se borra: que coincidan no demuestra que lo sea (aviso)
-    """
+def comprobar_totales_pedido(datos, textos):
+    """Compara los totales de cada cabecera con la suma de sus lineas."""
     lista = []
     pedidos = datos["pedidos"]
     lineas = datos["lineas_pedido"]
-    stock = datos["stock"]
-
-    fechas_corte = stock["fecha_corte"].dropna().unique()
-    if len(fechas_corte) > 1:
-        lista.append(incidencia("12", "stock", BLOQUEANTE,
-                                f"stock.csv mezcla {len(fechas_corte)} fechas de corte distintas: no es una sola exportación",
-                                registro="stock.csv", columna="fecha_corte"))
-    if len(fechas_corte) > 0:
-        corte = stock["fecha_corte"].max()
-        lista += por_filas("12", "pedidos", datos, textos, pedidos["fecha_pedido"] > corte, "fecha_pedido", RECUPERABLE,
-                           f"pedido posterior a la exportación ({corte:%Y-%m-%d %H:%M:%S})")
-
-    calculado = (lineas["cantidad"] * lineas["precio_unitario"]).round(2)
-    distinto = (calculado - lineas["importe_linea"]).abs() > config.TOLERANCIA_EUROS
-    lista += por_filas("12", "lineas_pedido", datos, textos, distinto, "importe_linea", RECUPERABLE,
-                       "importe_linea no es cantidad x precio_unitario")
-
     suma = lineas.groupby("id_pedido").agg(pares=("cantidad", "sum"), importe=("importe_linea", "sum"))
     for indice, pedido in pedidos.iterrows():
         if pd.isna(pedido["id_pedido"]):
@@ -374,18 +346,12 @@ def regla_12_coherencia(datos, textos):
                                     f"importe_total {pedido['importe_total']:.2f} y sus líneas suman {importe:.2f} €",
                                     registro=pedido["id_pedido"], fila=indice + 1, columna="importe_total",
                                     valor=original(textos, "pedidos", indice, "importe_total")))
+    return lista
 
-    custom_sin_texto = (pedidos["tipo_pedido"] == "custom") & pedidos["personalizacion"].isna()
-    normal_con_texto = (pedidos["tipo_pedido"] == "normal") & pedidos["personalizacion"].notna()
-    lista += por_filas("12", "pedidos", datos, textos, custom_sin_texto, "personalizacion", ADVERTENCIA,
-                       "pedido custom sin descripción de la personalización")
-    lista += por_filas("12", "pedidos", datos, textos, normal_con_texto, "personalizacion", ADVERTENCIA,
-                       "pedido normal con personalización")
-    reembolso_raro = (pedidos["estado_pago"] == "reembolsado") & (pedidos["estado_pedido"] != "cancelado")
-    lista += por_filas("12", "pedidos", datos, textos, reembolso_raro, "estado_pago", ADVERTENCIA,
-                       "pago reembolsado en un pedido que no está cancelado")
 
-    # Posibles pedidos repetidos: mismo cliente y exactamente las mismas lineas
+def avisar_pedidos_repetidos(pedidos, lineas):
+    """Coincidir en cliente y articulos solo genera un aviso; no elimina pedidos."""
+    lista = []
     huellas = huella_de_pedidos(lineas)
     con_huella = pedidos.copy()
     con_huella["huella"] = pedidos["id_pedido"].map(huellas)
@@ -400,6 +366,44 @@ def regla_12_coherencia(datos, textos):
                                         f"(no se elimina; confirmar con Acceso a Datos)",
                                         registro=pedido["id_pedido"], fila=indice + 1, columna="referencia",
                                         valor=pedido["referencia"]))
+    return lista
+
+
+def regla_12_coherencia(datos, textos):
+    """Comprueba fechas, importes, personalizacion y posibles pedidos repetidos."""
+    lista = []
+    pedidos = datos["pedidos"]
+    lineas = datos["lineas_pedido"]
+    stock = datos["stock"]
+
+    fechas_corte = stock["fecha_corte"].dropna().unique()
+    if len(fechas_corte) > 1:
+        lista.append(incidencia("12", "stock", BLOQUEANTE,
+                                f"stock.csv mezcla {len(fechas_corte)} fechas de corte distintas: no es una sola exportación",
+                                registro="stock.csv", columna="fecha_corte"))
+    if len(fechas_corte) > 0:
+        corte = stock["fecha_corte"].max()
+        lista += por_filas("12", "pedidos", datos, textos, pedidos["fecha_pedido"] > corte, "fecha_pedido", RECUPERABLE,
+                           f"pedido posterior a la exportación ({corte:%Y-%m-%d %H:%M:%S})")
+
+    calculado = (lineas["cantidad"] * lineas["precio_unitario"]).round(2)
+    distinto = (calculado - lineas["importe_linea"]).abs() > config.TOLERANCIA_EUROS
+    lista += por_filas("12", "lineas_pedido", datos, textos, distinto, "importe_linea", RECUPERABLE,
+                       "importe_linea no es cantidad x precio_unitario")
+
+    lista += comprobar_totales_pedido(datos, textos)
+
+    custom_sin_texto = (pedidos["tipo_pedido"] == "custom") & pedidos["personalizacion"].isna()
+    normal_con_texto = (pedidos["tipo_pedido"] == "normal") & pedidos["personalizacion"].notna()
+    lista += por_filas("12", "pedidos", datos, textos, custom_sin_texto, "personalizacion", ADVERTENCIA,
+                       "pedido custom sin descripción de la personalización")
+    lista += por_filas("12", "pedidos", datos, textos, normal_con_texto, "personalizacion", ADVERTENCIA,
+                       "pedido normal con personalización")
+    reembolso_raro = (pedidos["estado_pago"] == "reembolsado") & (pedidos["estado_pedido"] != "cancelado")
+    lista += por_filas("12", "pedidos", datos, textos, reembolso_raro, "estado_pago", ADVERTENCIA,
+                       "pago reembolsado en un pedido que no está cancelado")
+
+    lista += avisar_pedidos_repetidos(pedidos, lineas)
     return lista
 
 
