@@ -7,7 +7,7 @@ import javax.swing.table.DefaultTableModel;
 
 /**
  * Indicadores del panel. Todos se calculan en PostgreSQL con COUNT, SUM y
- * GROUP BY; Java solo los muestra. Son las mismas consultas que P-A, P-B,
+ * GROUP BY; Java solo los muestra. Hacen las mismas cuentas que P-A, P-B,
  * P-C, P-D y C8 de 12_consultas_panel.sql.
  *
  * Regla: los pedidos cancelados NO cuentan como ventas. Y se cuenta en la
