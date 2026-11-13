@@ -1,0 +1,9 @@
+# Solo lo que necesita la imagen del servidor (servidor-admin/Dockerfile)
+*
+!servidor-admin
+!01_Interfaces/admin
+!01_Interfaces/cliente
+!01_Interfaces/trabajador
+# Nunca dentro de la imagen: dependencias locales ni contrasenas
+servidor-admin/node_modules
+servidor-admin/.env

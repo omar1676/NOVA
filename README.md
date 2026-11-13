@@ -84,6 +84,43 @@ Hasta el 13/11 las carpetas eran `interfaces/`, `acceso-datos/`, `psp/`, `python
 
 El paso a paso completo, probado el 13/11 sobre un clon nuevo y una base vacía, está en **`06_Intermodular/manuales/MANUAL_INSTALACION.md`**.
 
+## Arrancar con Docker (opcional)
+
+Ninguna rúbrica pide Docker. Es otra forma de poner en marcha, con un solo comando, la base de datos, el servidor Node (tienda, panel y portal) y el dashboard de Python. La aplicación Java y PSP se siguen ejecutando fuera de Docker.
+
+**Qué se necesita:** Docker Desktop (o Docker Engine con el plugin `compose`).
+
+**Pasos, desde un clon nuevo:**
+
+1. En la raíz del repositorio, copiar `.env.example` como `.env` y escribir las contraseñas que se quieran. `.env` no se sube a Git.
+2. Arrancar todo:
+
+   ```
+   docker compose up -d --build
+   ```
+
+   La primera vez, el contenedor `db` monta la base `nova_sneakers` con los scripts de `02_Acceso_Datos/sql`, en el orden de «Reconstruir la base de datos» (`02_Acceso_Datos/docker/iniciar_base.sh`); tarda alrededor de un minuto. El 18 no se lanza. Para ver el resultado: `docker compose logs db`. La última línea dice cuántas pruebas del 09 al 16 pasan: 123 PASS, 0 FAIL y 1 ERROR previsto.
+3. Abrir:
+   - `http://localhost:3000/login.html`: el panel (`admin.demo`) y el portal (`taller.demo`), con la contraseña de `CLAVE_DEMO`;
+   - `http://localhost:3000/tienda/`: la tienda;
+   - `http://localhost:8501`: el dashboard, que el panel también enseña en «Análisis de datos».
+
+**Comandos útiles:**
+
+| Comando | Qué hace |
+|---|---|
+| `docker compose ps` | Estado de los tres contenedores (`db` debe salir *healthy*) |
+| `docker compose down` y luego `docker compose up -d` | Para y vuelve a arrancar. **Los datos se conservan** en el volumen `datos_postgres` |
+| `docker compose down -v` | Lo borra todo, también la base. La próxima vez se vuelve a montar desde los scripts |
+
+**Java y PSP con la base de Docker:** la base se publica en `localhost:5433`, para no chocar con un PostgreSQL instalado en el 5432. En `02_Acceso_Datos/java/conexion.properties` hay que poner `url=jdbc:postgresql://localhost:5433/nova_sneakers` y la contraseña de `CLAVE_JAVA`. Para exportar un pedido para PSP: `psql -h localhost -p 5433 -U postgres -d nova_sneakers -f 02_Acceso_Datos/sql/15_exportar_fabricacion.sql`.
+
+**Límites:**
+- Los puertos solo se abren en este ordenador (`127.0.0.1`).
+- Las contraseñas del `.env` se usan solo la primera vez que se monta la base. Para cambiarlas: `docker compose down -v`.
+- El dashboard lee los CSV de `04_Python/entrada_acc` que van dentro de la imagen (datos de PRUEBA), no la base de Docker.
+- El conector de Odoo sigue desactivado.
+
 ## Reconstruir la base de datos
 
 Sobre una base **nueva y vacía** (`CREATE DATABASE nova_sneakers;`), se lanzan los scripts de `02_Acceso_Datos/sql/` con `psql -U postgres -d nova_sneakers -f <script>`. **El número del archivo no es el orden de ejecución.** El orden es este:

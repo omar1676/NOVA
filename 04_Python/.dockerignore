@@ -1,0 +1,9 @@
+# Lo que no hace falta en la imagen del dashboard
+.venv/
+__pycache__/
+outputs/
+logs/
+evidencias/
+memoria/
+Dockerfile
+.dockerignore
