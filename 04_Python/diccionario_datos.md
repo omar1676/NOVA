@@ -155,7 +155,7 @@ con los scripts del repositorio):
    cliente, artículos, cantidades y precio. Python mantiene los dos con una
    advertencia; Acceso a Datos tiene que decir si son el mismo encargo.
 9. **Las tallas válidas no están definidas.** La base admite 20–55, el catálogo
-   tiene 40–44 y el caso común SO024 habla de 38–46. Hay que fijarlas para la
+   tiene 40–44 y el ejemplo SO024 del enunciado habla de 38–46. Hay que fijarlas para la
    regla 08.
 10. **La clave del stock es el `sku`, no modelo + talla.** La regla 11
     («duplicado por modelo-talla») se tiene que adaptar a `sku` o a modelo + color

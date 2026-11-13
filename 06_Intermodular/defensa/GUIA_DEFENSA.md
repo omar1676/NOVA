@@ -36,11 +36,11 @@
 8. [KMeans](#8-kmeans)
 9. [Predicción de la demanda](#9-predicción-de-la-demanda)
 10. [Streamlit: refresco de 60 s](#10-streamlit-refresco-de-60-s)
-11. [Odoo [PENDIENTE (Berme)]](#11-odoo-pendiente-berme)
+11. [Odoo: S00005 documentado](#11-odoo-s00005-documentado)
 12. [Interfaces](#12-interfaces)
 13. [Seguridad](#13-seguridad)
 14. [Git](#14-git)
-15. [Integración: el caso SO024](#15-integración-el-caso-so024)
+15. [Caso de entrega e integración](#15-caso-de-entrega-e-integración)
 16. [Portal del trabajador (ampliación, de Berme)](#16-portal-del-trabajador-ampliación-de-berme)
 - [Anexo A. Soluciones de los ejercicios](#anexo-a-soluciones-de-los-ejercicios)
 - [Anexo B. Dónde están las pruebas](#anexo-b-dónde-están-las-pruebas)
@@ -51,7 +51,7 @@
 
 Apréndelo casi de memoria; es la primera pregunta de cualquier tribunal.
 
-> NOVA Sneakers es una fábrica de zapatillas que vende modelos de catálogo y pedidos personalizados para clubes (pedidos Custom). Hemos hecho una web responsive con el catálogo y una solicitud Custom; una base PostgreSQL en la que los importes, el stock y la auditoría los calculan triggers; una aplicación Java Swing que crea, confirma y consulta pedidos según el rol del usuario; un subsistema PSP que procesa la exportación de un pedido Custom con un proceso padre y tres hijos; y un análisis en Python con un dashboard Streamlit que se recalcula cada 60 segundos. Como ampliaciones, una tienda online, un panel de administración y un portal del trabajador con un login único. El hilo conductor es el pedido SO024 del Club Halcones: 40 pares de Runner X de las tallas 38 a 46. Odoo, que según el enunciado es el núcleo de ventas y fabricación, está pendiente.
+> NOVA Sneakers es una fábrica de zapatillas que vende modelos de catálogo y pedidos personalizados para clubes (pedidos Custom). Hemos hecho una web responsive con el catálogo y una solicitud Custom; una base PostgreSQL en la que los importes, el stock y la auditoría los calculan triggers; una aplicación Java Swing que crea, confirma y consulta pedidos según el rol del usuario; un subsistema PSP que procesa la exportación de un pedido Custom con un proceso padre y tres hijos; y un análisis en Python con un dashboard Streamlit que se recalcula cada 60 segundos. Como ampliaciones, una tienda online, un panel de administración y un portal del trabajador con un login único. El caso elegido de Odoo es S00005 del Club Atlético NOVA, documentado en el PDF original de Berme. Los módulos ejecutables se demuestran con CUSTOM-40 y datos de PRUEBA; no tenemos pruebas de S00005 en PostgreSQL, PSP o Python. SO024 es el ejemplo del enunciado, no una venta realizada en Odoo.
 
 **Cómo se conectan las piezas**
 
@@ -381,7 +381,7 @@ Primero por la urgencia (alta: se puede dejar sin servir demanda que ya existe; 
 
 - Los CSV de `entrada_acc` son de PRUEBA (`entrada_acc/ORIGEN.txt`): una base reconstruida con los scripts el 9/11, no la base del equipo. **[PENDIENTE (los tres): exportar la base del equipo y poner «Tipo: REAL» antes de la defensa.]**
 - Con esos datos (6 clientes y 12 pedidos de un solo día), RFM, KMeans, la predicción y el bootstrap salen NO CALCULABLE. Se demuestran con los sintéticos (900 pedidos, 40 clientes y 12 modelos).
-- El informe técnico está en `04_Python/memoria/INFORME_TECNICO_PYTHON.md`; lo que depende de la exportación REAL o de SO024 sigue marcado como pendiente allí.
+- El informe técnico está en `04_Python/memoria/INFORME_TECNICO_PYTHON.md`; la exportación REAL y ciertas pruebas manuales siguen pendientes allí; no hace falta crear un SO024 oficial.
 
 ---
 
@@ -623,9 +623,9 @@ Los filtros (periodo, modelo, talla, tipo, estado y cliente) se guardan en `st.s
 
 ---
 
-## 11. Odoo [PENDIENTE (Berme)]
+## 11. Odoo: S00005 documentado
 
-> **Estado:** no hay ninguna evidencia de Odoo. La carpeta `05_Odoo/` solo tiene la lista de tareas, el borrador del recorrido y la plantilla de su `README.md`; no hay instalación documentada, capturas, exportaciones ni backup, y el conector de Berme está desactivado. Todo lo de esta sección es **[PENDIENTE (Berme)]** (lista de tareas en `05_Odoo/CHECKLIST_ODOO_BERME.md`). No inventéis pantallas, números de pedido ni resultados: si preguntan, se dice que está pendiente y qué falta.
+> **Estado:** el PDF original de Berme acredita instalación y flujo de Odoo, incluida la venta S00005 del Club Atlético NOVA (pp. 10–12). Es el caso elegido de entrega. El conector de esta versión no está verificado contra una instancia accesible y las rutas de pedidos siguen sin montarse. No hay prueba de S00005 en PostgreSQL, PSP o Python. El plan antiguo SO024 ya no es una lista de tareas para Berme.
 
 ### Lo que pide la rúbrica
 
@@ -642,19 +642,19 @@ Los filtros (periodo, modelo, talla, tipo, estado y cliente) se guardan en `st.s
 | RA1–RA4 | Verificar el entorno, implantar, exportar datos e informes, adaptar y documentar operaciones e incidencias |
 | IM-SGE-05 | Ruta MTO: opcional, como ampliación |
 
-### Preguntas probables (respuestas de concepto; lo nuestro se completa cuando haya evidencias)
+### Preguntas probables (conceptos y evidencia documental disponible)
 
 **P11.1 ¿Qué papel tiene Odoo en el proyecto?**
 Es el núcleo del negocio: la venta empieza ahí y de ella salen la fabricación, la entrega y la factura (IM-SGE-07 y 17). PostgreSQL con Java y PSP son módulos académicos y auxiliares: no sustituyen a Ventas ni a Fabricación de Odoo (IM-PSP-05).
 
 **P11.2 ¿Qué diferencia hay entre un presupuesto y un pedido de venta?**
-El presupuesto es la oferta que se envía al cliente; cuando el cliente la acepta y se confirma, pasa a ser pedido de venta. En NOVA: **[PENDIENTE (Berme): el presupuesto y el pedido SO024, con sus capturas]**.
+El presupuesto es la oferta que se envía al cliente; cuando el cliente la acepta y se confirma, pasa a ser pedido de venta. En NOVA se muestra S00005 en el PDF original, p. 10. No se fabrica una venta SO024 ni una captura nueva.
 
 **P11.3 ¿Qué son las variantes de un producto?**
-Un producto base (Runner X) con atributos, por ejemplo la talla de la 38 a la 46 y el color, que generan una variante por combinación. Cada variante puede tener su referencia interna, que es donde encajaría nuestro SKU. En NOVA: **[PENDIENTE (Berme): Runner X con sus variantes]**.
+Un producto base (Runner X) con atributos, por ejemplo la talla de la 38 a la 46 y el color, que generan una variante por combinación. Cada variante puede tener su referencia interna, que es donde encajaría nuestro SKU. En NOVA, las variantes se muestran en el PDF, pp. 16–17. No hay correspondencia de SKU validada con PostgreSQL.
 
 **P11.4 ¿Qué es una lista de materiales y una orden de fabricación?**
-La lista de materiales dice qué componentes hacen falta para fabricar un producto; la orden de fabricación es la orden de producir una cantidad consumiendo esos componentes. En NOVA: **[PENDIENTE (Berme): lista de materiales y orden de fabricación de SO024]**.
+La lista de materiales dice qué componentes hacen falta para fabricar un producto; la orden de fabricación es la orden de producir una cantidad consumiendo esos componentes. En NOVA, el PDF recoge fabricación y la orden WH/MO/00002 vinculada al flujo de S00005 (pp. 7–11). Se muestra la evidencia original, sin atribuir una ejecución actual.
 
 **P11.5 ¿Qué es la ruta MTO?**
 Fabricar bajo pedido (make to order): confirmar la venta genera la necesidad de fabricar. El enunciado la deja como ampliación, «no como requisito cerrado» (IM-SGE-05).
@@ -668,23 +668,23 @@ Comercial, producción, almacén y administración, «cuando proceda» (IM-SGE-0
 **P11.8 ¿Qué hay que entregar de Odoo?**
 La instancia o máquina virtual, una copia o backup o evidencias suficientes para reproducir la configuración (IM-COM-16), y el capítulo 4 de la memoria (IM-COM-24).
 
-### Material real que existe (no son evidencias de funcionamiento)
+### Material disponible y alcance de la prueba
 
 - `05_Odoo/recorrido-manual-odoo.md:1-20` — borrador de un recorrido manual PostgreSQL → CSV → Odoo. Dice expresamente que el 10/11 no se pudo comprobar Odoo desde este ordenador.
-- `06_Intermodular/SO024/caso-comun-SO024.md`, apartado 1 — los siete datos de SO024 que hay que acordar, entre ellos el SKU y el número de pedido en Odoo.
+- `odoo/documentacion/Odoo-NOVA-Sneakers.pdf`, pp. 10–12 — evidencia documental de S00005, fabricación, entrega y factura. `06_Intermodular/CASO_COMUN_S00005.md` distingue esa evidencia de los ensayos auxiliares.
 - `servidor-admin/odoo.js` (de Berme, integrado con su autoría en `654ad8b`): un conector con la API JSON-2 de Odoo que lee la clave de `ODOO_API_KEY` y espera como mucho 15 s (`odoo.js:33`). Está **desactivado** mientras falte `ODOO_URL`, `ODOO_DB` u `ODOO_API_KEY` (`odoo.js:3-23`), y la consola lo dice al arrancar (`servidor.js:473`). Es código; no se ha probado contra ningún Odoo. La única prueba es que se queda desactivado sin configuración (`test:portal`).
-- `servidor-admin/pedidos.js` (de Berme): rutas para crear pedidos y enviarlos a Odoo. **No se montan** (`pedidos.js:1-11` explica por qué). **[POR DECIDIR (los tres): cómo integrarlas cuando haya Odoo.]**
+- `servidor-admin/pedidos.js` (de Berme): rutas para crear pedidos y enviarlos a Odoo. **No se montan** (`pedidos.js:1-11` explica por qué). No se activan para esta entrega.
 
 ### Ejercicios
 
-- **E11.1** Según `06_Intermodular/SO024/caso-comun-SO024.md`, ¿qué datos tenéis que acordar los tres antes de crear SO024 en Odoo, y en qué script de PostgreSQL se usa cada uno?
+- **E11.1** ¿Qué evidencia respalda S00005 y qué no demuestra sobre PostgreSQL, PSP o Python?
 - **E11.2** El SKU de PostgreSQL tiene la forma `NOVA-<variante>-<talla>` (`18_datos_so024.sql`). ¿Qué dos opciones hay para que la ficha de PSP se pueda relacionar con el pedido de Odoo?
 
 ### Limitaciones que conviene decir antes de que pregunten
 
-- Todo el bloque de Odoo está pendiente: es la mitad del recorrido de SO024.
+- Odoo tiene evidencia documental de S00005. Su trazabilidad con los módulos auxiliares sigue sin demostrarse.
 - La frontera entre el ERP y el subsistema auxiliar sí está explicada (`03_PSP/README.md`, «Relación con PostgreSQL y Odoo»).
-- **[DUDA PARA EL PROFESOR (D4 y D5): alcance de CRM, fabricación, inventario y facturación, formato del backup y si «SO024» tiene que verse tal cual en Odoo.]**
+- **[DUDA PARA EL PROFESOR (D4 y D5): alcance de CRM, fabricación, inventario y facturación y formato del backup; SO024 se considera ejemplo por la decisión documentada del equipo.]**
 
 ---
 
@@ -813,7 +813,7 @@ Otra carpeta de trabajo del mismo repositorio con otra rama. Comparten el histor
 Une dos historias. Si las dos ramas han avanzado, crea un commit de fusión con dos padres. Los commits de la rama fusionada no cambian: conservan su autor y su fecha.
 
 **P14.4 ¿Cómo se ve quién hizo qué?**
-Con `git log`, `git shortlog -sn` y `git blame`. Por ejemplo, `git log 7715f83^1..7715f83^2` lista los 25 commits que entraron con esa fusión, todos con su autor original (`Alvarobaz`), aunque el commit de fusión lo firme otra persona (`omar1676`). Lo mismo pasa con los dos commits del portal de Berme: entraron con `git cherry-pick -x` (`7341001` y `654ad8b`), así que conservan su autor y su fecha del 11/11 y llevan la línea «cherry picked from commit …». En la rama final, `git shortlog -sn` da 74 commits de `omar1676`, 25 de `Alvarobaz` y 8 de `Ivan Bermejo`. El número de commits no mide la contribución: **[PENDIENTE (los tres): el reparto real, punto 9 de la memoria]**.
+Con `git log`, `git shortlog -sn` y `git blame`. Por ejemplo, `git log 7715f83^1..7715f83^2` lista los 25 commits que entraron con esa fusión, todos con su autor original (`Alvarobaz`), aunque el commit de fusión lo firme otra persona (`omar1676`). Lo mismo pasa con los dos commits del portal de Berme: entraron con `git cherry-pick -x` (`7341001` y `654ad8b`), así que conservan su autor y su fecha del 11/11 y llevan la línea «cherry picked from commit …». Las cifras 74/25/8 pertenecen a un corte anterior. El historial publicado conserva las aportaciones de `omar1676`, `Alvarobaz` e `Ivan Bermejo`; las cifras actuales se consultan con `git shortlog -sn main`. El número de commits no mide la contribución: **[PENDIENTE (los tres): el reparto real, punto 9 de la memoria]**.
 
 **P14.5 ¿Qué no se sube y por qué?**
 `.env`, `conexion.properties`, los `.class`, las salidas, los logs y el driver JDBC (`.gitignore:5-8`, `:11-14`, `:24`, `:37` y `:40`). Las contraseñas de las cuentas de la base se piden por teclado al ejecutar los scripts (`17_usuario_java.sql:35`) y en el repositorio solo hay plantillas vacías (`servidor-admin/.env.example` y `02_Acceso_Datos/java/conexion.properties.ejemplo`).
@@ -824,8 +824,8 @@ Al principio, la del plan del equipo (`feat(web): …`, `test(psp): …`; se ve 
 **P14.7 ¿Qué es un conflicto y cómo se resuelve?**
 Pasa cuando dos ramas cambian las mismas líneas y Git no sabe con cuál quedarse: marca el archivo con `<<<<<<<`, `=======` y `>>>>>>>`. Se edita a mano, se prueba, se hace `git add` y se termina la fusión con un commit.
 
-**P14.8 ¿Qué falta por publicar?**
-La candidata final (`integracion/candidata-2`) tiene sus commits en local, sin cambios pendientes, encima de la candidata publicada el 12/11 (`4203fe7`). Falta llevarla a `main` con una Pull Request revisada por Álvaro y Berme y fusionada con «Create a merge commit», sin force-push. Comprobad el estado del remoto antes de la defensa.
+**P14.8 ¿Qué versión se entrega y cómo se conservó la autoría?**
+El cierre de código está en `main` desde la PR #2 (`4a25d5a`). Esta revisión solo aclara la documentación de S00005. Las integraciones se hacen con commits de merge, sin squash, rebase ni force-push; los commits originales conservan autores y fechas.
 
 ### Código real (historial)
 
@@ -846,52 +846,46 @@ La candidata final (`integracion/candidata-2`) tiene sus commits en local, sin c
 
 ---
 
-## 15. Integración: el caso SO024
+## 15. Caso de entrega e integración
 
 ### Preguntas probables
 
-**P15.1 ¿Qué es SO024?**
-El pedido del enunciado que hace de hilo conductor: «SO024 · Club Halcones · Modelo Runner X · 40 pares · tallas 38-46 · diseño personalizado» (IM, p. 5). Es el mismo pedido en todos los bloques, con la misma referencia.
+**P15.1 ¿Qué caso presentamos?**
+S00005 del Club Atlético NOVA, ya documentado por Berme en Odoo. SO024 aparece como «EJEMPLO DE PEDIDO CUSTOM» en el v0.3 según la revisión comunicada por el equipo; no se presenta como venta realizada ni como identificador expresamente obligatorio.
 
-**P15.2 ¿Qué recorrido sigue?**
-Web (solicitud Custom simulada) → Odoo (pendiente) → PostgreSQL (el 18 carga el cliente y Runner X) → Java (se crea y se confirma SO024) → el 15 exporta el CSV → PSP genera la ficha → el 16 exporta los cinco CSV → Python y el dashboard (`06_Intermodular/SO024/caso-comun-SO024.md`, apartado 2).
+**P15.2 ¿Qué recorrido está acreditado?**
+En Odoo, el PDF pp. 10–12 documenta S00005, fabricación, entrega y factura. En los módulos auxiliares, CUSTOM-40 tiene sus CSV y fichas y SO024 PROVISIONAL conserva su cadena de ensayo. No hay pruebas que unan S00005 con esas ejecuciones.
 
-**P15.3 ¿Qué resultados hay?**
-**[PROVISIONAL]** El 13/11, sobre el código final: 40 pares, 9 líneas y 3.996,00 €; cada talla baja una sola vez (8, 7, 5, 4, 3, 4, 5, 6 y 8); la auditoría tiene el ALTA y el CAMBIO_ESTADO de `admin.demo`; el 15 exporta 9 filas y 40 pares; PSP termina con código 0 y 9 tallas, y Python lo cuenta como un solo pedido (`06_Intermodular/evidencias/regresion-final/06_so024_provisional/00_cadena.txt` y `03_PSP/evidencias/so024_provisional/`).
+**P15.3 ¿Qué resultados históricos de SO024 se conservan?**
+El ensayo PROVISIONAL del 13/11 produjo 40 pares, 9 líneas y 3.996 €, PSP código 0 y un pedido en Python. Se ejecutó con métodos Java desde un lanzador, sin ventana y sin Odoo. Se conservan `evidencias/regresion-final/06_so024_provisional/` y `03_PSP/evidencias/so024_provisional/`, sin cambiar datos ni nombres. Esos resultados no pertenecen a S00005.
 
-**P15.4 ¿Por qué es provisional?**
-Porque faltan siete datos por acordar entre los tres: el reparto por talla, el color, el precio, el stock inicial, el texto de la personalización, el SKU en Odoo y el número de pedido en Odoo (`06_Intermodular/SO024/caso-comun-SO024.md`, apartado 1). El 18 los recibe con `-v` y, si falta alguno, no inserta nada.
+**P15.4 ¿Por qué no se termina SO024?**
+Era una preparación del ejemplo con datos inventados. El equipo ha decidido presentar S00005, ya documentado. Los siete acuerdos del plan anterior no son una obligación de esta entrega.
 
-**P15.5 ¿Cómo se integran los bloques?**
-Con ficheros CSV y procedimientos documentados, sin sincronización automática. El enunciado lo permite (IM-ITG-07) y dice que la integración se evalúa «por la coherencia de los datos y del flujo, no por el uso de una arquitectura compleja» (IM-ITG-08).
+**P15.5 ¿Cómo se integran los módulos disponibles?**
+PostgreSQL exporta CSV para PSP y Python. La web Custom simula el envío. El conector Odoo no se activa y no hay sincronización Odoo → PostgreSQL verificada.
 
-**P15.6 ¿Qué datos comparten todos los bloques?**
-La referencia del pedido, el cliente, el producto y la variante, la cantidad y el estado de cada bloque (IM-ITG-10 a 14). PostgreSQL y PSP usan `SO024`; la web no enseña ningún número porque es una simulación.
+**P15.6 ¿Qué datos deberían coincidir para acreditar el mismo caso?**
+Referencia o equivalencia documentada, cliente, producto/variante, cantidades y estados. No se ha probado esa correspondencia de S00005 entre los sistemas. Que varios casos sumen 40 pares no basta.
 
-**P15.7 ¿Qué comprueba el 15 antes de exportar?**
-Que el pedido existe, que está confirmado, que suma exactamente 40 pares y que no repite tallas. Si algo falla, se para y el CSV anterior se queda como estaba (`15_exportar_fabricacion.sql:102-160`).
+**P15.7 ¿Qué comprueba el script 15?**
+Que el pedido exista, esté confirmado, sume exactamente 40 pares y no repita tallas. Si falla, se para y conserva el CSV anterior. Se demuestra con CUSTOM-40, no con un S00005 inexistente en las evidencias del módulo.
 
-**P15.8 ¿Qué haría falta para una integración de verdad?**
-(IM-ITG-06) Que Odoo fuera el origen del pedido y lo exportara él, o con su API; una tabla de equivalencias de SKU y número de pedido; que la exportación para Python fuera automática; y que PSP leyera pedidos de una cola en vez de un archivo. El conector de Berme (`servidor-admin/odoo.js`) va en esa dirección, pero está desactivado y sin probar contra ningún Odoo.
+**P15.8 ¿Qué limitación afecta a la rúbrica?**
+La trazabilidad del mismo pedido entre Odoo y los módulos auxiliares sigue parcial. Elegir S00005 no cambia esa valoración. Una integración con CSV documentados puede servir; no se afirma que una cola, API o arquitectura compleja sea obligatoria.
 
-### Código real
+### Ejercicios con el ensayo histórico, no con S00005
 
-- `02_Acceso_Datos/sql/18_datos_so024.sql:1-40` — explica que el 18 prepara el cliente, Runner X y sus nueve SKU, pero no crea el pedido: SO024 se crea en Java.
-- `02_Acceso_Datos/sql/15_exportar_fabricacion.sql:197` — el `\copy` que escribe `fabricacion_psp.csv` con las ocho columnas, solo de un pedido confirmado.
-- `03_PSP/ProcesadorPedidosCustom.java:184-185` — la ficha lleva la referencia del pedido en su nombre: `ficha_taller_SO024.txt`.
+- **E15.1** Si un pedido SO024 de PRUEBA existe pero no se confirma, ¿qué hace el 15 y qué CSV quedaría para PSP?
+- **E15.2** ¿Por qué las nueve líneas del ensayo SO024 cuentan como un solo pedido en Python?
 
-### Ejercicios
+### Límites que hay que decir
 
-- **E15.1** En Java se crea SO024 pero se olvida confirmarlo, y se ejecuta el 15. ¿Qué pasa? ¿Qué recibe PSP?
-- **E15.2** ¿Por qué Python enseña SO024 como un solo pedido aunque tenga 9 líneas? Señala dónde se hace.
-
-### Limitaciones que conviene decir antes de que pregunten
-
-- Los datos de SO024 son provisionales. **[PENDIENTE (los tres): acordar los 7 datos y hacer el SO024 oficial desde la ventana Java, en la base del equipo.]**
-- En la prueba del 13/11, Java creó SO024 con los métodos de «Nuevo pedido» desde un lanzador (`SO024Provisional.java`), no desde la ventana.
-- Runner X no está en el catálogo de la web y Odoo está pendiente: falta la mitad del recorrido.
-- El 15 exige exactamente 40 pares (`15_exportar_fabricacion.sql:146-149`): sirve para este caso, no para cualquier pedido.
-- `entrada_acc` sigue siendo una exportación de PRUEBA. **[PENDIENTE (los tres): la exportación REAL.]**
+- No hay prueba de S00005 en PostgreSQL/Java, PSP ni Python.
+- No se cambian SKU, importes, identificadores, pedidos ni datos de PRUEBA.
+- `pedidos.js` no se monta; la API de esta candidata no se verificó contra una instalación real accesible.
+- `entrada_acc` sigue siendo de PRUEBA. No se etiqueta como REAL ni se atribuye a S00005.
+- Fuente vigente: `06_Intermodular/CASO_COMUN_S00005.md`.
 
 ---
 
@@ -1019,9 +1013,9 @@ Resultado: un pago, un único descuento de stock y un solo recibo, porque solo e
 
 **E15.2** `df_pedidos_unicos` agrupa las líneas por `id_pedido` (`analiticas.py:108-115`): las 9 líneas se convierten en 1 fila con 40 pares y 3.996 €. Los KPIs dividen entre pedidos, no entre líneas (`kpis.py:87-88`). La prueba lo confirma: SO024 sale en 1 fila de `pedidos_unicos.csv`, con 9 líneas, 40 pares y 3.996 € (`06_Intermodular/evidencias/regresion-final/06_so024_provisional/06_pedidos_unicos_SO024.csv`).
 
-**E11.1** Los siete datos (`06_Intermodular/SO024/caso-comun-SO024.md`, apartado 1): los pares de cada talla de la 38 a la 46 (se usan en Java y en Odoo), el color de Runner X (`18_datos_so024.sql`, `-v color`), el precio base (`-v precio`), el stock inicial por talla (`-v stock`), el texto de la personalización (Java y Odoo), el SKU en Odoo y el número de pedido en Odoo.
+**E11.1** El PDF original de Berme, pp. 10–12, documenta S00005, fabricación, entrega y factura. No hay CSV, alta en PostgreSQL, ficha PSP ni análisis Python acreditados de ese pedido. Los ensayos CUSTOM-40 y SO024 PROVISIONAL no se renombran como S00005.
 
-**E11.2** O se usa el SKU de PostgreSQL como referencia interna de cada variante en Odoo, o se apunta una tabla de equivalencias entre el SKU y la variante de Odoo. Además hay que acordar el número del pedido de venta (que sea SO024 o apuntar la equivalencia) para que la ficha de PSP y su registro lleven la referencia de Odoo (IM-PSP-10 y 29; `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md`).
+**E11.2** O se usa el SKU de PostgreSQL como referencia interna de cada variante en Odoo, o se apunta una tabla de equivalencias entre el SKU y la variante de Odoo. Además haría falta acreditar la equivalencia del pedido S00005, sin cambiar sus identificadores ni renombrar los ensayos para que la ficha de PSP y su registro lleven la referencia de Odoo (IM-PSP-10 y 29; `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md`).
 
 **E16.1** `avanzar_pedido_trabajador` bloquea el pedido con `FOR UPDATE` (`23_portal_trabajador.sql:87-91`): el segundo espera a que el primero termine. Cuando entra, ya ve `en_preparacion`, pero pide otra vez `en_preparacion`, y la función lanza «Solo se puede pasar de en_preparacion a enviado» (`:108-110`). La ruta lo convierte en un 400 con ese mensaje (`rutas-trabajador.js:26-40`). En la base queda un solo cambio y un solo `CAMBIO_ESTADO` en `log_eventos`. Es la prueba 9d de `test:portal`.
 

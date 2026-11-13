@@ -13,7 +13,7 @@ Proyecto Intermodular de 2.º DAM (enunciado «Sneaker Factory», versión 0.3).
 
 | Marca | Significa |
 |---|---|
-| **[PENDIENTE (quién): …]** | Falta de verdad y hay que hacerlo: Odoo, los 7 datos y el SO024 oficial, la exportación REAL, la prueba de usabilidad con personas, el reparto real y el uso de la IA (punto 9) y el E-R en PNG |
+| **[PENDIENTE (quién): …]** | Falta de verdad y hay que hacerlo: las partes de Odoo sin evidencia y la trazabilidad entre sistemas, la exportación REAL, la prueba de usabilidad con personas, el reparto real y el uso de la IA (punto 9) y el E-R en PNG |
 | **[DUDA PARA EL PROFESOR (Dn): …]** | Una pregunta que solo puede contestar el profesor (la lista completa está en `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` §5) |
 | **[POR DECIDIR (los tres): …]** | Una decisión del equipo que todavía no se ha tomado |
 | **[REVISIÓN (Álvaro o Berme) en la PR: …]** | Algo que tiene que revisar el compañero que lo hizo, en la pull request a `main` |
@@ -33,12 +33,12 @@ Proyecto Intermodular de 2.º DAM (enunciado «Sneaker Factory», versión 0.3).
 | `01_Interfaces/memoria/ESTRATEGIA_PRUEBAS_INTERFACES.md` | La estrategia de pruebas de Interfaces y sus resultados (RA8) |
 | `01_Interfaces/memoria/PROCEDIMIENTO_USABILIDAD.md` | El procedimiento para la prueba con 3 a 5 personas (RA4), con plantillas vacías |
 | `06_Intermodular/manuales/MANUAL_INSTALACION.md` | Cómo instalar, montar la base, arrancar cada parte y pasar las pruebas. Probado el 13/11 sobre un clon nuevo |
-| `06_Intermodular/manuales/MANUAL_DEMOSTRACION.md` | El guion paso a paso del caso SO024 para la defensa |
+| `06_Intermodular/manuales/MANUAL_DEMOSTRACION.md` | El guion de módulos ejecutables y S00005 documental para la defensa |
 | `06_Intermodular/rubricas/MATRIZ_EVIDENCIAS.md` | Qué archivo demuestra cada bloque y cómo enseñarlo |
 | `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` | El estado de cada requisito de cada rúbrica, con su evidencia y su riesgo |
-| `05_Odoo/CHECKLIST_ODOO_BERME.md` | Lo que falta en Odoo, con casillas |
-| `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md` | Los 7 datos de SO024 que hay que acordar y la prueba completa preparada |
-| `06_Intermodular/defensa/` | Guía y simulación de la defensa, y la presentación (`.md` y `.pptx`) |
+| `05_Odoo/CHECKLIST_ODOO_BERME.md` | Plan histórico de SO024, sustituido para esta entrega; no es una obligación actual |
+| `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md` | Archivo del plan anterior de SO024 y sus pruebas provisionales; no es una obligación actual |
+| `06_Intermodular/defensa/` | Guía, simulación y guion `.md` actualizados; `.pptx` histórico anterior a la elección de S00005 |
 
 ---
 
@@ -54,7 +54,7 @@ Lo que tiene hoy la empresa en el proyecto:
 
 - **Catálogo de la web:** 100 modelos en seis colecciones (Street, Luxe, Casual, Hombre, Mujer y Unisex), con nombre comercial, imagen, precio orientativo, descripción y tallas (`01_Interfaces/cliente/js/modelos.js`).
 - **Datos de demostración de la base:** 7 modelos (6 normales y el personalizable X-NOVA), 12 colores, 60 SKU, una nave (NOVA Central, Madrid), 6 clientes y 11 pedidos (`02_Acceso_Datos/documentacion/README.md` §4). El script 21 añade a la base los mismos 100 modelos de la web, que es una ampliación (anexo A).
-- **Caso común del enunciado:** el pedido **SO024** del Club Halcones, 40 pares de **Runner X** en las tallas 38 a 46 con diseño personalizado (IM p. 5).
+- **Caso de entrega elegido:** S00005 del Club Atlético NOVA, documentado por Berme en Odoo. **SO024** del Club Halcones (IM p. 5) es el «EJEMPLO DE PEDIDO CUSTOM» según la revisión del v0.3 comunicada por el equipo; no es una venta realizada en Odoo ni un identificador expresamente obligatorio. No hay pruebas de S00005 en PostgreSQL, PSP o Python. Ver `06_Intermodular/CASO_COMUN_S00005.md`.
 
 ### 1.2 El problema
 
@@ -64,18 +64,18 @@ El enunciado pide conectar tres necesidades de negocio con un solo caso de uso (
 2. **Gestión empresarial:** registrar al cliente, la venta, la fabricación, el inventario y la factura en Odoo, que es el núcleo del flujo (Sistemas de Gestión Empresarial).
 3. **Automatización técnica:** procesar una copia del pedido con varios procesos coordinados, sin sustituir al ERP (Programación de Servicios y Procesos).
 
-El equipo incluye además dos módulos que trabajan sobre el mismo caso: **Acceso a Datos** (PostgreSQL y Java) y **Ampliación de Python** (análisis y dashboard). **[DUDA PARA EL PROFESOR (D3): ¿Acceso a Datos y Python cuentan dentro del intermodular? ¿Con qué peso?]**
+El equipo incluye además dos módulos que trabajan sobre sus datos académicos de PRUEBA, sin trazabilidad acreditada de S00005: **Acceso a Datos** (PostgreSQL y Java) y **Ampliación de Python** (análisis y dashboard). **[DUDA PARA EL PROFESOR (D3): ¿Acceso a Datos y Python cuentan dentro del intermodular? ¿Con qué peso?]**
 
 ### 1.3 Alcance de la versión entregada
 
 | Bloque | Qué se entrega | Estado el 13/11/2026 | Evidencia principal |
 |---|---|---|---|
 | Desarrollo de Interfaces | Web responsive con inicio, catálogo, ficha, servicio Custom con formulario (envío simulado), «Nuestra visión» y contacto | Hecho y probado en Edge en 4 anchos y en 11 anchos de 320 a 1440 px, con axe sin violaciones. Falta la prueba de usabilidad con personas | `06_Intermodular/evidencias/regresion-final/05_web/02_interfaces.txt` (136/136), `03_web.txt` (114/114) y `01_mejoras.txt` (81/81) |
-| Sistemas de Gestión Empresarial (Odoo) | Flujo empresarial documental | PDF real de Berme conservado: instalación, venta y fabricación documentadas. API no verificada aquí; SO024 no definitivo | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf`; §4 y estado final |
+| Sistemas de Gestión Empresarial (Odoo) | Flujo empresarial documental | PDF real de Berme conservado: instalación, venta y fabricación documentadas. API no verificada aquí; S00005 solo acreditado en Odoo | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf`; §4 y estado final |
 | PSP | Aplicación Java de consola con un proceso coordinador y tres procesos hijos | Hecho y probado | `06_Intermodular/evidencias/regresion-final/02_java_psp/04_psp_pruebas.txt` (27/27) |
 | Acceso a Datos | Base PostgreSQL 17 reconstruible con 23 scripts, triggers, auditoría, roles y aplicación Java Swing con JDBC | Hecho y probado. Falta el E-R en PNG | `06_Intermodular/evidencias/regresion-final/01_sql/` (123 PASS, 0 FAIL y 1 ERROR previsto), `02_java_psp/02_pruebas_rubrica.txt` (47/47) y `07_ventanas_swing/` (76/76) |
 | Python | Pipeline de calidad, DataFrames con sus metadatos, KPIs, estadística, RFM, KMeans, predicción, informe ejecutivo priorizado y dashboard Streamlit con 6 filtros y refresco cada 60 s | Hecho y probado con datos de PRUEBA y SINTÉTICOS. Falta la exportación REAL | `06_Intermodular/evidencias/regresion-final/04_python/` (265 pruebas OK y las 93 salidas comparadas) |
-| Integración (SO024) | El mismo pedido recorre Java → PostgreSQL → PSP → Python | **PROVISIONAL:** probado de principio a fin con un reparto inventado. Faltan Odoo y los 7 datos acordados | `06_Intermodular/evidencias/regresion-final/06_so024_provisional/00_cadena.txt` |
+| Ensayo histórico (SO024) | Cadena Java → PostgreSQL → PSP → Python, sin Odoo | **PROVISIONAL:** probado con un reparto inventado; no acredita S00005 ni una integración completa con Odoo | `06_Intermodular/evidencias/regresion-final/06_so024_provisional/00_cadena.txt` |
 
 **Lo que esta versión no hace, a propósito** (frases de alcance del IM p. 2-3 y de AD p. 7):
 
@@ -106,8 +106,8 @@ flowchart LR
 
   CLI -- "consulta catálogo y rellena Custom" --> WEB
   WEB -- "solicitud (hoy, mensaje de simulación)" --> COM
-  COM -- "cliente, presupuesto → pedido SO024" --> ODOO
-  COM -- "SO024 en «Nuevo pedido»" --> JAVA
+  COM -- "S00005 documental (PDF)" --> ODOO
+  COM -- "CUSTOM-40 / ensayo SO024, sin equivalencia con S00005" --> JAVA
   JAVA -- "JDBC · java_nova + SET ROLE" --> PG
   PG -- "script 15 → fabricacion_psp.csv" --> PSP
   ODOO -. "exportación CSV del pedido (PENDIENTE)" .-> PSP
@@ -124,10 +124,10 @@ Las ampliaciones (tienda, panel y portal del trabajador) se conectan a la misma 
 | De → a | Qué viaja | Formato | Cómo | Estado |
 |---|---|---|---|---|
 | Web → comercial | La solicitud Custom: club, contacto, email, modelo, colores, personalización y pares por talla | Formulario HTML | A mano: el envío es una simulación y no sale ningún dato (`01_Interfaces/cliente/js/custom.js`) | Hecho |
-| Comercial → Odoo | Cliente, presupuesto y pedido de venta SO024 | Pantallas de Odoo | A mano | **[PENDIENTE (Berme)]** |
-| Comercial → Java → PostgreSQL | El mismo SO024: referencia, cliente, «Pedido Custom», personalización y una línea por talla | JDBC con `PreparedStatement` | `PedidoDAO.crearPedido` llama a `realizar_compra` y `anadir_linea_pedido` | Hecho; SO024 solo con datos provisionales |
+| Comercial → Odoo | Venta S00005 del Club Atlético NOVA | PDF de Berme pp. 10–12 | Documental | Evidencia disponible; sin enlace probado con PostgreSQL/PSP |
+| Comercial → Java → PostgreSQL | Ensayo SO024 independiente de S00005: referencia, cliente, «Pedido Custom», personalización y una línea por talla | JDBC con `PreparedStatement` | `PedidoDAO.crearPedido` llama a `realizar_compra` y `anadir_linea_pedido` | Hecho; SO024 solo con datos provisionales |
 | PostgreSQL → PSP | La orden de fabricación de un pedido confirmado | CSV UTF-8, coma, 8 columnas: `referencia,sku,cliente,modelo,color,personalizacion,talla,cantidad` | `psql -v referencia=SO024 -f 15_exportar_fabricacion.sql` → `fabricacion_psp.csv` | Hecho |
-| Odoo → PSP | Las líneas del pedido de venta | CSV con las mismas 8 columnas (propuesta de `03_PSP/README.md`) | Exportación de Odoo | **[PENDIENTE (Berme)]** |
+| Odoo → PSP | No hay exportación acreditada de S00005 | Contrato CSV disponible para los ensayos | Sin ejecución verificada de esa venta | No demostrado; no es una tarea nueva de esta entrega |
 | PostgreSQL → Python | Clientes, modelos, pedidos, líneas y stock | 5 CSV UTF-8, coma, punto decimal, fechas `AAAA-MM-DD HH:MM:SS` | `16_exportar_csv_dashboard.sql`, en una transacción `REPEATABLE READ` | Hecho; hoy son de una base de PRUEBA. **[PENDIENTE (los tres): la exportación REAL de la base del equipo.]** |
 | PostgreSQL → Python (contraste) | Los resultados de las consultas P-A, P-B y P-C y del caso N (N-1, N-2 y N-3) | CSV de `psql --csv` en `entrada_acc/conciliacion_sql/` | `12_consultas_panel.sql`; Python los compara con sus propias cifras | Hecho: 21 de 21 (P) y 17 de 17 (N) cifras coinciden |
 | Java → disco | Actividad, usuarios y consulta filtrada | `actividad_sneaker.txt`, `usuarios_sneaker.json` y `consulta_pedidos.csv` | Clase `Archivos` | Hecho |
@@ -137,7 +137,7 @@ Las ampliaciones (tienda, panel y portal del trabajador) se conectan a la misma 
 | Sistema | De qué es responsable | De qué no |
 |---|---|---|
 | **Odoo** | Es el **núcleo**: cliente, presupuesto, pedido de venta, fabricación (lista de materiales y orden), inventario, entrega y factura (IM-SGE-07 y 17) | — |
-| **PostgreSQL + Java** | El caso académico de Acceso a Datos: guarda el mismo pedido con los mismos identificadores, calcula importes, mueve el stock **de su propia base** y audita (AD-22) | No sustituye a Odoo ni se sincroniza con él: son dos sistemas con responsabilidades distintas (`05_Odoo/recorrido-manual-odoo.md` §4) |
+| **PostgreSQL + Java** | El caso académico de Acceso a Datos: guarda los pedidos académicos de PRUEBA, sin equivalencia acreditada con S00005, calcula importes, mueve el stock **de su propia base** y audita (AD-22) | No sustituye a Odoo ni se sincroniza con él: son dos sistemas con responsabilidades distintas (`05_Odoo/recorrido-manual-odoo.md` §4) |
 | **PSP** | Tareas **auxiliares** sobre una copia del pedido: validar, agrupar por talla y variante, preparar una ficha para el taller y registrar el resultado de cada proceso | No crea la orden de fabricación, no toca el stock ni escribe en ninguna base. La ficha lo dice: «No sustituye a la orden de fabricación de Odoo» |
 | **Python** | Analiza los CSV exportados: calidad, KPIs, estadística, segmentación, predicción y dashboard | No se conecta a ninguna base y nunca escribe en la carpeta de entrada |
 | **Web** | Enseña la empresa y el catálogo e inicia la solicitud Custom | No registra pedidos (el envío Custom es una simulación) |
@@ -213,11 +213,11 @@ La evidencia entregada es `odoo/documentacion/Odoo-NOVA-Sneakers.pdf`, de Berme 
 
 El pedido mostrado es del Club Atletico NOVA, con 40 pares a 89 €/par antes del cambio de precio documentado a 99,90 €. No se identifica con el SO024 del Club Halcones. El PDF usa NOVA-4-* para Runner X, mientras parte de esos códigos corresponde a NOVA Velocity en los datos del proyecto. No se han cambiado SKU, pedidos ni precios para forzar igualdad.
 
-La adaptación documentada incluye variantes 38–46, referencias internas, usuarios y lista de materiales. La compañía, módulos y documentos constan en el PDF. No hay una exportación del SO024 oficial ni backup/restauración de Odoo verificables en esta entrega; CRM y algunos perfiles requieren evidencia adicional. Se declaran como límites, no como resultados positivos.
+La adaptación documentada incluye variantes 38–46, referencias internas, usuarios y lista de materiales. La compañía, módulos y documentos constan en el PDF. No hay una exportación acreditada de S00005 hacia los otros módulos ni backup/restauración de Odoo verificables en esta entrega; CRM y algunos perfiles requieren evidencia adicional. Se declaran como límites, no como resultados positivos.
 
 El conector NOVA → Odoo no se ha verificado contra una instalación real accesible desde este entorno. `servidor-admin/pedidos.js` sigue sin montarse y no se amplían permisos. Las pruebas que el PDF describe pertenecen al entorno de Berme; no se trasladan como si fueran pruebas de esta candidata. No se rehace la integración: se entrega el flujo documental y se muestran los módulos disponibles.
 
-El detalle de conciliación y los siete datos no acordados permanece en `06_Intermodular/SO024/INTEGRACION_ODOO_SO024.md`; el guion de cierre usa CUSTOM-40 de PRUEBA, no SO024 definitivo.
+S00005 se adopta como caso documentado de Odoo sin renombrarlo ni recrearlo. El detalle técnico previo permanece en `06_Intermodular/SO024/INTEGRACION_ODOO_SO024.md`, identificado como histórico; el alcance vigente está en `06_Intermodular/CASO_COMUN_S00005.md`. La demo ejecutable usa CUSTOM-40 de PRUEBA y no demuestra S00005 en los módulos auxiliares.
 
 ## 5. Diseño del subsistema auxiliar PSP
 
@@ -236,17 +236,17 @@ Resumen. El diseño completo (procesos, protocolo, códigos, tiempos de espera, 
 
 ### 6.1 Los datos comunes (IM-ITG-09 a 14)
 
-Para SO024, cada dato aparece así en cada bloque:
+La tabla siguiente conserva el diseño del ensayo SO024 PROVISIONAL, no el recorrido de S00005. La columna Odoo describe la preparación anterior, no una venta realizada ni una tarea pendiente para esta entrega. S00005 solo está acreditado en el PDF de Berme; no hay correspondencia probada con estas filas:
 
 | Dato común | Web Custom | Odoo | PostgreSQL / Java | PSP | Python |
 |---|---|---|---|---|---|
-| Identificador | No se muestra: el envío es una simulación (el IM lo deja como opcional, IM-ITG-10) | Pedido de venta; «Referencia del cliente» = SO024 **[PENDIENTE (Berme)]** | `pedidos.referencia` = `SO024` (única) | `referencia` del CSV, `OK;SO024`, `ficha_taller_SO024.txt` | `referencia` en `pedidos.csv` |
-| Cliente | «Club o equipo» y contacto | Contacto Club Halcones **[PENDIENTE (Berme)]** | `clientes`: Club Halcones, con un correo ficticio `@example.com` (script 18) | `cliente` | `id_cliente` (los nombres no se usan en los análisis) |
-| Producto y variante | Modelo, colores y personalización | Runner X con variantes de talla **[PENDIENTE (Berme)]** | `modelos` Runner X → `variantes` (color) → `producto_sku` (talla, SKU `NOVA-<variante>-<talla>`) | `sku`, `modelo`, `color`, `personalizacion`, `talla` | `id_modelo`, `sku`, `talla` |
-| Cantidad | Pares por talla y total | Cantidades de las líneas **[PENDIENTE (Berme)]** | `linea_pedido.cantidad`; `pedidos.cantidad_total` (trigger) | `cantidad` por fila; `TOTAL;40` | `cantidad`; `pares` en `pedidos_unicos` |
-| Estado | Mensaje «SIMULACIÓN» | Estados de venta, fabricación, entrega y factura **[PENDIENTE (Berme)]** | `pendiente` → `confirmado` (y `cancelado`) | Código de salida (0 correcto) y `Resultado: …` | `estado_pedido` |
+| Identificador | No se muestra: el envío es una simulación (el IM lo deja como opcional, IM-ITG-10) | Pedido de venta; «Referencia del cliente» = SO024 (plan anterior, no realizado) | `pedidos.referencia` = `SO024` (única) | `referencia` del CSV, `OK;SO024`, `ficha_taller_SO024.txt` | `referencia` en `pedidos.csv` |
+| Cliente | «Club o equipo» y contacto | Contacto Club Halcones (plan anterior, no realizado) | `clientes`: Club Halcones, con un correo ficticio `@example.com` (script 18) | `cliente` | `id_cliente` (los nombres no se usan en los análisis) |
+| Producto y variante | Modelo, colores y personalización | Runner X con variantes de talla (plan anterior, no realizado) | `modelos` Runner X → `variantes` (color) → `producto_sku` (talla, SKU `NOVA-<variante>-<talla>`) | `sku`, `modelo`, `color`, `personalizacion`, `talla` | `id_modelo`, `sku`, `talla` |
+| Cantidad | Pares por talla y total | Cantidades de las líneas (plan anterior, no realizado) | `linea_pedido.cantidad`; `pedidos.cantidad_total` (trigger) | `cantidad` por fila; `TOTAL;40` | `cantidad`; `pares` en `pedidos_unicos` |
+| Estado | Mensaje «SIMULACIÓN» | Estados de venta, fabricación, entrega y factura (plan anterior, no realizado) | `pendiente` → `confirmado` (y `cancelado`) | Código de salida (0 correcto) y `Resultado: …` | `estado_pedido` |
 
-**[PENDIENTE (los tres): acordar los 7 datos de SO024]** (reparto por talla, color, precio, stock, texto de la personalización, SKU en Odoo y número de pedido en Odoo). Están en `06_Intermodular/SO024/caso-comun-SO024.md` §1. La propuesta de cómo cerrarlos y la prueba completa, en `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md`.
+Los siete acuerdos del plan SO024 se conservan como preparación histórica en `06_Intermodular/SO024/`; ya no condicionan la entrega. El caso elegido es S00005, pero su trazabilidad con PostgreSQL/PSP/Python sigue sin demostrarse.
 
 ### 6.2 Los archivos de intercambio
 
@@ -265,8 +265,8 @@ Para SO024, cada dato aparece así en cada bloque:
 ### 6.3 Estado de la integración
 
 - **Probado de principio a fin con datos PROVISIONALES el 13/11** sobre el árbol final (`06_Intermodular/evidencias/regresion-final/06_so024_provisional/00_cadena.txt`; la evidencia de PSP, también en `03_PSP/evidencias/so024_provisional/`): base 01–23 → script 18 (precio 99,90, color «PROVISIONAL», stock 10 por talla) → alta y confirmación de SO024 con los métodos de «Nuevo pedido» (`PedidoDAO.crearPedido` y `confirmarPedido`, con la sesión de `admin.demo`; reparto 2/3/5/6/7/6/5/4/2) → **40 pares, 9 líneas y 3.996,00 €** → cada talla baja una sola vez (8, 7, 5, 4, 3, 4, 5, 6 y 8) → auditoría a nombre de `admin.demo` → script 15 (9 filas, 40 pares) → **PSP con código 0** → script 16 → Python con **un solo pedido** SO024 de 9 líneas, 40 pares y 3.996 €. El 18 sin sus `-v` no inserta nada.
-- En esa cadena no se generaron las consultas P-A, P-B y P-C de su exportación, así que Python dice «PENDIENTE» en la conciliación de esa ejecución: no da por buena ninguna cifra sin compararla. Con el pedido oficial hay que exportarlas en el mismo momento que los cinco CSV (`06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md` §4.5).
-- **Lo que falta:** **[PENDIENTE (los tres): los 7 datos acordados y el SO024 oficial, desde la ventana de Java y en la base del equipo]** y **[PENDIENTE (Berme): el mismo pedido en Odoo]**.
+- En esa cadena no se generaron las consultas P-A, P-B y P-C de su exportación, así que Python dice «PENDIENTE» en la conciliación de esa ejecución: no da por buena ninguna cifra sin compararla. Para acreditar una conciliación futura habría que exportarlas en el mismo momento que los cinco CSV (`06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md` §4.5).
+- **Límite de entrega:** S00005 está documentado en Odoo, pero no hay evidencia de su recorrido en PostgreSQL/Java, PSP ni Python. El ensayo SO024 se mantiene como PRUEBA independiente y no se convierte en una venta oficial.
 
 ---
 
@@ -297,14 +297,14 @@ Todas se pasaron sobre bases PostgreSQL **desechables** (un clúster de pruebas 
 | Instalación | El manual de instalación seguido al pie de la letra | Clon nuevo y base nueva | 13/11 | Reproducible. Encontró dos errores del propio manual, ya corregidos (§8.1) | `06_Intermodular/evidencias/regresion-final/08_manual_instalacion/` |
 | Seguridad | Que no hay contraseñas en los resultados, las evidencias ni la documentación | Búsqueda de las claves usadas en las pruebas | 13/11 | 0 coincidencias | `06_Intermodular/evidencias/regresion-final/README.md` |
 | Usabilidad | Prueba con 3 a 5 personas | `01_Interfaces/memoria/PROCEDIMIENTO_USABILIDAD.md` | — | **[PENDIENTE (los tres)]** | — |
-| Odoo | Flujo de SO024 | — | — | **[PENDIENTE (Berme)]** | — |
+| Odoo | Flujo documentado de S00005 | Berme (documentación original) | PDF conservado | Evidencia documental, no ejecución actual ni cadena con PSP | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf` pp. 10–12 |
 
 Las pruebas de las ampliaciones (tienda, panel, reparto, correos y portal del trabajador) están en los anexos A y B.
 
 **Lo que todavía no está probado o está a medias** (detalle en `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md`):
 
-- Odoo entero y la relación de la ficha de PSP con el pedido real de Odoo (IM-PSP-10 y 29).
-- El SO024 oficial, desde la ventana de Java y en la base del equipo, y la exportación **REAL** para Python (PY-40, 130 y 138).
+- El conector Odoo en este entorno y la relación de una ficha PSP con S00005 (IM-PSP-10 y 29). El PDF sí acredita el flujo documental de Odoo.
+- La trazabilidad de S00005 entre sistemas no está demostrada. La exportación **REAL** para Python (PY-40, 130 y 138) sigue sin aportarse; los datos de PRUEBA no se cambian.
 - La prueba de dos sesiones (COMMIT y ROLLBACK vistos desde otra conexión) es del 8/11 y se hizo a mano (AD-35). Que el JSON de usuarios no publique cambios tras un ROLLBACK está implementado (se exporta después del COMMIT), pero ninguna prueba lo fuerza (AD-96).
 - Las capturas de las pruebas A, B, C, D, G e I hechas en la ventana se toman a mano en la demostración (AD-81); `ProbarVentanas` y `PruebasRubrica` las cubren por código.
 - Lighthouse y la medida de contraste no se han repetido sobre el árbol final. Lighthouse (11/11) es anterior a los 100 modelos y a los colores por colección. La medida de contraste (12/11) ya los incluye, y desde entonces la web de clientes solo ha cambiado en `js/tienda.js` (el estado «En reparto» y el enlace del recibo), no en el CSS.
@@ -358,13 +358,13 @@ Las pruebas de las ampliaciones (tienda, panel, reparto, correos y portal del tr
 4. Python: partir la regla 12 de calidad y las pestañas del dashboard en funciones más pequeñas (propuestas de la limpieza del 13/11 que no se aplicaron; `main.ejecutar` ya está dividido en pasos).
 5. PSP con varios pedidos a la vez y un registro compartido sincronizado (IM-PSP-30).
 6. Las ampliaciones voluntarias de AD que no están hechas: vistas, índices con `EXPLAIN`, paginación, importación CSV, auditoría con JSONB o `LISTEN/NOTIFY` (AD-139 a 145).
-7. Activar el conector de Odoo con un usuario de permisos mínimos y las rutas de pedidos pasadas a funciones de la base, cuando haya un Odoo de verdad con el que probarlo.
+7. Activar el conector de Odoo con un usuario de permisos mínimos y las rutas de pedidos pasadas a funciones de la base, solo en una integración futura con una instancia accesible y pruebas propias; queda fuera de esta entrega.
 
 ---
 
 ## 9. Reparto real del trabajo y contribuciones
 
-**Declaración de cierre:** las cifras siguientes describen un corte anterior y no son un reparto personal confirmado. El historial actual se conserva íntegro. No se completan nombres, revisiones personales o responsabilidades con suposiciones. La asistencia de Codex en este cierre incluyó revisión, instalación aislada, regresión y documentación; las decisiones sobre límites de entrega las dio el usuario. Las afirmaciones personales no confirmadas quedan como NO VERIFICABLES, no como trabajo inventado.
+**Declaración de cierre:** las cifras siguientes pertenecen a un corte anterior. El historial conserva la autoría original; el reparto personal no confirmado figura como NO VERIFICABLE. Codex asistió en la revisión, instalación aislada, regresión y documentación. El equipo fijó el alcance de la entrega.
 
 **Este apartado lo completan los tres** (IM-COM-29). Aquí solo hay lo que se puede comprobar en el historial de Git, y huecos para el resto. **No se debe dar por bueno nada que no sea verdad**: en la defensa puede haber preguntas individuales (IM-COM-09).
 

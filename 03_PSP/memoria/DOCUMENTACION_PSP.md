@@ -246,12 +246,12 @@ Sobre el árbol final y una base desechable con los 23 scripts (`06_Intermodular
 4. Ficha: `ficha_taller_SO024_PROVISIONAL.txt`, con el cliente Club Halcones, la personalización «PROVISIONAL: escudo del Club Halcones en el lateral» y los pares por talla.
 5. La cadena sigue después de PSP: el 16 exporta los cinco CSV y, en Python, SO024 es un solo pedido de 9 líneas y 40 pares.
 
-**[PENDIENTE (los tres): acordar los 7 datos de SO024 y repetir la cadena con el pedido creado desde la ventana Java en la base del equipo (`06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md`).]**
+**Decisión de entrega:** SO024 queda como ensayo histórico PROVISIONAL. Se presenta S00005 en el PDF de Berme, sin afirmar que PSP lo haya procesado. No se renombra esta evidencia ni se exige un «SO024 oficial».
 
 ### 9.3 Relación con el pedido de Odoo (IM-PSP-10, 14 y 29)
 
 - **Cómo se relaciona hoy:** por la **referencia**, que se conserva de principio a fin: en el CSV, en cada respuesta `OK;SO024`, en el nombre de la ficha y dentro de ella, y en `registro_psp.txt` junto con el nombre del archivo de origen.
-- **Qué falta:** el pedido de verdad en Odoo. Hoy **no hay ninguna exportación de Odoo**. Cuando Berme tenga SO024 en Odoo hay dos caminos (`03_PSP/README.md`, «Relación con PostgreSQL y Odoo»):
+- **Qué no está probado:** S00005 ya figura en el PDF de Odoo, pero **no hay una exportación de ese pedido ni una ejecución acreditada en PSP**. Las dos opciones siguientes pertenecen al plan técnico anterior, no son tareas de esta entrega (`03_PSP/README.md`, «Relación con PostgreSQL y Odoo»):
   1. exportar sus líneas desde Odoo a un CSV con estas mismas 8 columnas, y PSP lo procesa **sin cambiar nada**;
   2. o que la «Referencia del cliente» del pedido de Odoo sea `SO024` y la «Referencia interna» de cada variante sea el SKU de PostgreSQL, y apuntar en la ficha o en la memoria la correspondencia con el número que dé Odoo (`05_Odoo/recorrido-manual-odoo.md`).
 - El conector de Odoo de Berme que hay en el servidor (`servidor-admin/odoo.js`) está desactivado y no se ha probado contra ningún Odoo; PSP no lo usa.

@@ -1,6 +1,6 @@
 # NOVA Sneakers · Demostración final de lo disponible
 
-Guion de entrega del 13/11/2026, 15–20 minutos. No requiere Odoo en ejecución ni los datos oficiales de SO024. Se usa una base nueva de PRUEBA montada con el manual; las contraseñas se preparan fuera de Git. No trabajar sobre una base con datos personales o pedidos reales.
+Guion de entrega del 13/11/2026, 15–20 minutos. Presenta S00005 del Club Atlético NOVA mediante el PDF de Berme; no requiere Odoo en ejecución ni crear SO024. Se usa una base nueva de PRUEBA montada con el manual; las contraseñas se preparan fuera de Git. No trabajar sobre una base con datos personales o pedidos reales.
 
 ## 0. Preparación
 
@@ -15,11 +15,11 @@ Guion de entrega del 13/11/2026, 15–20 minutos. No requiere Odoo en ejecución
 
 Explicar la marca y la organización por asignaturas. Abrir catálogo, filtrar y buscar, ver ficha y probador conceptual. Mostrar el diseño BEM en escritorio y móvil. El probador no es una medición clínica ni una prueba física de talla.
 
-En Custom, preparar una solicitud ilustrativa de 40 pares. Pulsar SIMULAR ENVÍO y leer el aviso: no se registra un pedido. Si se usa Runner X como ejemplo, decir que no tiene SKU conciliado ni datos oficiales acordados.
+En Custom, preparar una solicitud ilustrativa de 40 pares. Pulsar SIMULAR ENVÍO y leer el aviso: no se registra un pedido. El SO024 que muestra la web es el ejemplo del enunciado; no registra una venta en Odoo ni crea S00005. No hay SKU conciliado entre sistemas.
 
 ## 2. Java y PostgreSQL (3 min)
 
-Ejecutar `02_Acceso_Datos\java\ejecutar.bat`. Entrar como tienda.demo, consultar CUSTOM-40 y enseñar sus cuatro líneas, 40 pares, estado y personalización. Es el caso de PRUEBA de Acceso a Datos, no SO024.
+Ejecutar `02_Acceso_Datos\java\ejecutar.bat`. Entrar como tienda.demo, consultar CUSTOM-40 y enseñar sus cuatro líneas, 40 pares, estado y personalización. Es el caso de PRUEBA de Acceso a Datos; no se identifica con S00005.
 
 Opcional: crear un pedido de demostración con referencia nueva (`DEMO-ENTREGA-<hora>`), un SKU con stock y un par; consultar, confirmar y cancelar. Mostrar que la base calcula importes y que el stock se descuenta/restituye con las reglas del pedido. Si falta stock, no alterarlo a mano para forzar el resultado.
 
@@ -61,10 +61,10 @@ admin.demo: ver pedidos, inventario, clientes y auditoría, con datos de la base
 
 ## 7. Odoo y límites (2 min)
 
-Abrir `odoo/documentacion/Odoo-NOVA-Sneakers.pdf`: instalación y servicio, venta S00005, fabricación, entrega, factura y variantes. Son evidencias aportadas por Berme, no una conexión en vivo desde este entorno.
+Abrir `odoo/documentacion/Odoo-NOVA-Sneakers.pdf`: instalación y servicio, venta S00005 del Club Atlético NOVA, fabricación, entrega, factura y variantes. Son evidencias aportadas por Berme, no una conexión en vivo desde este entorno.
 
-Decir literalmente: «El conector NOVA → Odoo no se ha verificado contra una instalación real accesible desde este entorno. Sus rutas no se activan en el servidor principal. SO024 no es definitivo: faltan acuerdos y conciliación de códigos. No hemos cambiado SKU ni pedidos para fingir esa integración».
+Decir literalmente: «El conector NOVA → Odoo no se ha verificado contra una instalación real accesible desde este entorno. Sus rutas no se activan en el servidor principal. Nuestro caso de Odoo es S00005 del Club Atlético NOVA. SO024 es el ejemplo del enunciado, no una venta realizada por nosotros en Odoo. No tenemos pruebas de S00005 en PostgreSQL, PSP o Python y no hemos cambiado SKU ni pedidos para fingir esa integración».
 
 ## 8. Cierre y respaldo
 
-Mostrar el estado por asignatura y la matriz. Reconocer lo no demostrado: SO024 oficial, exportación REAL, usabilidad con personas, recuperación de Odoo y requisitos que solo puede juzgar la defensa. Si un servicio falla en la presentación, usar sus logs/capturas indicando fecha y origen; no presentarlos como una ejecución actual.
+Mostrar el estado por asignatura y la matriz. Reconocer lo no demostrado: trazabilidad de S00005 entre sistemas, exportación REAL, usabilidad con personas, recuperación de Odoo y requisitos que solo puede juzgar la defensa. Si un servicio falla en la presentación, usar sus logs/capturas indicando fecha y origen; no presentarlos como una ejecución actual.

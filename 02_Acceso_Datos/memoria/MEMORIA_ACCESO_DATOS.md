@@ -17,7 +17,7 @@ La base `nova_sneakers` (PostgreSQL 17, probada con la 17.11) guarda el catálog
 Relación con el resto del proyecto (AD-01, AD-02 y AD-22):
 
 - **Una sola empresa:** la misma marca NOVA que la web, PSP y Python. No es otra empresa ni otro proyecto. **[DUDA PARA EL PROFESOR (D2): ¿vale «NOVA Sneakers» en lugar de «Sneaker Factory»?]**
-- **El mismo pedido común, SO024**, con la misma referencia en PostgreSQL, en la ficha de PSP y en Python. El script 18 carga el cliente Club Halcones y el modelo Runner X; el pedido se crea desde Java. Hoy solo con datos provisionales (§13 y `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md`).
+- **El ensayo SO024 PROVISIONAL**, con la misma referencia en PostgreSQL, en la ficha de PSP y en Python. Es una prueba histórica del ejemplo; no acredita el caso S00005 documentado en Odoo. El script 18 carga el cliente Club Halcones y el modelo Runner X; el pedido se crea desde Java. Hoy solo con datos provisionales (§13 y `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md`).
 - **PostgreSQL alimenta a los otros módulos:** el script 15 exporta la orden de fabricación para PSP y el 16, los cinco CSV de Python.
 - **Las ampliaciones web usan la misma base**, cada una con su propio rol mínimo: el panel de administración (19 y 22), la tienda (20 y 21) y el portal del trabajador (23). Comparten las cuentas de la tabla `usuarios` y la misma auditoría (§9.8).
 - **Odoo:** no hay todavía ninguna correspondencia comprobada. La regla propuesta (el SKU como «Referencia interna» de la variante y la referencia del pedido en «Referencia del cliente») está en `05_Odoo/recorrido-manual-odoo.md`. **[PENDIENTE (Berme): tabla de equivalencias de SKU y número de pedido con Odoo.]**
@@ -621,7 +621,7 @@ Probado el 13/11 de principio a fin con **datos PROVISIONALES** en una base dese
 4. Exportación con `15 -v referencia=SO024`: 9 filas y 40 pares, con sus dos comprobaciones en PASS. PSP lo procesó con código 0.
 5. Exportación con el 16 y `main.py`: en Python, SO024 es **un solo pedido** de 9 líneas, 40 pares y 3.996 €.
 
-**[PENDIENTE (los tres): acordar los 7 datos de SO024 y repetirlo desde la ventana de Java y en la base del equipo, enseñando también la consulta filtrada por cliente y estado, la cancelación o la falta de stock, el TXT, el panel, el CSV filtrado y un usuario nuevo en el JSON (AD-114 a 116). Pasos y comandos en `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md`.]**
+**Límite de evidencia (AD-114 a 116):** el ensayo no se hizo desde la ventana de Java. No se exige crear SO024 como venta oficial; faltan evidencias de algunas operaciones manuales. Tampoco hay prueba de que S00005 se haya registrado o procesado en PostgreSQL/Java. Se conservan todos los datos y resultados del ensayo.
 
 ---
 

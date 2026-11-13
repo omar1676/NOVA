@@ -20,7 +20,7 @@ repositorio (`01_Interfaces`, `02_Acceso_Datos`, `03_PSP`…).
 | **Cómo se inicia** | `main.py` por consola y `streamlit run app_dashboard.py` para el dashboard (apartado «Instalación» de este README) |
 | **Pruebas** | `python -m unittest discover -s tests -v`: 265 pruebas. Además, las 93 salidas de `main.py` se comparan con una referencia guardada |
 | **Rúbrica** | 214 requisitos, 200 cumplidos; falta sobre todo la exportación REAL. Detalle en `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` (§2.4) |
-| **Conexión con otras asignaturas** | Lee lo que exporta Acceso a Datos y concilia sus cifras con las consultas de `02_Acceso_Datos/sql/12_consultas_panel.sql`. El pedido SO024 aparece como un pedido más cuando se exporta |
+| **Conexión con otras asignaturas** | Lee lo que exporta Acceso a Datos y concilia sus cifras con las consultas de `02_Acceso_Datos/sql/12_consultas_panel.sql`. El ensayo SO024 PROVISIONAL tiene resultados históricos; no hay una exportación acreditada de S00005 en Python |
 | **Evidencias y memoria** | `evidencias/dashboard/` (casos del dashboard y refresco de 60 s) y `memoria/INFORME_TECNICO_PYTHON.md` (el informe técnico que pide la rúbrica) |
 
 ## Estado

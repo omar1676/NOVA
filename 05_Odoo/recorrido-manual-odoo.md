@@ -1,5 +1,7 @@
 # Recorrido manual del pedido Custom: PostgreSQL → CSV → Odoo
 
+> **Archivo histórico.** El caso de entrega es [S00005 del Club Atlético NOVA](../06_Intermodular/CASO_COMUN_S00005.md). El plan SO024 siguiente queda sustituido y no se ejecuta. Se conserva para documentar la preparación y los ensayos anteriores, sin atribuirlos a S00005.
+
 > **Borrador histórico anterior al PDF de Berme.** No usar sus ejemplos de CUSTOM-40 como acuerdo de SO024. El estado actual, los códigos y el orden de conciliación están en [INTEGRACION_ODOO_SO024.md](../06_Intermodular/SO024/INTEGRACION_ODOO_SO024.md).
 
 Borrador para revisar con Berme (OD-01 y OD-04), Álvaro (OD-02) y Omar (OD-03).
