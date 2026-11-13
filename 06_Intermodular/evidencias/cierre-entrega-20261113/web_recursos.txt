@@ -1,2 +1,0 @@
-OK: 21 p�ginas HTML y 155 recursos locales distintos.
-No se han comprobado servicios externos, API ni comportamiento visual.

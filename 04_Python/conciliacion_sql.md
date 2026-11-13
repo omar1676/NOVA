@@ -83,7 +83,7 @@ La base de prueba es un clúster temporal, distinto del PostgreSQL del equipo:
 3. Se ejecutaron las tres consultas, copiadas tal cual del archivo.
 
 Ninguna de las tres usa fechas. N-1, N-2 y N-3 se sacaron el 13 de noviembre de
-2026 de otra base de prueba montada igual, con los scripts 1–17 de la candidata.
+2026 de otra base de prueba montada igual, con los scripts 1–17 .
 Su exportación también era idéntica a la de `entrada_acc/` salvo esas dos fechas,
 que caen en el mismo mes (2026-11), y P-A, P-B y P-C salían iguales byte a byte.
 

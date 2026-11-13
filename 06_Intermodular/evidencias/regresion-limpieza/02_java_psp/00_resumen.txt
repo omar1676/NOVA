@@ -1,16 +1,0 @@
-== Java PruebasRubrica. Inicio: 13/11/2026 12:17:41. java version "17.0.12" 2024-07-16 LTS; driver postgresql-42.7.14.jar
-javac -> 0
-PruebasRubrica -> salida 0 | RESULTADO: 47 PASS, 0 FAIL
-actividad_sneaker.txt consulta_pedidos.csv usuarios_sneaker.json 
-Fin Java: 13/11/2026 12:17:46
-== PSP. Inicio: 13/11/2026 12:17:46
-javac psp -> 0
-PruebasPsp -> salida 0 | Pruebas superadas: 27 de 27
-CUSTOM-40 -> codigo 0
-ficha CUSTOM-40 igual a la de 03_PSP/evidencias (sin fechas)
-archivo inexistente -> codigo 1 (se espera 1)
-cantidad 0 -> codigo 2 (se espera 2)
-== Comprobacion rapida de Berme (scripts/comprobar_psp.py), con fallo conocido; JDK 17 en el PATH
-comprobar_psp.py -> salida 1 | ERROR: El validador no reconoce los cuatro registros CSV multilínea. 
-comprobar_web.py -> salida 0 | No se han comprobado servicios externos, API ni comportamiento visual.
-Fin PSP: 13/11/2026 12:18:03

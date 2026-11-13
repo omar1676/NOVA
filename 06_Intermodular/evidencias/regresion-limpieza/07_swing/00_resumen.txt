@@ -1,8 +1,0 @@
-== Ventanas Swing. Inicio: 13/11/2026 12:32:22
-montaje 1-17: 09-16: PASS 123 FAIL 0 ERROR 1 | ERROR en todos los logs: 1 | FAIL en todos los logs: 0
-javac -> 0
-ventanas -> salida 0 | RESULTADO PRUEBA VISUAL: 76 PASS, 0 FAIL. Capturas: 17
-sin conexion -> salida 0 | RESULTADO SIN CONEXION: 1 PASS, 0 FAIL
-19
-N: liberada
-== Fin: 13/11/2026 12:33:18

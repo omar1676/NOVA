@@ -1,2 +1,0 @@
-===== Datos del caso comun SO024 (sin crear el pedido) =====
-Falta el precio de Runner X (-v precio=...). No se ha insertado nada.

@@ -1,12 +1,12 @@
 # NOVA Sneakers · Apartado de Acceso a Datos
 
-Entregable 05 de la rúbrica de Acceso a Datos: «Apartado de Acceso a Datos dentro de la memoria común: decisiones, pruebas, dificultades y aportaciones» (AD-121). Forma parte de `06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf`.
+Entregable 05 de la rúbrica de Acceso a Datos: «Apartado de Acceso a Datos dentro de la memoria común: decisiones, pruebas, dificultades y aportaciones» (AD-121). Forma parte de la memoria del proyecto (`Memoria_NOVA_Sneakers.pdf`).
 
 > **Importante.** La rúbrica dice: «Es imprescindible aprobar todas las partes de los requisitos de Acceso a Datos para aprobar (Tribunal, memoria, entregable y defensa)» (AD-138). Este apartado es la parte de memoria.
 
-**Convenciones.** Las rutas son relativas a la raíz del repositorio. Los IDs (AD-xx) son los de la matriz de requisitos de `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md`, donde está también el estado de cada uno (§2.2). Marcas: **[PENDIENTE (quién): …]** es trabajo que falta de verdad; **[POR DECIDIR (los tres): …]**, una decisión del equipo; **[DUDA PARA EL PROFESOR (Dn): …]**, una pregunta de la lista de dudas de la matriz; **[EQUIPO: …]**, **[ÁLVARO: …]** u **[OMAR: …]**, un dato o una confirmación que solo puede dar el equipo o esa persona; **Límite declarado**, algo que no está hecho o probado en esta entrega y se dice así.
+**Convenciones.** Las rutas son relativas a la raíz del repositorio.md`, donde está también el estado de cada uno (§2.2). Marcas: **[PENDIENTE (quién): …]** es trabajo que falta de verdad; , una decisión del equipo; , una pregunta de la lista de dudas de la matriz; **[EQUIPO: …]**, **[ÁLVARO: …]** u **[OMAR: …]**, un dato o una confirmación que solo puede dar el equipo o esa persona; **Límite declarado**, algo que no está hecho o probado en esta entrega y se dice así.
 
-**Versión:** rama `main`, commit `372f811`; el código es el del commit `4f09742` (13/11/2026). En la regresión de cierre, sobre ese código y en un clon nuevo, se repitieron el montaje SQL y la batería 09-16 (123 PASS, 0 FAIL y 1 ERROR previsto), las salidas de los scripts 10, 11, 12, 14, 15, 16 y 18, y `PruebasRubrica` (47/47) (`06_Intermodular/evidencias/cierre-entrega-20261113/`). El resto de pruebas que se citan, entre ellas las ventanas Swing (76/76), son de la regresión histórica del 13/11, sobre un árbol anterior con la estructura de carpetas antigua y en bases desechables (`06_Intermodular/evidencias/regresion-final/`).
+**Versión:** rama `main`, commit `372f811`; el código es el del commit `4f09742` (13/11/2026). En la regresión de cierre, sobre ese código y en un clon nuevo, se repitieron el montaje SQL y la batería 09-16 (123 PASS, 0 FAIL y 1 ERROR previsto), las salidas de los scripts 10, 11, 12, 14, 15, 16 y 18, y `PruebasRubrica` (47/47) (la regresión del 13/11). El resto de pruebas que se citan, entre ellas las ventanas Swing (76/76), son de la regresión histórica del 13/11, sobre un árbol anterior con la estructura de carpetas antigua y en bases desechables (la regresión del 13/11).
 
 ---
 
@@ -16,11 +16,11 @@ La base `nova_sneakers` (PostgreSQL 17, probada con la 17.11) guarda el catálog
 
 Relación con el resto del proyecto (AD-01, AD-02 y AD-22):
 
-- **Una sola empresa:** la misma marca NOVA que la web, PSP y Python. No es otra empresa ni otro proyecto. **[DUDA PARA EL PROFESOR (D2): ¿vale «NOVA Sneakers» en lugar de «Sneaker Factory»?]**
-- **El ensayo SO024 PROVISIONAL**, con la misma referencia en PostgreSQL, en la ficha de PSP y en Python. Es una prueba histórica del ejemplo; no acredita el caso S00005 documentado en Odoo. El script 18 carga el cliente Club Halcones y el modelo Runner X; el pedido se crea desde Java. Hoy solo con datos provisionales (§13 y `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md`).
+- **Una sola empresa:** la misma marca NOVA que la web, PSP y Python. No es otra empresa ni otro proyecto.
+- **El ensayo SO024 PROVISIONAL**, con la misma referencia en PostgreSQL, en la ficha de PSP y en Python. Es una prueba histórica del ejemplo; no acredita el caso S00005 documentado en Odoo. El script 18 carga el cliente Club Halcones y el modelo Runner X; el pedido se crea desde Java.md`).
 - **PostgreSQL alimenta a los otros módulos:** el script 15 exporta la orden de fabricación para PSP y el 16, los cinco CSV de Python.
 - **Las ampliaciones web usan la misma base**, cada una con su propio rol mínimo: el panel de administración (19 y 22), la tienda (20 y 21) y el portal del trabajador (23). Comparten las cuentas de la tabla `usuarios` y la misma auditoría (§9.8).
-- **Odoo:** hay una correspondencia documental parcial, no una integración (`06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf` §6.1): el mismo cliente y 40 pares en S00005 y en `CUSTOM-40`, aunque con precios distintos (89 € frente a 119,90 €), y la referencia `NOVA-0011` con el mismo importe, 4.796,00 €, en S00001 (solo en el texto del PDF de Berme, p. 13; hay que comprobarlo en su Odoo). Los SKU no coinciden: en Odoo, `NOVA-4-38` … `NOVA-4-46` son variantes de Runner X; aquí, `NOVA-4-40` … `NOVA-4-44` son de NOVA Velocity Rojo. **Límite declarado:** no hay exportación de Odoo ni conciliación probada. La regla propuesta (el SKU como «Referencia interna» de la variante y la referencia del pedido en «Referencia del cliente») está en `05_Odoo/recorrido-manual-odoo.md`.
+- **Odoo:** hay una correspondencia documental parcial, no una integración (la memoria del proyecto (`Memoria_NOVA_Sneakers.pdf`) §6.1): el mismo cliente y 40 pares en S00005 y en `CUSTOM-40`, aunque con precios distintos (89 € frente a 119,90 €), y la referencia `NOVA-0011` con el mismo importe, 4.796,00 €, en S00001 (solo en el texto del PDF de Berme, p. 13; hay que comprobarlo en su Odoo). Los SKU no coinciden: en Odoo, `NOVA-4-38` … `NOVA-4-46` son variantes de Runner X; aquí, `NOVA-4-40` … `NOVA-4-44` son de NOVA Velocity Rojo. **Límite declarado:** no hay exportación de Odoo ni conciliación probada.md`.
 
 ---
 
@@ -148,7 +148,7 @@ erDiagram
 | `configuraciones_xnova` | El diseño de una zapatilla X-NOVA | Una línea es de un SKU normal **o** de una configuración X-NOVA, nunca de las dos (`linea_tipo_producto_check`) |
 | `log_eventos` | La auditoría | La escriben solo los triggers |
 
-**Cómo queda identificable la personalización (AD-07).** En un pedido Custom normal, la personalización es el texto de `pedidos.personalizacion` con `personalizado = true`, y el color va en la variante del SKU de cada línea. En X-NOVA, cada línea apunta a su configuración. **[POR DECIDIR (los tres): cómo se representan varias personalizaciones distintas dentro de un mismo pedido (`01_Interfaces/cliente/README.md`, «Pendiente de integración»).]**
+**Cómo queda identificable la personalización (AD-07).** En un pedido Custom normal, la personalización es el texto de `pedidos.personalizacion` con `personalizado = true`, y el color va en la variante del SKU de cada línea. En X-NOVA, cada línea apunta a su configuración.
 
 ### 2.3 Normalización
 
@@ -166,7 +166,7 @@ La documentación del modelo es prudente y no afirma la 3FN de todo el esquema s
 
 ### 3.1 Los scripts
 
-Están en `02_Acceso_Datos/sql/`: son 23. **El número del archivo no es el orden de ejecución**; el orden y los comandos están en `06_Intermodular/manuales/MANUAL_INSTALACION.md` §3. Resumen (`02_Acceso_Datos/documentacion/README.md` §3):
+Están en `02_Acceso_Datos/sql/`: son 23. **El número del archivo no es el orden de ejecución**; el orden y los comandos están en `manuales/MANUAL_INSTALACION.md` §3. Resumen (`02_Acceso_Datos/documentacion/README.md` §3):
 
 | Grupo | Scripts | Qué hacen |
 |---|---|---|
@@ -177,9 +177,9 @@ Están en `02_Acceso_Datos/sql/`: son 23. **El número del archivo no es el orde
 | Cuentas | `13_activar_usuarios.sql` (contraseñas de demostración), `17_usuario_java.sql` (usuario `java_nova`) y `19_usuario_web.sql` (usuario `web_nova` del servidor) | Piden las contraseñas por teclado; no se guarda ninguna en el repositorio |
 | Caso Custom y exportaciones | `14_caso_custom_persistente.sql` (guarda `CUSTOM-40`), `15_exportar_fabricacion.sql` (CSV para PSP), `16_exportar_csv_dashboard.sql` (5 CSV para Python) | — |
 | Caso común | `18_datos_so024.sql` | Club Halcones y Runner X (tallas 38–46); el pedido se crea desde Java. Sin `-v precio=… -v color=… -v stock=…` no inserta nada |
-| Ampliaciones | `19` (panel: `panel_lectura`), `20` (tienda: `cuentas_cliente`, 5 funciones, `tienda_web` y `tienda_nova`), `21` (los 100 modelos de la web), `22` (reparto: `marcar_pedido_en_reparto` y `panel_reparto`) y `23` (portal del trabajador: `avanzar_pedido_trabajador`, `ajustar_existencias_trabajador` y `portal_trabajador`) | Ver `06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf`, anexo A, y §9.8 |
+| Ampliaciones | `19` (panel: `panel_lectura`), `20` (tienda: `cuentas_cliente`, 5 funciones, `tienda_web` y `tienda_nova`), `21` (los 100 modelos de la web), `22` (reparto: `marcar_pedido_en_reparto` y `panel_reparto`) y `23` (portal del trabajador: `avanzar_pedido_trabajador`, `ajustar_existencias_trabajador` y `portal_trabajador`) | Ver la memoria del proyecto (`Memoria_NOVA_Sneakers.pdf`), anexo A, y §9.8 |
 
-La base **se reconstruye desde cero** con estos archivos sobre una base vacía (AD-132), incluidos los roles, los usuarios ficticios y los permisos (AD-133). Último montaje completo: 13/11, 00:58, los 23 scripts con salida 0 y el 23 lanzado dos veces, porque se puede repetir (`06_Intermodular/evidencias/regresion-final/01_sql/01_montaje_01_23.txt`). Se repitió igual en una segunda base y, siguiendo el manual al pie de la letra, sobre un clon nuevo del repositorio (`06_Intermodular/evidencias/regresion-final/08_manual_instalacion/`).
+La base **se reconstruye desde cero** con estos archivos sobre una base vacía (AD-132), incluidos los roles, los usuarios ficticios y los permisos (AD-133). Último montaje completo: 13/11, 00:58, los 23 scripts con salida 0 y el 23 lanzado dos veces, porque se puede repetir (la regresión del 13/11). Se repitió igual en una segunda base y, siguiendo el manual al pie de la letra, sobre un clon nuevo del repositorio (la regresión del 13/11).
 
 ### 3.2 Datos de demostración (AD-11 y AD-12)
 
@@ -199,7 +199,7 @@ La prueba M1 de `09_pruebas.sql` lo comprueba: 6 clientes, 7 modelos, 11 pedidos
 
 ### 3.3 INSERT, UPDATE y DELETE (AD-13)
 
-`11_dml_ejemplos.sql` hace un INSERT, un UPDATE y un DELETE válidos y seis intentos que rechazan las restricciones: R1 cantidad 0 (`linea_pedido_check_1`), R2 email repetido (`clientes_email_uq`), R3 cliente que no existe (`pedidos_id_cliente_fk`), R4 modelo sin nombre (NOT NULL), R5 estado que no existe (`pedidos_check_3`) y R6 línea sin SKU ni X-NOVA (`linea_tipo_producto_check`). Resultado del 13/11: **12 PASS** (`06_Intermodular/evidencias/regresion-final/01_sql/logs_nova_rf_base/11_dml_ejemplos.log.txt`).
+`11_dml_ejemplos.sql` hace un INSERT, un UPDATE y un DELETE válidos y seis intentos que rechazan las restricciones: R1 cantidad 0 (`linea_pedido_check_1`), R2 email repetido (`clientes_email_uq`), R3 cliente que no existe (`pedidos_id_cliente_fk`), R4 modelo sin nombre (NOT NULL), R5 estado que no existe (`pedidos_check_3`) y R6 línea sin SKU ni X-NOVA (`linea_tipo_producto_check`). Resultado del 13/11: **12 PASS** (la regresión del 13/11).
 
 ### 3.4 Alta desde Java (AD-14)
 
@@ -209,7 +209,7 @@ La pestaña «Nuevo pedido» (`PanelNuevoPedido.java`) permite elegir cliente, m
 
 ## 4. Las ocho consultas (AD-15 a AD-19)
 
-Están en `02_Acceso_Datos/sql/06_consultas.sql`. Los resultados de la tabla son los del 13/11, con los datos de demostración del 05: en el orden del manual, el 06 se lanza justo después de cargar los datos (`06_Intermodular/evidencias/regresion-final/01_sql/logs_nova_rf_base/06_consultas.log.txt`).
+Están en `02_Acceso_Datos/sql/06_consultas.sql`. Los resultados de la tabla son los del 13/11, con los datos de demostración del 05: en el orden del manual, el 06 se lanza justo después de cargar los datos (la regresión del 13/11).
 
 | Nº | Consulta | Técnica | Para qué sirve | Resultado con los datos de prueba |
 |---|---|---|---|---|
@@ -255,7 +255,7 @@ ORDER BY stock_previsto ASC, m.nombre;
 
 **Por qué `HAVING`.** Filtra **después** de agrupar, que es la única forma de preguntar por la suma de las existencias de todos los almacenes. Con un `WHERE` se filtraría almacén por almacén, y una referencia repartida entre dos naves parecería baja sin serlo. El `LEFT JOIN` y el `COALESCE` hacen que una referencia sin existencias o sin pedidos pendientes salga con 0 (`02_Acceso_Datos/documentacion/README.md` §10).
 
-**Resultado verificable (AD-134).** Con los datos de prueba devuelve **1 fila**: `NOVA-4-43` (NOVA Velocity rojo, talla 43) tiene 20 pares y 11 pendientes (los 10 de `NOVA-0011` y uno más), así que se quedaría en 9. En una base con todo instalado (después de `CUSTOM-40`, que baja a 10 las tallas 40 a 43, y del catálogo de la web del 21) salen más filas: 110 el 13/11 (`06_Intermodular/evidencias/regresion-final/01_sql/04_06_consultas.txt`). El stock bajo **de hoy**, con el umbral que se quiera, es la consulta `C8` de `12_consultas_panel.sql`, la que usa el panel de Java.
+**Resultado verificable (AD-134).** Con los datos de prueba devuelve **1 fila**: `NOVA-4-43` (NOVA Velocity rojo, talla 43) tiene 20 pares y 11 pendientes (los 10 de `NOVA-0011` y uno más), así que se quedaría en 9. En una base con todo instalado (después de `CUSTOM-40`, que baja a 10 las tallas 40 a 43, y del catálogo de la web del 21) salen más filas: 110 el 13/11 (la regresión del 13/11). El stock bajo **de hoy**, con el umbral que se quiera, es la consulta `C8` de `12_consultas_panel.sql`, la que usa el panel de Java.
 
 Antes del 13/11 la consulta 3 era un stock bajo sin los pendientes y, con los datos de prueba (20 pares en cada SKU), devolvía 0 filas. Se cambió en el commit `e36fdfa` para que tuviera filas que enseñar sin tocar los datos de demostración ni las pruebas que los cuentan (P2 y J5).
 
@@ -277,7 +277,7 @@ Además de las 14 claves primarias y las 16 ajenas (`02_Acceso_Datos/documentaci
 | `linea_stock_descontado_check` | Marcar como descontada una línea sin SKU ni almacén |
 | `clientes_email_uq`, `pedidos_referencia_uq`, `producto_sku_sku_uq` | Repetir correos, referencias de pedido o códigos SKU |
 
-**Demostradas** (AD-20, se piden al menos dos): E8 (cantidad cero) y E6 (referencia repetida) en `09_pruebas.sql`, y los seis rechazos R1–R6 del `11_dml_ejemplos.sql`. En Java, la prueba H4 fuerza una referencia repetida: la base la rechaza, Java enseña «Ese dato ya existe y no se puede repetir…» y no se crea ningún pedido (`06_Intermodular/evidencias/regresion-final/02_java_psp/02_pruebas_rubrica.txt`). En la ventana, la captura 14 de `02_Acceso_Datos/evidencias/java-swing/` enseña el rechazo de una talla que no existe.
+**Demostradas** (AD-20, se piden al menos dos): E8 (cantidad cero) y E6 (referencia repetida) en `09_pruebas.sql`, y los seis rechazos R1–R6 del `11_dml_ejemplos.sql`. En Java, la prueba H4 fuerza una referencia repetida: la base la rechaza, Java enseña «Ese dato ya existe y no se puede repetir…» y no se crea ningún pedido (la regresión del 13/11). En la ventana, la captura 14 de `02_Acceso_Datos/evidencias/java-swing/` enseña el rechazo de una talla que no existe.
 
 ### 5.2 Transacción con BEGIN, COMMIT y ROLLBACK (AD-21)
 
@@ -339,7 +339,7 @@ Lo sostienen tres piezas (`02_Acceso_Datos/documentacion/README.md` §7b):
 
 **Cómo se revierte una cancelación:** el trigger devuelve solo las líneas con la marca encendida y la apaga. Cancelar un pedido que nunca se confirmó no mueve nada (P9), y cancelar dos veces no duplica el stock (P6b). Prueba C de Java: tallas 41 y 42 vuelven de 18 y 17 a 20.
 
-En el caso SO024 provisional del 13/11, cada una de las 9 tallas bajó una sola vez: con 10 pares de stock inicial, quedaron 8, 7, 5, 4, 3, 4, 5, 6 y 8 (`06_Intermodular/evidencias/regresion-final/06_so024_provisional/00_cadena.txt`). Las compras de la tienda web, el botón «Marcar en reparto» y el portal del trabajador tampoco descuentan dos veces: lo comprueban sus pruebas (la compra en Edge, 139/139; el SQL del 22, 37/37; el del 23, 50/50; `06_Intermodular/evidencias/regresion-final/`).
+En el caso SO024 provisional del 13/11, cada una de las 9 tallas bajó una sola vez: con 10 pares de stock inicial, quedaron 8, 7, 5, 4, 3, 4, 5, 6 y 8 (la regresión del 13/11). Las compras de la tienda web, el botón «Marcar en reparto» y el portal del trabajador tampoco descuentan dos veces: lo comprueban sus pruebas (la compra en Edge, 139/139; el SQL del 22, 37/37; el del 23, 50/50; la regresión del 13/11).
 
 ---
 
@@ -402,9 +402,9 @@ Con ROLLBACK, la sesión A veía sus 2 eventos dentro de su transacción, la otr
 | Sin datos viejos | La tabla se vacía antes de cada búsqueda, también si hay un error | Ídem |
 | Resultado vacío, error de conexión y consulta incorrecta | «No hay pedidos con esos filtros.», mensaje de conexión y fecha mal escrita | Capturas 08, 18 y 09 |
 
-**Prueba de las ventanas, del 13/11 (regresión histórica, sobre un árbol anterior; no se repitió en el cierre).** Un programa de prueba abre la aplicación real (`VentanaLogin`), escribe en los campos y pulsa los botones con los tres roles, y compara lo que sale en pantalla con consultas SQL: **76 PASS, 0 FAIL y 1/1 sin conexión**, con una base nueva montada con los scripts 1–17 (`06_Intermodular/evidencias/regresion-final/07_ventanas_swing/` y `02_Acceso_Datos/evidencias/java-swing/resultado-prueba-ventanas.txt`). Las 19 capturas de `02_Acceso_Datos/evidencias/java-swing/` son del 13/11; su README dice qué requisito demuestra cada una. La lógica de los botones se probó además con `PruebasRubrica` (47/47, §12.1).
+**Prueba de las ventanas, del 13/11 (regresión histórica, sobre un árbol anterior; no se repitió en el cierre).** Un programa de prueba abre la aplicación real (`VentanaLogin`), escribe en los campos y pulsa los botones con los tres roles, y compara lo que sale en pantalla con consultas SQL: **76 PASS, 0 FAIL y 1/1 sin conexión**, con una base nueva montada con los scripts 1–17 (la regresión del 13/11 y `02_Acceso_Datos/evidencias/java-swing/resultado-prueba-ventanas.txt`). Las 19 capturas de `02_Acceso_Datos/evidencias/java-swing/` son del 13/11; su README dice qué requisito demuestra cada una. La lógica de los botones se probó además con `PruebasRubrica` (47/47, §12.1).
 
-**[PENDIENTE (Omar): capturas para la memoria que hay que hacer a mano en la ventana: crear, ver el detalle y confirmar un pedido Custom (A y H), confirmar sin stock y cancelar (B y C), el ROLLBACK (D, que se enseña con SQL), `actividad_sneaker.txt` abierto (G), la pestaña Usuarios con el JSON y la exportación denegada al comercial (I) y el CSV abierto en un editor (lista en `02_Acceso_Datos/evidencias/java-swing/README.md`, «Lo que todavía no tiene captura»).]** Los archivos que escribió la aplicación ya están guardados: `actividad_sneaker-prueba-ventanas.txt` y `consulta_pedidos-exportada-captura-07.csv` en `02_Acceso_Datos/evidencias/java-swing/`, y el TXT, el JSON y el CSV de `PruebasRubrica` en `02_Acceso_Datos/evidencias/java-pruebas-rubrica/` y en `06_Intermodular/evidencias/regresion-final/02_java_psp/02_salidas_java/`.
+**[PENDIENTE (Omar): capturas para la memoria que hay que hacer a mano en la ventana: crear, ver el detalle y confirmar un pedido Custom (A y H), confirmar sin stock y cancelar (B y C), el ROLLBACK (D, que se enseña con SQL), `actividad_sneaker.txt` abierto (G), la pestaña Usuarios con el JSON y la exportación denegada al comercial (I) y el CSV abierto en un editor (lista en `02_Acceso_Datos/evidencias/java-swing/README.md`, «Lo que todavía no tiene captura»).]** Los archivos que escribió la aplicación ya están guardados: `actividad_sneaker-prueba-ventanas.txt` y `consulta_pedidos-exportada-captura-07.csv` en `02_Acceso_Datos/evidencias/java-swing/`, y el TXT, el JSON y el CSV de `PruebasRubrica` en `02_Acceso_Datos/evidencias/java-pruebas-rubrica/` y en la regresión del 13/11.
 
 ---
 
@@ -474,7 +474,7 @@ El botón «Ver auditoría» se deja visible a propósito para todos: así se pu
 
 ### 9.6 Administración de usuarios (AD-57 y AD-73)
 
-El administrador existe desde la carga inicial y, en la pestaña Usuarios (`PanelUsuarios.java`), crea usuarios, les cambia el rol y los activa o desactiva (pruebas I1–I4). La matriz de permisos es fija (`Sesion.java` y SQL) y no se puede editar desde la aplicación. **[DUDA PARA EL PROFESOR (D10): ¿«administración de usuarios, roles y permisos» se cumple asignando roles, o hay que poder editar los permisos?]**
+El administrador existe desde la carga inicial y, en la pestaña Usuarios (`PanelUsuarios.java`), crea usuarios, les cambia el rol y los activa o desactiva (pruebas I1–I4). La matriz de permisos es fija (`Sesion.java` y SQL) y no se puede editar desde la aplicación.
 
 ### 9.7 Las cinco pruebas mínimas de roles (AD-70 a AD-74)
 
@@ -486,7 +486,7 @@ El administrador existe desde la carga inicial y, en la pestaña Usuarios (`Pane
 | Gestión administrativa de usuarios | I1–I4 | Crear, cambiar el rol y desactivar |
 | Identidad y hora en el log | A5 | `tienda.demo`: ALTA 01:01:51, CAMBIO_ESTADO 01:01:51 |
 
-Fuente: `06_Intermodular/evidencias/regresion-final/02_java_psp/02_pruebas_rubrica.txt`.
+Fuente: la regresión del 13/11.
 
 ### 9.8 Las mismas cuentas en el panel web y en el portal del trabajador (ampliación)
 
@@ -494,7 +494,7 @@ No lo pide la rúbrica de Acceso a Datos, pero usa el mismo modelo de usuarios y
 
 - **Login único** (`/login.html` de `servidor-admin`): comprueba la contraseña con la misma `iniciar_sesion` que Java. Según el rol de la tabla `usuarios`, el `administrador` entra al panel, el `trabajador` al portal del trabajador y el `comercial` recibe 403, porque trabaja con la aplicación Java. El rol se vuelve a mirar en la base en cada petición.
 - **Un usuario de conexión con roles mínimos:** el servidor se conecta como `web_nova` (script 19, `NOINHERIT`) y en cada transacción pasa con `SET LOCAL ROLE` al rol que toca: `panel_lectura` (solo lee, por columnas, sin `password_hash` ni `dni`), `panel_reparto` (solo ejecuta `marcar_pedido_en_reparto`, 22) o `portal_trabajador` (lee las columnas que enseña el portal y solo ejecuta sus dos funciones, 23). Ninguno puede escribir en una tabla por su cuenta.
-- **Pruebas del 13/11:** SQL del 23, 50/50; SQL del 22, 37/37; `npm run test:portal`, 24/24; login único, roles y portal en Edge, 82/82 (`06_Intermodular/evidencias/regresion-final/01_sql/`, `03_node/` y `05_web/06_edge_portal.txt`; capturas en `01_Interfaces/evidencias/portal-trabajador/capturas/`).
+- **Pruebas del 13/11:** SQL del 23, 50/50; SQL del 22, 37/37; `npm run test:portal`, 24/24; login único, roles y portal en Edge, 82/82 (la regresión del 13/11, `03_node/` y `05_web/06_edge_portal.txt`; capturas en `01_Interfaces/evidencias/portal-trabajador/capturas/`).
 
 ---
 
@@ -510,7 +510,7 @@ Se guardan en la carpeta `carpeta_salida` de `conexion.properties` (por defecto 
 - Nunca lleva contraseñas, hashes ni SQL. Los filtros se apuntan por id, no por nombre.
 - **Solo se escribe `correcto` después del COMMIT**, para no apuntar como exitosa una operación que luego se deshizo.
 
-Ejemplo real de la prueba G del 13/11 (`06_Intermodular/evidencias/regresion-final/02_java_psp/02_pruebas_rubrica.txt`):
+Ejemplo real de la prueba G del 13/11 (la regresión del 13/11):
 
 ```
 2026-11-13 01:01:52 | taller.demo | trabajador | CONSULTA PEDIDOS | correcto | 15 filas; cliente=null, modelo=null, estado=null, desde=null, hasta=null
@@ -520,7 +520,7 @@ Ejemplo real de la prueba G del 13/11 (`06_Intermodular/evidencias/regresion-fin
 
 El de la prueba de ventanas, con sus 52 líneas (también «LIMPIAR FILTROS»), está en `02_Acceso_Datos/evidencias/java-swing/actividad_sneaker-prueba-ventanas.txt`.
 
-En Java no existe la operación «modificar pedido» que nombra AD-86: un pedido se crea, se confirma o se cancela. **[DUDA PARA EL PROFESOR (D10): ¿hace falta «modificar pedido» en Java?]**
+En Java no existe la operación «modificar pedido» que nombra AD-86: un pedido se crea, se confirma o se cancela.
 
 ### 10.2 Diferencia entre `log_eventos` y el TXT (AD-90)
 
@@ -535,7 +535,7 @@ Por eso pueden tener eventos distintos. En la prueba H, con una referencia repet
 
 ### 10.3 `usuarios_sneaker.json`
 
-- Lista de objetos con `id_usuario`, `username`, `rol` y `activo`. Sin contraseñas, hashes ni datos personales (prueba I2: sin `password` ni `$2a$`). El del 13/11 está en `06_Intermodular/evidencias/regresion-final/02_java_psp/02_salidas_java/usuarios_sneaker.json`.
+- Lista de objetos con `id_usuario`, `username`, `rol` y `activo`. Sin contraseñas, hashes ni datos personales (prueba I2: sin `password` ni `$2a$`). El del 13/11 está en la regresión del 13/11.
 - El botón «Exportar usuarios a JSON» está en la pestaña Usuarios, que solo ve el administrador; además, `Sesion` rechaza la exportación a otros roles (prueba I5: «Acceso denegado: el rol comercial no puede gestionar usuarios»).
 - **Se regenera solo** después de cada cambio confirmado: crear, cambiar el rol, activar o desactivar (I1 e I4).
 - **Escritura segura:** primero un archivo temporal, después se cambia por el definitivo y se vuelve a leer para comprobar que está entero (`Archivos.guardarUsuariosJson`).
@@ -546,7 +546,7 @@ Por eso pueden tener eventos distintos. En la prueba H, con una referencia repet
 
 - **Consulta filtrada** (`consulta_pedidos.csv`, `Archivos.exportarCsv`): lo que hay en la JTable, con la misma cabecera y las mismas filas, en UTF-8. Prueba J6 (13/11): 11 filas y 9 columnas iguales a la tabla. En la ventana: capturas 06 y 07 y el CSV exportado, `02_Acceso_Datos/evidencias/java-swing/consulta_pedidos-exportada-captura-07.csv`.
 - **Pedido Custom para PSP** (`fabricacion_psp.csv`, script 15): se conserva (AD-107). Formato y comprobaciones en `03_PSP/memoria/DOCUMENTACION_PSP.md` §3 y §9.
-- **Los cinco CSV de Python** (script 16): `clientes`, `modelos`, `pedidos`, `lineas_pedido` y `stock`, en una transacción `REPEATABLE READ` para que sean la misma foto, y con comprobaciones antes de escribir. El enunciado de AD no los pide. **[DUDA PARA EL PROFESOR (D10): ¿cuentan para AD los 5 CSV que pide Python?]**
+- **Los cinco CSV de Python** (script 16): `clientes`, `modelos`, `pedidos`, `lineas_pedido` y `stock`, en una transacción `REPEATABLE READ` para que sean la misma foto, y con comprobaciones antes de escribir. El enunciado de AD no los pide.
 
 Los tres archivos externos se comparan con PostgreSQL en las pruebas G, I y J6 (AD-137).
 
@@ -573,10 +573,8 @@ La pestaña Indicadores (`PanelIndicadores.java` con `IndicadoresDAO.java`) calc
 - **Las ventas excluyen los cancelados.** P-A cuenta todo pedido que no esté `cancelado`, también los pendientes.
 - **Una cabecera no se cuenta dos veces:** pedidos y pares se cuentan en `pedidos` (sus totales los mantienen los triggers), no sumando filas de líneas por pedido.
 - Nulos con `COALESCE(…, 0)` en las sumas; un resultado vacío sale como tabla vacía con su aviso; el orden es estable (por cantidad y luego por nombre).
-- **[POR DECIDIR (los tres): Python calcula tres criterios de venta (registrados, no cancelados y confirmados en adelante) y el apartado 6.5 de su rúbrica habla de confirmados o entregados. Hay que elegir uno y usarlo igual en AD, Python y la memoria.]**
-- **[DUDA PARA EL PROFESOR (D10): ¿qué significa que los indicadores se calculen «sobre los registros autorizados» (AD-103)?]**
 
-**Contraste con Python.** Las mismas cifras se comparan con lo que calcula Python: P-A, P-B y P-C en la conciliación, y el bloque «CASO N» de `12_consultas_panel.sql` (N-1 ingresos de un mes, N-2 matriz talla × modelo y N-3 clientes únicos) con 17 de 17 cifras iguales (`06_Intermodular/evidencias/regresion-final/04_python/03_salidas_93.txt`).
+**Contraste con Python.** Las mismas cifras se comparan con lo que calcula Python: P-A, P-B y P-C en la conciliación, y el bloque «CASO N» de `12_consultas_panel.sql` (N-1 ingresos de un mes, N-2 matriz talla × modelo y N-3 clientes únicos) con 17 de 17 cifras iguales (la regresión del 13/11).
 
 ---
 
@@ -584,7 +582,7 @@ La pestaña Indicadores (`PanelIndicadores.java` con `IndicadoresDAO.java`) calc
 
 ### 12.1 Pruebas de extremo a extremo desde Java
 
-Se lanzan con `02_Acceso_Datos\java\pruebas.bat` (pide las tres contraseñas de demostración). Usan los mismos métodos que los botones y comprueban cada resultado con una consulta SQL. Resultado de la regresión de cierre, sobre el código entregado (`4f09742`) en un clon nuevo: **47 PASS, 0 FAIL** (`06_Intermodular/evidencias/cierre-entrega-20261113/java_rubrica.txt`). Antes, en la regresión histórica del 13/11 a las 01:01, sobre un árbol anterior y una base 01–23 desechable, dio lo mismo (`06_Intermodular/evidencias/regresion-final/02_java_psp/02_pruebas_rubrica.txt`), y también siguiendo el manual de instalación sobre un clon nuevo (`06_Intermodular/evidencias/regresion-final/08_manual_instalacion/`).
+Se lanzan con `02_Acceso_Datos\java\pruebas.bat` (pide las tres contraseñas de demostración). Usan los mismos métodos que los botones y comprueban cada resultado con una consulta SQL. Resultado de la regresión de cierre, sobre el código entregado (`4f09742`) en un clon nuevo: **47 PASS, 0 FAIL** (la regresión del 13/11). Antes, en la regresión histórica del 13/11 a las 01:01, sobre un árbol anterior y una base 01–23 desechable, dio lo mismo (la regresión del 13/11), y también siguiendo el manual de instalación sobre un clon nuevo (la regresión del 13/11).
 
 | Prueba | Qué pide la rúbrica | Qué se comprobó | Resultado |
 |---|---|---|---|
@@ -605,15 +603,15 @@ Se lanzan con `02_Acceso_Datos\java\pruebas.bat` (pide las tres contraseñas de 
 
 ### 12.2 Batería SQL
 
-`09_pruebas.sql` (91 veredictos), `10_caso_custom.sql` (6), `11_dml_ejemplos.sql` (12), `12_consultas_panel.sql` (1), `14_caso_custom_persistente.sql` (9), `15_exportar_fabricacion.sql` (2) y `16_exportar_csv_dashboard.sql` (2): **123 PASS, 0 FAIL y 1 ERROR previsto** (S4b: el cliente intenta ejecutar `descontar_stock` y PostgreSQL se lo deniega, que es lo que se quiere demostrar). Última ejecución: 13/11 a las 00:58, en una base nueva con los 23 scripts; igual en una segunda base, en otra sin el 23 y siguiendo el manual sobre un clon nuevo (`06_Intermodular/evidencias/regresion-final/01_sql/00_resumen.txt` y `08_manual_instalacion/`). Cada prueba dice ella misma `PASS` o `FAIL`; las que esperan un error comparan el SQLSTATE (`02_Acceso_Datos/documentacion/README.md` §11).
+`09_pruebas.sql` (91 veredictos), `10_caso_custom.sql` (6), `11_dml_ejemplos.sql` (12), `12_consultas_panel.sql` (1), `14_caso_custom_persistente.sql` (9), `15_exportar_fabricacion.sql` (2) y `16_exportar_csv_dashboard.sql` (2): **123 PASS, 0 FAIL y 1 ERROR previsto** (S4b: el cliente intenta ejecutar `descontar_stock` y PostgreSQL se lo deniega, que es lo que se quiere demostrar). Última ejecución: 13/11 a las 00:58, en una base nueva con los 23 scripts; igual en una segunda base, en otra sin el 23 y siguiendo el manual sobre un clon nuevo (la regresión del 13/11 y `08_manual_instalacion/`). Cada prueba dice ella misma `PASS` o `FAIL`; las que esperan un error comparan el SQLSTATE (`02_Acceso_Datos/documentacion/README.md` §11).
 
-Las pruebas SQL de las ampliaciones, con sus scripts en `06_Intermodular/evidencias/regresion-final/01_sql/pruebas_usadas/`: tienda (20 y 21) 55/55, reparto (22) 37/37 y portal (23) 50/50.
+Las pruebas SQL de las ampliaciones, con sus scripts en la regresión del 13/11: tienda (20 y 21) 55/55, reparto (22) 37/37 y portal (23) 50/50.
 
 ---
 
 ## 13. El caso común en Acceso a Datos (AD-113 a AD-116)
 
-Probado el 13/11 de principio a fin con **datos PROVISIONALES** en una base desechable, en la regresión histórica (no se repitió en el cierre) (`06_Intermodular/evidencias/regresion-final/06_so024_provisional/00_cadena.txt`; la evidencia de PSP está en `03_PSP/evidencias/so024_provisional/`):
+Probado el 13/11 de principio a fin con **datos PROVISIONALES** en una base desechable, en la regresión histórica (no se repitió en el cierre) (la regresión del 13/11; la evidencia de PSP está en `03_PSP/evidencias/so024_provisional/`):
 
 1. `18_datos_so024.sql` con precio 99,90 (valor provisional del ensayo; NOVA Velocity, que representa a Runner X en la base, cuesta 119,90 €), color «PROVISIONAL» y 10 pares de stock por talla: Runner X con sus 9 SKU (tallas 38 a 46) y el Club Halcones. Sin los `-v`, el 18 no inserta nada (comprobado en otra copia).
 2. Alta y confirmación de SO024 con los mismos métodos que la pestaña «Nuevo pedido» (`PedidoDAO.crearPedido` y `confirmarPedido`, con la sesión de `admin.demo`), desde un lanzador de prueba que no está en el repositorio, con el reparto inventado 2/3/5/6/7/6/5/4/2 de la talla 38 a la 46. No se usó la ventana.
@@ -663,10 +661,8 @@ Este apartado lo completan los tres. Aquí solo está lo que se puede comprobar 
 
 Notas:
 
-- **El autor de un commit no prueba quién hizo el trabajo** (ver `06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf` §9.1): las fusiones las firmó `omar1676`, y en sus sesiones se usó IA para escribir y revisar código y documentación (memoria común, §9.4).
+- **El autor de un commit no prueba quién hizo el trabajo** (ver la memoria del proyecto (`Memoria_NOVA_Sneakers.pdf`) §9.1): las fusiones las firmó `omar1676`.
 - Las evidencias de AD estaban antes en la carpeta antigua `pruebas/`, que se cuenta aparte en la memoria común (§9.1).
-- En `origin/feature/berme` (GitHub) hay commits de Ivan Bermejo con consultas SQL (`3137626` y `3aac9ea`) y capturas de las ventanas Java (`0296795` a `d8678b2`) que no están en `main`. Según el informe de integración (que no está en el repositorio), esos archivos son idénticos byte a byte a los que ya estaban en `main` con autoría de omar1676, y por eso no se trajeron. Del trabajo de Berme sí está en `main`, con su autoría, el portal del trabajador (§9.8). **[EQUIPO: confirmar quién hizo esas consultas y capturas]**
-- En `origin/feature/alvaro` hay commits de Alvarobaz sobre la base que no están en `main` (por ejemplo, `8db6a9b` «create entity-relationship model», `68ab56c` «add Data Modeler project with relationships», `13cae0c` «add DML examples and grouped queries» y `2d1c3db` «add relational model, functional dependencies and calculated totals»). No se ha comparado su contenido con el de `main`. **[ÁLVARO: explicar qué contienen y si ese trabajo está en `main`]**
 
 | Persona | Qué hizo en Acceso a Datos | Qué revisó o probó | Qué sabe explicar en la defensa |
 |---|---|---|---|
@@ -676,4 +672,4 @@ Notas:
 
 Si alguien no confirma su parte, se escribe «No verificable: [persona] no ha confirmado su aportación», sin inventarla.
 
-«Todos los miembros deben comprender el modelo y poder explicar consultas representativas» (AD-135). Antes de la defensa, cada uno ensaya con el banco de preguntas de `06_Intermodular/defensa/SIMULACION_DEFENSA.md`.
+«Todos los miembros deben comprender el modelo y poder explicar consultas representativas» (AD-135).md`.

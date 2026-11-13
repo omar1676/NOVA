@@ -1,7 +1,7 @@
 # Batería de Java (`PruebasRubrica`) y los archivos que escribe
 
 Resultado de `nova.PruebasRubrica` (lo mismo que lanza `02_Acceso_Datos/java/pruebas.bat`)
-el 13 de noviembre de 2026, sobre la rama `integracion/candidata-2`.
+el 13 de noviembre de 2026, sobre la.
 
 - **Base de datos:** una base desechable montada desde cero con los scripts 01 a 23 de
   `02_Acceso_Datos/sql` (la batería 09–16 dio 123 PASS, 0 FAIL y el ERROR previsto). No

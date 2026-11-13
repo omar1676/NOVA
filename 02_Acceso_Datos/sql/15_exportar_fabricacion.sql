@@ -23,7 +23,7 @@
 --   16_exportar_csv_dashboard.sql, con las columnas que usa Python
 --   (04_Python/config.py). Este archivo es distinto: es la orden
 --   de fabricacion de un pedido concreto, para PSP. Su formato esta
---   descrito en 06_Intermodular/SO024/contrato-fabricacion.md.
+-- descrito en `03_PSP/memoria/DOCUMENTACION_PSP.md`.
 --
 -- SI ALGO FALLA, FALLA DE VERDAD
 --   Con ON_ERROR_STOP, cualquier error detiene psql y devuelve un codigo

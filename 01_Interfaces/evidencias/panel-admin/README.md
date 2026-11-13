@@ -51,10 +51,10 @@ Todas son del panel con los datos de la base de prueba:
 
 ## Regresión del 13/11/2026 (árbol final)
 
-Con el código final (login único, portal del trabajador y «Marcar en reparto»), sobre bases desechables montadas desde cero con los scripts 01–23 (`../../../06_Intermodular/evidencias/regresion-final/README.md`):
+Con el código final (login único, portal del trabajador y «Marcar en reparto»), sobre bases desechables montadas desde cero con los scripts 01–23 (la regresión del 13/11):
 
-- `npm test`: **23 de 23** con base desechable (22 y 1 saltada sin ella) — `../../../06_Intermodular/evidencias/regresion-final/03_node/`.
-- Login único y roles en Edge: el administrador entra al panel, el trabajador no (403 en `/api/admin/`), el comercial no tiene panel web — **82 de 82** junto con el portal (`../../../06_Intermodular/evidencias/regresion-final/05_web/06_edge_portal.txt`; capturas en `../portal-trabajador/capturas/`, por ejemplo `admin_tras_login.png`).
+- `npm test`: **23 de 23** con base desechable (22 y 1 saltada sin ella) — la regresión del 13/11.
+- Login único y roles en Edge: el administrador entra al panel, el trabajador no (403 en `/api/admin/`), el comercial no tiene panel web — **82 de 82** junto con el portal (la regresión del 13/11; capturas en `../portal-trabajador/capturas/`, por ejemplo `admin_tras_login.png`).
 - El panel con las compras web (dashboard, pedidos y auditoría): `../tienda/capturas-2026-11-13/panel_13_*.png` a `panel_15_*.png`.
 - «Marcar en reparto»: `../reparto-y-correo/`.
 

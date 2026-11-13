@@ -8,7 +8,7 @@ Guion de entrega del 13/11/2026, 15–20 minutos. Presenta S00005 del Club Atlé
 - Java configurado con java_nova; servidor con web_nova y tienda_nova; Node, PostgreSQL y Streamlit en marcha.
 - Web en `http://127.0.0.1:3000/tienda/`, login del personal en `/login.html`; Streamlit en `http://localhost:8501`.
 - `04_Python/entrada_acc/ORIGEN.txt` conserva `Tipo: PRUEBA`. No cambiar a REAL para la defensa.
-- PDF de Berme y logs de `06_Intermodular/evidencias/cierre-entrega-20261113/` disponibles como respaldo.
+- PDF de Berme y logs de la regresión del 13/11 disponibles como respaldo.
 - Si 8501 está ocupado, usar el servicio acordado para la demo o cerrar solo el propio; la página integrada espera 8501. No cambiar puertos del profesor sin comprobarlo.
 
 ## 1. Presentación y web (3 min)
@@ -67,4 +67,4 @@ Decir literalmente: «El conector NOVA → Odoo no se ha verificado contra una i
 
 ## 8. Cierre y respaldo
 
-Mostrar el estado por asignatura y la matriz. Reconocer lo no demostrado: trazabilidad de S00005 entre sistemas, exportación REAL, usabilidad con personas, recuperación de Odoo y requisitos que solo puede juzgar la defensa. Si un servicio falla en la presentación, usar sus logs/capturas indicando fecha y origen; no presentarlos como una ejecución actual.
+Mostrar el estado por asignatura. Reconocer lo no demostrado: trazabilidad de S00005 entre sistemas, exportación REAL, usabilidad con personas, recuperación de Odoo y requisitos que solo puede juzgar la defensa. Si un servicio falla en la presentación, usar sus logs/capturas indicando fecha y origen; no presentarlos como una ejecución actual.

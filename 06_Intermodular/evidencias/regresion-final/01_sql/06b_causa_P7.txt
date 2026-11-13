@@ -1,5 +1,0 @@
-miembros de web_nova (catalogo compartido pg_auth_members): panel_lectura inherit=false set=true, panel_reparto inherit=false set=true, portal_trabajador inherit=false set=true
-rol portal_trabajador existe en el cluster: 1
-funciones del 23 en nova_rf_base22: 0
-funciones del 23 en nova_rf_base (con el 23): 2
-Conclusion: pg_auth_members es un catalogo compartido por todo el cluster. El 23 se aplico en otras bases del mismo cluster (nova_rf_base, nova_demo...), asi que web_nova ya es miembro de portal_trabajador tambien en una base sin el 23. No es un fallo del codigo: la P7 tal cual solo pasa en un cluster donde nunca se haya lanzado el 23.

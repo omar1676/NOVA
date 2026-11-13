@@ -75,4 +75,4 @@ Antes, las tres figuras estaban en el desplegable pero ocultas y desactivadas co
 
 ## Logo y estantería
 
-El logo `images/logo-nova.png` es una copia de `01_Interfaces/admin/img/Nova Logo.png` de la rama `origin/feature/alvaro`. La animación de entrada usa CSS y se omite cuando el navegador tiene activada la opción de movimiento reducido. La estantería muestra como máximo ocho resultados del filtro; el catálogo inferior conserva todos los modelos.
+El logo `images/logo-nova.png` es una copia de `01_Interfaces/admin/img/Nova Logo.png` de Álvaro. La animación de entrada usa CSS y se omite cuando el navegador tiene activada la opción de movimiento reducido. La estantería muestra como máximo ocho resultados del filtro; el catálogo inferior conserva todos los modelos.

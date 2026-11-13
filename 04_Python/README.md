@@ -18,8 +18,8 @@ repositorio (`01_Interfaces`, `02_Acceso_Datos`, `03_PSP`…).
 | **Tecnologías** | Python 3.12 o superior con pandas, numpy, matplotlib, scikit-learn y Streamlit (versiones exactas en `requirements.txt`) |
 | **Qué necesita** | Un entorno virtual con `requirements.txt` y los CSV de `entrada_acc/` (los genera `02_Acceso_Datos/sql/16_exportar_csv_dashboard.sql`) |
 | **Cómo se inicia** | `main.py` por consola y `streamlit run app_dashboard.py` para el dashboard (apartado «Instalación» de este README) |
-| **Pruebas** | `python -m unittest discover -s tests -v`: 265 pruebas. Además, las 97 salidas de datos de `main.py` (tres modos) y del generador se comparan con una referencia guardada (`06_Intermodular/evidencias/regresion-limpieza/`) |
-| **Rúbrica** | 214 requisitos, 200 cumplidos; falta sobre todo la exportación REAL. Detalle en `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` (§2.4) |
+| **Pruebas** | `python -m unittest discover -s tests -v`: 265 pruebas. Además, las 97 salidas de datos de `main.py` (tres modos) y del generador se comparan con una referencia guardada (la regresión del 13/11) |
+| **Rúbrica** | 214 requisitos, 200 cumplidos; falta sobre todo la exportación REAL.md` (§2.4) |
 | **Conexión con otras asignaturas** | Lee lo que exporta Acceso a Datos y concilia sus cifras con las consultas de `02_Acceso_Datos/sql/12_consultas_panel.sql`. El ensayo SO024 PROVISIONAL tiene resultados históricos; no hay una exportación acreditada de S00005 en Python |
 | **Evidencias y memoria** | `evidencias/dashboard/` (casos del dashboard y refresco de 60 s) y `memoria/INFORME_TECNICO_PYTHON.md` (el informe técnico que pide la rúbrica) |
 

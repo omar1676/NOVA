@@ -1,8 +1,8 @@
 # Evidencias de la aplicación Java Swing (Acceso a Datos)
 
 Capturas de la aplicación de `02_Acceso_Datos/java` tomadas el 9 de noviembre de 2026 y
-**repetidas el 13 de noviembre de 2026 sobre la versión candidata** (rama
-`integracion/candidata-2`): 76 PASS y 0 FAIL con la base, más 1 PASS sin conexión.
+**repetidas el 13 de noviembre de 2026 sobre la versión final** (rama
+`versión final`): 76 PASS y 0 FAIL con la base, más 1 PASS sin conexión.
 Las capturas de ahora sustituyen a las del 9/11; solo cambian la 06 y la 10, por la
 fecha de los pedidos y de la auditoría. Se añade la 19 (la tabla después de «Limpiar
 filtros»).
