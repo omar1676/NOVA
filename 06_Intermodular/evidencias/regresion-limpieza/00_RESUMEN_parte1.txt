@@ -1,0 +1,75 @@
+== Regresion final (parte 1). Inicio: 13/11/2026 12:16:14. Origen: <repo> (e5d024f, 0 cambios sin commit)
+exportado <repo> -> <temporal>/lf/codigo_final (682 archivos; npm ci correcto)
+-- SQL (13/11/2026 12:16:57)
+15_exportar_fabricacion -> salida 0 | PASS: 2 FAIL: 0 ERROR: 0
+16_exportar_csv_dashboard -> salida 0 | PASS: 2 FAIL: 0 ERROR: 0
+20_tienda_web -> salida 0 | PASS: 0 FAIL: 0 ERROR: 0
+21_catalogo_web -> salida 0 | PASS: 1 FAIL: 0 ERROR: 0
+22_reparto_panel -> salida 0 | PASS: 0 FAIL: 0 ERROR: 0
+23_portal_trabajador -> salida 0 | PASS: 0 FAIL: 0 ERROR: 0
+23_portal_trabajador_2 -> salida 0 | PASS: 0 FAIL: 0 ERROR: 0
+09-16: PASS 123 FAIL 0 ERROR 1 | ERROR en todos los logs: 1 | FAIL en todos los logs: 0
+   ERROR previsto: psql:<temporal>/lf/codigo_final/02_Acceso_Datos/sql/09_pruebas.sql:1001: ERROR:  permission denied for function desconta
+   S4b en el log del 09: --- S4b al intentarlo de verdad, nova_cliente recibe un error
+-- 2. Segunda base nova_lf2_base_bis (repeticion independiente)
+09-16: PASS 123 FAIL 0 ERROR 1 | ERROR en todos los logs: 1 | FAIL en todos los logs: 0
+-- 3. Base nova_lf2_base22: 01-22, sin el 23
+09-16: PASS 123 FAIL 0 ERROR 1 | ERROR en todos los logs: 1 | FAIL en todos los logs: 0
+-- 4. Consulta 3 (HAVING) del 06 en la base 01-23
+   06 -> salida 0 | ERROR: 0
+-- 5. SQL de la tienda (prueba_tienda.sql, scripts 20 y 21)
+   PASS 55 FAIL 0
+-- 6. SQL del 22 (prueba_reparto.sql tal cual) en la base sin el 23
+   PASS 36 FAIL 1
+-- 7. SQL del 22 en la base con el 23 (P7 adaptada: web_nova tambien pasa a portal_trabajador)
+   PASS 37 FAIL 0
+-- 8. SQL del 23 (prueba_portal.sql)
+   PASS 50 FAIL 0
+== Fin: 13/11/2026 12:17:40
+-- Java y PSP (13/11/2026 12:17:40)
+== Java PruebasRubrica. Inicio: 13/11/2026 12:17:41. java version "17.0.12" 2024-07-16 LTS; driver postgresql-42.7.14.jar
+javac -> 0
+PruebasRubrica -> salida 0 | RESULTADO: 47 PASS, 0 FAIL
+actividad_sneaker.txt consulta_pedidos.csv usuarios_sneaker.json 
+Fin Java: 13/11/2026 12:17:46
+== PSP. Inicio: 13/11/2026 12:17:46
+javac psp -> 0
+PruebasPsp -> salida 0 | Pruebas superadas: 27 de 27
+CUSTOM-40 -> codigo 0
+ficha CUSTOM-40 igual a la de 03_PSP/evidencias (sin fechas)
+archivo inexistente -> codigo 1 (se espera 1)
+cantidad 0 -> codigo 2 (se espera 2)
+== Comprobacion rapida de Berme (scripts/comprobar_psp.py), con fallo conocido; JDK 17 en el PATH
+comprobar_psp.py -> salida 1 | ERROR: El validador no reconoce los cuatro registros CSV multilínea. 
+comprobar_web.py -> salida 0 | No se han comprobado servicios externos, API ni comportamiento visual.
+Fin PSP: 13/11/2026 12:18:03
+-- Python: 265 pruebas (13/11/2026 12:18:03)
+Inicio: 13/11/2026 12:18:04 | Python 3.13.5 | pandas 3.1.1 | streamlit 1.67.0
+unittest -> salida 0
+Fin: 13/11/2026 12:30:57 | Ran 265 tests in 720.164s | OK
+-- Python: salidas frente a la candidata 2 (13/11/2026 12:30:57)
+97 archivos de datos/texto comparados; distintos: ninguno; PNG (cambian por la hora): 22; .log (rutas temporales y horas, informativos): 4
+-- SO024 provisional (13/11/2026 12:31:48)
+PSP padre -> codigo 0
+Paso 1 ValidadorPedidoCustom: codigo 0 en 0,17 s
+Paso 2 Psp.AnalizadorTallas: codigo 0 en 0,13 s
+  9 combinaciones de modelo, color y talla; 9 tallas; 40 pares
+Paso 3 GeneradorFichaTaller: codigo 0 en 0,19 s
+Resultado: CORRECTO (codigo 0). Pedido SO024 procesado
+-- 16 y Python
+16 -> salida 0 | PASS 2 FAIL 0 | clientes.csv lineas_pedido.csv modelos.csv pedidos.csv stock.csv 
+main.py --modo real con la exportacion de SO024 -> salida 0
+SO024 en pedidos_unicos.csv: 1 fila(s)
+NOVA Sneakers - Análisis de datos (calidad, análisis, KPIs, gráficos, estadística, segmentación y predicción)
+Calidad de los datos (12 reglas, apartado 6.2)
+        tabla           archivo   estado  filas_entrada  filas_validas  filas_rechazadas  porcentaje_calidad  bloqueantes  recuperables  advertencias
+2 incidencias:
+== Fin: 13/11/2026 12:32:22
+-- Ventanas Swing (13/11/2026 12:32:22)
+javac -> 0
+ventanas -> salida 0 | RESULTADO PRUEBA VISUAL: 76 PASS, 0 FAIL. Capturas: 17
+sin conexion -> salida 0 | RESULTADO SIN CONEXION: 1 PASS, 0 FAIL
+19
+N: liberada
+== Fin: 13/11/2026 12:33:18
+== Fin parte 1: 13/11/2026 12:33:18

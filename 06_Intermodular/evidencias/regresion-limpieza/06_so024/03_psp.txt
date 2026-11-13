@@ -1,0 +1,52 @@
+===== NOVA Sneakers - PSP - 2026-11-13 12:31:56 =====
+Archivo: datos\SO024_PROVISIONAL_fabricacion.csv
+Paso 1 ValidadorPedidoCustom: codigo 0 en 0,17 s
+  OK;SO024;9;40
+Paso 2 Psp.AnalizadorTallas: codigo 0 en 0,13 s
+  OK;SO024
+  9 combinaciones de modelo, color y talla; 9 tallas; 40 pares
+Paso 3 GeneradorFichaTaller: codigo 0 en 0,19 s
+  OK;SO024
+
+==================================================
+NOVA SNEAKERS - FICHA AUXILIAR PARA TALLER
+==================================================
+Pedido:           SO024
+Cliente:          Club Halcones
+Datos exportados: SO024_PROVISIONAL_fabricacion.csv
+
+Personalizacion:
+  PROVISIONAL: escudo del Club Halcones en el lateral
+
+Pares por modelo, color y talla:
+  Modelo               Color        Talla  Pares
+  Runner X             PROVISIONAL     38      2
+  Runner X             PROVISIONAL     39      3
+  Runner X             PROVISIONAL     40      5
+  Runner X             PROVISIONAL     41      6
+  Runner X             PROVISIONAL     42      7
+  Runner X             PROVISIONAL     43      6
+  Runner X             PROVISIONAL     44      5
+  Runner X             PROVISIONAL     45      4
+  Runner X             PROVISIONAL     46      2
+
+Pares por talla:
+  Talla 38: 2 pares
+  Talla 39: 3 pares
+  Talla 40: 5 pares
+  Talla 41: 6 pares
+  Talla 42: 7 pares
+  Talla 43: 6 pares
+  Talla 44: 5 pares
+  Talla 45: 4 pares
+  Talla 46: 2 pares
+
+TOTAL: 40 pares
+--------------------------------------------------
+Documento auxiliar generado por PSP a partir de
+una exportacion del pedido. No sustituye a la
+orden de fabricacion de Odoo.
+==================================================
+
+Ficha para el taller: salidas\ficha_taller_SO024.txt
+Resultado: CORRECTO (codigo 0). Pedido SO024 procesado

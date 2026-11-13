@@ -1,0 +1,116 @@
+OK    [archivos] existen las 132 imagenes referenciadas en HTML/CSS/JS -> todas
+OK    [escritorio] sin desplazamiento horizontal -> scrollWidth=1440 innerWidth=1440
+OK    [escritorio] la animación de entrada no tapa la página al terminar -> oculta
+OK    [escritorio] contadores de colección = modelos.js -> {'street': [10, 10], 'luxe': [10, 10], 'casual': [20, 20], 'hombre': [20, 20], 'mujer': [20, 20], 'unisex': [20, 20], 'todos': [100, 100]}
+OK    [escritorio] estantería filtro street -> 8 tarjetas (esperadas 8); 8 de 10 modelos · colección completa en el catálogo
+OK    [escritorio] estantería filtro luxe -> 8 tarjetas (esperadas 8); 8 de 10 modelos · colección completa en el catálogo
+OK    [escritorio] estantería filtro casual -> 8 tarjetas (esperadas 8); 8 de 20 modelos · colección completa en el catálogo
+OK    [escritorio] estantería filtro hombre -> 8 tarjetas (esperadas 8); 8 de 20 modelos · colección completa en el catálogo
+OK    [escritorio] estantería filtro mujer -> 8 tarjetas (esperadas 8); 8 de 20 modelos · colección completa en el catálogo
+OK    [escritorio] estantería filtro unisex -> 8 tarjetas (esperadas 8); 8 de 20 modelos · colección completa en el catálogo
+OK    [escritorio] estantería filtro todos -> 8 tarjetas (esperadas 8); 8 de 100 modelos · colección completa en el catálogo
+OK    [escritorio] estantería búsqueda sin resultados muestra aviso -> 0 modelos
+OK    [escritorio] catálogo filtro todos -> 100 tarjetas (esperadas 100)
+OK    [escritorio] catálogo filtro street -> 10 tarjetas (esperadas 10)
+OK    [escritorio] catálogo filtro luxe -> 10 tarjetas (esperadas 10)
+OK    [escritorio] catálogo filtro casual -> 20 tarjetas (esperadas 20)
+OK    [escritorio] catálogo filtro hombre -> 20 tarjetas (esperadas 20)
+OK    [escritorio] catálogo filtro mujer -> 20 tarjetas (esperadas 20)
+OK    [escritorio] catálogo filtro unisex -> 20 tarjetas (esperadas 20)
+OK    [escritorio] catálogo búsqueda 'street vortex' -> 1 modelo
+OK    [escritorio] catálogo búsqueda sin resultados muestra aviso -> 
+OK    [escritorio] imágenes de la página cargadas (110) -> ninguna rota
+OK    [escritorio] menú -> Catálogo -> #catalogo-completo queda a 0px del borde superior
+OK    [escritorio] menú -> Nuestra visión -> #historia queda a -0.0px del borde superior
+OK    [escritorio] pie -> Volver arriba -> scrollY=0
+OK    [escritorio] «Desliza o ver catálogo» lleva al catálogo -> 0px
+OK    [escritorio] ficha se abre con su modelo e imagen -> {'abierta': True, 'titulo': 'NOVA Street Vortex', 'imagen': True, 'ancho': 1200, 'izq': 120, 'alto': 810}
+OK    [escritorio] ficha cabe en la pantalla -> {'abierta': True, 'titulo': 'NOVA Street Vortex', 'imagen': True, 'ancho': 1200, 'izq': 120, 'alto': 810}
+OK    [escritorio] ficha se cierra con Escape -> 
+OK    [escritorio] probador con NOVA Street Vortex -> {'abierto': True, 'detalleCerrado': True, 'nombre': 'NOVA Street Vortex', 'vista': 'street01', 'imagenes': [['images/probador/modelo-street-01.png', True], ['images/nova/street/nova-street-01-sinfondo.webp', True]], 'avi
+OK    [escritorio] cerrar probador vuelve a la ficha (NOVA Street Vortex) -> [False, True, 'NOVA Street Vortex']
+OK    [escritorio] probador con NOVA Casual Olivo -> {'abierto': True, 'detalleCerrado': True, 'nombre': 'NOVA Casual Olivo', 'vista': 'casual02-escena', 'imagenes': [['images/probador/escena-casual-02.png', True], ['images/nova/casual/nova-casual-02.webp', True]], 'avisoS
+OK    [escritorio] cerrar probador vuelve a la ficha (NOVA Casual Olivo) -> [False, True, 'NOVA Casual Olivo']
+OK    [escritorio] probador con NOVA Luxe Onyx -> {'abierto': True, 'detalleCerrado': True, 'nombre': 'NOVA Luxe Onyx', 'vista': 'producto', 'imagenes': [['images/nova/luxe/nova-luxe-01-sinfondo.webp', True], ['images/nova/luxe/nova-luxe-01-sinfondo.webp', True]], 'avis
+OK    [escritorio] probador cambia a escenario Tokio -> ['tokio', 'true']
+OK    [escritorio] cerrar probador vuelve a la ficha (NOVA Luxe Onyx) -> [False, True, 'NOVA Luxe Onyx']
+OK    [escritorio] sin errores ni avisos en la consola -> ninguno
+OK    [escritorio] sin peticiones fallidas -> ninguna
+OK    [tableta] sin desplazamiento horizontal -> scrollWidth=820 innerWidth=820
+OK    [tableta] la animación de entrada no tapa la página al terminar -> oculta
+OK    [tableta] contadores de colección = modelos.js -> {'street': [10, 10], 'luxe': [10, 10], 'casual': [20, 20], 'hombre': [20, 20], 'mujer': [20, 20], 'unisex': [20, 20], 'todos': [100, 100]}
+OK    [tableta] estantería filtro street -> 8 tarjetas (esperadas 8); 8 de 10 modelos · colección completa en el catálogo
+OK    [tableta] estantería filtro luxe -> 8 tarjetas (esperadas 8); 8 de 10 modelos · colección completa en el catálogo
+OK    [tableta] estantería filtro casual -> 8 tarjetas (esperadas 8); 8 de 20 modelos · colección completa en el catálogo
+OK    [tableta] estantería filtro hombre -> 8 tarjetas (esperadas 8); 8 de 20 modelos · colección completa en el catálogo
+OK    [tableta] estantería filtro mujer -> 8 tarjetas (esperadas 8); 8 de 20 modelos · colección completa en el catálogo
+OK    [tableta] estantería filtro unisex -> 8 tarjetas (esperadas 8); 8 de 20 modelos · colección completa en el catálogo
+OK    [tableta] estantería filtro todos -> 8 tarjetas (esperadas 8); 8 de 100 modelos · colección completa en el catálogo
+OK    [tableta] estantería búsqueda sin resultados muestra aviso -> 0 modelos
+OK    [tableta] catálogo filtro todos -> 100 tarjetas (esperadas 100)
+OK    [tableta] catálogo filtro street -> 10 tarjetas (esperadas 10)
+OK    [tableta] catálogo filtro luxe -> 10 tarjetas (esperadas 10)
+OK    [tableta] catálogo filtro casual -> 20 tarjetas (esperadas 20)
+OK    [tableta] catálogo filtro hombre -> 20 tarjetas (esperadas 20)
+OK    [tableta] catálogo filtro mujer -> 20 tarjetas (esperadas 20)
+OK    [tableta] catálogo filtro unisex -> 20 tarjetas (esperadas 20)
+OK    [tableta] catálogo búsqueda 'street vortex' -> 1 modelo
+OK    [tableta] catálogo búsqueda sin resultados muestra aviso -> 
+OK    [tableta] imágenes de la página cargadas (110) -> ninguna rota
+OK    [tableta] menú -> Catálogo -> #catalogo-completo queda a 0px del borde superior
+OK    [tableta] menú -> Nuestra visión -> #historia queda a -0.0px del borde superior
+OK    [tableta] pie -> Volver arriba -> scrollY=0
+OK    [tableta] «Desliza o ver catálogo» lleva al catálogo -> 0px
+OK    [tableta] ficha se abre con su modelo e imagen -> {'abierta': True, 'titulo': 'NOVA Street Vortex', 'imagen': True, 'ancho': 779, 'izq': 21, 'alto': 969}
+OK    [tableta] ficha cabe en la pantalla -> {'abierta': True, 'titulo': 'NOVA Street Vortex', 'imagen': True, 'ancho': 779, 'izq': 21, 'alto': 969}
+OK    [tableta] ficha se cierra con Escape -> 
+OK    [tableta] probador con NOVA Street Vortex -> {'abierto': True, 'detalleCerrado': True, 'nombre': 'NOVA Street Vortex', 'vista': 'street01', 'imagenes': [['images/probador/modelo-street-01.png', True], ['images/nova/street/nova-street-01-sinfondo.webp', True]], 'avi
+OK    [tableta] cerrar probador vuelve a la ficha (NOVA Street Vortex) -> [False, True, 'NOVA Street Vortex']
+OK    [tableta] probador con NOVA Casual Olivo -> {'abierto': True, 'detalleCerrado': True, 'nombre': 'NOVA Casual Olivo', 'vista': 'casual02-escena', 'imagenes': [['images/probador/escena-casual-02.png', True], ['images/nova/casual/nova-casual-02.webp', True]], 'avisoS
+OK    [tableta] cerrar probador vuelve a la ficha (NOVA Casual Olivo) -> [False, True, 'NOVA Casual Olivo']
+OK    [tableta] probador con NOVA Luxe Onyx -> {'abierto': True, 'detalleCerrado': True, 'nombre': 'NOVA Luxe Onyx', 'vista': 'producto', 'imagenes': [['images/nova/luxe/nova-luxe-01-sinfondo.webp', True], ['images/nova/luxe/nova-luxe-01-sinfondo.webp', True]], 'avis
+OK    [tableta] probador cambia a escenario Tokio -> ['tokio', 'true']
+OK    [tableta] cerrar probador vuelve a la ficha (NOVA Luxe Onyx) -> [False, True, 'NOVA Luxe Onyx']
+OK    [tableta] sin errores ni avisos en la consola -> ninguno
+OK    [tableta] sin peticiones fallidas -> ninguna
+OK    [movil] sin desplazamiento horizontal -> scrollWidth=390 innerWidth=390
+OK    [movil] la animación de entrada no tapa la página al terminar -> oculta
+OK    [movil] contadores de colección = modelos.js -> {'street': [10, 10], 'luxe': [10, 10], 'casual': [20, 20], 'hombre': [20, 20], 'mujer': [20, 20], 'unisex': [20, 20], 'todos': [100, 100]}
+OK    [movil] estantería filtro street -> 8 tarjetas (esperadas 8); 8 de 10 modelos · colección completa en el catálogo
+OK    [movil] estantería filtro luxe -> 8 tarjetas (esperadas 8); 8 de 10 modelos · colección completa en el catálogo
+OK    [movil] estantería filtro casual -> 8 tarjetas (esperadas 8); 8 de 20 modelos · colección completa en el catálogo
+OK    [movil] estantería filtro hombre -> 8 tarjetas (esperadas 8); 8 de 20 modelos · colección completa en el catálogo
+OK    [movil] estantería filtro mujer -> 8 tarjetas (esperadas 8); 8 de 20 modelos · colección completa en el catálogo
+OK    [movil] estantería filtro unisex -> 8 tarjetas (esperadas 8); 8 de 20 modelos · colección completa en el catálogo
+OK    [movil] estantería filtro todos -> 8 tarjetas (esperadas 8); 8 de 100 modelos · colección completa en el catálogo
+OK    [movil] estantería búsqueda sin resultados muestra aviso -> 0 modelos
+OK    [movil] catálogo filtro todos -> 100 tarjetas (esperadas 100)
+OK    [movil] catálogo filtro street -> 10 tarjetas (esperadas 10)
+OK    [movil] catálogo filtro luxe -> 10 tarjetas (esperadas 10)
+OK    [movil] catálogo filtro casual -> 20 tarjetas (esperadas 20)
+OK    [movil] catálogo filtro hombre -> 20 tarjetas (esperadas 20)
+OK    [movil] catálogo filtro mujer -> 20 tarjetas (esperadas 20)
+OK    [movil] catálogo filtro unisex -> 20 tarjetas (esperadas 20)
+OK    [movil] catálogo búsqueda 'street vortex' -> 1 modelo
+OK    [movil] catálogo búsqueda sin resultados muestra aviso -> 
+OK    [movil] imágenes de la página cargadas (110) -> ninguna rota
+OK    [movil] menú -> Catálogo -> #catalogo-completo queda a 0px del borde superior
+OK    [movil] menú -> Nuestra visión -> oculto en el menú móvil por diseño; la sección se alcanza desplazándose
+OK    [movil] pie -> Volver arriba -> scrollY=0
+OK    [movil] «Desliza o ver catálogo» lleva al catálogo -> 0px
+OK    [movil] ficha se abre con su modelo e imagen -> {'abierta': True, 'titulo': 'NOVA Street Vortex', 'imagen': True, 'ancho': 371, 'izq': 10, 'alto': 760}
+OK    [movil] ficha cabe en la pantalla -> {'abierta': True, 'titulo': 'NOVA Street Vortex', 'imagen': True, 'ancho': 371, 'izq': 10, 'alto': 760}
+OK    [movil] ficha se cierra con Escape -> 
+OK    [movil] probador con NOVA Street Vortex -> {'abierto': True, 'detalleCerrado': True, 'nombre': 'NOVA Street Vortex', 'vista': 'street01', 'imagenes': [['images/probador/modelo-street-01.png', True], ['images/nova/street/nova-street-01-sinfondo.webp', True]], 'avi
+OK    [movil] cerrar probador vuelve a la ficha (NOVA Street Vortex) -> [False, True, 'NOVA Street Vortex']
+OK    [movil] probador con NOVA Casual Olivo -> {'abierto': True, 'detalleCerrado': True, 'nombre': 'NOVA Casual Olivo', 'vista': 'casual02-escena', 'imagenes': [['images/probador/escena-casual-02.png', True], ['images/nova/casual/nova-casual-02.webp', True]], 'avisoS
+OK    [movil] cerrar probador vuelve a la ficha (NOVA Casual Olivo) -> [False, True, 'NOVA Casual Olivo']
+OK    [movil] probador con NOVA Luxe Onyx -> {'abierto': True, 'detalleCerrado': True, 'nombre': 'NOVA Luxe Onyx', 'vista': 'producto', 'imagenes': [['images/nova/luxe/nova-luxe-01-sinfondo.webp', True], ['images/nova/luxe/nova-luxe-01-sinfondo.webp', True]], 'avis
+OK    [movil] probador cambia a escenario Tokio -> ['tokio', 'true']
+OK    [movil] cerrar probador vuelve a la ficha (NOVA Luxe Onyx) -> [False, True, 'NOVA Luxe Onyx']
+OK    [movil] sin errores ni avisos en la consola -> ninguno
+OK    [movil] sin peticiones fallidas -> ninguna
+OK    [movimiento reducido] la animación de entrada se omite -> {'display': 'none', 'animacion': 'none', 'opacidad': '1'}
+OK    [servidor] archivos pedidos que no existen (404) -> ninguno
+
+114 de 114 comprobaciones correctas

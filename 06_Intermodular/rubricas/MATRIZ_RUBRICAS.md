@@ -1,6 +1,6 @@
 # NOVA Sneakers · Matriz de rúbricas (final)
 
-**13/11/2026.** Rama `integracion/candidata-2`: **8cdc08c + commits de documentación del 13/11**. Sustituye a la matriz de la candidata 2 del 12/11 por la noche.
+**13/11/2026.** Rama `integracion/candidata-2`: **8cdc08c + commits de documentación del 13/11**. Sustituye a la matriz de la candidata 2 del 12/11 por la noche. **Revisada en la limpieza final** (rama `refactor/limpieza-final-nova`, apartado 0.2): rutas nuevas y la misma regresión repetida sobre el árbol limpio; ningún estado ha cambiado.
 
 ## 0. Qué se ha auditado y cómo leer la matriz
 
@@ -107,6 +107,36 @@
 **No se ha repetido el 13/11:** Lighthouse (A1) y el contraste (A7).
 
 ---
+
+### 0.2 Limpieza final (13/11, por la tarde)
+
+La rama `refactor/limpieza-final-nova` sale de la candidata 2 (`9d589ae`) y hace tres cosas:
+- **Reorganiza el repositorio por asignaturas.** Las carpetas pasan a `01_Interfaces` … `06_Intermodular`, con `git mv`, y `servidor-admin` sigue siendo una sola carpeta compartida. Las rutas de esta matriz ya son las nuevas.
+- **Quita 14 archivos sin uso.** Son 6 imágenes del probador, 1 captura repetida y 7 `.gitkeep`. Ninguno es una evidencia que cite esta matriz.
+- **Simplifica código sin cambiar resultados.** Afecta a Python, la web, el servidor, PSP y los comentarios SQL.
+
+**No cambia el estado de ningún requisito.** Los códigos R01–R26 siguen valiendo porque la regresión se repitió entera sobre el árbol limpio y dio lo mismo. Los resultados están en `06_Intermodular/evidencias/regresion-limpieza/` (`RL/`).
+
+| Bloque | Regresión del 13/11 (R) | Árbol limpio (RL) |
+|---|---|---|
+| SQL 01–23 desde cero, batería 09–16 | 123 / 0 / 1 (R01) | 123 / 0 / 1 en tres bases |
+| SQL de tienda, reparto (con el 23) y portal | 55, 37 y 50 (R03–R05) | 55, 37 y 50 |
+| Java `PruebasRubrica` | 47 / 0 (R06) | 47 / 0 |
+| Ventanas Swing (`ProbarVentanas`) | 76 / 0 (R08) | 76 / 0 |
+| PSP | 27 / 27; códigos 0, 1 y 2 (R09) | 27 / 27; códigos 0, 1 y 2; ficha CUSTOM-40 igual |
+| `npm test`, `test:tienda`, `test:portal` | 23, 39 y 24 (R11–R13) | 23, 39 y 24 |
+| Python `unittest` | 265 OK (R14) | 265 OK |
+| Salidas de `main.py` | R15 | Las 97, idénticas a las de la candidata 2 |
+| Web en Edge: mejoras, Interfaces, web, compra, reparto, portal | 81, 136, 114, 139, 29 y 82 (R16–R21) | 81, 136, 114, 139, 29 y 82 |
+| Ethereal real, sin red y sin respuesta | 16, 5 y 5 (R22) | 16, 5 y 5 |
+| SO024 PROVISIONAL de principio a fin | R23 | Igual: PSP con código 0 y un solo pedido en Python |
+| Caso K: el dashboard tres ciclos de 60 s | 4 PASS (R25) | 4 PASS, con las mismas cifras |
+
+Lo que **no** se ha repetido sobre el árbol limpio:
+- **R24, el manual de instalación seguido desde un clon nuevo.** Las rutas del manual se actualizaron y se comprobaron una a una, pero el manual no se ha vuelto a seguir entero. **[REVISIÓN (los tres) en la PR]:** seguirlo otra vez antes de entregar.
+- **R26, la búsqueda de contraseñas.** Se rehízo con el escáner de la rama: las 5 contraseñas de demostración no aparecen en ninguno de sus 970 blobs.
+
+Lo pendiente sigue igual (apartado 4): Odoo (Berme), los 7 datos de SO024 y el SO024 oficial, la exportación REAL, la usabilidad con personas, el punto 9 de la memoria y el E-R en PNG.
 
 ## 1. Resumen por asignatura
 

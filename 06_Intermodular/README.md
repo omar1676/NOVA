@@ -22,6 +22,6 @@ Lo que une las asignaturas: el caso común SO024, la memoria técnica común, lo
 | `manuales/` | Instalación, demostración y la lista de comprobaciones manuales |
 | `rubricas/` | `MATRIZ_RUBRICAS.md` (estado de cada requisito de cada rúbrica, con su evidencia) y `MATRIZ_EVIDENCIAS.md` (qué archivo enseñar para cada bloque) |
 | `defensa/` | Guía y simulación de la defensa, y la presentación (`.md` y `.pptx`) |
-| `evidencias/` | La regresión completa del 13/11 |
+| `evidencias/` | La regresión completa del 13/11 (`regresion-final/`) y la misma sobre el árbol limpio (`regresion-limpieza/`) |
 
 Cada documento sigue siendo la única fuente de su tema: los README de las asignaturas enlazan aquí en lugar de copiarlo.
