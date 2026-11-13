@@ -140,7 +140,7 @@ Lo pendiente sigue igual (apartado 4): Odoo (Berme), los 7 datos de SO024 y el S
 
 ## 1. Resumen por asignatura
 
-Recuento hecho con un script sobre las tablas del apartado 2. Cada fila es un requisito. **Todas las columnas son filas de la rúbrica, no pruebas.**
+Recuento hecho con un script sobre las tablas del apartado 2. Cada fila es un requisito. El recuento de Odoo conserva el corte anterior al PDF de Berme: no refleja sus nuevas evidencias documentales. Ver la actualización del apartado 2.5 y el plan de SO024 antes de usar esas cifras. **Todas las columnas son filas de la rúbrica, no pruebas.**
 - **Cumplido:** el requisito se cumple entero.
 - **Probado:** hay un resultado del 13/11 que lo cubre, aunque sea en parte o con datos provisionales.
 - **Documentado:** su explicación está en un documento del repositorio.
@@ -153,7 +153,7 @@ Recuento hecho con un script sobre las tablas del apartado 2. Cada fila es un re
 | Acceso a Datos (PostgreSQL + Java) | 130 | 114 | 120 | 129 | 129 | 14 | **ALTO.** «Es imprescindible aprobar todas las partes» (AD-138). La memoria (MAD) existe, pero le faltan las aportaciones de cada uno y el E-R en PNG. La demo de SO024 es PROVISIONAL. El tribunal común depende también de Odoo |
 | PSP | 19 | 17 | 19 | 19 | 19 | 2 | **BAJO.** Todo lo técnico está probado el 13/11 (R09, R23). Falta relacionar la salida con el pedido de Odoo (PSP-10 y 29). `scripts/comprobar_psp.py` falla por lo ya conocido (el arreglo es de Berme) |
 | Python | 214 | 200 | 200 | 214 | 214 | 13 | **MEDIO-ALTO.** Sin exportación REAL, la defensa no puede enseñar lo que pide D1 (10 %: «Demostración con exportación ACC y refresco») ni R1–R3, L y el antes y después con datos reales. «Ninguna [ampliación] sustituye … el uso de datos reales». Las dos condiciones de aceptación se cumplen |
-| Sistemas de Gestión Empresarial (Odoo) | 17 | 0 | 0 | 0 | 0 | 17 | **MUY ALTO.** Ninguna evidencia (Berme). «El requisito estable es que Odoo sea el núcleo del flujo empresarial» (IM-SGE-17) |
+| Sistemas de Gestión Empresarial (Odoo) | 17 | 0 | 0 | 0 | 0 | 17 | **RECUENTO ANTERIOR AL PDF.** Hay evidencia recibida; conciliación SO024 pendiente (ver §2.5). «El requisito estable es que Odoo sea el núcleo del flujo empresarial» (IM-SGE-17) |
 | Proyecto Intermodular (comunes e integración SO024) | 37 | 10 | 16 | 34 | 35 | 23 | **ALTO.** La memoria tiene vacíos el punto 4 (Odoo) y el 9 (reparto real e IA); el manual de demostración no tiene el paso de Odoo; SO024 es PROVISIONAL; la PR a `main` no está publicada. El tribunal (20 %) es común a todas |
 
 **Estados, por asignatura** (las filas condicionales cuya condición no se da cuentan como OPCIONAL):
@@ -193,7 +193,7 @@ Según el texto literal de cada rúbrica:
 | Asignatura | Requisitos marcados | Estado hoy | Qué lo desbloquea |
 |---|---|---|---|
 | Acceso a Datos | AD-121 (memoria), AD-117 (E-R), AD-113 a 116 (defensa con SO024), AD-138 | Memoria **PARCIAL** (faltan las aportaciones y el E-R en PNG); SO024 **PROVISIONAL**; tribunal y defensa, **NO VERIFICABLES** | Completar MAD §15 (los tres) y el E-R (Álvaro); los 7 datos y el SO024 oficial desde la ventana; ensayar la defensa |
-| Odoo | IM-SGE-06, 07, 12, 16 y 17; IM-COM-16 y 24 | **PENDIENTE**: no hay nada | Berme, con `05_Odoo/CHECKLIST_ODOO_BERME.md` |
+| Odoo | IM-SGE-06, 07, 12, 16 y 17; IM-COM-16 y 24 | **PARCIAL**: PDF recibido; falta conciliar el SO024 oficial | Los tres, con el plan de integración y la checklist de Odoo |
 | Intermodular | IM-COM-02 y 15 (repositorio), 18 (memoria), 19 (manual de demostración), IM-ITG-16 (trazabilidad) | PR **sin publicar**; memoria y manual **PARCIALES** (falta Odoo y el punto 9); trazabilidad **PROVISIONAL** | Publicar la PR (Omar autoriza; Álvaro y Berme revisan); Odoo; punto 9 |
 | Python | PY-217 y PY-218 (condiciones de aceptación) | **Se cumplen** (R14, R15): hoy no impiden nada | Mantenerlas: no etiquetar nada sintético como real |
 | Interfaces y PSP | — | El flujo principal se demuestra (R16–R21; R09, R23) | — |
@@ -696,13 +696,9 @@ Las 209 filas obligatorias y las 5 condicionales de la rúbrica de Python. Todas
 
 ### 2.5 Sistemas de Gestión Empresarial: Odoo (módulo 0491, IM §4.2 y RA1–RA4)
 
-No hay **ninguna evidencia** de Odoo:
-- `05_Odoo/` solo tiene la lista de tareas, el borrador del recorrido y la plantilla de su `README.md`;
-- no hay exportaciones, capturas ni backup;
-- `05_Odoo/recorrido-manual-odoo.md` es un borrador de cómo se haría a mano, no una prueba;
-- el conector `servidor-admin/odoo.js` de Berme está **desactivado** sin `ODOO_URL`, `ODOO_DB` y `ODOO_API_KEY`, y no se ha probado contra ningún Odoo. Lo dice el arranque del servidor (R24). Además, las rutas de `pedidos.js` no se montan.
+**Actualización posterior a la recepción del PDF (13/11/2026):** existe evidencia documental OD-01…06 en `odoo/documentacion/Odoo-NOVA-Sneakers.pdf`. El mapa de páginas, las diferencias con SO024 y los criterios para conciliarlo están en `06_Intermodular/SO024/INTEGRACION_ODOO_SO024.md`.
 
-Todo es **PENDIENTE (Berme)**. La lista de tareas está en COB. Las filas condicionales dependen del alcance que fije el profesor (D5).
+Las filas y recuentos siguientes conservan el corte anterior al PDF y no son una evaluación actual de sus 17 requisitos. No se recalifican automáticamente como cumplidos: el pedido demostrado es S00005 del Club Atletico NOVA, hay códigos de Runner X que chocan con NOVA Velocity y los datos oficiales de SO024 siguen sin acordarse. La checklist de COB sirve para cerrar esa verificación. La API de esta candidata continúa sin activarse y `pedidos.js` no se monta.
 
 | ID | REQUISITO | OBL/OPC | ARCHIVO | COMPROBACIÓN CONCRETA | EVIDENCIA | DOCUMENTADO EN | ESTADO | PENDIENTE |
 |---|---|---|---|---|---|---|---|---|

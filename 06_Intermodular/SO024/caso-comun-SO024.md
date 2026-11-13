@@ -4,6 +4,8 @@ Del enunciado del proyecto intermodular: **SO024 · Club Halcones · Runner X ·
 
 El mismo pedido se enseña en todas las asignaturas, con la misma referencia, `SO024`. No hay sincronización automática: la integración consiste en que los datos coincidan, y se comprueba con la tabla de abajo.
 
+> **Revisión 13/11/2026:** los siete datos siguen pendientes de acuerdo, confirmado por el equipo. El PDF de Odoo documenta otro pedido histórico; no rellena estos acuerdos. Ver [la preparación de integración y los códigos de Runner X](INTEGRACION_ODOO_SO024.md).
+
 ## 1. Datos por acordar (Omar, Berme y Álvaro)
 
 | Dato | Valor acordado | Dónde se usa |

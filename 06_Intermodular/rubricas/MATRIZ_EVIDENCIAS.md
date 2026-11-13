@@ -74,7 +74,7 @@ Para cada asignatura, una tabla corta: **bloque de requisitos → archivo que lo
 
 ## 5. Sistemas de Gestión Empresarial (Odoo)
 
-**[PENDIENTE (Berme): todo el bloque.]** No hay ninguna evidencia de Odoo en el repositorio. El conector `servidor-admin/odoo.js` está integrado pero desactivado y sin probar: no cuenta como evidencia de ninguno de estos requisitos.
+**Actualización 13/11/2026:** existe el PDF de Berme en `odoo/documentacion/Odoo-NOVA-Sneakers.pdf`, con aportaciones OD-01 a OD-06. El mapa por páginas y sus límites están en `06_Intermodular/SO024/INTEGRACION_ODOO_SO024.md`. La tabla de abajo conserva los criterios de aceptación del SO024 común que aún hay que verificar; no debe interpretarse como ausencia de trabajo de Berme. La API de esta candidata sigue sin activarse ni probarse contra Odoo.
 
 | Bloque | Requisitos | Estado | Evidencia | Cómo enseñarlo |
 |---|---|---|---|---|

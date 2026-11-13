@@ -1,41 +1,40 @@
 # 05 · Sistemas de Gestión Empresarial (Odoo)
 
-**Estado a 13/11/2026: PENDIENTE (Berme).** En el repositorio todavía no hay ninguna evidencia de Odoo: ni instalación, ni capturas, ni exportación, ni backup. Este README es la plantilla que hay que completar; la lista de tareas está en `CHECKLIST_ODOO_BERME.md`.
+**Estado a 13/11/2026: documentación de Berme recibida; conciliación del SO024 oficial pendiente.** El equipo confirma que los siete datos del caso común siguen por acordar. No debe presentarse la venta histórica del PDF como SO024.
 
-| | |
+## Evidencia disponible
+
+[Odoo-NOVA-Sneakers.pdf](../odoo/documentacion/Odoo-NOVA-Sneakers.pdf) (19 páginas, ya en main) documenta Ubuntu 24.04 en OrbStack, Odoo 19 Community, la base `nova_sneaker`, productos, usuarios y un recorrido de venta, fabricación, entrega y factura. Las páginas 10–12 describen S00005 del Club Atletico NOVA; las 16–17 muestran variantes de Runner X.
+
+El documento conserva su ubicación y autoría; no se duplica ni se modifica. La base Odoo `nova_sneaker` y la base académica `nova_sneakers` son distintas. Esta revisión documental no se conectó a ninguna de ellas.
+
+## Integración preparada
+
+La fuente actual de conciliación es [INTEGRACION_ODOO_SO024.md](../06_Intermodular/SO024/INTEGRACION_ODOO_SO024.md): evidencias por página, códigos observados frente a códigos pendientes de exportar, consultas de solo lectura y criterios de aceptación.
+
+Hay un conflicto que resolver: el PDF usa `NOVA-4-38…46` para Runner X, mientras parte de esos códigos corresponde a NOVA Velocity en los datos del proyecto. No cambiar IDs ni referencias para forzar la coincidencia. Los SKU reales de la base del equipo y la decisión sobre Odoo siguen pendientes.
+
+## Qué está pendiente
+
+- Acordar los siete datos y crear el SO024 del Club Halcones, con equivalencia al número S… de Odoo.
+- Aportar exportación de variantes y del pedido oficial; comprobar talla, color, cantidad, modelo, precio e IVA.
+- Completar las evidencias del mismo pedido en PostgreSQL/Java, PSP y Python.
+- Revisar los perfiles completos de la rúbrica, CRM si entra en el alcance, incidencias y backup/restauración.
+- Actualizar la memoria y el guion de demo con la conciliación aprobada. La documentación OD-01…06 no cierra por sí sola todos los requisitos de SGE.
+
+## API y arranque
+
+El PDF incluye instalación y comandos del entorno de Berme (páginas 3–6 y 19); no se ha reproducido esa instalación aquí. El acceso mostrado es local a su entorno de OrbStack.
+
+El conector `servidor-admin/odoo.js` exige `ODOO_URL`, `ODOO_DB` y `ODOO_API_KEY` en `.env`. Las rutas de `pedidos.js` siguen sin montarse por su incompatibilidad con permisos y auditoría de la candidata. Configurar las variables no autoriza ni activa esas rutas. No se ha probado la API de esta candidata contra Odoo.
+
+## Archivos
+
+| Archivo | Uso |
 |---|---|
-| **Qué hace** | Odoo es el núcleo del flujo empresarial del caso común: cliente, venta del pedido SO024 y, según el alcance que diga el profesor, fabricación, inventario y facturación. **[PENDIENTE (Berme)]** |
-| **Tecnologías** | Odoo con su base PostgreSQL, en una máquina virtual o la instancia que indique el profesor. **[PENDIENTE (Berme): versión, edición y aplicaciones instaladas]** |
-| **Qué necesita** | **[PENDIENTE (Berme): sistema operativo, versión de Odoo y cómo se instala, paso a paso]** |
-| **Cómo se inicia** | **[PENDIENTE (Berme)]** |
-| **Pruebas** | El recorrido de SO024 de principio a fin, con capturas numeradas. **[PENDIENTE (Berme)]** |
-| **Rúbrica** | 17 requisitos (IM §4.2 y RA1–RA4), los 17 PENDIENTES. Detalle en `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` (§2.5) |
-| **Conexión con otras asignaturas** | El pedido SO024 de Odoo tiene que coincidir con el de PostgreSQL (`02_Acceso_Datos/sql/18_datos_so024.sql`): el SKU de PostgreSQL es la «Referencia interna» de cada variante y `SO024` la «Referencia del cliente» del pedido. La exportación de Odoo puede alimentar PSP si lleva la cabecera de `06_Intermodular/SO024/contrato-fabricacion.md`. El conector `servidor-admin/odoo.js` está **desactivado** mientras no se configure |
-| **Evidencias** | `capturas/NN_descripcion.png` y `exportaciones/SO024_odoo.csv` **[PENDIENTE (Berme)]**. El backup y la máquina virtual **no** se suben al repositorio |
+| PDF enlazado arriba | Aportación documental de Berme y capturas históricas |
+| `CHECKLIST_ODOO_BERME.md` | Criterios para cerrar SO024 y la entrega, contrastados con el PDF |
+| `recorrido-manual-odoo.md` | Borrador histórico; consultar primero el plan actual de conciliación |
+| Plan de integración enlazado arriba | Único lugar para preparar códigos y el orden de aceptación |
 
-## Archivos de esta carpeta
-
-| Archivo | Qué es |
-|---|---|
-| `CHECKLIST_ODOO_BERME.md` | Lo que falta, con casillas, y dónde va cada captura |
-| `recorrido-manual-odoo.md` | Borrador de cómo se haría el recorrido de SO024 a mano en Odoo y de las reglas de identificadores |
-
-## Instalación
-
-**[PENDIENTE (Berme)]**
-
-## Tabla de equivalencias (Odoo ↔ PostgreSQL)
-
-| Odoo | PostgreSQL |
-|---|---|
-| **[PENDIENTE (Berme)]** número del pedido de venta | `SO024` |
-
-## Backup
-
-**[PENDIENTE (Berme)]** Nombre, fecha, tamaño, huella SHA-256, dónde se guarda y cómo se restaura.
-
-## Incidencias
-
-| Fecha | Qué pasó | Cómo se resolvió |
-|---|---|---|
-| | | |
+El backup y la máquina virtual se conservan fuera de Git. Falta registrar ubicación, fecha, tamaño, hash y resultado de una restauración; no se ha creado ni modificado ninguna copia de seguridad en esta revisión.
