@@ -26,21 +26,27 @@ function mostrarDatosCompra(modelo) {
   if (typeof mostrarCompraEnFicha === "function") mostrarCompraEnFicha(modelo);
 }
 
-function mostrarModelos() {
-  const consulta = busqueda.value.trim().toLocaleLowerCase("es");
-  const visibles = modelos.filter(
+// Los modelos de una colección («todos»: de cualquiera) cuyo nombre contiene el
+// texto buscado. La usan el escaparate y el catálogo, cada uno con sus filtros.
+function filtrarModelos(coleccion, texto) {
+  const consulta = texto.trim().toLocaleLowerCase("es");
+  return modelos.filter(
     (modelo) =>
-      (filtro === "todos" || modelo.coleccion === filtro) &&
+      (coleccion === "todos" || modelo.coleccion === coleccion) &&
       modelo.nombre.toLocaleLowerCase("es").includes(consulta),
   );
+}
+
+function mostrarModelos() {
+  const visibles = filtrarModelos(filtro, busqueda.value);
   // El escaparate muestra como máximo ocho; el catálogo contiene la colección completa.
   const seleccion = visibles.slice(0, 8);
   estanterias.replaceChildren();
   seleccion.forEach((modelo) => {
     const tarjeta = document.createElement("article");
-    tarjeta.className = "zapatilla";
+    tarjeta.className = "escaparate__zapatilla";
     const boton = document.createElement("button");
-    boton.className = "tarjeta";
+    boton.className = "escaparate__tarjeta";
     boton.type = "button";
     boton.setAttribute("aria-label", `Ver ${modelo.nombre}`);
     const imagen = document.createElement("img");
@@ -49,7 +55,7 @@ function mostrarModelos() {
     imagen.loading = "lazy";
     boton.append(imagen);
     const datos = document.createElement("span");
-    datos.className = "datos";
+    datos.className = "escaparate__datos";
     const nombre = document.createElement("strong");
     nombre.textContent = modelo.nombre;
     const accion = document.createElement("span");
@@ -83,12 +89,13 @@ function abrirDetalle(modelo, boton) {
   rellenarFicha(modelo);
   dialogo.showModal();
 }
-document.querySelectorAll(".filtro").forEach((boton) =>
+const filtrosEscaparate = document.querySelectorAll(".escaparate__filtro");
+filtrosEscaparate.forEach((boton) =>
   boton.addEventListener("click", () => {
     filtro = boton.dataset.filtro;
-    document.querySelectorAll(".filtro").forEach((item) => {
+    filtrosEscaparate.forEach((item) => {
       const activo = item === boton;
-      item.classList.toggle("activo", activo);
+      item.classList.toggle("escaparate__filtro--activo", activo);
       item.setAttribute("aria-pressed", String(activo));
     });
     mostrarModelos();
@@ -96,7 +103,7 @@ document.querySelectorAll(".filtro").forEach((boton) =>
 );
 busqueda.addEventListener("input", mostrarModelos);
 dialogo
-  .querySelectorAll(".cerrar, .cerrar-secundario")
+  .querySelectorAll(".cerrar, .ficha__seguir")
   .forEach((boton) => boton.addEventListener("click", () => dialogo.close()));
 dialogo.addEventListener("click", (evento) => {
   if (evento.target === dialogo) dialogo.close();
@@ -116,21 +123,16 @@ const catalogoGrid = document.querySelector("#catalogo-grid");
 const buscarCatalogo = document.querySelector("#buscar-catalogo");
 let coleccionCatalogo = "todos";
 function mostrarCatalogo() {
-  const consulta = buscarCatalogo.value.trim().toLocaleLowerCase("es");
-  const visibles = modelos.filter(
-    (modelo) =>
-      (coleccionCatalogo === "todos" ||
-        modelo.coleccion === coleccionCatalogo) &&
-      modelo.nombre.toLocaleLowerCase("es").includes(consulta),
-  );
+  const visibles = filtrarModelos(coleccionCatalogo, buscarCatalogo.value);
   catalogoGrid.replaceChildren();
   visibles.forEach((modelo) => {
     const tarjeta = document.createElement("button");
     tarjeta.type = "button";
-    // c-<colección>: los colores de Álvaro para cada colección (inicio.css)
-    tarjeta.className = "catalogo-tarjeta c-" + modelo.coleccion;
+    // catalogo__tarjeta--<colección>: los colores de Álvaro para cada colección (inicio.css)
+    tarjeta.className = "catalogo__tarjeta catalogo__tarjeta--" + modelo.coleccion;
     // Tienda (js/tienda.js): si el modelo está en PostgreSQL, su precio real
     // y si se puede comprar. Sin servidor, el precio orientativo y nada más.
+    // La primera vez que se pinta, tienda.js aún no se ha cargado: de ahí el typeof.
     const enTienda =
       typeof datosEnTienda === "function" ? datosEnTienda(modelo) : null;
     const textoPrecio = formatoPrecio(
@@ -143,9 +145,9 @@ function mostrarCatalogo() {
     );
     // Zona de la foto: el color de la colección y su etiqueta
     const foto = document.createElement("span");
-    foto.className = "catalogo-foto";
+    foto.className = "catalogo__foto";
     const etiqueta = document.createElement("span");
-    etiqueta.className = "catalogo-etiqueta";
+    etiqueta.className = "catalogo__etiqueta";
     etiqueta.textContent = modelo.coleccion;
     const imagen = document.createElement("img");
     imagen.src = modelo.imagen;
@@ -154,19 +156,19 @@ function mostrarCatalogo() {
     foto.append(etiqueta, imagen);
     // Banda de datos: nombre, precio, disponibilidad y «Ver modelo»
     const contenido = document.createElement("span");
-    contenido.className = "catalogo-datos";
+    contenido.className = "catalogo__datos";
     const nombre = document.createElement("strong");
     nombre.textContent = modelo.nombre;
     const precio = document.createElement("span");
-    precio.className = "catalogo-precio";
+    precio.className = "catalogo__precio";
     precio.textContent = textoPrecio;
     const accion = document.createElement("span");
-    accion.className = "catalogo-accion";
+    accion.className = "catalogo__accion";
     accion.textContent = "Ver modelo ↗";
     contenido.append(nombre, accion, precio);
     if (textoEstado) {
       const estado = document.createElement("span");
-      estado.className = `catalogo-estado ${enTienda.clase}`;
+      estado.className = `catalogo__estado catalogo__estado--${enTienda.clase}`;
       estado.textContent = textoEstado;
       contenido.append(estado);
     }
@@ -178,12 +180,13 @@ function mostrarCatalogo() {
     `${visibles.length} ${visibles.length === 1 ? "modelo" : "modelos"}`;
   document.querySelector("#catalogo-vacio").hidden = visibles.length > 0;
 }
-document.querySelectorAll(".catalogo-filtro").forEach((boton) => {
+const filtrosCatalogo = document.querySelectorAll(".catalogo__filtro");
+filtrosCatalogo.forEach((boton) => {
   boton.addEventListener("click", () => {
     coleccionCatalogo = boton.dataset.coleccion;
-    document.querySelectorAll(".catalogo-filtro").forEach((opcion) => {
+    filtrosCatalogo.forEach((opcion) => {
       const activo = opcion === boton;
-      opcion.classList.toggle("activo", activo);
+      opcion.classList.toggle("catalogo__filtro--activo", activo);
       opcion.setAttribute("aria-pressed", String(activo));
     });
     mostrarCatalogo();
@@ -195,7 +198,7 @@ mostrarCatalogo();
 // En pantallas táctiles, al llegar al final de la estantería, un deslizamiento
 // hacia arriba lleva al catálogo. Antes de llegar, el desplazamiento es normal.
 const escaparate = document.querySelector("#catalogo");
-const zonaDeslizamiento = document.querySelector(".escaparate-pie");
+const zonaDeslizamiento = document.querySelector(".escaparate__pie");
 let inicioToque = null;
 zonaDeslizamiento.addEventListener(
   "touchstart",
@@ -214,6 +217,13 @@ zonaDeslizamiento.addEventListener(
   },
   { passive: true },
 );
+// Desde el touchstart, el dedo ha subido más de «minimo» píxeles, y 1,5 veces
+// más en vertical que en horizontal (así no se confunde con un gesto lateral).
+function haSubido(toque, minimo) {
+  const diferenciaY = inicioToque.y - toque.clientY;
+  const diferenciaX = Math.abs(inicioToque.x - toque.clientX);
+  return diferenciaY > minimo && diferenciaY > diferenciaX * 1.5;
+}
 // Al reconocer el gesto, evitamos que la inercia salte por encima del catálogo.
 zonaDeslizamiento.addEventListener(
   "touchmove",
@@ -224,10 +234,7 @@ zonaDeslizamiento.addEventListener(
       evento.touches.length !== 1
     )
       return;
-    const diferenciaY = inicioToque.y - evento.touches[0].clientY;
-    const diferenciaX = Math.abs(inicioToque.x - evento.touches[0].clientX);
-    if (diferenciaY > 10 && diferenciaY > diferenciaX * 1.5)
-      evento.preventDefault();
+    if (haSubido(evento.touches[0], 10)) evento.preventDefault();
   },
   { passive: false },
 );
@@ -235,15 +242,7 @@ zonaDeslizamiento.addEventListener(
   "touchend",
   (evento) => {
     if (!inicioToque || evento.changedTouches.length !== 1) return;
-    const diferenciaY = inicioToque.y - evento.changedTouches[0].clientY;
-    const diferenciaX = Math.abs(
-      inicioToque.x - evento.changedTouches[0].clientX,
-    );
-    if (
-      inicioToque.cercaDelFinal &&
-      diferenciaY > 65 &&
-      diferenciaY > diferenciaX * 1.5
-    ) {
+    if (inicioToque.cercaDelFinal && haSubido(evento.changedTouches[0], 65)) {
       document.querySelector("#catalogo-completo").scrollIntoView();
     }
     inicioToque = null;
@@ -256,15 +255,16 @@ zonaDeslizamiento.addEventListener("touchcancel", () => {
 
 // Probador conceptual: la zapatilla elegida con una figura, puesta o sola.
 const probador = document.querySelector("#probador");
-const vistaProbador = document.querySelector(".probador-vista");
+const vistaProbador = document.querySelector(".probador__vista");
 const elegirZapatilla = document.querySelector("#elegir-zapatilla");
 const alturaModelo = document.querySelector("#altura-modelo");
 const pesoModelo = document.querySelector("#peso-modelo");
 const tipoModelo = document.querySelector("#tipo-modelo");
-const imagenModelo = document.querySelector(".modelo-base");
+const imagenModelo = document.querySelector(".probador__modelo");
 const imagenEscena = document.querySelector("#escena-completa");
 const zapatillaEscena = document.querySelector("#zapatilla-escena");
 const avisoVista = document.querySelector("#aviso-sin-foto");
+const botonesEscenario = probador.querySelectorAll(".probador__escenarios button");
 
 // Las tres figuras (con calzado genérico) valen para todas las zapatillas.
 const figuras = {
@@ -312,7 +312,7 @@ function prepararVistas() {
   if (!figuras[tipoModelo.value]) tipoModelo.value = puestas[0] || "producto";
   tipoModelo.dispatchEvent(new Event("change"));
 }
-document.querySelector(".abrir-probador").addEventListener("click", () => {
+document.querySelector(".ficha__probador").addEventListener("click", () => {
   if (!modeloSeleccionado) return;
   elegirZapatilla.value = modelos.indexOf(modeloSeleccionado);
   mostrarZapatillaProbador(modeloSeleccionado);
@@ -371,9 +371,9 @@ tipoModelo.addEventListener("change", () => {
   const nombre = modeloSeleccionado.nombre;
   imagenEscena.hidden = !rutaEscena;
   zapatillaEscena.hidden = !verZapatilla;
-  vistaProbador.classList.toggle("escena-fija", Boolean(rutaEscena));
-  vistaProbador.classList.toggle("solo-zapatilla", soloZapatilla);
-  vistaProbador.classList.toggle("con-figura", Boolean(figura));
+  vistaProbador.classList.toggle("probador__vista--escena-fija", Boolean(rutaEscena));
+  vistaProbador.classList.toggle("probador__vista--solo-zapatilla", soloZapatilla);
+  vistaProbador.classList.toggle("probador__vista--con-figura", Boolean(figura));
   document.querySelector("#aviso-escena").hidden = !rutaEscena;
   avisoVista.textContent = figura
     ? "Figura con calzado genérico · tu zapatilla, al lado"
@@ -382,7 +382,7 @@ tipoModelo.addEventListener("change", () => {
     figura ||
     (soloZapatilla && !modeloSeleccionado.probador)
   );
-  probador.querySelectorAll(".escenarios button").forEach((boton) => {
+  botonesEscenario.forEach((boton) => {
     boton.disabled = Boolean(rutaEscena);
   });
   if (verZapatilla) {
@@ -402,33 +402,30 @@ tipoModelo.addEventListener("change", () => {
       : `Persona con ${nombre} puesta`;
   }
 });
-probador.querySelectorAll(".escenarios button").forEach((boton) => {
+botonesEscenario.forEach((boton) => {
   boton.addEventListener("click", () => {
     vistaProbador.dataset.escenario = boton.dataset.escenario;
-    probador.querySelectorAll(".escenarios button").forEach((opcion) => {
+    botonesEscenario.forEach((opcion) => {
       opcion.setAttribute("aria-pressed", String(opcion === boton));
     });
   });
 });
-function cerrarProbador() {
-  probador.close();
-}
 probador
-  .querySelectorAll(".cerrar-probador, .cerrar-probador-secundario")
-  .forEach((boton) => boton.addEventListener("click", cerrarProbador));
+  .querySelectorAll(".probador__cerrar, .probador__volver")
+  .forEach((boton) => boton.addEventListener("click", () => probador.close()));
 probador.addEventListener("click", (evento) => {
-  if (evento.target === probador) cerrarProbador();
+  if (evento.target === probador) probador.close();
 });
 probador.addEventListener("close", () => {
   if (modeloSeleccionado && !dialogo.open) dialogo.showModal();
 });
 
 // ---------------------------------------------------------------------
-// Bloque de Álvaro (commit 52a8800), copiado sin cambios salvo las dos
-// últimas líneas: antes avisaban de que no había servidor; ahora llaman a
-// iniciarSesionCliente (js/tienda.js).
+// Inicio de sesión: bloque de Álvaro (commit 52a8800), copiado sin cambios
+// salvo dos cosas: las dos últimas líneas, que antes avisaban de que no había
+// servidor y ahora llaman a iniciarSesionCliente (js/tienda.js), y la ×, que
+// se busca por su clase .cerrar (antes, .cerrar-acceso).
 // ---------------------------------------------------------------------
-// Inicio de sesión (solo interfaz)
 const dialogoAcceso = document.querySelector("#acceso");
 const formularioAcceso = document.querySelector("#formulario-acceso");
 const campoUsuarioAcceso = document.querySelector("#acceso-usuario");
@@ -448,7 +445,7 @@ document.querySelector("#abrir-acceso").addEventListener("click", (evento) => {
 });
 
 dialogoAcceso
-  .querySelector(".cerrar-acceso")
+  .querySelector(".cerrar")
   .addEventListener("click", () => dialogoAcceso.close());
 
 dialogoAcceso.addEventListener("click", (evento) => {

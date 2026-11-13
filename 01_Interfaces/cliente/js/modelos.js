@@ -5,10 +5,10 @@
 //   que si se cambia uno, hay que cambiarlo también allí.
 //   Las fotos conservan su número (nova-street-01...): el nombre no cambia archivos.
 // probador: vistas del probador con ESTA zapatilla puesta (solo en algunos modelos).
-// imagen: foto sin fondo para la estantería y la ficha.
-// imagenCatalogo: foto para la tarjeta del catálogo.
-// catalogoConFondo: true cuando imagenCatalogo conserva el fondo de estudio; la tarjeta
-// la amplía hasta llenar su hueco en vez de dejarla como un recuadro dentro de otro.
+// imagen: foto sin fondo; es la que se ve en la estantería, el catálogo, la ficha,
+//   el probador y el carrito.
+// imagenCatalogo y catalogoConFondo: la foto con fondo de estudio que usaba antes el
+//   catálogo. No se usan desde el rediseño de Álvaro (5f0ce57); ver el README.
 const modelos = [
   {
     nombre: "NOVA Street Vortex",

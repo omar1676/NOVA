@@ -2,18 +2,18 @@
    cuenta y carrito, la compra en la ficha, el carrito, el pedido y «Mis
    pedidos». Usa los colores y los botones de inicio.css. */
 
-/* Los elementos con el atributo hidden no se ven aunque una regla les dé
-   display (por ejemplo, .compra es un bloque y .checkout-paso tambien). */
+/* El atributo hidden oculta siempre, aunque alguna regla le dé display a ese
+   elemento (el display: none del navegador perdería contra ella). */
 .barra-tienda [hidden],
-.modal-info [hidden],
+.ficha__info [hidden],
 .acceso [hidden],
-.dialogo-tienda [hidden] {
+.tienda [hidden] {
   display: none !important;
 }
 
-/* El escaparate ocupaba la pantalla menos la cabecera; ahora también menos
-   la barra de la tienda (40 px). */
-.coleccion {
+/* El escaparate ocupa la pantalla menos la cabecera (72 px) y la barra de la
+   tienda (40 px). */
+.escaparate {
   min-height: calc(100vh - 112px);
 }
 
@@ -46,20 +46,20 @@
 .barra-tienda button:hover {
   color: #efb17d;
 }
-.barra-saludo {
+.barra-tienda__saludo {
   margin: 0 auto 0 0;
   color: var(--suave);
 }
-.barra-carrito {
+.barra-tienda__carrito {
   font-weight: bold;
 }
-.barra-carrito span {
+.barra-tienda__carrito span {
   color: var(--brillo);
 }
 
 /* ---------- Tarjetas del catálogo: disponible, agotado o no disponible ----------
    Van sobre la banda oscura de cada colección (inicio.css): tonos claros. */
-.catalogo-datos .catalogo-estado {
+.catalogo__datos .catalogo__estado {
   order: 4;
   width: 100%;
   font-size: 0.66rem;
@@ -67,13 +67,13 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.catalogo-datos .catalogo-estado.disponible {
+.catalogo__datos .catalogo__estado--disponible {
   color: #b7ecc0;
 }
-.catalogo-datos .catalogo-estado.agotado {
+.catalogo__datos .catalogo__estado--agotado {
   color: #ffd2c6;
 }
-.catalogo-datos .catalogo-estado.no-disponible {
+.catalogo__datos .catalogo__estado--no-disponible {
   color: #e4ddd9;
 }
 
@@ -82,26 +82,26 @@
    talla (cuadrícula), aviso de stock, cantidad (− y +), «Añadir al carrito»
    y, debajo de cada campo, su error. Va sobre el panel liso de la ficha
    (#1c1a1d, inicio.css), así que los contrastes no dependen del degradado. */
-.compra-aviso {
+.ficha__aviso {
   margin: 0 0 16px;
   padding: 10px 12px;
   border-left: 3px solid #d7a381;
   background: #00000030;
 }
-.modal-info p.compra-aviso {
+.ficha__info p.ficha__aviso {
   color: #f2d2b6;
 }
 .compra {
   margin: 0 0 18px;
 }
-.compra-grupo {
+.compra__grupo {
   min-width: 0;
   margin: 0 0 16px;
   padding: 0;
   border: 0;
 }
-.compra-grupo legend,
-.compra-cantidad label {
+.compra__grupo legend,
+.compra__cantidad label {
   margin-bottom: 8px;
   padding: 0;
   color: #ead6c8;
@@ -120,18 +120,18 @@
 
 /* Muestras de color y tallas: el radio de verdad queda encima, transparente.
    Se usa con el ratón y con el teclado (flechas) y el lector lo anuncia. */
-.compra-colores {
+.compra__colores {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
 }
-.compra-muestra,
-.compra-opcion {
+.compra__muestra,
+.compra__talla {
   position: relative;
   display: block;
 }
-.compra-muestra input,
-.compra-opcion input {
+.compra__muestra input,
+.compra__talla input {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -140,29 +140,29 @@
   opacity: 0;
   cursor: pointer;
 }
-.muestra-color {
+.compra__circulo {
   display: block;
   width: 34px;
   height: 34px;
   border: 1px solid #ffffffa6;
   border-radius: 50%;
 }
-.compra-muestra input:checked + .muestra-color {
+.compra__muestra input:checked + .compra__circulo {
   box-shadow:
     0 0 0 3px #1c1a1d,
     0 0 0 5px #f6c696;
 }
-.compra-muestra input:focus-visible + .muestra-color {
+.compra__muestra input:focus-visible + .compra__circulo {
   outline: 2px solid #fff;
   outline-offset: 7px;
 }
 
-.compra-tallas {
+.compra__tallas {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
   gap: 8px;
 }
-.compra-opcion b {
+.compra__talla b {
   display: block;
   padding: 11px 4px;
   border: 1px solid #ffffff8c;
@@ -170,25 +170,25 @@
   font-weight: normal;
   text-align: center;
 }
-.compra-opcion:hover input:not(:disabled):not(:checked) + b {
+.compra__talla:hover input:not(:disabled):not(:checked) + b {
   border-color: #fff;
   background: #ffffff14;
 }
-.compra-opcion input:checked + b {
+.compra__talla input:checked + b {
   border-color: #f4ece4;
   background: #f4ece4;
   color: #1c1a1d;
   font-weight: bold;
 }
-.compra-opcion input:focus-visible + b {
+.compra__talla input:focus-visible + b {
   outline: 2px solid #f6c696;
   outline-offset: 2px;
 }
-.compra-opcion input:disabled {
+.compra__talla input:disabled {
   cursor: not-allowed;
 }
 /* Agotada: tachada, con una raya en diagonal y desactivada */
-.compra-opcion input:disabled + b {
+.compra__talla input:disabled + b {
   border-style: dashed;
   border-color: #ffffff4d;
   background: linear-gradient(
@@ -200,12 +200,14 @@
   color: #a49b97;
   text-decoration: line-through;
 }
-.compra-grupo.con-error .compra-opcion input:not(:disabled) + b {
+/* «Elige una talla»: borde rojo en las que se pueden elegir. El bloque va
+   delante del modificador para que gane también al :hover de la talla. */
+.compra__grupo.compra__grupo--error .compra__talla input:not(:disabled) + b {
   border-color: #f2a38d;
 }
 
 /* Aviso de stock: el punto de color acompaña al texto, que ya lo dice */
-.modal-info .compra-stock {
+.ficha__info .compra__stock {
   display: flex;
   align-items: baseline;
   gap: 8px;
@@ -213,7 +215,7 @@
   color: #ece4df;
   font-size: 0.8rem;
 }
-.compra-stock::before {
+.compra__stock::before {
   content: "";
   flex: none;
   width: 8px;
@@ -221,32 +223,32 @@
   border-radius: 50%;
   background: #a49b97;
 }
-.compra-stock.quedan::before {
+.compra__stock--quedan::before {
   background: #7fd394;
 }
-.compra-stock.pocos::before {
+.compra__stock--pocos::before {
   background: #f0b85a;
 }
-.compra-stock.agotado::before {
+.compra__stock--agotado::before {
   background: #f2a38d;
 }
 
 /* Cantidad con − y + */
-.compra-cantidad {
+.compra__cantidad {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
-.compra-cantidad label {
+.compra__cantidad label {
   margin: 0;
 }
-.cantidad-control {
+.compra__control {
   display: flex;
   border: 1px solid #ffffff8c;
   border-radius: 3px;
 }
-.cantidad-control button {
+.compra__control button {
   width: 44px;
   height: 44px;
   border: 0;
@@ -255,15 +257,15 @@
   font-size: 1.2rem;
   line-height: 1;
 }
-.cantidad-control button:hover {
+.compra__control button:hover {
   background: #ffffff14;
 }
-.cantidad-control button[aria-disabled="true"] {
+.compra__control button[aria-disabled="true"] {
   background: transparent;
   color: #8b8380;
   cursor: not-allowed;
 }
-.cantidad-control input {
+.compra__control input {
   width: 52px;
   border: 0;
   border-left: 1px solid #ffffff4d;
@@ -275,27 +277,20 @@
   appearance: textfield;
   -moz-appearance: textfield;
 }
-.cantidad-control input::-webkit-outer-spin-button,
-.cantidad-control input::-webkit-inner-spin-button {
+.compra__control input::-webkit-outer-spin-button,
+.compra__control input::-webkit-inner-spin-button {
   margin: 0;
   -webkit-appearance: none;
 }
-.cantidad-control input:focus-visible {
+.compra__control input:focus-visible {
   outline-offset: 2px;
 }
-.cantidad-control input[aria-invalid="true"] {
+.compra__control input[aria-invalid="true"] {
   box-shadow: inset 0 0 0 2px #f2a38d;
-}
-.carrito-cantidad input {
-  width: 64px;
-  padding: 7px;
-  border: 1px solid #ffffff66;
-  background: transparent;
-  color: white;
 }
 
 /* El botón principal */
-.modal-info .compra-boton {
+.ficha__info .compra__boton {
   justify-content: center;
   margin-top: 16px;
   padding: 17px;
@@ -306,7 +301,7 @@
   font-weight: bold;
   letter-spacing: 0.12em;
 }
-.modal-info .compra-boton:hover {
+.ficha__info .compra__boton:hover {
   background: #f0b886;
 }
 .boton:disabled {
@@ -315,39 +310,39 @@
 }
 
 /* Errores (debajo de su campo) y mensaje de «añadido» (debajo del botón) */
-.modal-info .compra-error {
+.ficha__info .compra__error {
   margin: 0;
   color: #f6b3a1;
   font-size: 0.78rem;
   font-weight: bold;
 }
-.modal-info .compra-error:not(:empty) {
+.ficha__info .compra__error:not(:empty) {
   margin-top: 8px;
   padding: 6px 10px;
   border-left: 3px solid #f2a38d;
   background: #f2a38d1a;
 }
-.compra-hecho {
+.compra__hecho {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: 2px 12px;
   margin-top: 10px;
 }
-.modal-info .compra-mensaje {
+.ficha__info .compra__mensaje {
   margin: 0;
   color: #bfe0b6;
 }
-.modal-info .compra-mensaje.error {
+.ficha__info .compra__mensaje--error {
   color: #f6b3a1;
 }
 
 /* ---------- Diálogos de cuenta (los de Álvaro) ---------- */
-.acceso-pie {
+.acceso__pie {
   margin: 16px 0 0;
   font-size: 0.78rem;
 }
-.acceso-campo textarea {
+.acceso__campo textarea {
   width: 100%;
   padding: 10px 0;
   border: 0;
@@ -357,7 +352,7 @@
   font: inherit;
   resize: vertical;
 }
-.acceso-campo textarea:focus-visible {
+.acceso__campo textarea:focus-visible {
   outline: 2px solid #f6c696;
   outline-offset: 3px;
 }
@@ -374,60 +369,60 @@
 }
 
 /* ---------- Carrito, pedido y mis pedidos ---------- */
-dialog.dialogo-tienda {
+dialog.tienda {
   width: min(760px, 94vw);
 }
-.tienda-caja {
+.tienda__caja {
   position: relative;
   padding: 48px 32px 32px;
 }
-.tienda-caja h2 {
+.tienda__caja h2 {
   margin: 0.2em 0 0.4em;
   font-size: 2rem;
   letter-spacing: -0.04em;
 }
-.tienda-caja h2 span {
+.tienda__caja h2 span {
   color: var(--brillo);
 }
-.tienda-caja p,
-.tienda-vacio {
+.tienda__caja p,
+.carrito__vacio {
   color: #d3cac6;
 }
-.tienda-caja .tienda-nota {
+.tienda__caja .tienda__nota {
   font-size: 0.75rem;
   color: #c1b6b2;
 }
-.tienda-botones {
+.tienda__botones {
   display: flex;
   gap: 12px;
   margin-top: 16px;
 }
-.tienda-botones .boton {
+.tienda__botones .boton {
   flex: 1;
 }
-.boton-secundario {
+.boton--secundario {
   border-color: #ffffff66;
   background: transparent;
   color: var(--tinta);
 }
-.boton-secundario:hover {
+.boton--secundario:hover {
   background: #ffffff14;
 }
-.carrito-lista,
-.carrito-avisos,
-.pedidos-lista,
-.pedido-lineas {
+.carrito__lista,
+.carrito__avisos,
+.pedidos__lista,
+.pedido__lineas {
   margin: 0;
   padding: 0;
   list-style: none;
 }
-.carrito-avisos li {
+.carrito__avisos li {
   margin-bottom: 6px;
   color: #f2d2b6;
   font-size: 0.78rem;
 }
 
-.carrito-linea {
+.carrito__linea {
   display: grid;
   grid-template-columns: 72px 1fr auto auto auto;
   grid-template-areas: "foto datos cantidad subtotal quitar";
@@ -436,37 +431,44 @@ dialog.dialogo-tienda {
   padding: 12px 0;
   border-bottom: 1px solid #ffffff1f;
 }
-.carrito-linea img {
+.carrito__linea img {
   grid-area: foto;
   width: 72px;
   height: 56px;
   object-fit: contain;
 }
-.carrito-datos {
+.carrito__datos {
   grid-area: datos;
   display: grid;
   gap: 2px;
 }
-.carrito-datos small {
+.carrito__datos small {
   color: #c9c0bc;
 }
-.carrito-cantidad {
+.carrito__cantidad {
   grid-area: cantidad;
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 0.7rem;
 }
-.carrito-subtotal {
+.carrito__cantidad input {
+  width: 64px;
+  padding: 7px;
+  border: 1px solid #ffffff66;
+  background: transparent;
+  color: white;
+}
+.carrito__subtotal {
   grid-area: subtotal;
 }
-.carrito-linea .enlace-boton {
+.carrito__linea .enlace-boton {
   grid-area: quitar;
 }
-.carrito-pie {
+.carrito__pie {
   margin-top: 18px;
 }
-.tienda-caja .carrito-total {
+.tienda__caja .carrito__total {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -474,11 +476,11 @@ dialog.dialogo-tienda {
   color: var(--tinta);
   font-size: 1rem;
 }
-.carrito-total strong {
+.carrito__total strong {
   font-size: 1.3rem;
 }
 
-.checkout-pasos {
+.checkout__pasos {
   display: flex;
   flex-wrap: wrap;
   gap: 6px 18px;
@@ -490,75 +492,75 @@ dialog.dialogo-tienda {
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-.checkout-pasos [aria-current="step"] {
+.checkout__pasos [aria-current="step"] {
   color: var(--brillo);
   font-weight: bold;
 }
-.checkout-datos {
+.checkout__datos {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin: 12px 0 0;
 }
-.checkout-datos dt {
+.checkout__datos dt {
   color: #d7a381;
   font-size: 0.62rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
 }
-.checkout-datos dd {
+.checkout__datos dd {
   margin: 2px 0 0;
   overflow-wrap: anywhere;
 }
-.tabla-tienda {
+.checkout__tabla {
   overflow-x: auto;
 }
-.tabla-tienda table {
+.checkout__tabla table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.8rem;
 }
-.tabla-tienda th,
-.tabla-tienda td {
+.checkout__tabla th,
+.checkout__tabla td {
   padding: 8px 6px;
   border-bottom: 1px solid #ffffff1f;
   text-align: left;
 }
-.tabla-tienda th {
+.checkout__tabla th {
   color: #d7a381;
   font-size: 0.66rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-.tabla-tienda td:not(:first-child),
-.tabla-tienda thead th:not(:first-child) {
+.checkout__tabla td:not(:first-child),
+.checkout__tabla thead th:not(:first-child) {
   text-align: right;
   white-space: nowrap;
 }
-.tabla-tienda tfoot th,
-.tabla-tienda tfoot td {
+.checkout__tabla tfoot th,
+.checkout__tabla tfoot td {
   border-bottom: 0;
   color: var(--tinta);
   font-size: 0.95rem;
   font-weight: bold;
 }
-.tabla-tienda tfoot th {
+.checkout__tabla tfoot th {
   text-align: right;
 }
-.pago-simulado {
+.checkout__pago {
   margin: 18px 0;
   padding: 14px 16px;
   border: 1px dashed var(--brillo);
   background: #e5a1681a;
 }
-.tienda-caja .pago-simulado-titulo {
+.tienda__caja .checkout__pago-titulo {
   margin: 0 0 6px;
   color: var(--brillo);
   font-size: 0.7rem;
   font-weight: bold;
   letter-spacing: 0.15em;
 }
-.tienda-caja .resultado-titulo {
+.tienda__caja .checkout__resultado {
   margin: 10px 0;
   color: var(--tinta);
   font-size: 1.5rem;
@@ -577,33 +579,33 @@ dialog.dialogo-tienda {
   padding: 12px 0;
   border-bottom: 1px solid #ffffff1f;
 }
-.pedido-cabecera {
+.pedido__cabecera {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: 6px 16px;
   font-size: 0.8rem;
 }
-.pedido-estado {
+.pedido__estado {
   padding: 2px 8px;
   border: 1px solid currentColor;
   font-size: 0.66rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.estado-pendiente {
+.pedido__estado--pendiente {
   color: #f0c39b;
 }
-.estado-confirmado,
-.estado-en_preparacion,
-.estado-enviado,
-.estado-entregado {
+.pedido__estado--confirmado,
+.pedido__estado--en_preparacion,
+.pedido__estado--enviado,
+.pedido__estado--entregado {
   color: #bfe0b6;
 }
-.estado-cancelado {
+.pedido__estado--cancelado {
   color: #c9c0bc;
 }
-.pedido-lineas li {
+.pedido__lineas li {
   padding: 6px 0 0 12px;
   color: #ddd5d1;
   font-size: 0.78rem;
@@ -613,30 +615,30 @@ dialog.dialogo-tienda {
   .barra-tienda {
     gap: 16px;
   }
-  .coleccion {
+  .escaparate {
     min-height: calc(100vh - 104px);
   }
-  .tienda-caja {
+  .tienda__caja {
     padding: 44px 18px 22px;
   }
-  .tienda-botones {
+  .tienda__botones {
     flex-direction: column;
   }
-  .checkout-datos {
+  .checkout__datos {
     grid-template-columns: 1fr;
   }
-  .carrito-linea {
+  .carrito__linea {
     grid-template-columns: 56px 1fr auto;
     grid-template-areas:
       "foto datos datos"
       "foto cantidad subtotal"
       "foto quitar quitar";
   }
-  .carrito-linea img {
+  .carrito__linea img {
     width: 56px;
     height: 46px;
   }
-  .carrito-linea .enlace-boton {
+  .carrito__linea .enlace-boton {
     justify-self: start;
   }
 }
