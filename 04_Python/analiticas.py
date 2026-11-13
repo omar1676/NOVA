@@ -366,7 +366,7 @@ def clasificar_abc(tabla, columna):
 
 def modelos_abc(lineas_enriquecidas, modelos):
     """
-    Ventas por modelo y clasificacion ABC (DataFrame 03).
+    Demanda por modelo y clasificacion ABC (DataFrame 03).
 
     Variable de clasificacion: PARES DE DEMANDA (pedidos no cancelados), porque
     sirve para decidir que fabricar. Tambien sale el importe y su ranking. Salen

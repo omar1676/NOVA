@@ -4,7 +4,7 @@ Programación de Servicios y Procesos (módulo 0490). Es el punto 5 de la memori
 
 **Convenciones.** Rutas relativas a la raíz del repositorio, casi todas en `03_PSP/`. Los IDs IM-PSP-xx son los de la matriz de requisitos de `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md`, donde está el estado de cada uno (§2.3). Marcas: **[PENDIENTE (quién): …]** es trabajo que falta de verdad; **[POR DECIDIR (los tres): …]**, una decisión del equipo; **[DUDA PARA EL PROFESOR (Dn): …]**, una pregunta de la lista de dudas de la matriz; **[REVISIÓN (…) en la PR: …]**, algo que tiene que mirar un compañero al revisar la pull request.
 
-**Versión:** rama `integracion/candidata-2`, código de `8cdc08c` (13/11/2026). PSP no ha cambiado desde la candidata publicada el 12/11 (`4203fe7`); lo nuevo son sus pruebas del 13/11 y la evidencia de SO024 provisional.
+**Versión:** rama `integracion/candidata-2`, código de `1bcbb10` (13/11/2026). PSP no ha cambiado desde la candidata publicada el 12/11 (`2ccfed5`); lo nuevo son sus pruebas del 13/11 y la evidencia de SO024 provisional.
 
 ---
 
@@ -29,7 +29,7 @@ Una **aplicación Java de consola** que recibe la **exportación CSV de un pedid
 | `pruebas/PruebasPsp` | Pruebas | — | Las 27 pruebas, lanzando los programas de verdad |
 | `pruebas/HijoDePrueba` | Hijo solo para pruebas | — | Tarda, falla o devuelve un código raro a propósito |
 
-Cada hijo se lanza en **otra máquina virtual de Java**, con el comando que se construye con `java.home` y el classpath del propio padre (`GestorProcesos.java`, líneas 84–87):
+Cada hijo se lanza en **otra máquina virtual de Java**, con el comando que se construye con `java.home` y el classpath del propio padre (`GestorProcesos.java`, líneas 52–55):
 
 ```java
 String java = Path.of(System.getProperty("java.home"), "bin", "java").toString();
@@ -186,7 +186,7 @@ La «sincronización» que pide el RA1 se hace aquí esperando con `waitFor` a c
 ## 7. Tiempos de espera (IM-PSP-27)
 
 - El padre da a cada hijo **10 segundos** (`SEGUNDOS_MAXIMOS = 10` en `ProcesadorPedidosCustom.java`).
-- `GestorProcesos` espera con `proceso.waitFor(segundosMaximos, TimeUnit.SECONDS)`. Si el hijo no ha terminado, le pide que acabe con `destroy()`; si en un segundo sigue vivo, lo mata con `destroyForcibly()` y espera a que muera (`GestorProcesos.java`, líneas 138–152).
+- `GestorProcesos` espera con `proceso.waitFor(segundosMaximos, TimeUnit.SECONDS)`. Si el hijo no ha terminado, le pide que acabe con `destroy()`; si en un segundo sigue vivo, lo mata con `destroyForcibly()` y espera a que muera (`GestorProcesos.java`, líneas 106–121).
 - El resultado es `TIEMPO_AGOTADO` (−2) y el padre termina con código 3.
 - **Prueba 10 (13/11):** un hijo que duerme 60 s se cancela a los 2 s (en la prueba el límite es 2): código −2 en 2,0 s en lugar de 60 (`06_Intermodular/evidencias/regresion-final/02_java_psp/04_psp_pruebas.txt`).
 - **Lo que no está probado:** el tiempo agotado dentro del padre completo con un hijo real que se cuelgue, porque ninguno de los tres hijos se cuelga (`03_PSP/evidencias/README.md`, «Lo que no está probado»).
@@ -255,7 +255,7 @@ Sobre el árbol final y una base desechable con los 23 scripts (`06_Intermodular
   1. exportar sus líneas desde Odoo a un CSV con estas mismas 8 columnas, y PSP lo procesa **sin cambiar nada**;
   2. o que la «Referencia del cliente» del pedido de Odoo sea `SO024` y la «Referencia interna» de cada variante sea el SKU de PostgreSQL, y apuntar en la ficha o en la memoria la correspondencia con el número que dé Odoo (`05_Odoo/recorrido-manual-odoo.md`).
 - El conector de Odoo de Berme que hay en el servidor (`servidor-admin/odoo.js`) está desactivado y no se ha probado contra ningún Odoo; PSP no lo usa.
-- **[PENDIENTE (Berme): exportación CSV del pedido desde Odoo y la tabla de equivalencias de número de pedido y SKU. Sin ella, IM-PSP-10 e IM-PSP-29 quedan parciales.]**
+- **Límite de esta entrega:** no hay una exportación de un pedido de Odoo procesada por PSP. Sin programar, la ficha se relaciona con una venta de Odoo si el CSV lleva como `referencia` la «Referencia del cliente» de esa venta. El PDF de Berme (p. 13) da `NOVA-0011` como referencia de S00001, que también es un pedido de PostgreSQL; hay que comprobarlo en su Odoo antes de demostrarlo. S00005 no tiene CSV ni ficha en PSP.
 
 ---
 
@@ -285,13 +285,13 @@ Detalle de qué cubre cada una: `03_PSP/evidencias/README.md`. Las salidas del 1
 **Avisos:**
 
 - `PruebasPsp` falla si se lanza con `-Dfile.encoding=UTF-8` (visto el 12/11 en la Fase 0); hay que lanzarla sin esa opción, con el comando de arriba. Lo avisan `03_PSP/README.md` (apartado «Pruebas») y la tabla de problemas de `06_Intermodular/manuales/MANUAL_INSTALACION.md` §10.
-- `scripts/comprobar_psp.py` (de Berme) **falla, y se sabe por qué** (13/11, `06_Intermodular/evidencias/regresion-final/02_java_psp/07_comprobar_psp.txt`): espera que el validador conteste solo `OK;CUSTOM-40;4;40`, y desde el commit `81db6e5` el validador añade después los datos normalizados. En `feature/berme` hay un commit suyo que lo adapta (`862e37d`, «fix(psp): adapt quick check to the validator's normalized output»), que no está en esta rama. **[REVISIÓN (Berme) en la PR: traer su arreglo `862e37d` de `comprobar_psp.py` en un commit suyo.]**
+- `scripts/comprobar_psp.py` (de Berme) **ya funciona**: el arreglo de Berme (`4f09742`, «fix(psp): adapt quick check to the validator's normalized output», con su autoría) está en `main` y da OK en la regresión de cierre (`06_Intermodular/evidencias/cierre-entrega-20261113/psp_comprobador.txt`). Antes fallaba porque esperaba que el validador contestara solo `OK;CUSTOM-40;4;40`, y desde el commit `9dc66ac` el validador añade después los datos normalizados (`06_Intermodular/evidencias/regresion-final/02_java_psp/07_comprobar_psp.txt`, del 13/11).
 
 ---
 
 ## 11. El analizador de Álvaro
 
-- **Qué se usa:** `Psp.AnalizadorTallas` (`03_PSP/src/Psp/`, de su commit `6b7f4c1` del 9/11), **sin ningún cambio**, como hijo 2. El padre lo lanza por su nombre y el validador le prepara la entrada en el formato que ya leía (`PEDIDO;referencia`, `LINEA;sku;modelo;color;talla;cantidad`, `FIN`). Se respeta su convenio de códigos.
+- **Qué se usa:** `Psp.AnalizadorTallas` (`03_PSP/src/Psp/`, de su commit `e71947e` del 9/11), **sin ningún cambio**, como hijo 2. El padre lo lanza por su nombre y el validador le prepara la entrada en el formato que ya leía (`PEDIDO;referencia`, `LINEA;sku;modelo;color;talla;cantidad`, `FIN`). Se respeta su convenio de códigos.
 - **Su regla propia:** acepta tallas de 20 a 55 y cantidades positivas (`06_Intermodular/SO024/contrato-fabricacion.md`, «Protocolo del paquete Psp»). Por eso la prueba 12k (talla 99) la acepta el validador y la rechaza el analizador en el paso 2.
 - **Qué no se usa:** su `LanzadorAnalizador` y su `ResultadoProceso`, porque el padre usa `GestorProcesos`. Su `PruebasAnalizador` sigue siendo su prueba y da 8 de 8.
 - **Lo que debería revisar Álvaro en `LanzadorAnalizador`** (`03_PSP/README.md`, «Integración con el trabajo de Álvaro»): lee la salida con `readAllBytes()` antes del `waitFor(10 s)`, y `readAllBytes()` espera a que el hijo termine, así que el tiempo de espera no llega a actuar. Medido el 10/11: con un hijo que tarda 20 s, esperó 20,1 s y devolvió código 0. También puede bloquearse si el hijo escribe mucho por stderr. **No se ha cambiado su archivo.** **[REVISIÓN (Álvaro) en la PR: el tiempo de espera de su `LanzadorAnalizador`.]**
@@ -336,10 +336,10 @@ Para SO024: generar el CSV con el 15 (§9.1) y pasárselo al padre. Detalle en `
 
 Lo que dice `03_PSP/README.md` («Autoría») y lo que se ve en Git (rama `integracion/candidata-2`):
 
-- Commit `f4847d4` (Omar, 8/11): `ValidadorPedidoCustom`, `LectorCsv`, `LanzadorValidacion` y el `AnalizadorTallas` de la raíz.
-- Commit `6b7f4c1` (Álvaro, 9/11): `03_PSP/src/Psp/`.
-- Commit `81db6e5` (Omar, 11/11; preparado el 10/11 en su rama): `ProcesadorPedidosCustom`, `GestorProcesos`, `GeneradorFichaTaller`, `pruebas/` y `datos/`, y los cambios del validador. «Se prepararon en la sesión de Omar con ayuda de Claude.»
-- En el reparto, PSP-01 (`ProcesadorPedidosCustom`) y PSP-04 (`GeneradorFichaTaller`) eran de Berme; las subió Omar en el commit `81db6e5`. Berme subió `scripts/comprobar_psp.py` (`b3b0d45`) e `06_Intermodular/SO024/contrato-fabricacion.md` (`f3dda07`).
+- Commit `f5426cb` (Omar, 8/11): `ValidadorPedidoCustom`, `LectorCsv`, `LanzadorValidacion` y el `AnalizadorTallas` de la raíz.
+- Commit `e71947e` (Álvaro, 9/11): `03_PSP/src/Psp/`.
+- Commit `9dc66ac` (Omar, 11/11; preparado el 10/11 en su rama): `ProcesadorPedidosCustom`, `GestorProcesos`, `GeneradorFichaTaller`, `pruebas/` y `datos/`, y los cambios del validador. «Se prepararon en la sesión de Omar con ayuda de Claude.»
+- En el reparto, PSP-01 (`ProcesadorPedidosCustom`) y PSP-04 (`GeneradorFichaTaller`) eran de Berme; las subió Omar en el commit `9dc66ac`. Berme subió `scripts/comprobar_psp.py` (`f1983d2`) e `06_Intermodular/SO024/contrato-fabricacion.md` (`0f7d27d`).
 
 **[PENDIENTE (los tres): el reparto real de PSP y quién revisa y defiende cada clase en la defensa.]**
 

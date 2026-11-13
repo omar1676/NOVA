@@ -94,7 +94,7 @@ Sobre una base **nueva y vacía** (`CREATE DATABASE nova_sneakers;`), se lanzan 
 4. `13_activar_usuarios.sql` (contraseñas de `admin.demo`, `tienda.demo` y `taller.demo`) y `14_caso_custom_persistente.sql` (guarda el pedido `CUSTOM-40`).
 5. Exportaciones: `15_exportar_fabricacion.sql` (CSV para PSP) y `16_exportar_csv_dashboard.sql` (los cinco CSV de Python). Dejan los archivos en la carpeta desde la que se lanza `psql`.
 6. Ampliaciones: `20_tienda_web.sql`, `21_catalogo_web.sql`, `22_reparto_panel.sql` (el botón «Marcar en reparto»; después del 09, el 19 y el 20) y `23_portal_trabajador.sql` (el portal del trabajador; después del 19 y el 22).
-7. Al final, y solo con los datos acordados: `18_datos_so024.sql` (necesita `-v precio=… -v color=… -v stock=…`; sin ellos no inserta nada).
+7. Opcional, solo para ensayar el ejemplo SO024 del enunciado: `18_datos_so024.sql` (necesita `-v precio=… -v color=… -v stock=…`; sin ellos no inserta nada). La entrega no lo usa.
 
 **El 09 va antes del 13, el 18, el 20 y el 21.** Algunas comprobaciones del 09 cuentan los objetos de la instalación original o esperan cuentas sin contraseña: después darían `FAIL`. El 17 y el 19 se pueden lanzar en cualquier momento después del 07.
 
@@ -148,7 +148,7 @@ Así funcionan el escaparate, el catálogo, la ficha, el probador, Custom y Cont
 1. Lanzar `19_usuario_web.sql`; para la tienda, también el 20 y el 21; para el reparto, el 22; para el portal del trabajador, el 23.
 2. En `servidor-admin`, `npm ci`.
 3. Copiar `.env.example` como `.env` y escribir las contraseñas de `web_nova` y, para la tienda, de `tienda_nova`. El `.env` no se sube a Git.
-4. `npm start` y abrir `http://127.0.0.1:3000/login.html`, la página de acceso única del personal: `admin.demo` (administrador) pasa al panel, `taller.demo` (trabajador) al portal del trabajador, y `tienda.demo` (comercial) recibe «sin permiso», porque trabaja con la aplicación Java. La tienda está en `http://127.0.0.1:3000/tienda/`.
+4. `npm start` y abrir `http://127.0.0.1:3000/login.html`, la página de acceso única del personal: `admin.demo` (administrador) pasa al panel, `taller.demo` (trabajador) al portal del trabajador, y `tienda.demo` (comercial) recibe «Acceso denegado» (no tiene ningún panel web), porque trabaja con la aplicación Java. La tienda está en `http://127.0.0.1:3000/tienda/`.
 
 5. Para la página **«Análisis de datos»** del panel (el dashboard de Python dentro del panel de administración), arrancar también Streamlit, en otra consola:
 
@@ -186,7 +186,7 @@ py scripts/comprobar_web.py
 py scripts/comprobar_psp.py
 ```
 
-La primera comprueba que existen los recursos locales que enlaza la web; no evalúa el diseño ni la API. La segunda necesita `java` y `javac` en el PATH. **Correcta en el cierre:** se incorporó la corrección ya escrita por Berme en `0baf61f`, conservando su autoría (`4f09742`). Comprueba cabecera y bloque normalizado, además de los rechazos y pruebas del paquete Psp. La lista de comprobaciones manuales está en `06_Intermodular/manuales/PRUEBAS_MANUALES.md` y se escribió antes de conectar el panel y la tienda.
+La primera comprueba que existen los recursos locales que enlaza la web; no evalúa el diseño ni la API. La segunda necesita `java` y `javac` en el PATH. **Correcta en el cierre:** se incorporó la corrección ya escrita por Berme (`4f09742`), conservando su autoría. Comprueba cabecera y bloque normalizado, además de los rechazos y pruebas del paquete Psp. La lista de comprobaciones manuales está en `06_Intermodular/manuales/PRUEBAS_MANUALES.md` y se escribió antes de conectar el panel y la tienda.
 
 ## Caso de Odoo: S00005 del Club Atlético NOVA
 
@@ -198,7 +198,7 @@ Se conservan CUSTOM-40 y los ensayos SO024 PROVISIONAL, con sus datos, resultado
 
 ## Ampliaciones
 
-La tienda online (cuentas de cliente, carrito, pago simulado y recibo por correo), la conexión del panel de administración con PostgreSQL, el botón «Marcar en reparto» y el portal del trabajador con su login único son **ampliaciones que no pide ninguna rúbrica**. El panel solo lee (salvo «Marcar en reparto»), el portal solo cambia algo con las dos funciones del script 23 y en la tienda no se cobra nada.
+La tienda online (cuentas de cliente, carrito, pago simulado y recibo por correo: con Resend necesita su clave; las pruebas usan un transporte de prueba y no se ha enviado con una clave real), la conexión del panel de administración con PostgreSQL, el botón «Marcar en reparto» y el portal del trabajador con su login único son **ampliaciones que no pide ninguna rúbrica**. El panel solo lee (salvo «Marcar en reparto»), el portal solo cambia algo con las dos funciones del script 23 y en la tienda no se cobra nada.
 
 ## Limitaciones conocidas
 

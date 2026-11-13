@@ -2,7 +2,7 @@
 
 Para cada asignatura, una tabla corta: **bloque de requisitos → archivo que lo demuestra → cómo enseñarlo**. El detalle requisito por requisito, con su estado y su riesgo, está en `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` (los IDs son los mismos).
 
-**Rutas.** Las rutas completas parten de la raíz del repositorio; los nombres abreviados se refieren al archivo de su asignatura o a la carpeta de evidencias indicada. El cierre publicado conserva las pruebas nuevas en `06_Intermodular/evidencias/cierre-entrega-20261113/`. La regresión anterior del **13/11/2026** (`8cdc08c`) está en `06_Intermodular/evidencias/regresion-final/`; su `README.md` dice la hora, el entorno y el resultado de cada batería. Lo poco que sigue fuera del repositorio se dice expresamente («en el informe de integración»).
+**Rutas.** Las rutas completas parten de la raíz del repositorio; los nombres abreviados se refieren al archivo de su asignatura o a la carpeta de evidencias indicada. El cierre publicado conserva las pruebas nuevas en `06_Intermodular/evidencias/cierre-entrega-20261113/`. La regresión anterior del **13/11/2026** (`1bcbb10`) está en `06_Intermodular/evidencias/regresion-final/`; su `README.md` dice la hora, el entorno y el resultado de cada batería. Lo poco que sigue fuera del repositorio se dice expresamente («en el informe de integración»).
 
 **Estado:** OK = hecho y probado el 13/11 (o, si se dice, antes) · PARCIAL = hecho, pero falta una parte o la prueba es anterior · PROVISIONAL = solo con los datos provisionales de SO024 · PENDIENTE = no está hecho.
 

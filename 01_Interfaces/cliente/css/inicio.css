@@ -895,7 +895,7 @@ dialog::backdrop {
 .catalogo__herramientas {
   flex-wrap: wrap;
 }
-/* Sin uso desde el rediseño de Álvaro (5f0ce57): ninguna tarjeta lleva --con-fondo.
+/* Sin uso desde el rediseño de Álvaro (202c1d0): ninguna tarjeta lleva --con-fondo.
    Se queda hasta decidir si el catálogo vuelve a la foto con fondo (ver README).
    El bloque va delante del modificador para ganar a .catalogo__tarjeta img. */
 .catalogo__tarjeta.catalogo__tarjeta--con-fondo img {
@@ -1398,7 +1398,7 @@ dialog::backdrop {
   }
 }
 
-/* Inicio de sesión: estilos de Álvaro (commit 52a8800). Solo cambian los
+/* Inicio de sesión: estilos de Álvaro (commit 74da21a). Solo cambian los
    nombres de clase, pasados a BEM. */
 dialog.acceso {
   width: min(440px, 92vw);
@@ -1458,7 +1458,7 @@ dialog.acceso {
 }
 
 /* Tarjetas del catálogo con los colores de cada colección: el rediseño de
-   Álvaro (commit 5f0ce57) con su misma paleta, adaptado para que el texto
+   Álvaro (commit 202c1d0) con su misma paleta, adaptado para que el texto
    llegue a 4,5:1 y el foco a 3:1 (medido en Edge):
    - Sus degradados van en la zona de la foto. Allí no hay texto.
    - Su etiqueta de colección va en una pastilla del tono oscuro de su

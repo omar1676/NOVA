@@ -421,7 +421,7 @@ probador.addEventListener("close", () => {
 });
 
 // ---------------------------------------------------------------------
-// Inicio de sesión: bloque de Álvaro (commit 52a8800), copiado sin cambios
+// Inicio de sesión: bloque de Álvaro (commit 74da21a), copiado sin cambios
 // salvo dos cosas: las dos últimas líneas, que antes avisaban de que no había
 // servidor y ahora llaman a iniciarSesionCliente (js/tienda.js), y la ×, que
 // se busca por su clase .cerrar (antes, .cerrar-acceso).
@@ -464,7 +464,7 @@ formularioAcceso.addEventListener("submit", (evento) => {
   errorAcceso.hidden = true;
 
   if (campoUsuarioAcceso.value.trim() === "") {
-    mostrarErrorAcceso("Escribe tu usuario o correo.");
+    mostrarErrorAcceso("Escribe tu correo electrónico.");
     campoUsuarioAcceso.focus();
     return;
   }

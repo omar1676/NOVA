@@ -57,7 +57,7 @@ El recibo por correo depende del proveedor y de su configuración. Si no está c
 
 ## 6. Panel y portal del trabajador (2 min)
 
-admin.demo: ver pedidos, inventario, clientes y auditoría, con datos de la base. taller.demo: entrar al portal y mostrar solo sus operaciones permitidas, localizar un pedido de prueba y su detalle. tienda.demo es comercial de Java: el acceso al panel/portal se deniega por diseño.
+admin.demo: ver pedidos, inventario, clientes y auditoría, con datos de la base. taller.demo: entrar al portal y mostrar solo sus operaciones permitidas, localizar un pedido de prueba en «Pedidos» y cambiar su estado (lo que permite su rol; el portal no tiene vista de detalle). tienda.demo es comercial de Java: el acceso al panel/portal se deniega por diseño.
 
 ## 7. Odoo y límites (2 min)
 

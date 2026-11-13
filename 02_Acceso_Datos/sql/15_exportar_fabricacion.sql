@@ -20,8 +20,8 @@
 -- ESTE CSV NO ES NINGUNO DE LOS CINCO DEL DASHBOARD
 --   Los cinco CSV del dashboard de Python (clientes.csv, modelos.csv,
 --   pedidos.csv, lineas_pedido.csv y stock.csv) los exporta
---   16_exportar_csv_dashboard.sql, con una propuesta de columnas que el
---   equipo aun tiene que aprobar. Este archivo es distinto: es la orden
+--   16_exportar_csv_dashboard.sql, con las columnas que usa Python
+--   (04_Python/config.py). Este archivo es distinto: es la orden
 --   de fabricacion de un pedido concreto, para PSP. Su formato esta
 --   descrito en 06_Intermodular/SO024/contrato-fabricacion.md.
 --
@@ -34,8 +34,8 @@
 --   datos no son correctos el CSV anterior se queda intacto: psql se
 --   detiene sin llegar a tocarlo.
 --
---   Comprobar y exportar van en la MISMA transaccion, para que las dos
---   cosas vean exactamente el mismo estado del pedido.
+--   Comprobar y exportar van en la misma transaccion (READ COMMITTED: cada
+--   sentencia ve lo confirmado al empezar; el 16 usa REPEATABLE READ).
 --
 -- QUE PERMISOS HACEN FALTA
 --   Solo lee. Lo pueden ejecutar postgres, nova_admin, nova_comercial y
@@ -188,7 +188,7 @@ WHERE p.referencia = (SELECT referencia FROM pedido_a_exportar)
 ORDER BY s.talla;
 
 -- ---------------------------------------------------------------------
--- 3. La exportacion. Misma transaccion, mismo estado del pedido.
+-- 3. La exportacion, dentro de la misma transaccion (READ COMMITTED).
 --    Orden estable por talla, cabecera y UTF-8.
 -- ---------------------------------------------------------------------
 \echo ''

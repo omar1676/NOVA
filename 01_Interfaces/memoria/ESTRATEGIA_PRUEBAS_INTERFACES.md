@@ -7,7 +7,7 @@ Desarrollo de Interfaces (módulo 0488). Cubre lo que piden los criterios de eva
 
 La prueba de usabilidad con personas tiene su propio documento: `PROCEDIMIENTO_USABILIDAD.md`.
 
-**Convenciones.** Rutas relativas a la raíz del repositorio. Los resultados de la regresión final del **13/11/2026** (rama `integracion/candidata-2`, commit `8cdc08c`, exportado con `git archive`) están en `06_Intermodular/evidencias/regresion-final/05_web/`, y sus capturas, en `01_Interfaces/evidencias/tienda/capturas-2026-11-13/`, `01_Interfaces/evidencias/portal-trabajador/capturas/`, `01_Interfaces/evidencias/reparto-y-correo/capturas/` y `01_Interfaces/evidencias/correo-ethereal/capturas/`. Los scripts de navegador (Playwright y axe) **no están en el repositorio**: se guardan, con los demás scripts de la regresión, en el informe de integración. Marcas: **[PENDIENTE (quién): …]**, **[DUDA PARA EL PROFESOR (Dn): …]** y **[REVISIÓN (quién) en la PR: …]**.
+**Convenciones.** Rutas relativas a la raíz del repositorio. Los resultados de la regresión final del **13/11/2026** (rama `integracion/candidata-2`, commit `1bcbb10`, exportado con `git archive`) están en `06_Intermodular/evidencias/regresion-final/05_web/`, y sus capturas, en `01_Interfaces/evidencias/tienda/capturas-2026-11-13/`, `01_Interfaces/evidencias/portal-trabajador/capturas/`, `01_Interfaces/evidencias/reparto-y-correo/capturas/` y `01_Interfaces/evidencias/correo-ethereal/capturas/`. Los scripts de navegador (Playwright y axe) **no están en el repositorio**: se guardan, con los demás scripts de la regresión, en el informe de integración. Marcas: **[PENDIENTE (quién): …]**, **[DUDA PARA EL PROFESOR (Dn): …]** y **[REVISIÓN (quién) en la PR: …]**.
 
 ---
 
@@ -68,7 +68,7 @@ Playwright, axe-core y Lighthouse **no son dependencias del proyecto**: se usan 
 
 | Script (fuera del repositorio) | Qué recorre | Resultado (13/11) | Archivo |
 |---|---|---|---|
-| `comprobar_interfaces.py` | Los requisitos de Interfaces en 4 anchos: menú, 6 fichas por colección, precio de las 100 tarjetas, formulario Custom (vacío, email mal escrito, sin pares, negativos y decimales, total y simulación sin red), contacto, favicon, «Volver arriba» y axe. Compara con la web de Interfaces del 11/11 (`21c56e3`) | **136 de 136** (01:16–01:18) | `06_Intermodular/evidencias/regresion-final/05_web/02_interfaces.txt` |
+| `comprobar_interfaces.py` | Los requisitos de Interfaces en 4 anchos: menú, 6 fichas por colección, precio de las 100 tarjetas, formulario Custom (vacío, email mal escrito, sin pares, negativos y decimales, total y simulación sin red), contacto, favicon, «Volver arriba» y axe. Compara con la web de Interfaces del 11/11 (`60a3fcd`) | **136 de 136** (01:16–01:18) | `06_Intermodular/evidencias/regresion-final/05_web/02_interfaces.txt` |
 | `comprobar_web.py` | Toda la web: las 132 imágenes, escaparate, filtros, búsquedas con y sin resultados, ficha, probador, navegación y movimiento reducido | **114 de 114** (01:18–01:22) | `03_web.txt` |
 | `comprobar_mejoras.py` | Las 100 fichas con su bloque de compra, teclado, 11 anchos de 320 a 1440 px, probador y axe | **81 de 81** (01:14–01:16) | `01_mejoras.txt` |
 
@@ -157,7 +157,7 @@ Las pruebas no solo confirman: también encontraron fallos que se corrigieron.
 | El restyle de Álvaro bajaba el contraste del precio a 1,0–1,8:1 y el del foco a 1,3:1 | Medida de contraste en Edge | Pastilla oscura, banda opaca y doble contorno de foco: 212/212 | `01_Interfaces/cliente/README.md` |
 | En una pasada del 12/11, «menú → Custom» falló una vez (135/136) por el desplazamiento suave mientras otra prueba cargaba el ordenador | Repetición | Las pasadas siguientes y la del 13/11 dieron 136/136 | Informe de integración; `05_web/02_interfaces.txt` |
 | El portal de Berme tenía 940 campos de cantidad sin etiqueta y desplegables sin nombre accesible (axe) | axe sobre el original y sobre el integrado | Nombres accesibles en el buscador, los desplegables y los campos: 0 violaciones en escritorio | `05_web/06_edge_portal.txt`; `servidor-admin/README.md` |
-| La etiqueta del login dice «Usuario o correo», pero solo acepta correo | Revisión | **[REVISIÓN (Álvaro) en la PR: cambiar la etiqueta o aceptar usuario]** | `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` §3 |
+| La etiqueta del login decía «Usuario o correo», pero solo acepta correo | Corregido el 13/11: la etiqueta y el aviso piden el correo (pendiente del visto bueno de Álvaro) | **[Antes: REVISIÓN (Álvaro) en la PR: cambiar la etiqueta o aceptar usuario]** | `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` §3 |
 | En el panel y en «Personalizados» del portal, en móvil, axe da `scrollable-region-focusable` en tablas sin botones | axe | **[REVISIÓN (Álvaro y Berme) en la PR: hacer enfocable el contenedor de esas tablas]** | `05_web/06_edge_portal.txt`; `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` §3 |
 
 ---

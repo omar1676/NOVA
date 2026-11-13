@@ -1,5 +1,5 @@
 -- =====================================================================
--- 18_datos_so024.sql — datos del caso comun SO024
+-- 18_datos_so024.sql — datos del ejemplo SO024 del enunciado (ensayo opcional)
 --
 -- QUE HACE
 --   Deja en la base lo que necesita el pedido SO024 del enunciado
@@ -12,18 +12,18 @@
 --   NO crea el pedido: SO024 se da de alta y se confirma desde la
 --   aplicacion Java (pestana "Nuevo pedido").
 --   No es CUSTOM-40: ese pedido (10 y 14) es el caso Custom de Acceso a
---   Datos y usa NOVA Velocity en lugar de Runner X. SO024 es el caso
---   comun del proyecto intermodular y usa un Runner X de verdad.
+--   Datos y usa NOVA Velocity en lugar de Runner X. SO024 es el EJEMPLO
+--   del enunciado intermodular; el caso de Odoo documentado es S00005.
 --
 --   No cambia ninguna tabla ni ningun trigger: solo hace INSERT, y en
 --   estas cinco tablas no hay ningun trigger de INSERT.
 --
--- DATOS QUE FALTAN POR ACORDAR
---   El precio, el color y el stock inicial no estan escritos aqui porque
---   todavia no se han acordado con Berme y Alvaro (Odoo debe tener los
---   mismos). Se pasan al ejecutar; si falta alguno, el script se para
---   sin insertar nada. Cuando se acuerden, se apuntan en
---   06_Intermodular/SO024/caso-comun-SO024.md.
+-- DATOS QUE HAY QUE PASAR AL EJECUTARLO
+--   El precio, el color y el stock inicial no estan escritos aqui: no
+--   hay datos acordados para SO024 y no se inventan. Se pasan al
+--   ejecutar; si falta alguno, el script se para sin insertar nada.
+--   Es un ensayo opcional: la entrega no lo usa (ver
+--   06_Intermodular/ESTADO_ENTREGA_FINAL.md).
 --     precio = precio_base de Runner X, en euros y con punto (119.90).
 --     color  = el color de su unica variante.
 --     stock  = pares de cada talla. Tiene que llegar, como minimo, a los
