@@ -1372,7 +1372,7 @@ byte a byte.
 
 Para poder relacionar los CSV con la base, tienen que llevar **los mismos
 identificadores que ella**. El formato del CSV de fabricación está descrito en
-`06_Intermodular/SO024/contrato-fabricacion.md`, y la preparación histórica del ejemplo SO024, no necesaria para presentar S00005 documentalmente, en `06_Intermodular/SO024/caso-comun-SO024.md`.
+`03_PSP/memoria/DOCUMENTACION_PSP.md`.
 De los que PostgreSQL ya tiene y puede exportar hoy:
 
 - `pedidos.id_pedido` y `pedidos.referencia`
@@ -1403,7 +1403,7 @@ correspondencia**.
 
 **De Odoo no se afirma nada.** No hay ningún identificador de Odoo acordado ni
 comprobado: el número del pedido y el SKU en Odoo son dos de los datos por
-acordar de `06_Intermodular/SO024/caso-comun-SO024.md`.
+md`.
 
 **Este CSV no es ninguno de los cinco del dashboard.** Es la orden de
 fabricación de un pedido concreto y se mantiene aparte, hasta que se acuerde el

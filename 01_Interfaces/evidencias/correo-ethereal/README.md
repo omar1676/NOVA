@@ -2,7 +2,7 @@
 
 `CORREO_PROVEEDOR=ethereal` (**solo desarrollo**): Nodemailer 10.5.0 crea una cuenta temporal de Ethereal, el recibo no llega a nadie y la vista previa se enlaza en «Mis pedidos». Con `NODE_ENV=production` se niega. Es una **ampliación**.
 
-- **Prueba real contra ethereal.email, con datos ficticios:** compra en Edge de un cliente inventado (`@example.com`), vista previa del recibo en Ethereal y enlace en «Mis pedidos»: **16 de 16** (`../../../06_Intermodular/evidencias/regresion-final/05_web/07_ethereal_real.txt`). Las vistas previas de Ethereal son **públicas**: por eso solo se prueba con datos ficticios.
+- **Prueba real contra ethereal.email, con datos ficticios:** compra en Edge de un cliente inventado (`@example.com`), vista previa del recibo en Ethereal y enlace en «Mis pedidos»: **16 de 16** (la regresión del 13/11). Las vistas previas de Ethereal son **públicas**: por eso solo se prueba con datos ficticios.
 - **Simulados:** sin red (la API de Ethereal en un puerto cerrado) y con un servidor que no responde: **5/5 y 5/5**. La compra sigue confirmada, la respuesta no espera al correo, el error queda en la consola y el stock baja una sola vez (`08_ethereal_sin_red.txt` y `09_ethereal_mudo.txt`). Además, 7 pruebas de Ethereal sin red en `npm run test:tienda` (39/39).
 
 | Archivo | Qué es |

@@ -24,7 +24,7 @@ NOVA/
 ├── 03_PSP/               Procesador de pedidos Custom con tres procesos hijos (y el analizador de tallas en src/Psp/)
 ├── 04_Python/            Calidad de datos, KPIs, estadística, segmentación, predicción y dashboard Streamlit
 ├── 05_Odoo/              Estado de Odoo y evidencia de S00005 (PDF en odoo/documentacion/)
-├── 06_Intermodular/      Caso de entrega, archivo SO024, memoria, manuales, matrices de rúbricas y regresión completa
+├── manuales/             Instalación paso a paso y guion de la demostración
 ├── servidor-admin/       Servidor Node + Express, COMPARTIDO: da servicio a la tienda, al panel y al portal
 ├── scripts/              Comprobaciones rápidas de la web y de PSP
 ├── README.md
@@ -37,13 +37,13 @@ Dentro de cada asignatura: `evidencias/` guarda los resultados y las capturas de
 
 | Qué buscas | Dónde está |
 | --- | --- |
-| Memoria del proyecto (Interfaces, PSP y Odoo) | `06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf` (y `.docx`) |
+| Memoria del proyecto (Interfaces, PSP y Odoo) | la memoria del proyecto (`Memoria_NOVA_Sneakers.pdf`) |
 | Memoria de Acceso a Datos | `02_Acceso_Datos/memoria/MEMORIA_ACCESO_DATOS.md` |
 | Documentación de PSP | `03_PSP/memoria/DOCUMENTACION_PSP.md` |
 | Informe técnico de Python | `04_Python/memoria/INFORME_TECNICO_PYTHON.md` |
 | Estrategia de pruebas y usabilidad de Interfaces | `01_Interfaces/memoria/` |
-| Instalación paso a paso y guion de la demostración | `06_Intermodular/manuales/` |
-| Regresión completa del 13/11 | `06_Intermodular/evidencias/regresion-final/README.md` y, sobre el árbol limpio, `06_Intermodular/evidencias/regresion-limpieza/README.md` |
+| Instalación paso a paso y guion de la demostración | `manuales/` |
+| Regresión completa del 13/11 | la regresión del 13/11 y, sobre el árbol limpio, la regresión del 13/11 |
 | Odoo: evidencia y límites | `05_Odoo/README.md`; la checklist se conserva como plan histórico |
 
 ```
@@ -65,7 +65,7 @@ En todas las asignaturas hemos trabajado los tres: quién hizo cada cambio se ve
 - **Python 3.12 o superior** (probado con 3.13.5), con las versiones exactas de `04_Python/requirements.txt`: pandas 3.1.1, numpy 2.5.4, matplotlib 3.11.2, scikit-learn 1.9.1 y streamlit 1.67.0.
 - **Node 20.6 o superior** (probado con 24.15), solo para el panel, el portal y la tienda. Dependencias exactas en `servidor-admin/package-lock.json`: express 5.3.0, pg 8.23.1 y nodemailer 10.5.0 (`npm ci`).
 
-El paso a paso completo, probado el 13/11 sobre un clon nuevo y una base vacía, está en **`06_Intermodular/manuales/MANUAL_INSTALACION.md`**.
+El paso a paso completo, probado el 13/11 sobre un clon nuevo y una base vacía, está en **`manuales/MANUAL_INSTALACION.md`**.
 
 ## Arrancar con Docker (opcional)
 
@@ -188,16 +188,16 @@ Todas sobre una base de **prueba**, nunca la del equipo: la batería Java deja p
 | Parte | Cómo se lanza | Resultado esperado | Regresión del 13/11 |
 | --- | --- | --- | --- |
 | SQL | Scripts 09 a 16, en el orden de arriba | 123 PASS, 0 FAIL y 1 ERROR previsto (la S4b: PostgreSQL deniega `descontar_stock` al cliente a propósito) | 123 / 0 / 1 |
-| SQL de la tienda, del reparto y del portal | `psql -U postgres -d <copia de la base 01–23> -At -f <script>` con los tres scripts de `06_Intermodular/evidencias/regresion-final/01_sql/pruebas_usadas/` | 55, 37 y 50 PASS | 55 / 0, 37 / 0 y 50 / 0 |
+| SQL de la tienda, del reparto y del portal | `psql -U postgres -d <copia de la base 01–23> -At -f <script>` con los tres scripts de la regresión del 13/11 | 55, 37 y 50 PASS | 55 / 0, 37 / 0 y 50 / 0 |
 | Java | `02_Acceso_Datos\java\pruebas.bat` (pide las contraseñas de demostración) | 47 PASS, 0 FAIL | 47 / 0; ventanas Swing 76 / 0 |
 | PSP | En `03_PSP`, tras compilar: `java -cp clases PruebasPsp` | 27 de 27 | 27 / 27 |
 | Python | En `04_Python`: `.venv\Scripts\python.exe -m unittest discover -s tests -v` | 265 pruebas OK | 265 OK; las 93 salidas de `main.py`, iguales a la referencia salvo los cambios hechos a propósito |
 | Panel | En `servidor-admin`: `npm test` (con las variables `PRUEBA_*` de su README) | 23 de 23 con `PRUEBA_TIENDA_BASE_DESECHABLE=si` (sin ella, 22 y 1 saltada) | 23 / 23 |
 | Tienda | En `servidor-admin`: `npm run test:tienda`, solo con `PRUEBA_TIENDA_BASE_DESECHABLE=si` | 39 de 39 | 39 / 39 |
 | Login único y portal | En `servidor-admin`: `npm run test:portal`, con `PRUEBA_TIENDA_BASE_DESECHABLE=si` y `PRUEBA_SUPERUSUARIO` | 24 de 24 | 24 / 24 |
-| Web en Edge | Scripts de Playwright y axe (fuera del repositorio: solo sus resultados) | Interfaces, web completa, mejoras, compra, reparto, login y portal, Ethereal | Ver `06_Intermodular/evidencias/regresion-final/README.md` |
+| Web en Edge | Scripts de Playwright y axe (fuera del repositorio: solo sus resultados) | Interfaces, web completa, mejoras, compra, reparto, login y portal, Ethereal | Ver la regresión del 13/11 |
 
-Los scripts de `package.json` leen `servidor-admin/.env` (`--env-file`): tiene que existir. Los resultados guardados y las capturas están en la carpeta `evidencias/` de cada asignatura. **La regresión completa del 13/11, con la fecha, el entorno y el resultado de cada batería, está en `06_Intermodular/evidencias/regresion-final/`.** La misma regresión, repetida sobre el árbol ya reorganizado y simplificado, da lo mismo: `06_Intermodular/evidencias/regresion-limpieza/`.
+Los scripts de `package.json` leen `servidor-admin/.env` (`--env-file`): tiene que existir. Los resultados guardados y las capturas están en la carpeta `evidencias/` de cada asignatura. **La regresión completa del 13/11, con la fecha, el entorno y el resultado de cada batería, está en la regresión del 13/11.** La misma regresión, repetida sobre el árbol ya reorganizado y simplificado, da lo mismo: la regresión del 13/11.
 
 Hay además dos comprobaciones rápidas, desde la raíz:
 
@@ -229,4 +229,4 @@ La tienda online (cuentas de cliente, carrito, pago simulado y recibo por correo
 - PSP procesa un pedido por archivo y solo en CSV. Queda por decidir qué se hace con la versión anterior (`LanzadorValidacion` y el `AnalizadorTallas` de la raíz de `03_PSP/`).
 - El servidor guarda las sesiones en memoria, y el panel y el portal necesitan internet para los iconos y los gráficos. El resto de límites del panel, del portal y de la tienda están en `servidor-admin/README.md`.
 
-El formato del CSV de fabricación está descrito en `06_Intermodular/SO024/contrato-fabricacion.md`.
+El formato del CSV de fabricación está descrito en `03_PSP/memoria/DOCUMENTACION_PSP.md`.

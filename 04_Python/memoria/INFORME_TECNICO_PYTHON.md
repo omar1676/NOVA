@@ -2,13 +2,10 @@
 
 Ampliación de Python: ciencia de datos y dashboard. Es el informe técnico que pide la rúbrica: «Uno técnico (método, pruebas, métricas, sesgos)» (PY-194), con el contenido de la memoria técnica de Python (PY-215). El informe ejecutivo, con las cinco decisiones priorizadas, es `04_Python/informe_ejecutivo.md`.
 
-**Convenciones.** Las rutas son relativas a la raíz del repositorio; casi todo el código está en `04_Python/`. Los IDs PY-xx son los de la matriz de requisitos de la rúbrica de Python, y el estado de cada uno está en `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` §2.4. Marcas:
+**Convenciones.** Las rutas son relativas a la raíz del repositorio; casi todo el código está en `04_Python/`.md` §2.4. Marcas:
 
-- **[PENDIENTE (quién): …]**: falta hacerlo;
-- **[POR DECIDIR (los tres): …]**: una decisión del equipo;
-- **[DUDA PARA EL PROFESOR (Dn): …]**: una pregunta abierta.
 
-**Versión:** rama `integracion/candidata-2`, commit `1bcbb10`. Todas las cifras de pruebas son de la **regresión final del 13/11/2026**, sobre ese árbol exportado con `git archive` (`06_Intermodular/evidencias/regresion-final/`).
+**Versión:** commit `1bcbb10`. Todas las cifras de pruebas son de la **regresión final del 13/11/2026**, sobre ese árbol exportado con `git archive` (la regresión del 13/11).
 
 ---
 
@@ -24,7 +21,7 @@ La rúbrica obliga a no mezclar nunca datos reales y sintéticos, ni a presentar
 
 **Ninguna cifra de este informe es una venta real de NOVA.** Los datos de PRUEBA son 12 pedidos de un solo día y 6 clientes, de los que solo uno tiene una compra válida (`04_Python/kpis_y_graficos.md`).
 
-**Decisión de entrega (13/11):** los cinco CSV se entregan como PRUEBA (`entrada_acc/ORIGEN.txt`, «Tipo: PRUEBA»); no hay exportación REAL de la base del equipo. Si se hiciera, los pasos están en `04_Python/conciliacion_sql.md` (exportar con el 16 y regenerar a la vez P-A, P-B, P-C y N-1 a N-3). **[DUDA PARA EL PROFESOR (D11): ¿cuenta como REAL una base de prueba montada con los scripts?]**
+**Decisión de entrega (13/11):** los cinco CSV se entregan como PRUEBA (`entrada_acc/ORIGEN.txt`, «Tipo: PRUEBA»); no hay exportación REAL de la base del equipo. Si se hiciera, los pasos están en `04_Python/conciliacion_sql.md` (exportar con el 16 y regenerar a la vez P-A, P-B, P-C y N-1 a N-3).
 
 ---
 
@@ -136,13 +133,13 @@ Una función por regla en `calidad.py`. Cada incidencia guarda tabla, registro, 
 
 | Datos | Resultado | Fuente |
 |---|---|---|
-| PRUEBA | 100 % en las cinco tablas; 2 advertencias de la regla 12 (posible pedido repetido: `NOVA-0011` y `CUSTOM-40`) y ninguna fila rechazada | `calidad_datos.md`; repetido el 13/11 en `06_Intermodular/evidencias/regresion-final/04_python/` |
+| PRUEBA | 100 % en las cinco tablas; 2 advertencias de la regla 12 (posible pedido repetido: `NOVA-0011` y `CUSTOM-40`) y ninguna fila rechazada | `calidad_datos.md`; repetido el 13/11 en la regresión del 13/11 |
 | SINTÉTICO limpio | 0 incidencias y 100 % | `datos_sinteticos.md` |
 | SINTÉTICO con errores | Saltan las reglas 02 a 12 y el estado es «DATOS BLOQUEADOS» (código 1) | `datos_sinteticos.md`; código 1 también en la regresión del 13/11 |
 | Copia de `entrada_acc/` con un ID huérfano, una fecha inválida y un duplicado (caso D) | Tres alertas independientes (reglas 03, 04 y 02), sin publicar cifras y sin cambiar el original | `calidad_datos.md`, caso D |
-| Exportación con SO024 PROVISIONAL (13/11) | Las mismas 2 advertencias de siempre; SO024 no genera ninguna incidencia | `06_Intermodular/evidencias/regresion-final/06_so024_provisional/05_python_main.txt` |
+| Exportación con SO024 PROVISIONAL (13/11) | Las mismas 2 advertencias de siempre; SO024 no genera ninguna incidencia | la regresión del 13/11 |
 
-**[POR DECIDIR (los tres): si `NOVA-0011` (pendiente) y `CUSTOM-40` (confirmado) son el mismo encargo.]** Python no borra ninguno de los dos: solo avisa.
+ Python no borra ninguno de los dos: solo avisa.
 
 ---
 
@@ -157,7 +154,7 @@ Cada `merge` declara su cardinalidad con `validate=` (muchos a uno o uno a uno) 
 
 - `test_tablas_kpis_y_graficos`, con los sintéticos: 900 pedidos, no 1.777 líneas;
 - `test_pedido_custom_de_40_pares_linea_a_linea` (caso A): un Custom de 40 pares en 4 tallas, línea a línea, cuenta como **un** pedido en la matriz y en los KPIs, que suben 1 pedido, 40 pares y su importe;
-- la cadena SO024 PROVISIONAL del 13/11: Python saca **un solo pedido** de 9 líneas, 40 pares y 3.996,00 € (`06_Intermodular/evidencias/regresion-final/06_so024_provisional/06_pedidos_unicos_SO024.csv`).
+- la cadena SO024 PROVISIONAL del 13/11: Python saca **un solo pedido** de 9 líneas, 40 pares y 3.996,00 € (la regresión del 13/11).
 
 **Variables derivadas** (PY-70): 18, de calendario (`anio`, `mes`, `anio_mes`, `trimestre`, `dia_semana`), del pedido (`antiguedad_dias`, `num_lineas`, `num_modelos`, `num_tallas`, `pares`, `importe`, `precio_medio_par`, `pedido_multimodelo`, `modelo_pedido`) y de estado (`es_custom`, `es_cancelado`, `es_confirmado`, `participacion_linea`). Cada una con su cálculo, unidad, nivel y disponibilidad en `diccionario_datos.md`. No se fabrica nada: no hay variable de margen (no hay coste) ni de categoría (no existe).
 
@@ -235,8 +232,7 @@ Pruebas: `test_metadatos_de_cada_dataframe`, `test_metadatos_tambien_con_datos_b
 | K20 | Cobertura de stock | stock / (demanda de 28 días / 4) | **NO CALCULABLE**: 0 días de historial |
 
 - **Sin coste no hay margen:** no se calcula «beneficio» con el precio de venta (PY-82).
-- **Ninguna cifra se llama «ingresos cobrados».** **[POR DECIDIR (los tres): si los importes son netos o brutos (IVA). Hoy `config.py` dice `IVA = "pendiente de confirmar"` y así sale en cada gráfico (PY-81 y PY-175).]**
-- **[POR DECIDIR (los tres): el criterio de venta de la memoria y del dashboard. Acceso a Datos usa «no cancelado» (P-A) y Python calcula también «registrado» y «confirmados en adelante» (`importes_por_criterio.csv`).]**
+- **Ninguna cifra se llama «ingresos cobrados».**
 
 ---
 
@@ -253,7 +249,7 @@ Python compara sus cifras con consultas de `02_Acceso_Datos/sql/12_consultas_pan
 | **N-2** (caso N) | Matriz talla × modelo de los pedidos no cancelados | SQL llega al modelo y a la talla por el SKU; Python, por las columnas de `lineas_pedido.csv` | 11 celdas; NOVA Velocity: 20, 21, 20 y 21 pares en las tallas 40 a 43 |
 | **N-3** (caso N) | Clientes únicos con pedidos, con demanda y con venta | Todos frente a los válidos | 6, 6 y 1 |
 
-**Resultado: 21 de 21 cifras de P-A a P-C y 17 de 17 del caso N coinciden** (`main.py` lo dice: «caso N: 17 de 17 cifras coinciden con SQL»; regresión del 13/11 en `06_Intermodular/evidencias/regresion-final/04_python/03_salidas_93.txt`).
+**Resultado: 21 de 21 cifras de P-A a P-C y 17 de 17 del caso N coinciden** (`main.py` lo dice: «caso N: 17 de 17 cifras coinciden con SQL»; regresión del 13/11 en la regresión del 13/11).
 
 Se pueden comparar porque la regla 12 comprueba que la cabecera es la suma de sus líneas, y porque con esta exportación no se rechaza ninguna fila. Los euros se dan por iguales con medio céntimo de diferencia (`TOLERANCIA_EUROS = 0.005`); el resto tiene que ser exacto. Si algo no coincide, sale `NO COINCIDE`, el estado es `NO CUADRA CON SQL` y `main.py` termina con código 1. Los siete KPIs que también calcula Acceso a Datos (K01 a K07) coinciden con P-A y P-B (`coherencia_kpis_sql.csv`). El dashboard enseña las dos conciliaciones en la pestaña Calidad.
 
@@ -391,7 +387,7 @@ Regla IQR por grupo comparable (precio por modelo y tipo, cantidad por tipo), co
 
 ### 14.1 Vistas, filtros y descargas
 
-- **Seis pestañas:** Dirección, Productos, Clientes, Inventario, Calidad y Predicción. La sexta es un **laboratorio** con datos sintéticos rotulado como tal. **[DUDA PARA EL PROFESOR (D11): ¿se pueden enseñar predicciones sintéticas en esa pestaña, y son 5 o 6 pestañas?]**
+- **Seis pestañas:** Dirección, Productos, Clientes, Inventario, Calidad y Predicción. La sexta es un **laboratorio** con datos sintéticos rotulado como tal.
 - **Origen siempre visible:** etiqueta de color (naranja PRUEBA, violeta SINTÉTICO, verde REAL), aviso fijo y el origen en cada gráfico y cada descarga.
 - **Seis filtros combinables** (PY-168 y 169): periodo, modelo, talla, tipo de pedido, estado y **cliente** (por `id_cliente` y su tipo, sin nombres). Están en `filtros.py`, fuera de Streamlit, y «Restablecer filtros» los vacía todos. Periodo, tipo, estado y cliente son del pedido; modelo y talla, de la línea; un pedido cuenta una vez si tiene al menos una línea que cumple. En Dirección se dice el denominador («N de M pedidos…»). RFM, KMeans, predicción y las conclusiones son globales y van rotulados. Pruebas: `test_cliente_es_del_pedido` y `test_filtro_de_cliente_combinado_y_restablecer`.
 - **Visualizaciones:** los 10 gráficos de Matplotlib de `visualizaciones.py` (barras, Pareto, tallas, serie temporal, mapa de calor modelo × talla, comparativa Custom/estándar, ranking de clientes, histograma de stock, caja de importes por tipo y dispersión pares × importe) y el de real frente a predicción. Cada uno con «Ver los datos del gráfico».
@@ -452,7 +448,7 @@ Con los sintéticos el orden es **1, 4, 2, 3 y 5**; con PRUEBA, 1 a 5. Pruebas: 
 
 ### 15.1 Pruebas automáticas (PY-123 a PY-128)
 
-`.venv\Scripts\python.exe -m unittest discover -s tests -v`: **265 pruebas OK** el 13/11 en 711,5 s, sobre el árbol final (`06_Intermodular/evidencias/regresion-final/04_python/02_unittest.txt`). Cada prueba crea sus propios CSV en una carpeta temporal y nunca usa los reales.
+`.venv\Scripts\python.exe -m unittest discover -s tests -v`: **265 pruebas OK** el 13/11 en 711,5 s, sobre el árbol final (la regresión del 13/11). Cada prueba crea sus propios CSV en una carpeta temporal y nunca usa los reales.
 
 | Archivo | Pruebas | Qué cubre |
 |---|---|---|
@@ -472,11 +468,11 @@ Con los sintéticos el orden es **1, 4, 2, 3 y 5**; con PRUEBA, 1 a 5. Pruebas: 
 
 Los cinco grupos de la rúbrica están cubiertos: carga y esquema, integridad, cálculo, reproducibilidad y ML/temporalidad. Se usa `unittest` (viene con Python); la rúbrica recomienda pytest, que puede lanzar estas mismas pruebas.
 
-**Instalación desde cero (PY-219).** El 13/11 se siguió `06_Intermodular/manuales/MANUAL_INSTALACION.md` §6 sobre un clon nuevo: entorno virtual nuevo, `pip install -r requirements.txt`, `main.py` en los tres modos y Streamlit (`06_Intermodular/evidencias/regresion-final/08_manual_instalacion/`).
+**Instalación desde cero (PY-219).** El 13/11 se siguió `manuales/MANUAL_INSTALACION.md` §6 sobre un clon nuevo: entorno virtual nuevo, `pip install -r requirements.txt`, `main.py` en los tres modos y Streamlit (la regresión del 13/11).
 
 ### 15.2 Salidas reproducibles
 
-`main.py` en modo real, sintético y sintético con errores, más el generador, comparado con la referencia guardada antes de los cambios del 13/11 (`06_Intermodular/evidencias/regresion-final/04_python/03_salidas_93.txt`):
+`main.py` en modo real, sintético y sintético con errores, más el generador, comparado con la referencia guardada antes de los cambios del 13/11 (la regresión del 13/11):
 
 - **91 de 93 salidas idénticas** (sin contar la hora y las rutas de la ejecución).
 - **2 con columnas nuevas a propósito:** `informe_ejecutivo.csv` real y sintético (+`prioridad`, `urgencia`, `impacto_esperado` y `sustento`); sus 10 columnas de antes, idénticas.
@@ -490,9 +486,9 @@ Los cinco grupos de la rúbrica están cubiertos: carga y esquema, integridad, c
 
 | Caso | Qué pide | Estado (13/11) | Evidencia |
 |---|---|---|---|
-| A | Pedido Custom de 40 pares: línea a línea y total en los KPIs | Hecho | `test_pedido_custom_de_40_pares_linea_a_linea`; CUSTOM-40 en la exportación de PRUEBA; SO024 PROVISIONAL como un solo pedido de 9 líneas y 40 pares (`06_Intermodular/evidencias/regresion-final/06_so024_provisional/`) |
+| A | Pedido Custom de 40 pares: línea a línea y total en los KPIs | Hecho | `test_pedido_custom_de_40_pares_linea_a_linea`; CUSTOM-40 en la exportación de PRUEBA; SO024 PROVISIONAL como un solo pedido de 9 líneas y 40 pares (la regresión del 13/11) |
 | B | Cancelado y pendiente: qué es venta y qué es actividad | Hecho | `importes_por_criterio.csv`; `test_kpis.py` |
-| C | Alta desde Java → exportación → Python | PROVISIONAL | SO024 creado y confirmado con los métodos de «Nuevo pedido» de Java (no con la ventana) → 15 → PSP → 16 → Python, el 13/11 (`06_Intermodular/evidencias/regresion-final/06_so024_provisional/00_cadena.txt`). **Límite PY-199:** falta la evidencia de alta desde la ventana Java y de indicadores antes/después; no exige el identificador SO024 ni acredita S00005. |
+| C | Alta desde Java → exportación → Python | PROVISIONAL | SO024 creado y confirmado con los métodos de «Nuevo pedido» de Java (no con la ventana) → 15 → PSP → 16 → Python, el 13/11 (la regresión del 13/11). **Límite PY-199:** falta la evidencia de alta desde la ventana Java y de indicadores antes/después; no exige el identificador SO024 ni acredita S00005. |
 | D | Huérfano, fecha inválida y duplicado: tres alertas | Hecho | `calidad_datos.md`, caso D |
 | E | Al menos tres cifras de SQL conciliadas | Hecho | 21 de 21 (§9) |
 | F | RFM de un cliente con varios pedidos | Hecho | `test_segmentacion.py` |
@@ -553,8 +549,8 @@ Los cinco grupos de la rúbrica están cubiertos: carga y esquema, integridad, c
 | Exportación REAL de la base del equipo, con «Tipo: REAL», y regenerar P-A, P-B, P-C y N-1 a N-3 | PY-40, 130, 138 | **[PENDIENTE (los tres)]** |
 | R1–R3 y el caso L con la exportación real; capturas antes y después | PY-183 a 185, 208, 216 | **[PENDIENTE (los tres, con la exportación REAL)]** |
 | Alta desde la ventana Java y cambio de indicadores (caso C) | PY-199 | Falta evidencia completa; no hay prueba de S00005 en Python y no se exige crear SO024 |
-| Criterio de venta, IVA (neto o bruto), rango de tallas válidas y si NOVA-0011 y CUSTOM-40 son el mismo encargo | PY-74, 81, 175, 56 | **[POR DECIDIR (los tres)]** |
-| Pestañas (5 o 6), predicciones sintéticas en la sexta, número de CSV y si una base de prueba cuenta como REAL | PY-40, 161, 167, 192 | **[DUDA PARA EL PROFESOR (D11)]** |
+| Criterio de venta, IVA (neto o bruto), rango de tallas válidas y si NOVA-0011 y CUSTOM-40 son el mismo encargo | PY-74, 81, 175, 56 | |
+| Pestañas (5 o 6), predicciones sintéticas en la sexta, número de CSV y si una base de prueba cuenta como REAL | PY-40, 161, 167, 192 | |
 | Copiar al README de `04_Python` los pasos de datos nuevos y recuperación del §14.3 (hoy están en `dashboard.md`) | PY-214 | Omar (documentación) |
 
 Lo que se cerró el 13/11 y antes figuraba aquí: el filtro de cliente (PY-168), los metadatos de cada DataFrame (PY-159), el impacto y la prioridad del informe ejecutivo (PY-110 y 111), R6 (PY-188), que el refresco conserva filtros y pestaña (PY-136), los casos A, K y N (PY-197, 207 y 210) y la instalación desde cero siguiendo el manual (PY-219).

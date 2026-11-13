@@ -20,8 +20,8 @@ archivos en `salidas/`.
 | **Qué necesita** | JDK 17 |
 | **Cómo se inicia** | Desde esta carpeta: `javac -encoding UTF-8 -d clases *.java pruebas\*.java src\Psp\*.java` y `java -cp clases ProcesadorPedidosCustom datos\custom40_fabricacion_psp.csv` |
 | **Pruebas** | `java -cp clases PruebasPsp`: 27 de 27. `scripts/comprobar_psp.py` (raíz del repositorio) correcto en la regresión de cierre; corrección de Berme incorporada en `4f09742`, con su autoría |
-| **Rúbrica** | IM §4.3 y anexo: 19 requisitos, 17 cumplidos; falta relacionar la ficha con el pedido de Odoo. Detalle en `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` (§2.3) |
-| **Conexión con otras asignaturas** | Lee el CSV que genera `02_Acceso_Datos/sql/15_exportar_fabricacion.sql`, con el formato de `06_Intermodular/SO024/contrato-fabricacion.md`. La ficha se demuestra con CUSTOM-40; SO024 es un ensayo provisional y no hay ficha acreditada de S00005 |
+| **Rúbrica** | IM §4.3 y anexo: 19 requisitos, 17 cumplidos; falta relacionar la ficha con el pedido de Odoo.md` (§2.3) |
+| **Conexión con otras asignaturas** | Lee el CSV que genera `02_Acceso_Datos/sql/15_exportar_fabricacion.sql`, con el formato de `03_PSP/memoria/DOCUMENTACION_PSP.md`. La ficha se demuestra con CUSTOM-40; SO024 es un ensayo provisional y no hay ficha acreditada de S00005 |
 | **Evidencias y memoria** | `evidencias/` (ejecución de CUSTOM-40, errores controlados, hijos por separado, pruebas y SO024 provisional) y `memoria/DOCUMENTACION_PSP.md` |
 
 ## Las clases
@@ -38,7 +38,7 @@ archivos en `salidas/`.
 | `pruebas/HijoDePrueba` | hijo solo para pruebas | — | Tarda, falla o devuelve un código raro a propósito |
 
 `Psp.AnalizadorTallas` es la clase de Álvaro (`03_PSP/src/Psp/`, en su rama
-`feature/alvaro`). **Se usa sin cambiarla**: el padre la lanza por su nombre
+la parte de Álvaro). **Se usa sin cambiarla**: el padre la lanza por su nombre
 y el validador le prepara la entrada en el formato que ella ya leía.
 
 ## Cómo se comunican los procesos
@@ -214,7 +214,7 @@ Para ver un fallo controlado:
 
 Trabajan en una carpeta temporal nueva y no tocan el repositorio. La última
 ejecución está en `evidencias/04_resultado_pruebas.txt` y la de la
-regresión final del 13/11, en `../06_Intermodular/evidencias/regresion-final/02_java_psp/`.
+regresión final del 13/11, en la regresión del 13/11.
 
 **Sin `-Dfile.encoding=UTF-8`:** con esa opción, las pruebas comparan textos
 con tildes en otro juego de caracteres y fallan. Se lanzan tal cual, como arriba.
@@ -264,7 +264,7 @@ El script deja `fabricacion_psp.csv` en la carpeta desde la que se lanza.
   - en el CSV y en cada respuesta `OK;CUSTOM-40`;
   - en el nombre de la ficha y dentro de ella;
   - en el registro, junto con el nombre del archivo de origen.
-- **Límite de Odoo.** S00005 del Club Atlético NOVA es el caso documentado en el PDF de Berme. No hay CSV ni ficha acreditados de S00005 en PSP. CUSTOM-40 y el ensayo SO024 PROVISIONAL conservan sus resultados, pero no prueban esa venta. SO024 es el ejemplo del enunciado; no hay que crear un pedido oficial con ese nombre. La relación con una exportación real de Odoo sigue sin demostrarse. Ver `../06_Intermodular/CASO_COMUN_S00005.md`.
+- **Límite de Odoo.** S00005 del Club Atlético NOVA es el caso documentado en el PDF de Berme. No hay CSV ni ficha acreditados de S00005 en PSP. CUSTOM-40 y el ensayo SO024 PROVISIONAL conservan sus resultados, pero no prueban esa venta. SO024 es el ejemplo del enunciado; no hay que crear un pedido oficial con ese nombre. La relación con una exportación real de Odoo sigue sin demostrarse. Ver `..md`.
 
 ## La versión anterior: `LanzadorValidacion` y `AnalizadorTallas`
 
@@ -319,7 +319,7 @@ directamente.
   Omar en el commit `9dc66ac`. En su rama, Berme subió
   `scripts/comprobar_psp.py` (commit `f1983d2`), que compila y comprueba
   `ValidadorPedidoCustom`, `LanzadorValidacion` y las pruebas del paquete
-  `Psp`, e `06_Intermodular/SO024/contrato-fabricacion.md` (commit `0f7d27d`), que
+ `Psp`, e `03_PSP/memoria/DOCUMENTACION_PSP.md` (commit `0f7d27d`), que
   describe los dos formatos de entrada. Hay que decidir entre los tres quién
   revisa y defiende cada clase.
 

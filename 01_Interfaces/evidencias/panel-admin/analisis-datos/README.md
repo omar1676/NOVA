@@ -3,7 +3,7 @@
 Esta página enseña el dashboard de Python (`04_Python/app_dashboard.py`, Streamlit) dentro del panel de administración de Álvaro.
 
 **Cómo se probó:**
-- **Árbol:** la rama de la limpieza final, con la página nueva.
+- **Árbol:** la versión final, con la página nueva.
 - **Entorno:** una base desechable montada desde cero con los scripts 01–23, el servidor Node en el puerto 3301 y Streamlit en el 8501.
 - **Navegador:** Microsoft Edge con la ventana visible (Playwright) y axe.
 - **Datos del dashboard:** la exportación de PRUEBA de `04_Python/entrada_acc/`.

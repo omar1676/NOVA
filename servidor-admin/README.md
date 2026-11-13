@@ -301,7 +301,7 @@ La web cliente (`01_Interfaces/cliente/`) se sirve en `/tienda/`. Su JavaScript 
 
 ## Cambios en los archivos de Berme (los tiene que revisar él)
 
-Sus commits (`b8e5fe1` y `a52341e`, del 11/11) se han traído con `git cherry-pick -x`, así que siguen a su nombre. Después:
+Sus commits (`b8e5fe1` y `a52341e`, del 11/11) siguen a su nombre. Después:
 
 - **`servidor/` pasa a `servidor-admin/`**, sin cambios en ese commit: sus rutas necesitan Express y un pool de PostgreSQL, y el único servidor es este.
 - **`rutas-trabajador.js`:** las mismas rutas, consultas, mensajes y reglas. Cambia cómo llegan a la base: en lugar de `pool.query` con permisos de quien se conectara, lee con `portal_trabajador` y sus dos `UPDATE` pasan a las funciones del script 23 (que comprueban el usuario y dejan la auditoría). Además, los cambios solo aceptan JSON (415) y los ids, como mucho 9 cifras (un número que no cabía en un `integer` daba un error 500 en PostgreSQL).

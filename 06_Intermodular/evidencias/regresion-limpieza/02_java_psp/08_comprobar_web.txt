@@ -1,2 +1,0 @@
-OK: 20 páginas HTML y 153 recursos locales distintos.
-No se han comprobado servicios externos, API ni comportamiento visual.

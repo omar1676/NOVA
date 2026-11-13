@@ -13,7 +13,7 @@ la del equipo).
 
 - **Los nuestros:** las clases de `03_PSP/` tal como están en esta rama.
 - **El analizador de Álvaro:** `Psp.AnalizadorTallas`, compilado **sin cambios**
-  desde su rama, `origin/feature/AlvaroBaz` (sus archivos de PSP son los de su
+ desde su rama, la parte de Álvaro (sus archivos de PSP son los de su
   commit `6b7f4c1`). Se sacó con `git archive` a una carpeta temporal, porque
   ese día su rama todavía no estaba en la nuestra (se fusionó el 12/11, en
   `7715f83`, con esos mismos archivos).

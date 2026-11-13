@@ -1,6 +1,6 @@
 # NOVA Sneakers · Procedimiento de la prueba de usabilidad
 
-Desarrollo de Interfaces, RA4 CE h)-i): «Se comprueba la claridad de los mensajes y se realizan pruebas de usabilidad y accesibilidad» (IM p. 8). La parte automática (accesibilidad, responsive y funcionamiento) está en `ESTRATEGIA_PRUEBAS_INTERFACES.md`, y su última pasada, la del 13/11 sobre la rama final, está en verde (`06_Intermodular/evidencias/regresion-final/05_web/`). Esta es la parte **con personas**, y ninguna prueba automática la sustituye.
+Desarrollo de Interfaces, RA4 CE h)-i): «Se comprueba la claridad de los mensajes y se realizan pruebas de usabilidad y accesibilidad» (IM p. 8). La parte automática (accesibilidad, responsive y funcionamiento) está en `ESTRATEGIA_PRUEBAS_INTERFACES.md`, y su última pasada, la del 13/11 sobre la rama final, está en verde (la regresión del 13/11). Esta es la parte **con personas**, y ninguna prueba automática la sustituye.
 
 > **Estado: [PENDIENTE (los tres): hacer la prueba con 3 a 5 personas].** La prueba no se ha hecho todavía (13/11/2026). Este documento es el procedimiento y las plantillas **vacías**. No hay ningún resultado: los rellena el equipo el día de la prueba, con lo que pase de verdad.
 
@@ -86,7 +86,7 @@ Después de cada tarea, preguntar: **«Del 1 al 7, ¿cómo de fácil o difícil 
 
 ## 6. Las tareas
 
-Se leen en este orden. Cada una empieza en la página de inicio, salvo que se diga otra cosa. Las respuestas esperadas son las de la web de la rama final (`integracion/candidata-2`, 13/11/2026; `js/modelos.js`, `datosColeccion`); **hay que comprobarlas el día de la prueba**, porque los precios son provisionales.
+Se leen en este orden. Cada una empieza en la página de inicio, salvo que se diga otra cosa. Las respuestas esperadas son las de la web de la rama final (`versión final`, 13/11/2026; `js/modelos.js`, `datosColeccion`); **hay que comprobarlas el día de la prueba**, porque los precios son provisionales.
 
 | Tarea | Enunciado que se lee | Dispositivo | Éxito si… | Tiempo máximo |
 |---|---|---|---|---|
@@ -244,7 +244,7 @@ Las hojas firmadas **no se suben al repositorio** (tienen la firma). Se guardan 
 
 ## 12. Informe breve para la memoria (plantilla)
 
-Cuando esté hecha, se resume en el apartado 3.4 de `06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf` con esta estructura (una página como mucho):
+Cuando esté hecha, se resume en el apartado 3.4 de la memoria del proyecto (`Memoria_NOVA_Sneakers.pdf`) con esta estructura (una página como mucho):
 
 1. **Cuándo y con quién:** fecha, número de participantes y perfiles (sin nombres), dispositivos y versión de la web.
 2. **Resultados por tarea:** la tabla resumen.

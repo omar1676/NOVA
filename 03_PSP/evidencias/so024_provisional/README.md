@@ -3,10 +3,10 @@
 > **PROVISIONAL. No es el SO024 oficial.** El reparto por talla, el precio, el
 > color, el stock y la personalización son datos inventados para probar la cadena.
 > Faltan los 7 datos que tienen que acordar los tres en
-> `06_Intermodular/SO024/caso-comun-SO024.md`. Cuando estén, hay que repetir esta prueba y
+md`. Cuando estén, hay que repetir esta prueba y
 > sustituir estos archivos.
 
-Prueba hecha el 13 de noviembre de 2026 sobre la rama `integracion/candidata-2`,
+Prueba hecha el 13 de noviembre de 2026 sobre la,
 en una base desechable (clúster de pruebas, no la base del equipo).
 
 ## Datos provisionales

@@ -2,7 +2,7 @@
 
 El botón «Marcar en reparto» del panel (`22_reparto_panel.sql`, función `marcar_pedido_en_reparto` y rol `panel_reparto`), el estado «En reparto» en «Mis pedidos» de la tienda y el recibo que se manda al pagar. Es una **ampliación**: ninguna rúbrica lo pide.
 
-**Prueba:** Edge sin ventana contra el servidor de pruebas, con un **Resend simulado** (un servidor local que guarda los correos; la clave es inventada), sobre una base desechable 01–23. **29 PASS, 0 FAIL** (`../../../06_Intermodular/evidencias/regresion-final/05_web/05_recorrido_reparto.txt`). Además, el SQL del 22: 37/37 (`../../../06_Intermodular/evidencias/regresion-final/01_sql/07_sql_reparto_con23.txt`) y las pruebas de `npm test` y `test:tienda` (`../../../06_Intermodular/evidencias/regresion-final/03_node/`).
+**Prueba:** Edge sin ventana contra el servidor de pruebas, con un **Resend simulado** (un servidor local que guarda los correos; la clave es inventada), sobre una base desechable 01–23. **29 PASS, 0 FAIL** (la regresión del 13/11). Además, el SQL del 22: 37/37 (la regresión del 13/11) y las pruebas de `npm test` y `test:tienda` (la regresión del 13/11).
 
 | Archivo | Qué enseña |
 |---|---|

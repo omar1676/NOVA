@@ -2,10 +2,10 @@
 
 Cómo instalar, montar la base de datos, arrancar cada parte y pasar las pruebas, para que otro equipo pueda repetirlo (IM-COM-05).
 
-- **Probado** en Windows 11 el **13/11/2026**, siguiendo este mismo manual sobre una copia nueva del repositorio y una base de datos nueva y vacía. El resultado está en `06_Intermodular/evidencias/regresion-final/08_manual_instalacion/`.
+- **Probado** en Windows 11 el **13/11/2026**, siguiendo este mismo manual sobre una copia nueva del repositorio y una base de datos nueva y vacía. El resultado está en la regresión del 13/11.
 - **Cierre final:** código publicado en `main` mediante la PR #2 (`4a25d5a`); esta revisión documental no cambia ese código. El código de `4f09742` se instaló en un clon nuevo, con venv nuevo, npm ci y clúster PostgreSQL aislado. Resultados nuevos en `../evidencias/cierre-entrega-20261113/`. Las evidencias iniciales enlazadas arriba se conservan como históricas.
 - **Convenciones.** Los comandos son de **PowerShell** y se lanzan desde la **raíz del repositorio**, salvo que se diga otra cosa.
-- **Contraseñas.** **Nunca se escribe ninguna en un archivo del repositorio.** Los scripts las piden por teclado, y los archivos de configuración que las llevan (`02_Acceso_Datos/java/conexion.properties` y `servidor-admin/.env`) están en el `.gitignore`. Cada equipo elige las suyas al instalar. **[DUDA PARA EL PROFESOR (D12): por qué medio se le dan las contraseñas de demostración el día de la defensa.]**
+- **Contraseñas.** **Nunca se escribe ninguna en un archivo del repositorio.** Los scripts las piden por teclado, y los archivos de configuración que las llevan (`02_Acceso_Datos/java/conexion.properties` y `servidor-admin/.env`) están en el `.gitignore`. Cada equipo elige las suyas al instalar.
 
 ---
 
@@ -63,7 +63,7 @@ El repositorio es privado: el profesor necesita acceso para clonarlo. También p
 psql -U postgres -c "CREATE DATABASE nova_sneakers;"
 ```
 
-**El número del archivo no es el orden de ejecución.** Este es el orden probado el 13/11 desde cero, con salida 0 en todos (`06_Intermodular/evidencias/regresion-final/01_sql/01_montaje_01_23.txt`):
+**El número del archivo no es el orden de ejecución.** Este es el orden probado el 13/11 desde cero, con salida 0 en todos (la regresión del 13/11):
 
 | Paso | Script | Qué hace | ¿Admin? | ¿Pide contraseña? | Resultado esperado |
 |---|---|---|---|---|---|
@@ -89,7 +89,7 @@ psql -U postgres -c "CREATE DATABASE nova_sneakers;"
 | 20 | `21_catalogo_web.sql` | Los 100 modelos de la web (ampliación) | No | No | 1 PASS |
 | 21 | `22_reparto_panel.sql` | Botón «Marcar en reparto» del panel (ampliación) | **Sí** | No | Salida 0 (se puede repetir) |
 | 22 | `23_portal_trabajador.sql` | Portal del trabajador (ampliación): rol `portal_trabajador` y sus 2 funciones | **Sí** | No | Salida 0 (se puede repetir) |
-| 23 | `18_datos_so024.sql` | Ensayo opcional del ejemplo SO024; no prepara S00005 | No | No, pero necesita `-v precio=… -v color=… -v stock=…` | Ver `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md`. **Sin los `-v` no inserta nada** |
+| 23 | `18_datos_so024.sql` | Ensayo opcional del ejemplo SO024; no prepara S00005 | No | No, pero necesita `-v precio=… -v color=… -v stock=…` |md`. **Sin los `-v` no inserta nada** |
 
 Resumen: **la instalación (01–08, con el 17 y el 19), la batería (06 y 09–12), las contraseñas y el caso Custom (13 y 14), las exportaciones (15 y 16), las ampliaciones (20, 21, 22 y 23) y, opcionalmente, el ensayo histórico SO024 (18), que no se necesita para presentar S00005 documentalmente**. Las pruebas 09–16 suman **123 PASS, 0 FAIL y 1 ERROR previsto**.
 
@@ -150,7 +150,7 @@ psql -U postgres -d nova_sneakers -v ON_ERROR_STOP=1 -f "$SQL\22_reparto_panel.s
 psql -U postgres -d nova_sneakers -v ON_ERROR_STOP=1 -f "$SQL\23_portal_trabajador.sql"
 ```
 
-**Ensayo opcional SO024, fuera de la demo final:** solo para reproducir pruebas con parámetros explícitos; no crea S00005 (ver `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md`):
+md`):
 
 ```powershell
 psql -U postgres -d nova_sneakers -v ON_ERROR_STOP=1 -v precio=<precio> -v color=<color> -v stock=<stock> -f "$SQL\18_datos_so024.sql"
@@ -274,16 +274,16 @@ y abrir `http://127.0.0.1:8000/01_Interfaces/cliente/`. También funciona abrien
 
 | Batería | Cómo se lanza | Resultado esperado | Último resultado (13/11) |
 |---|---|---|---|
-| SQL | Scripts 09 a 16 en el orden del §3 | **123 PASS, 0 FAIL y 1 ERROR previsto** (S4b) | 123 / 0 / 1 (`06_Intermodular/evidencias/regresion-final/01_sql/`) |
-| Java | `02_Acceso_Datos\java\pruebas.bat` (pide las tres contraseñas de demostración) | `RESULTADO: 47 PASS, 0 FAIL` | 47 / 0 (`06_Intermodular/evidencias/regresion-final/02_java_psp/`) |
+| SQL | Scripts 09 a 16 en el orden del §3 | **123 PASS, 0 FAIL y 1 ERROR previsto** (S4b) | 123 / 0 / 1 (la regresión del 13/11) |
+| Java | `02_Acceso_Datos\java\pruebas.bat` (pide las tres contraseñas de demostración) | `RESULTADO: 47 PASS, 0 FAIL` | 47 / 0 (la regresión del 13/11) |
 | PSP | En `03_PSP`, tras compilar: `java -cp clases PruebasPsp` | `Pruebas superadas: 27 de 27` | 27 / 27 (ídem) |
-| Python | En `04_Python`: `.venv\Scripts\python.exe -m unittest discover -s tests -v` (el tiempo depende del equipo; 265 pruebas, unos 157 s en este cierre) | `Ran 265 tests` y `OK` | 265 OK (`06_Intermodular/evidencias/regresion-final/04_python/`) |
-| Panel | En `servidor-admin`, con `$env:PRUEBA_ADMIN_USUARIO`, `PRUEBA_ADMIN_CLAVE`, `PRUEBA_OTRO_USUARIO` y `PRUEBA_OTRO_CLAVE` (y las `PRUEBA_COMERCIAL_*`): `npm test` | `tests 23`, `pass 23` con `PRUEBA_TIENDA_BASE_DESECHABLE=si` (sin ella, una se salta) | 23 / 23 y 22 + 1 saltada (`06_Intermodular/evidencias/regresion-final/03_node/`) |
+| Python | En `04_Python`: `.venv\Scripts\python.exe -m unittest discover -s tests -v` (el tiempo depende del equipo; 265 pruebas, unos 157 s en este cierre) | `Ran 265 tests` y `OK` | 265 OK (la regresión del 13/11) |
+| Panel | En `servidor-admin`, con `$env:PRUEBA_ADMIN_USUARIO`, `PRUEBA_ADMIN_CLAVE`, `PRUEBA_OTRO_USUARIO` y `PRUEBA_OTRO_CLAVE` (y las `PRUEBA_COMERCIAL_*`): `npm test` | `tests 23`, `pass 23` con `PRUEBA_TIENDA_BASE_DESECHABLE=si` (sin ella, una se salta) | 23 / 23 y 22 + 1 saltada (la regresión del 13/11) |
 | Tienda | `$env:PRUEBA_TIENDA_BASE_DESECHABLE = "si"; npm run test:tienda` | `tests 39`, `pass 39` | 39 / 39 (ídem) |
 | Login único y portal | `$env:PRUEBA_TIENDA_BASE_DESECHABLE = "si"; $env:PRUEBA_SUPERUSUARIO = "postgres"; npm run test:portal` | `tests 24`, `pass 24` | 24 / 24 (ídem) |
-| Web (rápida) | `py scripts\comprobar_web.py` | Que existen los recursos que enlaza la web | Correcta (`06_Intermodular/evidencias/regresion-final/02_java_psp/08_comprobar_web.txt`) |
+| Web (rápida) | `py scripts\comprobar_web.py` | Que existen los recursos que enlaza la web | Correcta (la regresión del 13/11) |
 | PSP (rápida) | `py scripts\comprobar_psp.py` (java y javac en PATH) | CSV multilínea, bloque normalizado, resumen y rechazos correctos | Correcta en `cierre-entrega-20261113/psp_comprobador.txt`; corrección de Berme `4f09742` |
-| Web en navegador | Scripts de Playwright, fuera del repositorio (`01_Interfaces/memoria/ESTRATEGIA_PRUEBAS_INTERFACES.md` §7) | 81/81, 136/136, 114/114, compra 139/139, reparto 29/29, portal 82/82 y Ethereal 16/16 | Ver `06_Intermodular/evidencias/regresion-final/README.md` |
+| Web en navegador | Scripts de Playwright, fuera del repositorio (`01_Interfaces/memoria/ESTRATEGIA_PRUEBAS_INTERFACES.md` §7) | 81/81, 136/136, 114/114, compra 139/139, reparto 29/29, portal 82/82 y Ethereal 16/16 | Ver la regresión del 13/11 |
 
 `npm test`, `test:tienda` y `test:portal` leen el `.env` (`node --env-file=.env`): tiene que existir, aunque las variables `PRUEBA_*` se pongan en la consola.
 
@@ -303,7 +303,7 @@ y abrir `http://127.0.0.1:8000/01_Interfaces/cliente/`. También funciona abrien
 | Java: «password authentication failed for user java_nova» | `conexion.properties` mal o no se ha lanzado el 17 | Revisar la contraseña o volver a lanzar el 17 |
 | Java: «Acceso denegado» en una operación | El rol no tiene ese permiso | Es correcto (matriz de permisos de `02_Acceso_Datos/memoria/MEMORIA_ACCESO_DATOS.md` §9.2) |
 | El 15 se para y no genera el CSV | El pedido no existe, no está confirmado o no suma 40 pares | Lanzar el 14 (para `CUSTOM-40`) o confirmar el pedido en Java; el CSV anterior queda intacto |
-| El 18 dice «Falta el precio…» y no inserta nada | Faltan los `-v` | En una reproducción voluntaria del ensayo, pasar parámetros explícitos; para la entrega no hace falta ejecutar el 18 (`06_Intermodular/CASO_COMUN_S00005.md`) |
+| El 18 dice «Falta el precio…» y no inserta nada | Faltan los `-v` |md`) |
 | PSP: «No se encuentra la clase Psp.AnalizadorTallas» (código 3) | No se compiló `src\Psp` | Compilar con `src\Psp\*.java`, como en el §5 |
 | `PruebasPsp` falla con caracteres raros | Se lanzó con `-Dfile.encoding=UTF-8` | Lanzarla sin esa opción |
 | `python` abre la Microsoft Store | Es el alias de Windows | Usar `py` o `.venv\Scripts\python.exe` |

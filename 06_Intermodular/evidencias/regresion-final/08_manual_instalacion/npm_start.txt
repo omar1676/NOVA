@@ -1,9 +1,0 @@
-
-> nova-servidor-admin@1.0.0 start
-> node --env-file=.env servidor.js
-
-Panel de NOVA en http://127.0.0.1:3301
-Tienda web en http://127.0.0.1:3301/tienda/
-Recibos por correo sin configurar (faltan RESEND_API_KEY y RESEND_FROM en .env): no se envian
-Portal del trabajador en http://127.0.0.1:3301/trabajador/ (script 23)
-Conector de Odoo desactivado (faltan ODOO_URL, ODOO_DB y ODOO_API_KEY en .env): no se envía nada a Odoo

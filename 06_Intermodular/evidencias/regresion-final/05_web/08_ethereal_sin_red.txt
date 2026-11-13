@@ -1,6 +1,0 @@
-PASS pago aceptado: 200 y confirmado -> 200 confirmado
-PASS la respuesta no espera al correo -> 31 ms
-PASS el error queda en la consola del servidor -> Recibo de WEB-6FC1EA6632E2432AAE59 sin enviar: Ethereal ha fallado: (248 ms)
-PASS el pedido sigue confirmado y pagado, sin reciboPrueba -> {"estado":"confirmado","estadoPago":"pagado"}
-PASS el stock baja una sola vez -> 20 -> 19
-RESULTADO: PASS
