@@ -150,7 +150,7 @@ psql -U postgres -d nova_sneakers -v ON_ERROR_STOP=1 -f "$SQL\22_reparto_panel.s
 psql -U postgres -d nova_sneakers -v ON_ERROR_STOP=1 -f "$SQL\23_portal_trabajador.sql"
 ```
 
-md`):
+**Ensayo opcional del ejemplo SO024** (solo para pruebas; necesita los tres parámetros y sin ellos no inserta nada):
 
 ```powershell
 psql -U postgres -d nova_sneakers -v ON_ERROR_STOP=1 -v precio=<precio> -v color=<color> -v stock=<stock> -f "$SQL\18_datos_so024.sql"

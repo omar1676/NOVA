@@ -2,8 +2,7 @@
 
 > **PROVISIONAL. No es el SO024 oficial.** El reparto por talla, el precio, el
 > color, el stock y la personalización son datos inventados para probar la cadena.
-> Faltan los 7 datos que tienen que acordar los tres en
-md`. Cuando estén, hay que repetir esta prueba y
+> Faltan los 7 datos que tienen que acordar los tres. Cuando estén, hay que repetir esta prueba y
 > sustituir estos archivos.
 
 Prueba hecha el 13 de noviembre de 2026 sobre la,

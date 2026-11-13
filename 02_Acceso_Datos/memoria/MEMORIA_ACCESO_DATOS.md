@@ -20,7 +20,7 @@ Relación con el resto del proyecto (AD-01, AD-02 y AD-22):
 - **El ensayo SO024 PROVISIONAL**, con la misma referencia en PostgreSQL, en la ficha de PSP y en Python. Es una prueba histórica del ejemplo; no acredita el caso S00005 documentado en Odoo. El script 18 carga el cliente Club Halcones y el modelo Runner X; el pedido se crea desde Java.md`).
 - **PostgreSQL alimenta a los otros módulos:** el script 15 exporta la orden de fabricación para PSP y el 16, los cinco CSV de Python.
 - **Las ampliaciones web usan la misma base**, cada una con su propio rol mínimo: el panel de administración (19 y 22), la tienda (20 y 21) y el portal del trabajador (23). Comparten las cuentas de la tabla `usuarios` y la misma auditoría (§9.8).
-- **Odoo:** hay una correspondencia documental parcial, no una integración (la memoria del proyecto (`Memoria_NOVA_Sneakers.pdf`) §6.1): el mismo cliente y 40 pares en S00005 y en `CUSTOM-40`, aunque con precios distintos (89 € frente a 119,90 €), y la referencia `NOVA-0011` con el mismo importe, 4.796,00 €, en S00001 (solo en el texto del PDF de Berme, p. 13; hay que comprobarlo en su Odoo). Los SKU no coinciden: en Odoo, `NOVA-4-38` … `NOVA-4-46` son variantes de Runner X; aquí, `NOVA-4-40` … `NOVA-4-44` son de NOVA Velocity Rojo. **Límite declarado:** no hay exportación de Odoo ni conciliación probada.md`.
+- **Odoo:** hay una correspondencia documental parcial, no una integración (ver `Memoria_NOVA_Sneakers.pdf`): el mismo cliente y 40 pares en S00005 y en `CUSTOM-40`, aunque con precios distintos (89 € frente a 119,90 €), y la referencia `NOVA-0011` con el mismo importe, 4.796,00 €, en S00001 (solo en el texto del PDF de Berme, p. 13; hay que comprobarlo en su Odoo). Los SKU no coinciden: en Odoo, `NOVA-4-38` … `NOVA-4-46` son variantes de Runner X; aquí, `NOVA-4-40` … `NOVA-4-44` son de NOVA Velocity Rojo. **Límite declarado:** no hay exportación de Odoo ni conciliación probada.md`.
 
 ---
 
@@ -177,7 +177,7 @@ Están en `02_Acceso_Datos/sql/`: son 23. **El número del archivo no es el orde
 | Cuentas | `13_activar_usuarios.sql` (contraseñas de demostración), `17_usuario_java.sql` (usuario `java_nova`) y `19_usuario_web.sql` (usuario `web_nova` del servidor) | Piden las contraseñas por teclado; no se guarda ninguna en el repositorio |
 | Caso Custom y exportaciones | `14_caso_custom_persistente.sql` (guarda `CUSTOM-40`), `15_exportar_fabricacion.sql` (CSV para PSP), `16_exportar_csv_dashboard.sql` (5 CSV para Python) | — |
 | Caso común | `18_datos_so024.sql` | Club Halcones y Runner X (tallas 38–46); el pedido se crea desde Java. Sin `-v precio=… -v color=… -v stock=…` no inserta nada |
-| Ampliaciones | `19` (panel: `panel_lectura`), `20` (tienda: `cuentas_cliente`, 5 funciones, `tienda_web` y `tienda_nova`), `21` (los 100 modelos de la web), `22` (reparto: `marcar_pedido_en_reparto` y `panel_reparto`) y `23` (portal del trabajador: `avanzar_pedido_trabajador`, `ajustar_existencias_trabajador` y `portal_trabajador`) | Ver la memoria del proyecto (`Memoria_NOVA_Sneakers.pdf`), anexo A, y §9.8 |
+| Ampliaciones | `19` (panel: `panel_lectura`), `20` (tienda: `cuentas_cliente`, 5 funciones, `tienda_web` y `tienda_nova`), `21` (los 100 modelos de la web), `22` (reparto: `marcar_pedido_en_reparto` y `panel_reparto`) y `23` (portal del trabajador: `avanzar_pedido_trabajador`, `ajustar_existencias_trabajador` y `portal_trabajador`) | Ver la memoria del proyecto (`Memoria_NOVA_Sneakers.pdf`) |
 
 La base **se reconstruye desde cero** con estos archivos sobre una base vacía (AD-132), incluidos los roles, los usuarios ficticios y los permisos (AD-133). Último montaje completo: 13/11, 00:58, los 23 scripts con salida 0 y el 23 lanzado dos veces, porque se puede repetir (la regresión del 13/11). Se repitió igual en una segunda base y, siguiendo el manual al pie de la letra, sobre un clon nuevo del repositorio (la regresión del 13/11).
 
@@ -661,7 +661,7 @@ Este apartado lo completan los tres. Aquí solo está lo que se puede comprobar 
 
 Notas:
 
-- **El autor de un commit no prueba quién hizo el trabajo** (ver la memoria del proyecto (`Memoria_NOVA_Sneakers.pdf`) §9.1): las fusiones las firmó `omar1676`.
+- **El autor de un commit no prueba quién hizo el trabajo** (ver `Memoria_NOVA_Sneakers.pdf`): las fusiones las firmó `omar1676`.
 - Las evidencias de AD estaban antes en la carpeta antigua `pruebas/`, que se cuenta aparte en la memoria común (§9.1).
 
 | Persona | Qué hizo en Acceso a Datos | Qué revisó o probó | Qué sabe explicar en la defensa |
