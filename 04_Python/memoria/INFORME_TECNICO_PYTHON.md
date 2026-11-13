@@ -492,7 +492,7 @@ Los cinco grupos de la rúbrica están cubiertos: carga y esquema, integridad, c
 |---|---|---|---|
 | A | Pedido Custom de 40 pares: línea a línea y total en los KPIs | Hecho | `test_pedido_custom_de_40_pares_linea_a_linea`; CUSTOM-40 en la exportación de PRUEBA; SO024 PROVISIONAL como un solo pedido de 9 líneas y 40 pares (`06_Intermodular/evidencias/regresion-final/06_so024_provisional/`) |
 | B | Cancelado y pendiente: qué es venta y qué es actividad | Hecho | `importes_por_criterio.csv`; `test_kpis.py` |
-| C | Alta desde Java → exportación → Python | PROVISIONAL | SO024 creado y confirmado con los métodos de «Nuevo pedido» de Java (no con la ventana) → 15 → PSP → 16 → Python, el 13/11 (`06_Intermodular/evidencias/regresion-final/06_so024_provisional/00_cadena.txt`). **[PENDIENTE (los tres): el SO024 oficial, con los 7 datos acordados, desde la ventana Java y en la base del equipo, con los indicadores antes y después (PY-199).]** |
+| C | Alta desde Java → exportación → Python | PROVISIONAL | SO024 creado y confirmado con los métodos de «Nuevo pedido» de Java (no con la ventana) → 15 → PSP → 16 → Python, el 13/11 (`06_Intermodular/evidencias/regresion-final/06_so024_provisional/00_cadena.txt`). **Límite PY-199:** falta la evidencia de alta desde la ventana Java y de indicadores antes/después; no exige el identificador SO024 ni acredita S00005. |
 | D | Huérfano, fecha inválida y duplicado: tres alertas | Hecho | `calidad_datos.md`, caso D |
 | E | Al menos tres cifras de SQL conciliadas | Hecho | 21 de 21 (§9) |
 | F | RFM de un cliente con varios pedidos | Hecho | `test_segmentacion.py` |
@@ -552,7 +552,7 @@ Los cinco grupos de la rúbrica están cubiertos: carga y esquema, integridad, c
 |---|---|---|
 | Exportación REAL de la base del equipo, con «Tipo: REAL», y regenerar P-A, P-B, P-C y N-1 a N-3 | PY-40, 130, 138 | **[PENDIENTE (los tres)]** |
 | R1–R3 y el caso L con la exportación real; capturas antes y después | PY-183 a 185, 208, 216 | **[PENDIENTE (los tres, con la exportación REAL)]** |
-| SO024 oficial desde la ventana Java (caso C con los datos acordados) | PY-199 | **[PENDIENTE (los tres): los 7 datos de SO024]** |
+| Alta desde la ventana Java y cambio de indicadores (caso C) | PY-199 | Falta evidencia completa; no hay prueba de S00005 en Python y no se exige crear SO024 |
 | Criterio de venta, IVA (neto o bruto), rango de tallas válidas y si NOVA-0011 y CUSTOM-40 son el mismo encargo | PY-74, 81, 175, 56 | **[POR DECIDIR (los tres)]** |
 | Pestañas (5 o 6), predicciones sintéticas en la sexta, número de CSV y si una base de prueba cuenta como REAL | PY-40, 161, 167, 192 | **[DUDA PARA EL PROFESOR (D11)]** |
 | Copiar al README de `04_Python` los pasos de datos nuevos y recuperación del §14.3 (hoy están en `dashboard.md`) | PY-214 | Omar (documentación) |

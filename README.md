@@ -1,19 +1,19 @@
 # NOVA Sneakers
 
-**Entrega de cierre (13/11/2026):** [estado final y limitaciones](06_Intermodular/ESTADO_ENTREGA_FINAL.md). Guion ejecutable con CUSTOM-40, datos de PRUEBA y Odoo documental; SO024 no se presenta como definitivo. Regresión nueva desde clon limpio en `06_Intermodular/evidencias/cierre-entrega-20261113/`.
+**Entrega de cierre (13/11/2026):** [estado final y limitaciones](06_Intermodular/ESTADO_ENTREGA_FINAL.md). Caso de Odoo: S00005 del Club Atlético NOVA, documentado por Berme. La demo ejecutable conserva CUSTOM-40 y los datos de PRUEBA; no hay prueba de S00005 en PostgreSQL, PSP ni Python. Regresión nueva desde clon limpio en `06_Intermodular/evidencias/cierre-entrega-20261113/`.
 
-Proyecto intermodular de 2.º DAM (Omar, Álvaro y Berme): una marca de zapatillas con web de catálogo, base de datos PostgreSQL, aplicación Java de pedidos, procesos Java para preparar la fabricación y análisis de datos en Python. El caso común es el pedido personalizado **SO024** del Club Halcones (Runner X, 40 pares, tallas 38–46).
+Proyecto intermodular de 2.º DAM (Omar, Álvaro y Berme): una marca de zapatillas con web de catálogo, base de datos PostgreSQL, aplicación Java de pedidos, procesos Java para preparar la fabricación y análisis de datos en Python. El caso común elegido para la evidencia de Odoo es **S00005 del Club Atlético NOVA**. SO024 es el ejemplo del enunciado, no una venta realizada en Odoo. [Alcance y límites del caso](06_Intermodular/CASO_COMUN_S00005.md).
 
 **Estado a 13/11/2026** (detalle en `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md`):
 
 | Parte | Estado |
 |---|---|
 | Interfaces (web) | Hecha y probada en Edge. Falta la prueba de usabilidad **con personas** |
-| Acceso a Datos (PostgreSQL + Java) | Hecha y probada. Faltan el E-R en PNG, la memoria y el SO024 oficial |
-| PSP | Hecha y probada (27/27). SO024 solo con datos **PROVISIONALES** |
+| Acceso a Datos (PostgreSQL + Java) | Hecha y probada. Persisten límites de evidencia/manuales; no hay prueba de S00005 en este módulo |
+| PSP | Hecha y probada (27/27). CUSTOM-40 probado; SO024 solo como ensayo **PROVISIONAL**, sin prueba de S00005 |
 | Python | Hecho y probado (265 pruebas). Los CSV son de una base de **PRUEBA**: falta la exportación **REAL** |
-| Odoo | PDF de Berme recibido; pendiente conciliar códigos y ejecutar el SO024 oficial. Ver `05_Odoo/README.md` |
-| SO024 | **PROVISIONAL.** Faltan los 7 datos que tienen que acordar los tres (`06_Intermodular/SO024/caso-comun-SO024.md`) |
+| Odoo | S00005 documentado en el PDF de Berme; sin integración entre sistemas verificada. Ver `05_Odoo/README.md` |
+| Caso de entrega | S00005 en Odoo; CUSTOM-40 y SO024 PROVISIONAL siguen siendo pruebas independientes. Ver `06_Intermodular/CASO_COMUN_S00005.md` |
 
 ## Estructura: una carpeta por asignatura
 
@@ -25,8 +25,8 @@ NOVA/
 ├── 02_Acceso_Datos/      PostgreSQL (sql/, documentacion/, modelo/, modelo-er/) y aplicación Java Swing + JDBC (java/)
 ├── 03_PSP/               Procesador de pedidos Custom con tres procesos hijos (y el analizador de tallas en src/Psp/)
 ├── 04_Python/            Calidad de datos, KPIs, estadística, segmentación, predicción y dashboard Streamlit
-├── 05_Odoo/              Estado de Odoo y preparación de SO024 (PDF en odoo/documentacion/)
-├── 06_Intermodular/      SO024, memoria común, manuales, matrices de rúbricas, defensa y regresión completa
+├── 05_Odoo/              Estado de Odoo y evidencia de S00005 (PDF en odoo/documentacion/)
+├── 06_Intermodular/      Caso de entrega, archivo SO024, memoria común, manuales, matrices de rúbricas, defensa y regresión completa
 ├── servidor-admin/       Servidor Node + Express, COMPARTIDO: da servicio a la tienda, al panel y al portal
 ├── scripts/              Comprobaciones rápidas de la web y de PSP
 ├── README.md
@@ -47,10 +47,10 @@ Dentro de cada asignatura: `evidencias/` guarda los resultados y las capturas de
 | Estado de cada requisito de cada rúbrica | `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` |
 | Qué enseñar para cada bloque | `06_Intermodular/rubricas/MATRIZ_EVIDENCIAS.md` |
 | Instalación paso a paso y guion de la demostración | `06_Intermodular/manuales/` |
-| Caso común SO024 y los 7 datos pendientes | `06_Intermodular/SO024/` |
+| Caso de entrega S00005 y límites | `06_Intermodular/CASO_COMUN_S00005.md`; `06_Intermodular/SO024/` conserva el plan histórico |
 | Defensa y presentación | `06_Intermodular/defensa/` |
 | Regresión completa del 13/11 | `06_Intermodular/evidencias/regresion-final/README.md` y, sobre el árbol limpio, `06_Intermodular/evidencias/regresion-limpieza/README.md` |
-| Odoo (lo que falta) | `05_Odoo/CHECKLIST_ODOO_BERME.md` |
+| Odoo: evidencia y límites | `05_Odoo/README.md`; la checklist se conserva como plan histórico |
 
 ```
                      Web (01_Interfaces/cliente)  ─┐
@@ -59,7 +59,7 @@ Dentro de cada asignatura: `evidencias/` guarda los resultados y las capturas de
  Aplicación Java (02_Acceso_Datos/java) ──── JDBC ──────────────────────────────────────┤
                                                                                         ├─ script 15 ─► CSV ─► PSP (03_PSP) ─► ficha del taller
                                                                                         └─ script 16 ─► 5 CSV ─► Python (04_Python) ─► dashboard
- Odoo (05_Odoo, PENDIENTE) ◄── mismos identificadores de SO024 (06_Intermodular/SO024) ──► PostgreSQL
+ Odoo (S00005 documental)     SIN trazabilidad de S00005 verificada     PostgreSQL (PRUEBA)
 ```
 
 En todas las asignaturas hemos trabajado los tres: quién hizo cada cambio se ve con `git log --follow <archivo>`.
@@ -188,17 +188,13 @@ py scripts/comprobar_psp.py
 
 La primera comprueba que existen los recursos locales que enlaza la web; no evalúa el diseño ni la API. La segunda necesita `java` y `javac` en el PATH. **Correcta en el cierre:** se incorporó la corrección ya escrita por Berme en `0baf61f`, conservando su autoría (`4f09742`). Comprueba cabecera y bloque normalizado, además de los rechazos y pruebas del paquete Psp. La lista de comprobaciones manuales está en `06_Intermodular/manuales/PRUEBAS_MANUALES.md` y se escribió antes de conectar el panel y la tienda.
 
-## Caso común SO024: PROVISIONAL
+## Caso de Odoo: S00005 del Club Atlético NOVA
 
-`06_Intermodular/SO024/caso-comun-SO024.md` recoge el pedido del enunciado y los **7 datos que faltan por acordar**: el reparto por talla, el color, el precio, el stock, el texto de la personalización, el SKU en Odoo y el número del pedido en Odoo.
+La decisión de entrega y sus límites están en `06_Intermodular/CASO_COMUN_S00005.md`. SO024 es el ejemplo del enunciado v0.3, no un identificador obligatorio expresamente ni una venta realizada en Odoo. No se creará un «SO024 oficial» para esta entrega.
 
-Mientras tanto, el recorrido se ha probado de principio a fin con **datos PROVISIONALES** en una base desechable: el 18, el alta y la confirmación de SO024 con los métodos de la aplicación Java (no con la ventana), la exportación con el 15 (`-v referencia=SO024`), la ficha de PSP, la exportación con el 16 y Python, donde SO024 cuenta como un solo pedido de 9 líneas, 40 pares y 3.996,00 €. Las evidencias están en `03_PSP/evidencias/so024_provisional/` y `06_Intermodular/evidencias/regresion-final/06_so024_provisional/`, rotuladas PROVISIONAL. Cuando se acuerden los datos hay que repetirlo desde la ventana Java y en la base del equipo (`06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md`).
+El PDF original de Berme documenta S00005. No se modifica ni se atribuye a ese pedido la cadena de PostgreSQL → PSP → Python: no hay pruebas de ello. El conector sigue sin verificarse contra una instalación real accesible y `pedidos.js` no se monta.
 
-## Odoo: documentación recibida, SO024 pendiente
-
-La documentación de Berme ya está en `odoo/documentacion/Odoo-NOVA-Sneakers.pdf`. Incluye evidencias de Odoo y una venta histórica del Club Atletico NOVA; no equivale todavía al SO024 del Club Halcones. La conciliación de códigos y los siete datos oficiales quedan declarados como limitaciones de esta entrega. No se rehace ni activa la integración de Odoo.
-
-La preparación actual y los criterios de aceptación están en `06_Intermodular/SO024/INTEGRACION_ODOO_SO024.md`. El conector conserva sus límites: `pedidos.js` no se monta y no se ha activado ni probado la API de esta candidata contra Odoo. Detalle del módulo: `05_Odoo/README.md`.
+Se conservan CUSTOM-40 y los ensayos SO024 PROVISIONAL, con sus datos, resultados y fechas. Son pruebas independientes de los módulos, no equivalencias de S00005.
 
 ## Ampliaciones
 
@@ -206,7 +202,7 @@ La tienda online (cuentas de cliente, carrito, pago simulado y recibo por correo
 
 ## Limitaciones conocidas
 
-- Odoo y los datos de SO024, como se explica arriba.
+- No hay prueba de S00005 en PostgreSQL, PSP ni Python; conector Odoo sin verificar aquí, como se explica arriba.
 - Los CSV de `04_Python/entrada_acc/` salen de una base de prueba, no de la del equipo (`ORIGEN.txt` dice `Tipo: PRUEBA`).
 - Los precios y las tallas por colección de la web (`datosColeccion` en `01_Interfaces/cliente/js/modelos.js`) son provisionales. El probador es una aproximación visual y no recomienda tallas.
 - Las pruebas de navegador (Playwright, axe y Lighthouse) se hicieron con scripts que no están en el repositorio: solo se guardan sus resultados y capturas.

@@ -9,8 +9,8 @@
 - **Duración prevista: 15:00.** **[DUDA PARA EL PROFESOR (D12): cuánto dura la exposición ante el tribunal.]** Si os dan menos tiempo, ved «Si hay que recortar» al final.
 - **Quién presenta cada diapositiva: [POR DECIDIR (los tres)].** Lo recomendable es repartirlas de forma que cada uno hable de módulos que no son «los suyos»: así se demuestra que los tres conocen todo el proyecto (IM-COM-07).
 - **Las rutas de las figuras** son relativas a la raíz del repositorio y todas existen en la rama final. La captura del catálogo de la diapositiva 1 es de la regresión del 13/11 (`06_Intermodular/evidencias/regresion-final/05_web/capturas_interfaces/escritorio_01_catalogo_con_precios.png`, reducida en el repositorio).
-- **Odoo:** su diapositiva (la 6) dice que está pendiente. **[PENDIENTE (Berme): sustituirla por las capturas reales cuando existan.]** No se inventa nada.
-- **SO024:** todas sus cifras son PROVISIONALES hasta que se acuerden los siete datos. Se dice en voz alta.
+- **Odoo:** mostrar S00005 en el PDF original de Berme, pp. 10–12. Es evidencia documental; no una conexión en vivo. El `.pptx` conservado es un borrador histórico anterior a esta decisión: usar este guion actualizado, no sus afirmaciones antiguas.
+- **SO024:** ejemplo del enunciado y ensayo histórico PROVISIONAL, no venta realizada en Odoo. No se renombran sus resultados como S00005.
 - **Sin contraseñas** en ninguna diapositiva ni captura.
 - Hay una versión en PowerPoint con el mismo contenido, las mismas notas y algunas capturas: `PRESENTACION.pptx` (generada el 13/11 con las capturas del repositorio).
 
@@ -21,7 +21,7 @@
 | 1 | El problema | 1:00 | 1:00 |
 | 2 | La solución | 0:45 | 1:45 |
 | 3 | Arquitectura | 1:15 | 3:00 |
-| 4 | Recorrido de SO024 | 1:30 | 4:30 |
+| 4 | Caso de Odoo y pruebas auxiliares | 1:30 | 4:30 |
 | 5 | Interfaces | 1:00 | 5:30 |
 | 6 | Odoo | 0:45 | 6:15 |
 | 7 | PostgreSQL y PL/pgSQL | 1:15 | 7:30 |
@@ -42,20 +42,20 @@
 - Una fábrica de zapatillas que vende modelos de catálogo y pedidos personalizados para clubes y equipos.
 - Necesita tres cosas: presencia digital, gestionar la venta hasta la fabricación y tratar los pedidos Custom.
 - El encargo: actuar como una pequeña consultora y montar una primera solución integrada.
-- Hilo conductor: **SO024 · Club Halcones · Runner X · 40 pares · tallas 38–46**.
+- Caso de Odoo: **S00005 · Club Atlético NOVA · PDF original de Berme**. PostgreSQL, PSP y Python conservan sus pruebas independientes.
 
 **Figura recomendada:** el catálogo en escritorio (en el `.pptx`, la captura de la regresión del 13/11; en el repositorio, `01_Interfaces/evidencias/tienda/capturas-2026-11-13/escritorio_01_catalogo_disponibilidad.png`) y el logo `01_Interfaces/cliente/images/logo-nova.png` (blanco, va bien sobre fondo oscuro).
 
 **Notas del orador**
-Buenos días. Somos Omar, Álvaro y Berme, y os presentamos NOVA Sneakers. NOVA es una fábrica de zapatillas que vende modelos de catálogo y, sobre todo, pedidos personalizados para clubes. El enunciado nos pide actuar como una consultora: dar a la fábrica presencia digital, gestionar sus ventas y fabricación, y procesar los pedidos Custom. Para que todo tenga sentido hemos seguido un mismo pedido en todos los bloques: el SO024 del Club Halcones, 40 pares de Runner X de la talla 38 a la 46. Os contaremos qué hemos hecho, cómo lo hemos probado y también qué falta.
+Buenos días. Somos Omar, Álvaro y Berme, y os presentamos NOVA Sneakers. NOVA es una fábrica de zapatillas que vende modelos de catálogo y, sobre todo, pedidos personalizados para clubes. El enunciado nos pide actuar como una consultora: dar a la fábrica presencia digital, gestionar sus ventas y fabricación, y procesar los pedidos Custom. Presentamos S00005 del Club Atlético NOVA con las evidencias de Odoo de Berme. Los módulos auxiliares se demuestran con sus datos de prueba; no tenemos pruebas de que S00005 haya pasado por ellos. Os contaremos qué hemos hecho, cómo lo hemos probado y también qué falta.
 
 ---
 
-## Diapositiva 2 · La solución: cinco piezas y un mismo pedido · 0:45
+## Diapositiva 2 · La solución: cinco piezas y sus evidencias · 0:45
 
 **Puntos**
 - **Web** responsive con catálogo de 100 modelos y solicitud Custom. Ampliaciones: tienda, panel y portal del trabajador.
-- **Odoo** como núcleo de ventas y fabricación (pendiente).
+- **Odoo** como núcleo de ventas y fabricación, documentado con S00005.
 - **PostgreSQL + Java:** la base calcula importes, stock y auditoría; Java solo pide.
 - **PSP:** un proceso padre y tres hijos procesan la exportación del pedido.
 - **Python + Streamlit:** calidad de datos, 20 KPIs y análisis que se recalculan cada 60 s (265 pruebas).
@@ -63,7 +63,7 @@ Buenos días. Somos Omar, Álvaro y Berme, y os presentamos NOVA Sneakers. NOVA 
 **Figura recomendada:** un esquema de cinco tarjetas, una por pieza (en el `.pptx` está dibujado).
 
 **Notas del orador**
-La solución tiene cinco piezas. La web es la cara pública. Odoo, según el enunciado, es el núcleo del negocio; lo tenemos pendiente y lo diremos claramente. Acceso a Datos tiene dos partes: una base PostgreSQL donde los cálculos importantes los hace la propia base, y una aplicación Java que la usa. PSP procesa el pedido Custom con varios procesos. Y Python analiza los datos y los enseña en un dashboard. Lo importante es que las cinco hablan del mismo pedido.
+La solución tiene cinco piezas. La web es la cara pública. Odoo, según el enunciado, es el núcleo del negocio; su flujo está documentado en el PDF de Berme, sin conexión en vivo en esta demo. Acceso a Datos tiene dos partes: una base PostgreSQL donde los cálculos importantes los hace la propia base, y una aplicación Java que la usa. PSP procesa el pedido Custom con varios procesos. Y Python analiza los datos y los enseña en un dashboard. La trazabilidad de S00005 entre los cinco bloques no está demostrada y se declara como limitación.
 
 ---
 
@@ -83,19 +83,16 @@ Aquí se ve cómo se conectan las piezas. El navegador nunca habla con la base: 
 
 ---
 
-## Diapositiva 4 · Recorrido de SO024 · 1:30
+## Diapositiva 4 · Caso de Odoo y pruebas auxiliares · 1:30
 
 **Puntos**
-- **Web:** el club rellena la solicitud Custom; el envío es una simulación.
-- **Odoo:** pedido de venta y fabricación — **pendiente**.
-- **Java + PostgreSQL:** se crea y se confirma SO024: 40 pares, 9 líneas, 3.996 €; cada talla baja una vez — **provisional**.
-- **Script 15 → PSP:** ficha del taller con 9 tallas y 40 pares, código 0.
-- **Script 16 → Python:** el dashboard lo cuenta como un solo pedido de 9 líneas.
-
-**Figura recomendada:** `01_Interfaces/evidencias/web/capturas/escritorio_06_custom_simulacion.png` (la solicitud de Club Halcones con Runner X y el total de 40 pares). Fuente de las cifras: `06_Intermodular/evidencias/regresion-final/06_so024_provisional/00_cadena.txt` y `03_PSP/evidencias/so024_provisional/` (13/11, PROVISIONAL).
+- Odoo: S00005 del Club Atlético NOVA, PDF de Berme pp. 10–12.
+- PostgreSQL → PSP → Python: CUSTOM-40 de PRUEBA; ensayo SO024 PROVISIONAL conservado.
+- No hay prueba de que S00005 haya pasado por esos módulos.
+- SO024 es el ejemplo del enunciado; no una venta que haya que recrear.
 
 **Notas del orador**
-Este es el recorrido del pedido común. En la web, el club pide 40 pares de Runner X; la web no envía nada, es un prototipo, como permite el enunciado. Después iría Odoo, que está pendiente. En PostgreSQL cargamos el cliente y el modelo, y desde Java creamos y confirmamos SO024: la base calcula 3.996 euros y descuenta cada talla una sola vez, y la auditoría guarda quién lo hizo. Exportamos la ficha, PSP la procesa con sus tres hijos y termina con código 0, y Python lo cuenta como un pedido de 9 líneas, no como nueve pedidos. Ojo: estos datos son provisionales; faltan siete datos por acordar, como el reparto por talla y el precio.
+Elegimos el pedido ya documentado, S00005. Conservamos sus capturas y el PDF sin alterar. Para ejecutar los módulos usamos los datos de prueba que ya funcionan. No presentamos CUSTOM-40 ni el ensayo SO024 como equivalentes de S00005 y no damos por cerrada la trazabilidad entre sistemas.
 
 ---
 
@@ -115,19 +112,18 @@ La web tiene inicio, catálogo, ficha de producto, servicio Custom y una parte c
 
 ---
 
-## Diapositiva 6 · Odoo: lo que pide el enunciado · 0:45
+## Diapositiva 6 · Odoo: evidencia de S00005 · 0:45
 
 **Puntos**
-- Odoo es el núcleo del negocio: venta → fabricación → entrega → factura.
-- Pide: Ubuntu con Odoo documentado, compañía y roles, cliente, presupuesto y pedido SO024, fabricación (MRP), inventario, factura o su simulación, trazabilidad y backup.
-- Estado: **pendiente (Berme)**; todavía no hay evidencias.
-- El conector de Berme (`servidor-admin/odoo.js`) está en el servidor, pero desactivado: no se ha probado contra ningún Odoo.
-- **[PENDIENTE (Berme): sustituir por capturas reales de Odoo cuando existan.]**
+- PDF original: venta S00005, fabricación WH/MO/00002, entrega WH/OUT/00005 y factura INV/2026/00001.
+- Cliente: Club Atlético NOVA; 40 pares a 89 €/par en esa venta.
+- Evidencia documental de Berme; sin ejecución en vivo desde este entorno.
+- Conector no verificado aquí y rutas de pedidos sin activar; sin prueba de S00005 en PSP o PostgreSQL.
 
-**Figura recomendada:** ninguna hasta que haya capturas reales. No se usan capturas genéricas ni inventadas.
+**Material:** abrir el PDF original pp. 10–12; no sustituir sus capturas ni atribuirles una fecha nueva.
 
 **Notas del orador**
-Odoo es, según el enunciado, el núcleo de toda la solución: la venta empieza ahí y de ella salen la fabricación, la entrega y la factura. Nuestra parte de PSP y de base de datos es auxiliar y no lo sustituye. Ahora mismo esta parte está pendiente y no tenemos evidencias que enseñaros. Lo que falta es la instalación documentada, la configuración de la empresa, el pedido SO024 con su fabricación y su factura, y la copia de seguridad. El conector de Odoo que escribió Berme está en el servidor, pero desactivado: no se ha probado contra ningún Odoo. **[PENDIENTE (Berme): actualizar esta nota cuando tenga las evidencias.]**
+Odoo sí tiene trabajo documentado. Mostramos S00005 tal como figura en el PDF de Berme. SO024 es el ejemplo del enunciado, no una venta realizada por nosotros en Odoo. La ausencia de una exportación y conciliación con los módulos auxiliares sigue siendo una limitación.
 
 ---
 
@@ -237,8 +233,8 @@ Las dificultades nos han enseñado más que lo que salió a la primera. Descubri
 ## Diapositiva 13 · Limitaciones · 0:45
 
 **Puntos**
-- Odoo está pendiente: es la mitad del recorrido de SO024.
-- SO024 es provisional (faltan 7 datos) y Runner X no está en el catálogo de la web.
+- S00005 está documentado en Odoo, sin trazabilidad probada hacia PostgreSQL, PSP y Python.
+- SO024 se conserva como ensayo PROVISIONAL del ejemplo; no hay que crear una venta oficial ni cambiar Runner X.
 - Python usa una exportación de PRUEBA (**[PENDIENTE (los tres): la exportación REAL]**); el aprendizaje automático solo se ha podido calcular con datos sintéticos.
 - Faltan la prueba de usabilidad con personas, el reparto real y el uso de la IA en la memoria, y el diagrama E-R en imagen.
 - Es una demo: HTTP local, sesiones en memoria y pago simulado.
@@ -246,7 +242,7 @@ Las dificultades nos han enseñado más que lo que salió a la primera. Descubri
 **Figura recomendada:** ninguna. Fuente: `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md`.
 
 **Notas del orador**
-Queremos ser claros con lo que no está terminado. Odoo está pendiente, y eso deja a medias el recorrido del pedido común. Los datos de SO024 son provisionales hasta que los acordemos. Python trabaja con una exportación de prueba y el análisis avanzado solo se puede calcular con datos sintéticos. Faltan la prueba de usabilidad con personas, el reparto real y el uso de la IA en la memoria, y el diagrama E-R en imagen. Y la seguridad está pensada para una demostración en local: en producción haría falta HTTPS, sesiones persistentes y una pasarela de pago real.
+Queremos ser claros con lo que no está terminado. El PDF documenta S00005, pero no prueba su recorrido en los módulos auxiliares. SO024 es un ejemplo y su ensayo sigue siendo provisional, sin una venta realizada en Odoo. Python trabaja con una exportación de prueba y el análisis avanzado solo se puede calcular con datos sintéticos. Faltan la prueba de usabilidad con personas, el reparto real y el uso de la IA en la memoria, y el diagrama E-R en imagen. Y la seguridad está pensada para una demostración en local: en producción haría falta HTTPS, sesiones persistentes y una pasarela de pago real.
 
 ---
 
@@ -272,16 +268,16 @@ Queremos ser claros con lo que no está terminado. Odoo está pendiente, y eso d
 ## Diapositiva 15 · Conclusiones · 0:45
 
 **Puntos**
-- Un mismo pedido recorre la web, la base, Java, PSP y Python con datos coherentes.
+- S00005 se documenta en Odoo; los módulos auxiliares conservan sus pruebas, sin trazabilidad de esa venta entre sistemas.
 - Lo crítico está en la base: importes, stock y auditoría no dependen de la aplicación.
 - Todo está medido con pruebas, y decimos lo que no funciona.
-- Siguiente paso: Odoo, el SO024 oficial y la exportación REAL.
+- Límite de entrega: S00005 sin trazabilidad entre sistemas y CSV de PRUEBA; no se prometen nuevas integraciones.
 - Gracias. ¿Preguntas?
 
 **Figura recomendada:** el logo `01_Interfaces/cliente/images/logo-nova.png`.
 
 **Notas del orador**
-Para terminar: hemos construido una solución en la que un mismo pedido se puede seguir por todos los bloques con los mismos datos. Las decisiones importantes están en la base de datos, de forma que ninguna aplicación puede dejar un importe o un stock incoherente. Hemos probado todo y os hemos contado lo que falta: Odoo, cerrar los datos de SO024 y la exportación real. Muchas gracias; estamos listos para vuestras preguntas.
+Para terminar: hemos construido y probado los módulos disponibles, y conservamos el flujo S00005 documentado por Berme en Odoo. Las decisiones importantes están en la base de datos, de forma que ninguna aplicación puede dejar un importe o un stock incoherente. Hemos mostrado los resultados disponibles y sus límites: S00005 no está acreditado en PostgreSQL, PSP o Python, y la exportación Python sigue siendo de PRUEBA. Muchas gracias; estamos listos para vuestras preguntas.
 
 ---
 
@@ -293,5 +289,5 @@ Para terminar: hemos construido una solución en la que un mismo pedido se puede
 ## Preguntas del tribunal
 
 - Cada respuesta, en 30 a 60 segundos: primero la idea y después el dato o la línea del código.
-- Si la pregunta es de un bloque pendiente (Odoo) o provisional (SO024), se dice así y se explica qué falta.
+- Si preguntan por Odoo, distinguir S00005 documental de la conexión no verificada y de los ensayos SO024 PROVISIONAL.
 - Las respuestas preparadas están en `GUIA_DEFENSA.md` y el ensayo, en `SIMULACION_DEFENSA.md`.

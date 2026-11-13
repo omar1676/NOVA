@@ -3,7 +3,7 @@
 Cómo instalar, montar la base de datos, arrancar cada parte y pasar las pruebas, para que otro equipo pueda repetirlo (IM-COM-05).
 
 - **Probado** en Windows 11 el **13/11/2026**, siguiendo este mismo manual sobre una copia nueva del repositorio y una base de datos nueva y vacía. El resultado está en `06_Intermodular/evidencias/regresion-final/08_manual_instalacion/`.
-- **Cierre final:** candidata `revision/incorporar-limpieza-main-20261113`, aún sin publicar. El código de `4f09742` se instaló en un clon nuevo, con venv nuevo, npm ci y clúster PostgreSQL aislado. Resultados nuevos en `../evidencias/cierre-entrega-20261113/`. Las evidencias iniciales enlazadas arriba se conservan como históricas.
+- **Cierre final:** código publicado en `main` mediante la PR #2 (`4a25d5a`); esta revisión documental no cambia ese código. El código de `4f09742` se instaló en un clon nuevo, con venv nuevo, npm ci y clúster PostgreSQL aislado. Resultados nuevos en `../evidencias/cierre-entrega-20261113/`. Las evidencias iniciales enlazadas arriba se conservan como históricas.
 - **Convenciones.** Los comandos son de **PowerShell** y se lanzan desde la **raíz del repositorio**, salvo que se diga otra cosa.
 - **Contraseñas.** **Nunca se escribe ninguna en un archivo del repositorio.** Los scripts las piden por teclado, y los archivos de configuración que las llevan (`02_Acceso_Datos/java/conexion.properties` y `servidor-admin/.env`) están en el `.gitignore`. Cada equipo elige las suyas al instalar. **[DUDA PARA EL PROFESOR (D12): por qué medio se le dan las contraseñas de demostración el día de la defensa.]**
 
@@ -49,9 +49,9 @@ cd NOVA
 git switch main
 ```
 
-**La candidata de cierre aún no está publicada:** el clone de GitHub obtiene el main publicado. Para revisar la candidata antes de autorizar su publicación, se puede clonar desde la ruta local indicada en el informe de entrega con `git clone --branch revision/incorporar-limpieza-main-20261113 <ruta-candidata> NOVA`. No confundir el código de main con cambios todavía locales.
+La versión de entrega se obtiene de `main`. La PR #2 conserva el cierre de código y sus pruebas; la revisión documental posterior fija S00005 como caso de Odoo, sin modificar los módulos.
 
-El repositorio es privado: el profesor necesita que le den acceso. Hasta que se fusione la pull request, la candidata final está en su propia rama (la que indica la pull request); se cambia `main` por el nombre de esa rama.
+El repositorio es privado: el profesor necesita acceso para clonarlo. También puede instalarse desde el ZIP de fuentes correspondiente a la versión que se entregue.
 
 ---
 
@@ -89,9 +89,9 @@ psql -U postgres -c "CREATE DATABASE nova_sneakers;"
 | 20 | `21_catalogo_web.sql` | Los 100 modelos de la web (ampliación) | No | No | 1 PASS |
 | 21 | `22_reparto_panel.sql` | Botón «Marcar en reparto» del panel (ampliación) | **Sí** | No | Salida 0 (se puede repetir) |
 | 22 | `23_portal_trabajador.sql` | Portal del trabajador (ampliación): rol `portal_trabajador` y sus 2 funciones | **Sí** | No | Salida 0 (se puede repetir) |
-| 23 | `18_datos_so024.sql` | Club Halcones y Runner X para SO024 | No | No, pero necesita `-v precio=… -v color=… -v stock=…` | Ver `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md`. **Sin los `-v` no inserta nada** |
+| 23 | `18_datos_so024.sql` | Ensayo opcional del ejemplo SO024; no prepara S00005 | No | No, pero necesita `-v precio=… -v color=… -v stock=…` | Ver `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md`. **Sin los `-v` no inserta nada** |
 
-Resumen: **la instalación (01–08, con el 17 y el 19), la batería (06 y 09–12), las contraseñas y el caso Custom (13 y 14), las exportaciones (15 y 16), las ampliaciones (20, 21, 22 y 23) y, al final, SO024 (18)**. Las pruebas 09–16 suman **123 PASS, 0 FAIL y 1 ERROR previsto**.
+Resumen: **la instalación (01–08, con el 17 y el 19), la batería (06 y 09–12), las contraseñas y el caso Custom (13 y 14), las exportaciones (15 y 16), las ampliaciones (20, 21, 22 y 23) y, opcionalmente, el ensayo histórico SO024 (18), que no se necesita para presentar S00005 documentalmente**. Las pruebas 09–16 suman **123 PASS, 0 FAIL y 1 ERROR previsto**.
 
 **Por qué este orden** (`02_Acceso_Datos/documentacion/README.md` §3):
 
@@ -150,7 +150,7 @@ psql -U postgres -d nova_sneakers -v ON_ERROR_STOP=1 -f "$SQL\22_reparto_panel.s
 psql -U postgres -d nova_sneakers -v ON_ERROR_STOP=1 -f "$SQL\23_portal_trabajador.sql"
 ```
 
-**SO024**, solo cuando los tres hayan acordado los datos (ver `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md`):
+**Ensayo opcional SO024, fuera de la demo final:** solo para reproducir pruebas con parámetros explícitos; no crea S00005 (ver `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md`):
 
 ```powershell
 psql -U postgres -d nova_sneakers -v ON_ERROR_STOP=1 -v precio=<precio> -v color=<color> -v stock=<stock> -f "$SQL\18_datos_so024.sql"
@@ -160,7 +160,7 @@ psql -U postgres -d nova_sneakers -v ON_ERROR_STOP=1 -v precio=<precio> -v color
 
 **Separar configuración administrativa y de aplicación:** abre otra consola para Node. Las variables ya exportadas en el entorno prevalecen sobre `--env-file=.env`; si PGUSER sigue siendo postgres, el servidor se niega correctamente. Usar web_nova y la base/puerto indicados en .env. No entregar .env ni conexion.properties.
 
-**Entrega sin SO024 oficial:** no ejecutar el 18 con valores inventados. El recorrido disponible usa CUSTOM-40 y CSV rotulados PRUEBA. El manual de demostración de este cierre no necesita una instancia de Odoo.
+**Caso de entrega:** S00005 está documentado en el PDF de Berme y no se instala ni recrea con el script 18. SO024 es un ejemplo; no hay que convertirlo en una venta nueva. La demo ejecutable conserva CUSTOM-40 y CSV de PRUEBA, sin atribuirlos a S00005. No ejecutar el 18 para aparentar una integración.
 
 ## 4. Aplicación Java (Acceso a Datos)
 
@@ -303,7 +303,7 @@ y abrir `http://127.0.0.1:8000/01_Interfaces/cliente/`. También funciona abrien
 | Java: «password authentication failed for user java_nova» | `conexion.properties` mal o no se ha lanzado el 17 | Revisar la contraseña o volver a lanzar el 17 |
 | Java: «Acceso denegado» en una operación | El rol no tiene ese permiso | Es correcto (matriz de permisos de `02_Acceso_Datos/memoria/MEMORIA_ACCESO_DATOS.md` §9.2) |
 | El 15 se para y no genera el CSV | El pedido no existe, no está confirmado o no suma 40 pares | Lanzar el 14 (para `CUSTOM-40`) o confirmar el pedido en Java; el CSV anterior queda intacto |
-| El 18 dice «Falta el precio…» y no inserta nada | Faltan los `-v` | Pasar `-v precio=… -v color=… -v stock=…` (`06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md`) |
+| El 18 dice «Falta el precio…» y no inserta nada | Faltan los `-v` | En una reproducción voluntaria del ensayo, pasar parámetros explícitos; para la entrega no hace falta ejecutar el 18 (`06_Intermodular/CASO_COMUN_S00005.md`) |
 | PSP: «No se encuentra la clase Psp.AnalizadorTallas» (código 3) | No se compiló `src\Psp` | Compilar con `src\Psp\*.java`, como en el §5 |
 | `PruebasPsp` falla con caracteres raros | Se lanzó con `-Dfile.encoding=UTF-8` | Lanzarla sin esa opción |
 | `python` abre la Microsoft Store | Es el alias de Windows | Usar `py` o `.venv\Scripts\python.exe` |

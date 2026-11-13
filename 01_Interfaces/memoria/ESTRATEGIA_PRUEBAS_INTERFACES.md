@@ -115,7 +115,7 @@ La web no tiene servidor propio para lo obligatorio (el formulario Custom es una
 
 ### 4.5 Extremo a extremo entre módulos
 
-El caso SO024 recorre Java → PostgreSQL → PSP → Python con datos **PROVISIONALES** (13/11: 40 pares, 3.996,00 €, PSP con código 0 y un solo pedido en Python; `06_Intermodular/evidencias/regresion-final/06_so024_provisional/`). La web entra como primer paso de la demostración (`06_Intermodular/manuales/MANUAL_DEMOSTRACION.md`, paso 2): el formulario Custom no envía datos, así que la continuidad entre la web y Odoo la hace el comercial a mano. **[PENDIENTE (los tres): los 7 datos de SO024 y el SO024 oficial.]** **[PENDIENTE (Berme): Odoo.]**
+El caso SO024 recorre Java → PostgreSQL → PSP → Python con datos **PROVISIONALES** (13/11: 40 pares, 3.996,00 €, PSP con código 0 y un solo pedido en Python; `06_Intermodular/evidencias/regresion-final/06_so024_provisional/`). La web Custom solo simula el envío, sin registrar pedidos. En la entrega se presenta S00005 del Club Atlético NOVA mediante el PDF de Berme; no hay evidencia que conecte esa venta con la solicitud web ni con el ensayo SO024. Este último es una prueba histórica del ejemplo del enunciado, no una venta oficial por completar. Ver `06_Intermodular/CASO_COMUN_S00005.md`.
 
 ### 4.6 Responsive
 
@@ -134,10 +134,10 @@ Después de cada cambio en la web se vuelven a pasar los scripts de §4.2 a §4.
 
 | Requisito | Prueba | Evidencia |
 |---|---|---|
-| IM-INT-04 | Menú → secciones; fichas | `05_web/02_interfaces.txt`; capturas `01_Interfaces/evidencias/web/capturas/*_01` y `*_07` |
+| IM-INT-04 | Menú → secciones; fichas | `05_web/02_interfaces.txt`; capturas `01_Interfaces/evidencias/web/capturas/*_01_*.png` y `*_07_*.png` |
 | IM-INT-05 | Anchos | `05_web/02_interfaces.txt`, `01_mejoras.txt`; capturas de escritorio y móvil |
 | IM-INT-06 | 100 tarjetas y 6 fichas | `05_web/02_interfaces.txt`, `01_mejoras.txt`; capturas `*_02` y `*_03` |
-| IM-INT-07 | Casos del formulario | `05_web/02_interfaces.txt`; capturas `*_04` a `*_06` |
+| IM-INT-07 | Casos del formulario | `05_web/02_interfaces.txt`; capturas `*_04` a `*_06_*.png` |
 | IM-INT-08 | axe, contraste, teclado | `05_web/01_mejoras.txt`, `02_interfaces.txt`; contraste 212/212 (12/11); Lighthouse (11/11) |
 | RA4 a)-b) | WCAG 2.1 AA | §2 y §4.3 de este documento |
 | RA4 c)-i) | Checklist y mensajes | `01_Interfaces/evidencias/web/README.md`; mensajes junto a su campo en `02_interfaces.txt` y `04_compra_edge.txt` |

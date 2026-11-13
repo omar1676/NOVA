@@ -11,14 +11,14 @@
 - **Sin la guía delante.** Solo se puede abrir el código cuando la pregunta dice «señala la línea». Nadie responde por otro.
 - **Tiempo:** cada respuesta, entre 30 y 60 segundos. Si se pasa, el tribunal corta: gestionar el tiempo también puntúa (presentación ante el tribunal, 20 %: «síntesis, estructura, comunicación profesional, gestión del tiempo y respuesta a preguntas»).
 - **Preguntas trampa:** el tribunal las dice con seguridad, como si fueran ciertas. Hay que corregirlas con educación y con el dato («No exactamente: …, está en …»). Seguirle la corriente al tribunal cuenta como fallo.
-- **Lo que no está hecho se dice.** Odoo está pendiente y SO024 es provisional: inventar una respuesta es peor que decir «eso está pendiente y falta esto».
+- **Lo que no está hecho se dice.** Odoo tiene S00005 documentado, sin integración entre sistemas probada; SO024 es un ensayo provisional del ejemplo: inventar una respuesta es peor que decir «eso está pendiente y falta esto».
 - **Al terminar:** cada uno rellena su hoja (apartado 5) y el anotador la contrasta con lo que ha oído.
 
 ## 2. Guion (15 minutos, igual para los tres)
 
 | Minuto | Bloque | Pregunta del tribunal | Lo que tiene que salir en la respuesta (para el anotador) | Guía |
 |---|---|---|---|---|
-| 0:00–1:00 | Apertura | **1.** Explica NOVA en un minuto: qué problema resuelve, qué habéis construido y qué falta. | Fábrica con pedidos Custom de clubes; web, PostgreSQL con triggers, Java, PSP, Python con dashboard; SO024 como hilo conductor; Odoo pendiente (dicho sin rodeos). | §0 |
+| 0:00–1:00 | Apertura | **1.** Explica NOVA en un minuto: qué problema resuelve, qué habéis construido y qué falta. | Fábrica con pedidos Custom de clubes; web, PostgreSQL con triggers, Java, PSP, Python con dashboard; S00005 del Club Atlético NOVA como caso documental de Odoo; módulos auxiliares con PRUEBA, sin trazabilidad del mismo pedido demostrada. | §0 |
 | 1:00–2:15 | PostgreSQL y PL/pgSQL | **2.** ¿Cómo se calcula el importe total de un pedido y por qué no lo calcula Java? | BEFORE: subtotal = cantidad × precio; AFTER: `SUM` de las líneas (recalcular, no acumular); AD-43: la base hace la automatización. | §2, P2.2–P2.4 |
 | 2:15–3:00 | PostgreSQL y PL/pgSQL | **3.** ¿Cuándo se descuenta el stock y qué impide descontarlo dos veces? Señala la línea del trigger. | Al confirmar; `WHEN` de `03_triggers.sql:31`; `stock_descontado = false`; protección de la marca. | §2, P2.5–P2.6 |
 | 3:00–3:20 | **Trampa AD-SQL** | **T1.** «Si cancelo un pedido confirmado y luego lo vuelvo a confirmar, se descuenta el stock otra vez, ¿verdad?» | No se puede: un pedido cancelado no se reactiva (`02_funciones.sql:334-337`). Y Java solo confirma pedidos pendientes. | §2, P2.7 |
@@ -37,13 +37,13 @@
 | 10:45–11:20 | Seguridad | **12.** ¿Cómo guardáis las contraseñas y cómo funciona la sesión de la web? | bcrypt con sal (`crypt` y `gen_salt('bf')`); token aleatorio de 32 bytes en una cookie HttpOnly y SameSite=Strict de 2 h; 5 fallos → 429. | §13 |
 | 11:20–11:35 | **Trampa Seguridad** | **T6.** «Si un usuario olvida la contraseña, el administrador puede descifrar el bcrypt y decírsela.» | No: bcrypt es un hash de un solo sentido. Se le pone una nueva con `establecer_password` (`02_funciones.sql:427-446`). | §13, P13.2 |
 | 11:35–11:50 | **Trampa Git** | **T7.** «El commit `7715f83` es de `omar1676`, así que el panel de administración lo programó él.» | No: el commit de fusión lo firma quien fusiona; los 25 commits de dentro conservan su autor. Y contar commits no mide el trabajo. | §14, P14.3–P14.4 |
-| 11:50–12:20 | Odoo | **13.** ¿Qué pide el enunciado de Odoo y cómo se relaciona con PSP? | Núcleo del flujo: venta → fabricación → entrega → factura; instalación, roles, cliente, SO024, MRP, backup; PSP procesa una copia y su ficha tiene que llevar la referencia de Odoo. Estado: pendiente. | §11 |
-| 12:20–12:35 | **Trampa Odoo** | **T8.** «Enseñadnos la factura de SO024 en Odoo.» | No existe todavía: Odoo está pendiente. Decir qué falta y quién lo hace, sin improvisar. | §11 |
-| 12:35–13:25 | **Cruzada 1** | **14.** Sigue un par de la talla 42 de SO024 desde el formulario Custom hasta el dashboard. ¿Qué tabla, archivo o proceso lo toca en cada paso? | Web (simulación) → [Odoo pendiente] → SKU `NOVA-<variante>-42` del 18 → línea en Java, confirmar, trigger descuenta y `CAMBIO_STOCK` → fila del CSV del 15 → `LINEA`/`TALLA;42` en PSP y ficha → `lineas_pedido.csv` del 16 → `df_lineas_enriquecidas` y matriz talla × modelo. | §15 |
+| 11:50–12:20 | Odoo | **13.** ¿Qué pide el enunciado de Odoo y cómo se relaciona con PSP? | Núcleo del flujo: venta → fabricación → entrega → factura; instalación, roles, cliente, venta, MRP y backup. S00005 documentado en el PDF; no hay ficha PSP acreditada de ese pedido ni backup/restauración verificados aquí. | §11 |
+| 12:20–12:35 | **Trampa Odoo** | **T8.** «¿Qué factura podéis mostrar y qué demuestra?» | Mostrar INV/2026/00001 en el PDF de Berme, p. 12, del flujo S00005. No es una factura SO024 ni prueba su procesamiento en PSP/PostgreSQL. | §11 |
+| 12:35–13:25 | **Cruzada 1** | **14.** ¿Podéis seguir S00005 desde Odoo hasta el dashboard y distinguirlo del ensayo SO024? | No hay prueba de S00005 en esa cadena. Explicar por separado el PDF de Odoo y el flujo de PRUEBA PostgreSQL → 15 → PSP / 16 → Python. No cambiar identificadores para unirlos. | §15 |
 | 13:25–14:05 | **Cruzada 2** | **15.** El panel Java y el dashboard pueden dar importes de venta distintos con los mismos datos. ¿Cuál está mal? | Ninguno: criterios distintos. Java suma los no cancelados (`IndicadoresDAO.java:20-26`); K07 suma los confirmados en adelante; Python calcula los tres (`analiticas.py:155-181`). **[POR DECIDIR (los tres): el oficial.]** | §5, P5.8 |
-| 14:05–14:30 | **Trampa Integración** | **T9.** «SO024 ya está terminado de punta a punta, ¿no?» | No: es provisional (faltan 7 datos), Odoo está pendiente, Runner X no está en la web y Java se probó con un lanzador, no con la ventana. | §15 |
+| 14:05–14:30 | **Trampa Integración** | **T9.** «¿Elegir S00005 demuestra la integración completa?» | No. El PDF acredita el caso de Odoo; faltan exportación y correspondencia verificadas con PostgreSQL, PSP y Python. SO024 es solo un ejemplo y su ensayo no prueba S00005. | §15 |
 | (reserva) | **Trampa Portal** | **T10.** «El portal del trabajador cambia el estado y el stock con un `UPDATE` directo, como lo dejó Berme.» | No: el servidor pasa a `portal_trabajador`, que no puede escribir en ninguna tabla; solo ejecuta `avanzar_pedido_trabajador` y `ajustar_existencias_trabajador` (script 23), que comprueban que es un trabajador activo y firman la auditoría a su nombre. | §16 |
-| 14:30–15:00 | Cierre | **16.** ¿Qué mejorarías primero y cuál ha sido tu parte del trabajo? | Una mejora concreta y realista (Odoo, SO024 oficial, memoria…). La parte propia, contada tal como fue: la decide el equipo, no esta guía. | §0 |
+| 14:30–15:00 | Cierre | **16.** ¿Qué mejorarías primero y cuál ha sido tu parte del trabajo? | Explicar los límites de trazabilidad, sin prometer nuevas funciones para esta entrega. La parte propia, contada tal como fue: la decide el equipo, no esta guía. | §0 |
 
 ## 3. Respuestas de las preguntas trampa (para el tribunal)
 
@@ -57,7 +57,7 @@
 | T6 (Seguridad) | Confunde hash con cifrado | `crypt(p, hash) <> hash` para comprobar (`02_funciones.sql:25`); contraseña nueva con `establecer_password` (`:427-446`) |
 | T7 (Git) | Confunde el autor de la fusión con el de los commits | `git log --format='%an' 7715f83^1..7715f83^2` → 25 commits de `Alvarobaz` |
 | T8 (Odoo) | Pide una evidencia que no existe | No hay nada en `05_Odoo/`; `05_Odoo/recorrido-manual-odoo.md` es un borrador |
-| T9 (Integración) | Da por cerrado algo provisional | `06_Intermodular/SO024/caso-comun-SO024.md` (7 datos sin acordar); `03_PSP/evidencias/so024_provisional/README.md` y `06_Intermodular/evidencias/regresion-final/06_so024_provisional/00_cadena.txt` (lanzador, datos PROVISIONALES) |
+| T9 (Integración) | Confunde el caso documental con integración demostrada | `06_Intermodular/CASO_COMUN_S00005.md` (sin prueba de S00005 fuera de Odoo); `03_PSP/evidencias/so024_provisional/README.md` y `06_Intermodular/evidencias/regresion-final/06_so024_provisional/00_cadena.txt` (lanzador, datos PROVISIONALES) |
 | T10 (Portal) | Supone que el portal escribe en las tablas | `23_portal_trabajador.sql:218-250` (rol sin escritura y solo dos `GRANT EXECUTE`); `servidor-admin/rutas-trabajador.js:77-103` llama a la función con el usuario de la sesión |
 
 ## 4. Preguntas de reserva (para la segunda vuelta)
@@ -133,7 +133,7 @@ Marca una casilla por fila **justo después del simulacro**, sin mirar la guía.
 | 30 | Roles de PostgreSQL frente a roles de la aplicación | ☐ | ☐ | ☐ | §13 |
 | 31 | Límite de intentos de login | ☐ | ☐ | ☐ | §13 |
 | 32 | Git: ramas, merge, worktree y autoría | ☐ | ☐ | ☐ | §14 |
-| 33 | Recorrido de SO024 y qué es provisional | ☐ | ☐ | ☐ | §15 |
+| 33 | S00005 documental y límites de integración | ☐ | ☐ | ☐ | §15 |
 | 34 | Portal del trabajador: login único, `portal_trabajador` y las dos funciones del 23 | ☐ | ☐ | ☐ | §16 |
 | 35 | Las limitaciones, dichas antes de que pregunten | ☐ | ☐ | ☐ | todas |
 | 36 | Trampas: no he caído en ninguna (anota cuáles) | ☐ | ☐ | ☐ | §3 de este archivo |
@@ -176,7 +176,7 @@ Lo que tengo que estudiar antes del siguiente simulacro: _______________________
 | 30 | Roles de PostgreSQL frente a roles de la aplicación | ☐ | ☐ | ☐ | §13 |
 | 31 | Límite de intentos de login | ☐ | ☐ | ☐ | §13 |
 | 32 | Git: ramas, merge, worktree y autoría | ☐ | ☐ | ☐ | §14 |
-| 33 | Recorrido de SO024 y qué es provisional | ☐ | ☐ | ☐ | §15 |
+| 33 | S00005 documental y límites de integración | ☐ | ☐ | ☐ | §15 |
 | 34 | Portal del trabajador: login único, `portal_trabajador` y las dos funciones del 23 | ☐ | ☐ | ☐ | §16 |
 | 35 | Las limitaciones, dichas antes de que pregunten | ☐ | ☐ | ☐ | todas |
 | 36 | Trampas: no he caído en ninguna (anota cuáles) | ☐ | ☐ | ☐ | §3 de este archivo |
@@ -219,7 +219,7 @@ Lo que tengo que estudiar antes del siguiente simulacro: _______________________
 | 30 | Roles de PostgreSQL frente a roles de la aplicación | ☐ | ☐ | ☐ | §13 |
 | 31 | Límite de intentos de login | ☐ | ☐ | ☐ | §13 |
 | 32 | Git: ramas, merge, worktree y autoría | ☐ | ☐ | ☐ | §14 |
-| 33 | Recorrido de SO024 y qué es provisional | ☐ | ☐ | ☐ | §15 |
+| 33 | S00005 documental y límites de integración | ☐ | ☐ | ☐ | §15 |
 | 34 | Portal del trabajador: login único, `portal_trabajador` y las dos funciones del 23 | ☐ | ☐ | ☐ | §16 |
 | 35 | Las limitaciones, dichas antes de que pregunten | ☐ | ☐ | ☐ | todas |
 | 36 | Trampas: no he caído en ninguna (anota cuáles) | ☐ | ☐ | ☐ | §3 de este archivo |
@@ -233,7 +233,7 @@ Lo que tengo que estudiar antes del siguiente simulacro: _______________________
 3. **Prioridad:**
    - Primero, **Acceso a Datos** (filas 2 a 12): su enunciado dice que «es imprescindible aprobar todas las partes» (AD-138).
    - Después, **Python** (filas 16 a 23): su defensa pesa un 30 % e incluye «explicación individual de pandas y cardinalidades» (9 %) y «análisis estadístico/ML honesto» (7 %).
-   - **Odoo** (fila 24): aunque esté pendiente, los tres tienen que saber qué pide la rúbrica y en qué estado está.
+   - **Odoo** (fila 24): los tres deben distinguir la evidencia S00005 del PDF de la conexión no verificada y de los requisitos aún parciales.
    - **La fila 35** (limitaciones) y **la 36** (trampas) son las que más se notan delante de un tribunal.
 4. **Resumen de cada ronda** (lo rellena quien hace de anotador):
 

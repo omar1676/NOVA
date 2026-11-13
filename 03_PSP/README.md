@@ -21,7 +21,7 @@ archivos en `salidas/`.
 | **Cómo se inicia** | Desde esta carpeta: `javac -encoding UTF-8 -d clases *.java pruebas\*.java src\Psp\*.java` y `java -cp clases ProcesadorPedidosCustom datos\custom40_fabricacion_psp.csv` |
 | **Pruebas** | `java -cp clases PruebasPsp`: 27 de 27. `scripts/comprobar_psp.py` (raíz del repositorio) correcto en la regresión de cierre; corrección original de Berme `0baf61f` incorporada como `4f09742` |
 | **Rúbrica** | IM §4.3 y anexo: 19 requisitos, 17 cumplidos; falta relacionar la ficha con el pedido de Odoo. Detalle en `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` (§2.3) |
-| **Conexión con otras asignaturas** | Lee el CSV que genera `02_Acceso_Datos/sql/15_exportar_fabricacion.sql`, con el formato de `06_Intermodular/SO024/contrato-fabricacion.md`. La ficha es para el taller del caso común SO024 |
+| **Conexión con otras asignaturas** | Lee el CSV que genera `02_Acceso_Datos/sql/15_exportar_fabricacion.sql`, con el formato de `06_Intermodular/SO024/contrato-fabricacion.md`. La ficha se demuestra con CUSTOM-40; SO024 es un ensayo provisional y no hay ficha acreditada de S00005 |
 | **Evidencias y memoria** | `evidencias/` (ejecución de CUSTOM-40, errores controlados, hijos por separado, pruebas y SO024 provisional) y `memoria/DOCUMENTACION_PSP.md` |
 
 ## Las clases
@@ -264,19 +264,7 @@ El script deja `fabricacion_psp.csv` en la carpeta desde la que se lanza.
   - en el CSV y en cada respuesta `OK;CUSTOM-40`;
   - en el nombre de la ficha y dentro de ella;
   - en el registro, junto con el nombre del archivo de origen.
-- **Lo que falta para Odoo.** Hoy **no hay ninguna exportación de Odoo** en el
-  repositorio. El pedido del ejemplo del enunciado (SO024, Club Halcones,
-  Runner X, tallas 38–46) solo se ha probado con datos **PROVISIONALES**: el
-  script 18 lo prepara en PostgreSQL, la aplicación Java lo crea y lo confirma,
-  el 15 lo exporta con `-v referencia=SO024` y PSP lo procesa con código 0
-  (`evidencias/so024_provisional/`). Faltan los 7 datos que tienen que
-  acordar los tres (`../06_Intermodular/SO024/caso-comun-SO024.md`). No se ha supuesto
-  que CUSTOM-40 y SO024 sean el mismo pedido. Cuando Odoo tenga el pedido, hay
-  dos caminos:
-  - exportar sus líneas a un CSV con estas mismas 8 columnas, y PSP lo procesa
-    sin cambiar nada;
-  - o registrar CUSTOM-40 en Odoo con esa misma referencia (ver
-    `05_Odoo/recorrido-manual-odoo.md`, que es un borrador).
+- **Límite de Odoo.** S00005 del Club Atlético NOVA es el caso documentado en el PDF de Berme. No hay CSV ni ficha acreditados de S00005 en PSP. CUSTOM-40 y el ensayo SO024 PROVISIONAL conservan sus resultados, pero no prueban esa venta. SO024 es el ejemplo del enunciado; no hay que crear un pedido oficial con ese nombre. La relación con una exportación real de Odoo sigue sin demostrarse. Ver `../06_Intermodular/CASO_COMUN_S00005.md`.
 
 ## La versión anterior: `LanzadorValidacion` y `AnalizadorTallas`
 

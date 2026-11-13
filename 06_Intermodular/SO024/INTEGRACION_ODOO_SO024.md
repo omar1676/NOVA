@@ -1,5 +1,7 @@
 # Odoo y SO024: preparación conservada y límites de la entrega
 
+> **Archivo histórico.** El caso de entrega es [S00005 del Club Atlético NOVA](../CASO_COMUN_S00005.md). El plan SO024 siguiente queda sustituido y no se ejecuta. Se conserva para documentar la preparación y los ensayos anteriores, sin atribuirlos a S00005.
+
 **Cierre del 13/11/2026:** este plan se conserva como explicación técnica. No se ejecutará una nueva integración en esta entrega, no se esperan más archivos y no se fijan datos oficiales. Las consultas no se ejecutaron sobre la base del equipo. El guion disponible usa CUSTOM-40 y evidencia documental de Odoo.
 
 Revisión del 13/11/2026 sobre `revision/incorporar-limpieza-main-20261113`, base de código `d24fa27`, descendiente de `a6151db`.
@@ -112,7 +114,7 @@ La confirmación del equipo en esta revisión es que **siguen pendientes**. La f
 6. Códigos de variante tras completar la tabla anterior.
 7. Número de venta de Odoo y cómo se vincula mediante `client_order_ref = SO024`.
 
-También faltan fecha objetivo y contacto ficticio del Club Halcones, según el documento de pendientes. No presentar CUSTOM-40 ni S00005 como sustitutos del caso exigido.
+También faltan fecha objetivo y contacto ficticio del Club Halcones, según el documento de pendientes. Esta restricción del plan anterior queda descartada: el equipo elige S00005 como caso de Odoo. CUSTOM-40 sigue siendo una prueba independiente, sin equivalencia acreditada con S00005.
 
 ## 5. Ruta de aceptación del caso común
 

@@ -51,7 +51,7 @@ cuándo se escribió cada uno.
 | 15 | `15_exportar_fabricacion.sql` | Exporta a un CSV para PSP la orden de fabricación de un pedido Custom confirmado de 40 pares: `CUSTOM-40` por defecto (necesita el 14) u otro con `-v referencia=SO024`. Opcional | no |
 | 16 | `16_exportar_csv_dashboard.sql` | Exporta los cinco CSV del dashboard de Python (clientes, modelos, pedidos, líneas y stock). Solo lee. Opcional | no |
 | 17 | `17_usuario_java.sql` | **Crea `java_nova`, el usuario con el que se conecta la aplicación Java**, y deja al comercial marcar pedidos Custom. Pide la contraseña por teclado. Se puede lanzar después del 7 o al final | **sí** |
-| 18 | `18_datos_so024.sql` | **Datos del caso común SO024**: el cliente Club Halcones, el modelo Runner X con sus tallas 38–46 (SKU y existencias). **No crea el pedido**: SO024 se crea y confirma desde la aplicación Java. El precio, el color y el stock se pasan con `-v` hasta que se acuerden; sin ellos no inserta nada. Va al final, después de las pruebas | no |
+| 18 | `18_datos_so024.sql` | **Datos del ensayo opcional SO024**: el cliente Club Halcones, el modelo Runner X con sus tallas 38–46 (SKU y existencias). **No crea el pedido**: SO024 se crea y confirma desde la aplicación Java. El precio, el color y el stock se pasan con `-v` para reproducir el ensayo; sin ellos no inserta nada. Va al final, después de las pruebas | no |
 | 19 | `19_usuario_web.sql` | **Crea `panel_lectura`, un rol de solo lectura, y `web_nova`, el usuario con el que se conecta el servidor del panel de administración** (`servidor-admin/`). `web_nova` solo puede pasar a `panel_lectura` con `SET ROLE` y no hereda nada. `panel_lectura` no puede escribir en ninguna tabla ni leer `password_hash`, `dni` ni `direccion_entrega`. Pide la contraseña por teclado. Se puede lanzar después del 7 o al final | **sí** |
 | 20 | `20_tienda_web.sql` | **Tienda web.** Crea `cuentas_cliente` (las contraseñas de los clientes que se registran en la web, aparte de las de los trabajadores) y cinco funciones: `registrar_cliente`, `iniciar_sesion_cliente`, `crear_compra_web`, `confirmar_compra_web` y `cancelar_compra_web`. Las de compra usan `realizar_compra`, `anadir_linea_pedido` y los triggers de siempre. Crea también `tienda_web`, un rol que no puede escribir en ninguna tabla salvo a través de esas funciones, y `tienda_nova`, el usuario de la tienda en `servidor-admin/`. Pide la contraseña por teclado. **Va después de la batería** | **sí** |
 | 21 | `21_catalogo_web.sql` | **Inserta los 100 modelos de la web, todos a la venta**, con su nombre comercial (NOVA Street Vortex, NOVA Luxe Onyx...): un color, las tallas de su colección y 5 pares por talla en los 12 que ya se vendían o 20 en los otros 88. Se puede repetir y renombra los 12 si la base tenía los nombres antiguos (NOVA Street 01...). **Va después de la batería** | no |
@@ -1372,8 +1372,7 @@ byte a byte.
 
 Para poder relacionar los CSV con la base, tienen que llevar **los mismos
 identificadores que ella**. El formato del CSV de fabricación está descrito en
-`06_Intermodular/SO024/contrato-fabricacion.md`, y los datos del caso común que faltan
-por acordar, en `06_Intermodular/SO024/caso-comun-SO024.md`.
+`06_Intermodular/SO024/contrato-fabricacion.md`, y la preparación histórica del ejemplo SO024, no necesaria para presentar S00005 documentalmente, en `06_Intermodular/SO024/caso-comun-SO024.md`.
 De los que PostgreSQL ya tiene y puede exportar hoy:
 
 - `pedidos.id_pedido` y `pedidos.referencia`

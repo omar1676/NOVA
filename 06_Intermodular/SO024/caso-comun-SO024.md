@@ -1,5 +1,7 @@
 # Caso común SO024
 
+> **Archivo histórico.** El caso de entrega es [S00005 del Club Atlético NOVA](../CASO_COMUN_S00005.md). El plan SO024 siguiente queda sustituido y no se ejecuta. Se conserva para documentar la preparación y los ensayos anteriores, sin atribuirlos a S00005.
+
 Del enunciado del proyecto intermodular: **SO024 · Club Halcones · Runner X · 40 pares · tallas 38–46 · diseño personalizado.**
 
 El mismo pedido se enseña en todas las asignaturas, con la misma referencia, `SO024`. No hay sincronización automática: la integración consiste en que los datos coincidan, y se comprueba con la tabla de abajo.

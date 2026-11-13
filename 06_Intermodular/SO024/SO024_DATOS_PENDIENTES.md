@@ -1,5 +1,7 @@
 # SO024 · Datos que hay que acordar y prueba completa preparada
 
+> **Archivo histórico.** El caso de entrega es [S00005 del Club Atlético NOVA](../CASO_COMUN_S00005.md). El plan SO024 siguiente queda sustituido y no se ejecuta. Se conserva para documentar la preparación y los ensayos anteriores, sin atribuirlos a S00005.
+
 El caso común del enunciado es **«SO024 · Club Halcones · Modelo Runner X · 40 pares · tallas 38-46 · diseño personalizado»** (IM p. 5). El enunciado no da el color, el precio, el reparto por talla, la personalización, la fecha objetivo ni el contacto. Por eso hay **7 datos por acordar** en `06_Intermodular/SO024/caso-comun-SO024.md` §1, que deciden **los tres**. **[PENDIENTE (los tres): acordar los 7 datos y hacer el SO024 oficial.]**
 
 > **Estado el 13/11/2026:** la cadena 18 → Java → 15 → PSP → 16 → Python está probada **de principio a fin sobre el árbol final**, pero **con datos PROVISIONALES** (`06_Intermodular/evidencias/regresion-final/06_so024_provisional/` y, la parte de PSP, `03_PSP/evidencias/so024_provisional/`): reparto **2/3/5/6/7/6/5/4/2**, precio **99,90 €**, color **«PROVISIONAL»**, stock **10** por talla y personalización «PROVISIONAL: escudo del Club Halcones en el lateral». El pedido se creó y se confirmó con los **métodos** de la pestaña «Nuevo pedido» (no con la ventana). Falta Odoo. **Nada de eso es un dato acordado** y no se puede presentar como el SO024 oficial.
