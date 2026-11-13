@@ -24,7 +24,7 @@ const crearRutasTrabajador = require('./rutas-trabajador'); // portal del trabaj
 const odoo = require('./odoo'); // conector de Berme: desactivado sin configuracion
 
 const PUERTO = Number(process.env.PUERTO) || 3000;
-const HOST = '127.0.0.1'; // solo este ordenador: el servidor no se abre a la red
+const HOST = process.env.HOST || '127.0.0.1'; // solo este ordenador; en Docker, compose.yaml pone 0.0.0.0 y publica el puerto solo en 127.0.0.1
 const CARPETA_PANEL = path.join(__dirname, '..', '01_Interfaces', 'admin');
 const CARPETA_TIENDA = path.join(__dirname, '..', '01_Interfaces', 'cliente');
 const CARPETA_PORTAL = path.join(__dirname, '..', '01_Interfaces', 'trabajador');
@@ -464,12 +464,12 @@ if (require.main === module) {
       console.error('No se pudo arrancar el servidor:', error.message);
       process.exit(1);
     }
-    console.log(`Panel de NOVA en http://${HOST}:${PUERTO}`);
+    console.log(`Panel de NOVA en http://localhost:${PUERTO}`);
     console.log(bd.poolTienda
-      ? `Tienda web en http://${HOST}:${PUERTO}/tienda/`
+      ? `Tienda web en http://localhost:${PUERTO}/tienda/`
       : 'Tienda web sin configurar (faltan TIENDA_PGUSER y TIENDA_PGPASSWORD en .env)');
     console.log(correo.resumen()); // Resend, Ethereal (solo desarrollo) o sin correo
-    console.log(`Portal del trabajador en http://${HOST}:${PUERTO}/trabajador/ (script 23)`);
+    console.log(`Portal del trabajador en http://localhost:${PUERTO}/trabajador/ (script 23)`);
     console.log(odoo.resumen()); // las rutas de pedidos.js (crear pedidos y Odoo) no se montan
   });
 }

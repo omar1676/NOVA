@@ -1,0 +1,73 @@
+# NOVA Sneakers con Docker Compose: la base de datos, el servidor Node y el
+# dashboard de Python. Java Swing y PSP se siguen ejecutando fuera de Docker.
+#
+#   1. Copiar .env.example como .env (en esta carpeta) y escribir las contrasenas.
+#   2. docker compose up -d --build
+#   3. Panel y tienda: http://localhost:3000   Dashboard: http://localhost:8501
+#
+# Los puertos se publican solo en 127.0.0.1: desde otro equipo no se abren.
+
+services:
+  # PostgreSQL 17. La primera vez monta la base con los scripts de 02_Acceso_Datos/sql.
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: nova_sneakers
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${CLAVE_POSTGRES:?Falta CLAVE_POSTGRES en el archivo .env}
+      # Las lee 02_Acceso_Datos/docker/iniciar_base.sh
+      CLAVE_JAVA: ${CLAVE_JAVA:?Falta CLAVE_JAVA en el archivo .env}
+      CLAVE_WEB: ${CLAVE_WEB:?Falta CLAVE_WEB en el archivo .env}
+      CLAVE_TIENDA: ${CLAVE_TIENDA:?Falta CLAVE_TIENDA en el archivo .env}
+      CLAVE_DEMO: ${CLAVE_DEMO:?Falta CLAVE_DEMO en el archivo .env}
+      TZ: Europe/Madrid
+    volumes:
+      - datos_postgres:/var/lib/postgresql/data   # los datos sobreviven a down y up
+      - ./02_Acceso_Datos/sql:/nova/sql:ro
+      - ./02_Acceso_Datos/docker/iniciar_base.sh:/docker-entrypoint-initdb.d/iniciar_base.sh:ro
+    ports:
+      - "127.0.0.1:${PUERTO_BD:-5433}:5432"   # para Java Swing, PSP y pgAdmin
+    healthcheck:
+      # Por TCP: mientras se monta la base, PostgreSQL todavia no escucha en la red
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d nova_sneakers"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 120s
+
+  # Servidor Node: panel de Alvaro, tienda web y portal del trabajador
+  servidor:
+    build:
+      context: .
+      dockerfile: servidor-admin/Dockerfile
+    environment:
+      HOST: 0.0.0.0
+      PUERTO: 3000
+      PGHOST: db
+      PGPORT: 5432
+      PGDATABASE: nova_sneakers
+      PGUSER: web_nova
+      PGPASSWORD: ${CLAVE_WEB}
+      TIENDA_PGUSER: tienda_nova
+      TIENDA_PGPASSWORD: ${CLAVE_TIENDA}
+      CORREO_PROVEEDOR: ${CORREO_PROVEEDOR:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM: ${RESEND_FROM:-}
+      ODOO_URL: ${ODOO_URL:-}
+      ODOO_DB: ${ODOO_DB:-}
+      ODOO_API_KEY: ${ODOO_API_KEY:-}
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Dashboard de Streamlit. Lee los CSV de 04_Python/entrada_acc, no la base.
+  # El panel lo muestra en la pagina "Analisis de datos" (http://localhost:8501).
+  dashboard:
+    build: ./04_Python
+    ports:
+      - "127.0.0.1:8501:8501"
+
+volumes:
+  datos_postgres:
