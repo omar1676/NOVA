@@ -17,7 +17,7 @@ const siguienteEstado = {
   enviado: "entregado"
 };
 
-// Hasta 9 cifras: un numero mayor no cabe en un integer de PostgreSQL
+// Hasta 9 cifras: asi siempre cabe en un integer de PostgreSQL (maximo 2147483647)
 function esEnteroPositivo(valor) {
   return /^[1-9][0-9]{0,8}$/.test(String(valor));
 }
