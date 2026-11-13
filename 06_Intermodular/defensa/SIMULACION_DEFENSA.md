@@ -58,7 +58,7 @@
 | T7 (Git) | Confunde el autor de la fusión con el de los commits | `git log --format='%an' 7715f83^1..7715f83^2` → 25 commits de `Alvarobaz` |
 | T8 (Odoo) | Pide una evidencia que no existe | No hay nada en `05_Odoo/`; `05_Odoo/recorrido-manual-odoo.md` es un borrador |
 | T9 (Integración) | Da por cerrado algo provisional | `06_Intermodular/SO024/caso-comun-SO024.md` (7 datos sin acordar); `03_PSP/evidencias/so024_provisional/README.md` y `06_Intermodular/evidencias/regresion-final/06_so024_provisional/00_cadena.txt` (lanzador, datos PROVISIONALES) |
-| T10 (Portal) | Supone que el portal escribe en las tablas | `23_portal_trabajador.sql:210-242` (rol sin escritura y solo dos `GRANT EXECUTE`); `servidor-admin/rutas-trabajador.js:77-103` llama a la función con el usuario de la sesión |
+| T10 (Portal) | Supone que el portal escribe en las tablas | `23_portal_trabajador.sql:218-250` (rol sin escritura y solo dos `GRANT EXECUTE`); `servidor-admin/rutas-trabajador.js:77-103` llama a la función con el usuario de la sesión |
 
 ## 4. Preguntas de reserva (para la segunda vuelta)
 
