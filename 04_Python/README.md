@@ -93,7 +93,7 @@ Hace falta **Python 3.12 o superior** (probado con 3.13.5). En Windows, el coman
 En Windows, desde la raíz del repositorio:
 
 ```
-cd python-analisis
+cd 04_Python
 py -3.13 -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
 ```

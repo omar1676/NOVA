@@ -270,3 +270,21 @@ def comparar_rfm_kmeans(tabla_con_cluster):
     tabla.columns = [f"cluster_{numero}" for numero in tabla.columns]
     tabla["total"] = tabla.sum(axis=1)
     return tabla.reset_index()
+
+
+def segmentar_clientes(pedidos_unicos, clientes, fecha_corte):
+    """
+    RFM, KMeans y la comparacion de los dos, en este orden. Devuelve las cinco
+    tablas en un diccionario (su nombre es el del CSV). La usan main.py y el dashboard.
+    """
+    tabla_rfm = rfm(pedidos_unicos, clientes, fecha_corte)
+    resumen = resumen_segmentos(tabla_rfm)
+    # kmeans_clientes devuelve tres cosas: la eleccion de k, los grupos y la tabla RFM con la columna cluster
+    seleccion_k, clusters, tabla_rfm = kmeans_clientes(tabla_rfm)
+    return {
+        "rfm_clientes": tabla_rfm,
+        "rfm_segmentos": resumen,
+        "kmeans_seleccion_k": seleccion_k,
+        "kmeans_clusters": clusters,
+        "rfm_frente_a_kmeans": comparar_rfm_kmeans(tabla_rfm),
+    }

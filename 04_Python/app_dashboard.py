@@ -1,5 +1,5 @@
 """
-Dashboard de NOVA Sneakers (apartados 6.14 a 6.17). Desde python-analisis:
+Dashboard de NOVA Sneakers (apartados 6.14 a 6.17). Desde la carpeta 04_Python:
 
     .venv\\Scripts\\streamlit.exe run app_dashboard.py
 
@@ -29,8 +29,8 @@ import metadatos
 import pipeline
 import registro
 import visualizaciones
-from analiticas import NO_CALCULABLE
-from informe import no_calculable, numero
+from analiticas import NO_CALCULABLE, es_no_calculable
+from informe import numero
 
 # Cada origen tiene su carpeta: nunca se mezclan. El primero es el de por defecto
 # (la exportacion de Acceso a Datos). Su tipo (PRUEBA o REAL) lo dice ORIGEN.txt.
@@ -290,7 +290,7 @@ def pestana_direccion(c):
     tarjeta(fila[1], k["K08"])
     tarjeta(fila[2], k["K03"])
     meses = tablas["ventas_por_periodo"]
-    if no_calculable(meses):
+    if es_no_calculable(meses):
         fila[3].metric("Importe del último mes", "N/D", border=True, help=meses["motivo"].iloc[0])
     else:
         ultimo = meses.iloc[-1]
@@ -307,7 +307,7 @@ def pestana_direccion(c):
         grafico(visualizaciones.grafico_evolucion, tablas["pedidos_unicos"], tablas["matriz_modelo_mes"], c)
     with derecha:
         st.markdown("**Importe confirmado por mes (€)**")
-        if no_calculable(meses):
+        if es_no_calculable(meses):
             aviso_no_calculable(meses)
         else:
             st.line_chart(meses, x="anio_mes", y="importe", x_label="Mes del pedido", y_label="Importe confirmado (€)")
@@ -428,7 +428,7 @@ def pestana_clientes(c):
     st.subheader("Grupos de KMeans")
     alcance(c, filtrado=False)
     clusters = segmentos["kmeans_clusters"]
-    if no_calculable(clusters):
+    if es_no_calculable(clusters):
         aviso_no_calculable(clusters)
     else:
         seleccion = segmentos["kmeans_seleccion_k"]
@@ -447,7 +447,7 @@ def pestana_clientes(c):
     st.subheader("Cohortes de compra")
     alcance(c)
     cohortes = tablas["cohortes"]
-    if no_calculable(cohortes):
+    if es_no_calculable(cohortes):
         aviso_no_calculable(cohortes)
     else:
         st.caption("Cada fila es el mes de la primera compra; cada columna, la parte de esos clientes que vuelve a "
@@ -600,7 +600,7 @@ def pestana_prediccion(c):
     alcance(c, filtrado=False)
     st.caption("La predicción usa siempre la serie completa de cada modelo: con meses filtrados, el entrenamiento y "
                "la evaluación por fecha dejarían de tener sentido.")
-    if no_calculable(metricas):
+    if es_no_calculable(metricas):
         aviso_no_calculable(metricas)
         return
     por_metodo = metricas.set_index("metodo")

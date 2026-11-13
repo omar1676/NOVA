@@ -112,6 +112,20 @@ ARCHIVOS = {
     },
 }
 
+# Columnas que no se pueden repetir en su tabla: (tabla, columna)
+CLAVES_UNICAS = [("clientes", "id_cliente"), ("modelos", "id_modelo"), ("pedidos", "id_pedido"),
+                 ("pedidos", "referencia"), ("lineas_pedido", "id_linea"), ("stock", "sku")]
+
+# Claves que unen las tablas: (tabla hija, su columna, tabla padre, columna del padre).
+# Cada valor de la hija tiene que existir en el padre.
+RELACIONES = [
+    ("pedidos", "id_cliente", "clientes", "id_cliente"),
+    ("lineas_pedido", "id_pedido", "pedidos", "id_pedido"),
+    ("lineas_pedido", "id_modelo", "modelos", "id_modelo"),
+    ("lineas_pedido", "sku", "stock", "sku"),
+    ("stock", "id_modelo", "modelos", "id_modelo"),
+]
+
 # ---------------------------------------------------------------------
 # Fase 2: catalogos y criterios de las reglas de calidad y del analisis
 # ---------------------------------------------------------------------

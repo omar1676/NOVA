@@ -227,6 +227,11 @@ def no_calculable(motivo):
     return pd.DataFrame({"estado": [NO_CALCULABLE], "motivo": [motivo]})
 
 
+def es_no_calculable(tabla):
+    """True si la tabla es la fila NO CALCULABLE de no_calculable (y no una tabla con datos)."""
+    return "estado" in tabla.columns and len(tabla) == 1 and tabla["estado"].iloc[0] == NO_CALCULABLE
+
+
 def porcentaje(parte, total):
     """parte / total en %, con un decimal. Sin total no hay porcentaje: nulo, no 0."""
     if not total:
@@ -249,6 +254,16 @@ def de_demanda(tabla):
 def de_venta(pedidos_unicos):
     """Pedidos confirmados en adelante."""
     return pedidos_unicos[pedidos_unicos["es_confirmado"]]
+
+
+def rellenar_meses(por_mes):
+    """
+    Una tabla o serie con un mes (Period) en el indice, con todos los meses
+    entre el primero y el ultimo: un mes que falta DENTRO del periodo queda
+    con 0. Antes del primero y despues del ultimo no se inventa ninguno.
+    """
+    todos_los_meses = pd.period_range(por_mes.index.min(), por_mes.index.max(), freq="M")
+    return por_mes.reindex(todos_los_meses, fill_value=0)
 
 
 def pedidos_por_estado(pedidos_unicos):
@@ -298,9 +313,7 @@ def ventas_por_periodo(pedidos_unicos):
     mes = venta["fecha_pedido"].dt.to_period("M")
     tabla = venta.groupby(mes).agg(pedidos=("id_pedido", "count"), pares=("pares", "sum"),
                                    importe=("importe", "sum"))
-    # Todos los meses entre el primero y el ultimo; un mes sin ventas queda con 0
-    todos_los_meses = pd.period_range(tabla.index.min(), tabla.index.max(), freq="M")
-    tabla = tabla.reindex(todos_los_meses, fill_value=0)
+    tabla = rellenar_meses(tabla)   # un mes sin ventas dentro del periodo, con 0
     tabla["importe"] = tabla["importe"].round(2)
     tabla["ticket_medio"] = (tabla["importe"] / tabla["pedidos"]).where(tabla["pedidos"] > 0).round(2)
     # Si el mes anterior tuvo 0 euros, la variacion no existe (seria infinita)

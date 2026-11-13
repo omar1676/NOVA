@@ -24,6 +24,7 @@ from pathlib import Path
 import pandas as pd
 
 import config
+from analiticas import de_demanda, de_venta, es_no_calculable
 
 CONSULTAS = {
     "P-A": {
@@ -150,7 +151,7 @@ def conciliar(carpeta_sql, pedidos_unicos, lineas_enriquecidas):
 
     # P-A: pedidos no cancelados
     sql = leer_resultado(carpeta_sql, "P-A").iloc[0]
-    no_cancelados = pedidos_unicos[~pedidos_unicos["es_cancelado"]]
+    no_cancelados = de_demanda(pedidos_unicos)
     filas.append(comparar("P-A", "pedidos", "no cancelados", sql["pedidos"], len(no_cancelados)))
     filas.append(comparar("P-A", "pares", "no cancelados", sql["pares_solicitados"], no_cancelados["pares"].sum()))
     filas.append(comparar("P-A", "importe", "no cancelados", sql["importe_ventas"],
@@ -164,7 +165,7 @@ def conciliar(carpeta_sql, pedidos_unicos, lineas_enriquecidas):
                                  [("pedidos", False), ("pares", False), ("importe", True)])
 
     # P-C: por modelo, lineas de pedidos no cancelados
-    lineas = lineas_enriquecidas[~lineas_enriquecidas["es_cancelado"]]
+    lineas = de_demanda(lineas_enriquecidas)
     por_modelo = lineas.groupby("nombre_modelo").agg(pares=("cantidad", "sum"), pedidos=("id_pedido", "nunique"))
     python = por_modelo.reset_index().rename(columns={"nombre_modelo": "modelo"})   # el nombre de SQL
     filas += comparar_por_grupos("P-C", leer_resultado(carpeta_sql, "P-C"), python, "modelo",
@@ -187,7 +188,8 @@ def contrastar_caso_n(carpeta_sql, tablas):
     mes = sql["anio_mes"]
     meses = tablas["ventas_por_periodo"]
     del_mes = pd.DataFrame()
-    if "anio_mes" in meses.columns:   # sin ninguna venta, la tabla es NO CALCULABLE
+    # Sin ninguna venta, ventas_por_periodo es NO CALCULABLE: del_mes se queda vacio y el mes cuenta con 0
+    if not es_no_calculable(meses):
         del_mes = meses[meses["anio_mes"] == mes]
     for indicador, euros in [("pedidos", False), ("pares", False), ("importe", True)]:
         if len(del_mes) == 0:
@@ -215,8 +217,8 @@ def contrastar_caso_n(carpeta_sql, tablas):
     pedidos = tablas["pedidos_unicos"]
     python = {
         "clientes_con_pedidos": pedidos["id_cliente"].nunique(),
-        "clientes_con_demanda": pedidos.loc[~pedidos["es_cancelado"], "id_cliente"].nunique(),
-        "clientes_con_venta": pedidos.loc[pedidos["es_confirmado"], "id_cliente"].nunique(),
+        "clientes_con_demanda": de_demanda(pedidos)["id_cliente"].nunique(),
+        "clientes_con_venta": de_venta(pedidos)["id_cliente"].nunique(),
     }
     for indicador, valor in python.items():
         filas.append(comparar("N-3", indicador, "clientes únicos", sql[indicador], valor))

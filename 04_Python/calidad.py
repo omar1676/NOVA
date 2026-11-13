@@ -140,9 +140,7 @@ def regla_02_ids_duplicados(datos, textos):
     vacio no identifica la fila: se rechaza.
     """
     lista = []
-    unicos = [("clientes", "id_cliente"), ("modelos", "id_modelo"), ("pedidos", "id_pedido"),
-              ("pedidos", "referencia"), ("lineas_pedido", "id_linea"), ("stock", "sku")]
-    for nombre, columna in unicos:
+    for nombre, columna in config.CLAVES_UNICAS:
         valores = datos[nombre][columna]
         repetido = valores.duplicated(keep=False) & valores.notna()
         lista += por_filas("02", nombre, datos, textos, repetido, columna, BLOQUEANTE,
@@ -158,15 +156,8 @@ def regla_03_claves_huerfanas(datos, textos):
     Cada clave que une dos tablas tiene que existir en la otra. Una clave
     huerfana es una exportacion incompleta: bloqueante (apartado 6.14).
     """
-    relaciones = [
-        ("pedidos", "id_cliente", "clientes", "id_cliente"),
-        ("lineas_pedido", "id_pedido", "pedidos", "id_pedido"),
-        ("lineas_pedido", "id_modelo", "modelos", "id_modelo"),
-        ("lineas_pedido", "sku", "stock", "sku"),
-        ("stock", "id_modelo", "modelos", "id_modelo"),
-    ]
     lista = []
-    for hijos, columna, padres, columna_padre in relaciones:
+    for hijos, columna, padres, columna_padre in config.RELACIONES:
         valores = datos[hijos][columna]
         huerfana = valores.notna() & ~valores.isin(datos[padres][columna_padre])
         lista += por_filas("03", hijos, datos, textos, huerfana, columna, BLOQUEANTE,

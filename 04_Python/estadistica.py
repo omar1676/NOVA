@@ -22,7 +22,7 @@ import numpy as np
 import pandas as pd
 
 import config
-from analiticas import de_demanda, de_venta
+from analiticas import de_demanda, de_venta, rellenar_meses
 
 TALLAS_CENTRALES = [41, 42, 43]
 
@@ -311,9 +311,7 @@ def hipotesis_crecimiento(pedidos_unicos, tipo_origen):
         return insuficiente(fila, "no hay pedidos", tipo_origen)
     meses = demanda["fecha_pedido"].dt.to_period("M")
     por_mes = demanda.groupby(meses)["pares"].sum()
-    # Todos los meses entre el primero y el ultimo; un mes sin pedidos queda con 0 pares
-    todos_los_meses = pd.period_range(por_mes.index.min(), por_mes.index.max(), freq="M")
-    por_mes = por_mes.reindex(todos_los_meses, fill_value=0)
+    por_mes = rellenar_meses(por_mes)   # un mes sin pedidos dentro del periodo, con 0 pares
     fila["n"] = f"{len(por_mes)} meses"
     if len(por_mes) < 12:
         return insuficiente(fila, f"hacen falta 12 meses seguidos y hay {len(por_mes)}", tipo_origen)
