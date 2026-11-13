@@ -2,7 +2,7 @@
 
 > **Archivo histórico.** El caso de entrega es [S00005 del Club Atlético NOVA](../06_Intermodular/CASO_COMUN_S00005.md). El plan SO024 siguiente queda sustituido y no se ejecuta. Se conserva para documentar la preparación y los ensayos anteriores, sin atribuirlos a S00005.
 
-**Qué documenta el PDF de Berme de esta lista** (`odoo/documentacion/Odoo-NOVA-Sneakers.pdf`; detalle en `06_Intermodular/memoria/MEMORIA.md` §4):
+**Qué documenta el PDF de Berme de esta lista** (`odoo/documentacion/Odoo-NOVA-Sneakers.pdf`; detalle en `06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf` §4):
 
 | Sección de la lista | Estado según el PDF | Página |
 |---|---|---|
@@ -19,13 +19,13 @@
 | 10. Exportación CSV | No aportada | — |
 | 11. Adaptación | Atributo Talla, referencias internas y lista de materiales | 7-8, 16 |
 | 12. Copia de seguridad | Procedimiento documentado; no consta ninguna copia hecha ni restaurada. **[BERME: datos de la copia]** | 19 |
-| 13. Incidencias | Cinco incidencias en el PDF (`06_Intermodular/memoria/MEMORIA.md` §4.7) | 4, 8, 14-16 |
+| 13. Incidencias | Cinco incidencias en el PDF (`06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf` §4.7) | 4, 8, 14-16 |
 | 14. Memoria, punto 4 | Redactado (§4.1 a §4.8) | — |
 | 15. Conector | Documentado en una versión anterior del servidor; desactivado en la entrega | 13-15 |
 
 Sistemas de Gestión Empresarial (módulo 0491). **Actualización del 13/11/2026:** ya está el PDF de Berme, con evidencias OD-01 a OD-06. Su correspondencia con las rúbricas se revisa en [la revisión histórica](../06_Intermodular/SO024/INTEGRACION_ODOO_SO024.md); el plan de un SO024 oficial se descartó al elegir S00005. Las casillas siguientes son criterios de aceptación por verificar/cerrar para la entrega común; no significan que Berme no haya realizado el trabajo documentado. No se ha probado su instancia desde esta candidata.
 
-**Lo que ya hay de Berme en la rama** (anexo B de `06_Intermodular/memoria/MEMORIA.md`): el portal del trabajador, integrado y probado, y su conector con la API de Odoo, `servidor-admin/odoo.js`, integrado pero **desactivado** mientras falte alguna de `ODOO_URL`, `ODOO_DB` y `ODOO_API_KEY`. En la versión entregada el conector está desactivado y no se ha verificado contra ningún Odoo desde esta entrega; el PDF documenta pruebas de Berme con una versión anterior en su entorno (pp. 13-15). No sustituye a nada de esta lista. SO024 es el **ejemplo** de pedido del enunciado (IM p. 5), no un identificador obligatorio; el caso documentado es S00005.
+**Lo que ya hay de Berme en la rama** (anexo B de `06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf`): el portal del trabajador, integrado y probado, y su conector con la API de Odoo, `servidor-admin/odoo.js`, integrado pero **desactivado** mientras falte alguna de `ODOO_URL`, `ODOO_DB` y `ODOO_API_KEY`. En la versión entregada el conector está desactivado y no se ha verificado contra ningún Odoo desde esta entrega; el PDF documenta pruebas de Berme con una versión anterior en su entorno (pp. 13-15). No sustituye a nada de esta lista. SO024 es el **ejemplo** de pedido del enunciado (IM p. 5), no un identificador obligatorio; el caso documentado es S00005.
 
 **Dónde se guarda cada cosa:**
 
@@ -155,7 +155,7 @@ Sistemas de Gestión Empresarial (módulo 0491). **Actualización del 13/11/2026
 
 ## 14. Memoria, punto 4 (IM-COM-24)
 
-- [x] Redactar `06_Intermodular/memoria/MEMORIA.md` §4: hecho el 13/11, con los subapartados 4.1 a 4.8, a partir del PDF y con su página.
+- [x] Redactar `06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf` §4: hecho el 13/11, con los subapartados 4.1 a 4.8, a partir del PDF y con su página.
 
 ## 15. Si se usa el conector de la API (`servidor-admin/odoo.js`)
 
@@ -165,7 +165,7 @@ Hoy está integrado y **desactivado**; activarlo es opcional y no sustituye a na
 - [ ] Usuario de Odoo con los permisos justos para lo que hace el conector.
 - [ ] Las rutas de `servidor-admin/pedidos.js` (crear pedidos y enviarlos a Odoo) **no se montan**: escriben directamente en `pedidos` y en `log_eventos`, y en esta base ningún rol de la web puede hacerlo fuera de las funciones y los triggers. Para usarlas, habría que pasarlas a funciones `SECURITY DEFINER` con auditoría, como las de los scripts 22 y 23. **[BERME: confirmar que está de acuerdo con dejarlas sin montar y con los cambios en sus archivos (`12af0b4`)]**
 - [ ] Probar el conector contra el Odoo de la máquina virtual y guardar la prueba en `05_Odoo/`.
-- [ ] Explicarlo en la memoria como un paso hacia la integración productiva (`06_Intermodular/memoria/MEMORIA.md` §2.4), no como requisito.
+- [ ] Explicarlo en la memoria como un paso hacia la integración productiva (`06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf` §2.4), no como requisito.
 
 ---
 

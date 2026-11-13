@@ -50,7 +50,7 @@ Propuesta, **sin cambiar ningún identificador**:
 3. Pasárselos a Berme para la «Referencia interna» de cada variante en Odoo.
 4. **No volver a montar la base del equipo** después de eso. Si hiciera falta, repetir los pasos 2 y 3.
 
-Para una integración productiva, lo correcto sería un SKU fijo que no dependa de un número interno (`06_Intermodular/memoria/MEMORIA.md` §2.4, punto 2). Eso cambiaría el 18 y no se hace ahora.
+Para una integración productiva, lo correcto sería un SKU fijo que no dependa de un número interno (`06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf` §2.4, punto 2). Eso cambiaría el 18 y no se hace ahora.
 
 ---
 

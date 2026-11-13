@@ -18,10 +18,9 @@ Lo que une las asignaturas: el caso documentado S00005 de Odoo y las pruebas ind
 | Carpeta | Contenido |
 |---|---|
 | `SO024/` | Archivo del ejemplo SO024 y sus ensayos PROVISIONALES; incluye el contrato CSV aún vigente. El caso de Odoo actual es `CASO_COMUN_S00005.md`; no se ejecutará el plan antiguo de crear un SO024 oficial |
-| `memoria/` | `MEMORIA.md`: la memoria técnica común (9 puntos y conclusiones). Las memorias de cada asignatura están en la carpeta `memoria/` de cada una |
+| `memoria/` | `Memoria_NOVA_Sneakers.pdf` y `.docx`: la memoria del proyecto (Interfaces, PSP y Odoo). Las memorias de cada asignatura están en la carpeta `memoria/` de cada una |
 | `manuales/` | Instalación, demostración y la lista de comprobaciones manuales |
 | `rubricas/` | `MATRIZ_RUBRICAS.md` (estado de cada requisito de cada rúbrica, con su evidencia) y `MATRIZ_EVIDENCIAS.md` (qué archivo enseñar para cada bloque) |
-| `defensa/` | Guía, simulación y guion de presentación `.md` vigentes, con S00005. El `.pptx` tiene todavía el contenido anterior a S00005: no usarlo hasta corregirlo **[EQUIPO: corregirlo o retirarlo antes de entregar]** |
 | `evidencias/` | La regresión del código entregado (`cierre-entrega-20261113/`) y las dos anteriores del 13/11, históricas: `regresion-final/` y la misma sobre la rama local de la limpieza (`regresion-limpieza/`) |
 
 Cada documento sigue siendo la única fuente de su tema: los README de las asignaturas enlazan aquí en lugar de copiarlo.

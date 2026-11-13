@@ -26,7 +26,7 @@ NOVA/
 ├── 03_PSP/               Procesador de pedidos Custom con tres procesos hijos (y el analizador de tallas en src/Psp/)
 ├── 04_Python/            Calidad de datos, KPIs, estadística, segmentación, predicción y dashboard Streamlit
 ├── 05_Odoo/              Estado de Odoo y evidencia de S00005 (PDF en odoo/documentacion/)
-├── 06_Intermodular/      Caso de entrega, archivo SO024, memoria común, manuales, matrices de rúbricas, defensa y regresión completa
+├── 06_Intermodular/      Caso de entrega, archivo SO024, memoria, manuales, matrices de rúbricas y regresión completa
 ├── servidor-admin/       Servidor Node + Express, COMPARTIDO: da servicio a la tienda, al panel y al portal
 ├── scripts/              Comprobaciones rápidas de la web y de PSP
 ├── README.md
@@ -39,7 +39,7 @@ Dentro de cada asignatura: `evidencias/` guarda los resultados y las capturas de
 
 | Qué buscas | Dónde está |
 | --- | --- |
-| Memoria técnica común (9 puntos) | `06_Intermodular/memoria/MEMORIA.md` |
+| Memoria del proyecto (Interfaces, PSP y Odoo) | `06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf` (y `.docx`) |
 | Memoria de Acceso a Datos | `02_Acceso_Datos/memoria/MEMORIA_ACCESO_DATOS.md` |
 | Documentación de PSP | `03_PSP/memoria/DOCUMENTACION_PSP.md` |
 | Informe técnico de Python | `04_Python/memoria/INFORME_TECNICO_PYTHON.md` |
@@ -48,7 +48,6 @@ Dentro de cada asignatura: `evidencias/` guarda los resultados y las capturas de
 | Qué enseñar para cada bloque | `06_Intermodular/rubricas/MATRIZ_EVIDENCIAS.md` |
 | Instalación paso a paso y guion de la demostración | `06_Intermodular/manuales/` |
 | Caso de entrega S00005 y límites | `06_Intermodular/CASO_COMUN_S00005.md`; `06_Intermodular/SO024/` conserva el plan histórico |
-| Defensa y presentación | `06_Intermodular/defensa/` |
 | Regresión completa del 13/11 | `06_Intermodular/evidencias/regresion-final/README.md` y, sobre el árbol limpio, `06_Intermodular/evidencias/regresion-limpieza/README.md` |
 | Odoo: evidencia y límites | `05_Odoo/README.md`; la checklist se conserva como plan histórico |
 

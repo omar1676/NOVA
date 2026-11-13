@@ -1,6 +1,6 @@
 # NOVA Sneakers · Apartado de Acceso a Datos
 
-Entregable 05 de la rúbrica de Acceso a Datos: «Apartado de Acceso a Datos dentro de la memoria común: decisiones, pruebas, dificultades y aportaciones» (AD-121). Forma parte de `06_Intermodular/memoria/MEMORIA.md`.
+Entregable 05 de la rúbrica de Acceso a Datos: «Apartado de Acceso a Datos dentro de la memoria común: decisiones, pruebas, dificultades y aportaciones» (AD-121). Forma parte de `06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf`.
 
 > **Importante.** La rúbrica dice: «Es imprescindible aprobar todas las partes de los requisitos de Acceso a Datos para aprobar (Tribunal, memoria, entregable y defensa)» (AD-138). Este apartado es la parte de memoria.
 
@@ -20,7 +20,7 @@ Relación con el resto del proyecto (AD-01, AD-02 y AD-22):
 - **El ensayo SO024 PROVISIONAL**, con la misma referencia en PostgreSQL, en la ficha de PSP y en Python. Es una prueba histórica del ejemplo; no acredita el caso S00005 documentado en Odoo. El script 18 carga el cliente Club Halcones y el modelo Runner X; el pedido se crea desde Java. Hoy solo con datos provisionales (§13 y `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md`).
 - **PostgreSQL alimenta a los otros módulos:** el script 15 exporta la orden de fabricación para PSP y el 16, los cinco CSV de Python.
 - **Las ampliaciones web usan la misma base**, cada una con su propio rol mínimo: el panel de administración (19 y 22), la tienda (20 y 21) y el portal del trabajador (23). Comparten las cuentas de la tabla `usuarios` y la misma auditoría (§9.8).
-- **Odoo:** hay una correspondencia documental parcial, no una integración (`06_Intermodular/memoria/MEMORIA.md` §6.1): el mismo cliente y 40 pares en S00005 y en `CUSTOM-40`, aunque con precios distintos (89 € frente a 119,90 €), y la referencia `NOVA-0011` con el mismo importe, 4.796,00 €, en S00001 (solo en el texto del PDF de Berme, p. 13; hay que comprobarlo en su Odoo). Los SKU no coinciden: en Odoo, `NOVA-4-38` … `NOVA-4-46` son variantes de Runner X; aquí, `NOVA-4-40` … `NOVA-4-44` son de NOVA Velocity Rojo. **Límite declarado:** no hay exportación de Odoo ni conciliación probada. La regla propuesta (el SKU como «Referencia interna» de la variante y la referencia del pedido en «Referencia del cliente») está en `05_Odoo/recorrido-manual-odoo.md`.
+- **Odoo:** hay una correspondencia documental parcial, no una integración (`06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf` §6.1): el mismo cliente y 40 pares en S00005 y en `CUSTOM-40`, aunque con precios distintos (89 € frente a 119,90 €), y la referencia `NOVA-0011` con el mismo importe, 4.796,00 €, en S00001 (solo en el texto del PDF de Berme, p. 13; hay que comprobarlo en su Odoo). Los SKU no coinciden: en Odoo, `NOVA-4-38` … `NOVA-4-46` son variantes de Runner X; aquí, `NOVA-4-40` … `NOVA-4-44` son de NOVA Velocity Rojo. **Límite declarado:** no hay exportación de Odoo ni conciliación probada. La regla propuesta (el SKU como «Referencia interna» de la variante y la referencia del pedido en «Referencia del cliente») está en `05_Odoo/recorrido-manual-odoo.md`.
 
 ---
 
@@ -177,7 +177,7 @@ Están en `02_Acceso_Datos/sql/`: son 23. **El número del archivo no es el orde
 | Cuentas | `13_activar_usuarios.sql` (contraseñas de demostración), `17_usuario_java.sql` (usuario `java_nova`) y `19_usuario_web.sql` (usuario `web_nova` del servidor) | Piden las contraseñas por teclado; no se guarda ninguna en el repositorio |
 | Caso Custom y exportaciones | `14_caso_custom_persistente.sql` (guarda `CUSTOM-40`), `15_exportar_fabricacion.sql` (CSV para PSP), `16_exportar_csv_dashboard.sql` (5 CSV para Python) | — |
 | Caso común | `18_datos_so024.sql` | Club Halcones y Runner X (tallas 38–46); el pedido se crea desde Java. Sin `-v precio=… -v color=… -v stock=…` no inserta nada |
-| Ampliaciones | `19` (panel: `panel_lectura`), `20` (tienda: `cuentas_cliente`, 5 funciones, `tienda_web` y `tienda_nova`), `21` (los 100 modelos de la web), `22` (reparto: `marcar_pedido_en_reparto` y `panel_reparto`) y `23` (portal del trabajador: `avanzar_pedido_trabajador`, `ajustar_existencias_trabajador` y `portal_trabajador`) | Ver `06_Intermodular/memoria/MEMORIA.md`, anexo A, y §9.8 |
+| Ampliaciones | `19` (panel: `panel_lectura`), `20` (tienda: `cuentas_cliente`, 5 funciones, `tienda_web` y `tienda_nova`), `21` (los 100 modelos de la web), `22` (reparto: `marcar_pedido_en_reparto` y `panel_reparto`) y `23` (portal del trabajador: `avanzar_pedido_trabajador`, `ajustar_existencias_trabajador` y `portal_trabajador`) | Ver `06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf`, anexo A, y §9.8 |
 
 La base **se reconstruye desde cero** con estos archivos sobre una base vacía (AD-132), incluidos los roles, los usuarios ficticios y los permisos (AD-133). Último montaje completo: 13/11, 00:58, los 23 scripts con salida 0 y el 23 lanzado dos veces, porque se puede repetir (`06_Intermodular/evidencias/regresion-final/01_sql/01_montaje_01_23.txt`). Se repitió igual en una segunda base y, siguiendo el manual al pie de la letra, sobre un clon nuevo del repositorio (`06_Intermodular/evidencias/regresion-final/08_manual_instalacion/`).
 
@@ -663,7 +663,7 @@ Este apartado lo completan los tres. Aquí solo está lo que se puede comprobar 
 
 Notas:
 
-- **El autor de un commit no prueba quién hizo el trabajo** (ver `06_Intermodular/memoria/MEMORIA.md` §9.1): las fusiones las firmó `omar1676`, y en sus sesiones se usó IA para escribir y revisar código y documentación (memoria común, §9.4).
+- **El autor de un commit no prueba quién hizo el trabajo** (ver `06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf` §9.1): las fusiones las firmó `omar1676`, y en sus sesiones se usó IA para escribir y revisar código y documentación (memoria común, §9.4).
 - **Las fechas de los commits no sirven para la planificación:** la historia publicada se reescribió el 13/11 y cambiaron las fechas y los identificadores (`06_Intermodular/EQUIVALENCIAS_COMMITS.md`). Por ejemplo, el proyecto JDBC de Álvaro figura hoy con fecha de autor del 07 y del 08/11.
 - Las evidencias de AD estaban antes en la carpeta antigua `pruebas/`, que se cuenta aparte en la memoria común (§9.1).
 - En `origin/feature/berme` (GitHub) hay commits de Ivan Bermejo con consultas SQL (`3137626` y `3aac9ea`) y capturas de las ventanas Java (`0296795` a `d8678b2`) que no están en `main`. Según el informe de integración (que no está en el repositorio), esos archivos son idénticos byte a byte a los que ya estaban en `main` con autoría de omar1676, y por eso no se trajeron. Del trabajo de Berme sí está en `main`, con su autoría, el portal del trabajador (§9.8). **[EQUIPO: confirmar quién hizo esas consultas y capturas]**

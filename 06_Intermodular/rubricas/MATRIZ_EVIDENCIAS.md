@@ -21,7 +21,7 @@ Para cada asignatura, una tabla corta: **bloque de requisitos → archivo que lo
 | Calidad, accesibilidad | IM-INT-08, RA4 a)-i) | OK (salvo usabilidad) | axe sin violaciones (`02_interfaces.txt`, `01_mejoras.txt`, 13/11); contraste 212/212 (12/11, informe de integración); `01_Interfaces/evidencias/web/lighthouse/` (100/100, 11/11); `01_Interfaces/evidencias/web/README.md` (checklists) | Abrir el informe de Lighthouse; navegar con el tabulador; explicar WCAG 2.1 AA |
 | Usabilidad con personas | RA4 i) | PENDIENTE | `01_Interfaces/memoria/PROCEDIMIENTO_USABILIDAD.md` (procedimiento y plantillas vacías). **Límite declarado:** no se ha hecho la prueba con 3 a 5 personas. **[EQUIPO: si se hace, añadir el informe]** | Enseñar las hojas rellenadas y la SUS **cuando se haga** |
 | Estrategia e integración | RA8 a), b), g) | OK | `01_Interfaces/memoria/ESTRATEGIA_PRUEBAS_INTERFACES.md`; `06_Intermodular/evidencias/regresion-final/05_web/04_compra_edge.txt` (web → API → PostgreSQL → panel, 139/139) y `03_web.txt` (114/114) | Explicar los niveles de prueba y la tabla de trazabilidad |
-| Memoria, punto 3 | IM-COM-23 | OK (redactado) | `06_Intermodular/memoria/MEMORIA.md` §3 | — |
+| Memoria, punto 3 | IM-COM-23 | OK (redactado) | `06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf` §3 | — |
 
 ## 2. Acceso a Datos (PostgreSQL + Java)
 
@@ -91,16 +91,16 @@ Correspondencia de la lista histórica de tareas con el PDF: `05_Odoo/CHECKLIST_
 
 | Bloque | Requisitos | Estado | Evidencia | Cómo enseñarlo |
 |---|---|---|---|---|
-| Memoria técnica | IM-COM-18, 21 a 29 | PARCIAL (versión de entrega; faltan los campos [EQUIPO], [OMAR], [ÁLVARO] y [BERME] del punto 9: reparto real y uso de la IA de cada persona) | `06_Intermodular/memoria/MEMORIA.md` | — |
+| Memoria técnica | IM-COM-18, 21 a 29 | PARCIAL (versión de entrega; faltan los campos [EQUIPO], [OMAR], [ÁLVARO] y [BERME] del punto 9: reparto real y uso de la IA de cada persona) | `06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf` | — |
 | Manual de demostración | IM-COM-19, 32 | PARCIAL (ERP documental, sin ejecución en vivo ni trazabilidad entre sistemas) | `06_Intermodular/manuales/MANUAL_DEMOSTRACION.md` | Ensayarlo entero al menos una vez |
 | Documentación reproducible | IM-COM-05 | OK | `06_Intermodular/manuales/MANUAL_INSTALACION.md`, seguido el 13/11 en un clon nuevo y una base nueva (`06_Intermodular/evidencias/regresion-final/08_manual_instalacion/`); `README.md` | — |
 | Presentación | IM-COM-20 | PARCIAL | Guion vigente: `06_Intermodular/defensa/PRESENTACION.md`, actualizado con S00005. El `.pptx` tiene todavía el contenido anterior a S00005 y contradice el guion. **[EQUIPO: corregirlo diapositiva a diapositiva o retirarlo]** | Usar el guion Markdown, no las afirmaciones antiguas del PowerPoint |
 | Repositorio publicado | IM-COM-02, 15 | OK (documentado) | `main`: cierre publicado mediante la PR #2 (`4a25d5a`) y revisión documental con la PR #3 (`372f811`). La historia publicada se reescribió el 13/11 (`06_Intermodular/EQUIVALENCIAS_COMMITS.md`) | Enseñar las PR y el historial con las aportaciones de los tres |
 | Sin credenciales y datos ficticios | IM-COM-03, 04 | OK | `.gitignore`; búsqueda de las claves de las pruebas en las evidencias y la documentación (entonces `pruebas/` y `docs/`): 0 coincidencias (`06_Intermodular/evidencias/regresion-final/README.md`). **[DUDA PARA EL PROFESOR (D12): cómo se le dan las contraseñas de demostración]** | — |
-| Modelo de datos común | IM-ITG-09 a 15 | PARCIAL (sin correspondencia de S00005 acreditada) | `06_Intermodular/memoria/MEMORIA.md` §6; `06_Intermodular/SO024/caso-comun-SO024.md`; `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md` | Distinguir el modelo del ensayo de la falta de correspondencia acreditada de S00005 |
+| Modelo de datos común | IM-ITG-09 a 15 | PARCIAL (sin correspondencia de S00005 acreditada) | `06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf` §6; `06_Intermodular/SO024/caso-comun-SO024.md`; `06_Intermodular/SO024/SO024_DATOS_PENDIENTES.md` | Distinguir el modelo del ensayo de la falta de correspondencia acreditada de S00005 |
 | Ensayo histórico SO024 PROVISIONAL, no S00005 | IM-ITG-04, 16, 18 | PROVISIONAL | `06_Intermodular/evidencias/regresion-final/06_so024_provisional/00_cadena.txt` (de principio a fin, 13/11). No acredita S00005; los siete acuerdos del plan SO024 ya no son una obligación de entrega. | Mostrar el PDF de S00005 y reconocer que no hay prueba de ese pedido en todos los módulos |
-| Frontera ERP/auxiliar y ampliaciones productivas | IM-ITG-06 | OK (redactada) | `06_Intermodular/memoria/MEMORIA.md` §2.3 y §2.4 | Explicarlo en el cierre |
-| Reparto real | IM-COM-29, 33 | PARCIAL | `06_Intermodular/memoria/MEMORIA.md` §9: datos de Git (113/25/9 y 1 de «t»), declaración de la IA de Omar y huecos. **[EQUIPO: completar el reparto real y el uso de la IA de cada persona]** | Cada uno explica lo suyo y lo de otro |
+| Frontera ERP/auxiliar y ampliaciones productivas | IM-ITG-06 | OK (redactada) | `06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf` §2.3 y §2.4 | Explicarlo en el cierre |
+| Reparto real | IM-COM-29, 33 | PARCIAL | `06_Intermodular/memoria/Memoria_NOVA_Sneakers.pdf` §9: datos de Git (113/25/9 y 1 de «t»), declaración de la IA de Omar y huecos. **[EQUIPO: completar el reparto real y el uso de la IA de cada persona]** | Cada uno explica lo suyo y lo de otro |
 | Datos de integración | IM-COM-17 | PARCIAL (no hay exportación acreditada de S00005 desde Odoo) | `03_PSP/pruebas/custom40.csv`, `03_PSP/datos/`, `04_Python/entrada_acc/`, `03_PSP/evidencias/so024_provisional/SO024_PROVISIONAL_fabricacion.csv` | — |
 
 ## 7. Ampliaciones (no obligatorias)
