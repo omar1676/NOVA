@@ -27,7 +27,7 @@ function contarPares() {
 formularioCustom.addEventListener("input", contarPares);
 
 // Antes de este evento, el navegador ya ha comprobado los campos obligatorios,
-// el formato del email y que las cantidades sean números enteros positivos.
+// el formato del email y que las cantidades sean números enteros no negativos.
 formularioCustom.addEventListener("submit", (evento) => {
   evento.preventDefault(); // no hay servidor: el formulario no se envía
   const total = contarPares();

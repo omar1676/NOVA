@@ -1,8 +1,8 @@
 // Cada objeto representa un modelo. Para añadir uno, copia un bloque y cambia sus datos.
 // nombre: nombre comercial, «NOVA <colección> <nombre>». Es el ÚNICO sitio de la web
-//   donde se escribe. Los 12 que se venden (los dos primeros de cada colección) se
-//   llaman igual en 02_Acceso_Datos/sql/21_catalogo_web.sql: la tienda los une por el
-//   nombre, así que si se cambia uno de esos 12, hay que cambiarlo también allí.
+//   donde se escribe. Los 100 modelos se venden y se llaman igual en
+//   02_Acceso_Datos/sql/21_catalogo_web.sql: la tienda los une por el nombre, así
+//   que si se cambia uno, hay que cambiarlo también allí.
 //   Las fotos conservan su número (nova-street-01...): el nombre no cambia archivos.
 // probador: vistas del probador con ESTA zapatilla puesta (solo en algunos modelos).
 // imagen: foto sin fondo para la estantería y la ficha.
