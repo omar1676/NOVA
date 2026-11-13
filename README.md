@@ -1,10 +1,9 @@
 # NOVA Sneakers
 
-**Entrega de cierre (13/11/2026):** [estado final y limitaciones](06_Intermodular/ESTADO_ENTREGA_FINAL.md). Caso de Odoo: S00005 del Club Atlético NOVA, documentado por Berme. La demo ejecutable conserva CUSTOM-40 y los datos de PRUEBA; no hay prueba de S00005 en PostgreSQL, PSP ni Python. Regresión nueva desde clon limpio en `06_Intermodular/evidencias/cierre-entrega-20261113/`.
 
-Proyecto intermodular de 2.º DAM (Omar, Álvaro y Berme): una marca de zapatillas con web de catálogo, base de datos PostgreSQL, aplicación Java de pedidos, procesos Java para preparar la fabricación y análisis de datos en Python. El caso común elegido para la evidencia de Odoo es **S00005 del Club Atlético NOVA**. SO024 es el ejemplo del enunciado, no una venta realizada en Odoo. [Alcance y límites del caso](06_Intermodular/CASO_COMUN_S00005.md).
+Proyecto intermodular de 2.º DAM (Omar, Álvaro y Berme): una marca de zapatillas con web de catálogo, base de datos PostgreSQL, aplicación Java de pedidos, procesos Java para preparar la fabricación y análisis de datos en Python. El caso común elegido para la evidencia de Odoo es **S00005 del Club Atlético NOVA**. SO024 es el ejemplo del enunciado, no una venta realizada en Odoo.md).
 
-**Estado a 13/11/2026** (detalle en `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md`):
+**Estado a 13/11/2026**:
 
 | Parte | Estado |
 |---|---|
@@ -13,7 +12,6 @@ Proyecto intermodular de 2.º DAM (Omar, Álvaro y Berme): una marca de zapatill
 | PSP | Hecha y probada (27/27). CUSTOM-40 probado; SO024 solo como ensayo **PROVISIONAL**, sin prueba de S00005 |
 | Python | Hecho y probado (265 pruebas). Los CSV son de una base de **PRUEBA**: falta la exportación **REAL** |
 | Odoo | S00005 documentado en el PDF de Berme; sin integración entre sistemas verificada. Ver `05_Odoo/README.md` |
-| Caso de entrega | S00005 en Odoo; CUSTOM-40 y SO024 PROVISIONAL siguen siendo pruebas independientes. Ver `06_Intermodular/CASO_COMUN_S00005.md` |
 
 ## Estructura: una carpeta por asignatura
 
@@ -44,10 +42,7 @@ Dentro de cada asignatura: `evidencias/` guarda los resultados y las capturas de
 | Documentación de PSP | `03_PSP/memoria/DOCUMENTACION_PSP.md` |
 | Informe técnico de Python | `04_Python/memoria/INFORME_TECNICO_PYTHON.md` |
 | Estrategia de pruebas y usabilidad de Interfaces | `01_Interfaces/memoria/` |
-| Estado de cada requisito de cada rúbrica | `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` |
-| Qué enseñar para cada bloque | `06_Intermodular/rubricas/MATRIZ_EVIDENCIAS.md` |
 | Instalación paso a paso y guion de la demostración | `06_Intermodular/manuales/` |
-| Caso de entrega S00005 y límites | `06_Intermodular/CASO_COMUN_S00005.md`; `06_Intermodular/SO024/` conserva el plan histórico |
 | Regresión completa del 13/11 | `06_Intermodular/evidencias/regresion-final/README.md` y, sobre el árbol limpio, `06_Intermodular/evidencias/regresion-limpieza/README.md` |
 | Odoo: evidencia y límites | `05_Odoo/README.md`; la checklist se conserva como plan histórico |
 
@@ -62,17 +57,6 @@ Dentro de cada asignatura: `evidencias/` guarda los resultados y las capturas de
 ```
 
 En todas las asignaturas hemos trabajado los tres: quién hizo cada cambio se ve con `git log --follow <archivo>`.
-
-### Si vienes de la estructura anterior
-
-Hasta el 13/11 las carpetas eran `interfaces/`, `acceso-datos/`, `psp/`, `python-analisis/`, `odoo/`, `integracion/`, `docs/` y `pruebas/`. Se movieron con `git mv`, así que la historia y los autores siguen con `git log --follow`. En un clon que ya existía:
-
-- Git mueve los archivos versionados, pero **no** lo que está ignorado. Hay que pasar a mano: `acceso-datos/java/conexion.properties` y `acceso-datos/java/lib/*.jar` a `02_Acceso_Datos/java/`, y el entorno de Python (`python-analisis/.venv`) a `04_Python/.venv` (o crearlo de nuevo). `servidor-admin/.env` no cambia de sitio.
-- Las carpetas viejas que se queden con esos restos están en el `.gitignore`, para que no se suban por error. Cuando estén vacías, se pueden borrar.
-- Una rama empezada antes de la reorganización se puede fusionar (se probó el 13/11 con una rama de ejemplo):
-  - Los cambios en archivos que ya existían se aplican en su ruta nueva.
-  - Los archivos **nuevos** dentro de una carpeta que se movió entera (`interfaces/`, `acceso-datos/`, `psp/`, `python-analisis/` o una subcarpeta de `pruebas/`) Git los pone en la carpeta nueva y lo marca como conflicto de ubicación (*file location*): se revisa y se confirma con `git add`.
-  - Los archivos **nuevos** en `odoo/` o en `docs/` se quedan en la carpeta vieja (la de Odoo estaba vacía y la de documentación se repartió entre varias): hay que moverlos a mano antes del commit de la fusión, por ejemplo `git mv odoo/README.md 05_Odoo/README.md`.
 
 ## Requisitos
 
@@ -222,11 +206,11 @@ py scripts/comprobar_web.py
 py scripts/comprobar_psp.py
 ```
 
-La primera comprueba que existen los recursos locales que enlaza la web; no evalúa el diseño ni la API. La segunda necesita `java` y `javac` en el PATH. **Correcta en el cierre:** se incorporó la corrección ya escrita por Berme (`4f09742`), conservando su autoría. Comprueba cabecera y bloque normalizado, además de los rechazos y pruebas del paquete Psp. La lista de comprobaciones manuales está en `06_Intermodular/manuales/PRUEBAS_MANUALES.md` y se escribió antes de conectar el panel y la tienda.
+La primera comprueba que existen los recursos locales que enlaza la web; no evalúa el diseño ni la API. La segunda necesita `java` y `javac` en el PATH. **Correcta en el cierre:** se incorporó la corrección ya escrita por Berme (`4f09742`), conservando su autoría. Comprueba cabecera y bloque normalizado, además de los rechazos y pruebas del paquete Psp.md` y se escribió antes de conectar el panel y la tienda.
 
 ## Caso de Odoo: S00005 del Club Atlético NOVA
 
-La decisión de entrega y sus límites están en `06_Intermodular/CASO_COMUN_S00005.md`. SO024 es el ejemplo del enunciado v0.3, no un identificador obligatorio expresamente ni una venta realizada en Odoo. No se creará un «SO024 oficial» para esta entrega.
+md`. SO024 es el ejemplo del enunciado v0.3, no un identificador obligatorio expresamente ni una venta realizada en Odoo. No se creará un «SO024 oficial» para esta entrega.
 
 El PDF original de Berme documenta S00005. No se modifica ni se atribuye a ese pedido la cadena de PostgreSQL → PSP → Python: no hay pruebas de ello. El conector sigue sin verificarse contra una instalación real accesible y `pedidos.js` no se monta.
 

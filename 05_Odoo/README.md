@@ -2,7 +2,7 @@
 
 **Cierre de entrega (sin nuevas implementaciones):** se conserva el PDF y la evidencia real. El conector NOVA → Odoo no se ha verificado contra una instalación real accesible desde este entorno; `pedidos.js` no se monta. El caso elegido es S00005 del Club Atlético NOVA. SO024 es el ejemplo del enunciado; no se crea ni se renombra ninguna venta. Los pendientes siguientes son limitaciones declaradas, no una espera de nuevos archivos.
 
-**Decisión de entrega del 13/11/2026:** se utiliza S00005, ya documentado por Berme. No hay pruebas de su procesamiento en PostgreSQL, PSP o Python. Ver [el caso y sus límites](../06_Intermodular/CASO_COMUN_S00005.md).
+**Decisión de entrega del 13/11/2026:** se utiliza S00005, ya documentado por Berme. No hay pruebas de su procesamiento en PostgreSQL, PSP o Python. Ver [el caso y sus límites](..md).
 
 ## Evidencia disponible
 
@@ -12,7 +12,7 @@ El documento conserva su ubicación y autoría; no se duplica ni se modifica. La
 
 ## Límites de integración
 
-La revisión técnica conservada es [INTEGRACION_ODOO_SO024.md](../06_Intermodular/SO024/INTEGRACION_ODOO_SO024.md): evidencias por página, códigos observados frente a códigos pendientes de exportar, consultas de solo lectura y criterios de aceptación.
+md](..md): evidencias por página, códigos observados frente a códigos pendientes de exportar, consultas de solo lectura y criterios de aceptación.
 
 Hay un conflicto que resolver: el PDF usa `NOVA-4-38…46` para Runner X, mientras parte de esos códigos corresponde a NOVA Velocity en los datos del proyecto. No cambiar IDs ni referencias para forzar la coincidencia. No hay equivalencia de SKU validada entre sistemas y no se modifican códigos para esta entrega.
 
@@ -35,8 +35,6 @@ El conector `servidor-admin/odoo.js` exige `ODOO_URL`, `ODOO_DB` y `ODOO_API_KEY
 | Archivo | Uso |
 |---|---|
 | PDF enlazado arriba | Aportación documental de Berme y capturas históricas |
-| `CHECKLIST_ODOO_BERME.md` | Plan histórico de SO024, no aplicable como obligación de entrega. Al principio, una tabla con lo que de esa lista documenta el PDF |
 | `recorrido-manual-odoo.md` | Borrador histórico; no ejecutarlo para recrear S00005 |
-| Plan de integración enlazado arriba | Revisión histórica de códigos; el caso vigente se define en CASO_COMUN_S00005.md |
 
 **Copia de seguridad (IM-COM-16).** El procedimiento está en el PDF (p. 19): desde `/web/database/manager`, «Backup» de `nova_sneaker` en formato zip con el almacén de archivos, guardado fuera del repositorio. No consta ninguna copia hecha ni restaurada: ubicación **[BERME]**, fecha **[BERME]**, tamaño **[BERME]**, SHA-256 **[BERME]** y restauración probada **[BERME: sí o no, fecha y base de destino]**. Si no hay copia, **límite declarado:** no se aporta copia, y la configuración se reconstruye siguiendo el PDF, pp. 3-19. La copia no se sube a Git. En esta revisión no se ha creado ni modificado ninguna copia.

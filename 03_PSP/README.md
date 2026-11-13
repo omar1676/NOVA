@@ -314,7 +314,6 @@ directamente.
   - cambios en `ValidadorPedidoCustom`: datos normalizados, comprobación de
     datos que faltan y salida en UTF-8.
 
-  Se prepararon en la sesión de Omar con ayuda de Claude.
 - **Pendiente de acordar:** en el reparto, PSP-01 (`ProcesadorPedidosCustom`) y
   PSP-04 (`GeneradorFichaTaller`) eran de Berme. Estas dos clases las subió
   Omar en el commit `9dc66ac`. En su rama, Berme subió

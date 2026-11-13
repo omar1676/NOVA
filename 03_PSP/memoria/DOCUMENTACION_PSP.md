@@ -338,7 +338,7 @@ Lo que dice `03_PSP/README.md` («Autoría») y lo que se ve en Git (rama `integ
 
 - Commit `f5426cb` (Omar, 8/11): `ValidadorPedidoCustom`, `LectorCsv`, `LanzadorValidacion` y el `AnalizadorTallas` de la raíz.
 - Commit `e71947e` (Álvaro, 9/11): `03_PSP/src/Psp/`.
-- Commit `9dc66ac` (Omar, 11/11; preparado el 10/11 en su rama): `ProcesadorPedidosCustom`, `GestorProcesos`, `GeneradorFichaTaller`, `pruebas/` y `datos/`, y los cambios del validador. «Se prepararon en la sesión de Omar con ayuda de Claude.»
+- Commit `9dc66ac` (Omar, 11/11; preparado el 10/11 en su rama): `ProcesadorPedidosCustom`, `GestorProcesos`, `GeneradorFichaTaller`, `pruebas/` y `datos/`, y los cambios del validador.
 - En el reparto, PSP-01 (`ProcesadorPedidosCustom`) y PSP-04 (`GeneradorFichaTaller`) eran de Berme; las subió Omar en el commit `9dc66ac`. Berme subió `scripts/comprobar_psp.py` (`f1983d2`) e `06_Intermodular/SO024/contrato-fabricacion.md` (`0f7d27d`).
 
 **[PENDIENTE (los tres): el reparto real de PSP y quién revisa y defiende cada clase en la defensa.]**

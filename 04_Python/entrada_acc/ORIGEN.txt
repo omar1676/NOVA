@@ -1,2 +1,2 @@
 Tipo: PRUEBA
-Exportación de PRUEBA, no de la base principal del equipo: 16_exportar_csv_dashboard.sql sobre una base nova_sneakers reconstruida desde cero con los scripts 1-17 del repositorio, el 2026-11-09 a las 19:12. Se entrega así, como PRUEBA: no hay exportación REAL de la base del equipo (ver 06_Intermodular/ESTADO_ENTREGA_FINAL.md).
+Exportación de PRUEBA, no de la base principal del equipo: 16_exportar_csv_dashboard.sql sobre una base nova_sneakers reconstruida desde cero con los scripts 1-17 del repositorio, el 2026-11-09 a las 19:12. Se entrega así, como PRUEBA: no hay exportación REAL de la base del equipo.

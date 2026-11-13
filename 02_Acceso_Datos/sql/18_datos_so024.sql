@@ -22,8 +22,8 @@
 --   El precio, el color y el stock inicial no estan escritos aqui: no
 --   hay datos acordados para SO024 y no se inventan. Se pasan al
 --   ejecutar; si falta alguno, el script se para sin insertar nada.
---   Es un ensayo opcional: la entrega no lo usa (ver
---   06_Intermodular/ESTADO_ENTREGA_FINAL.md).
+--   Es un ensayo opcional: la entrega no lo usa
+--   (solo para ensayar el ejemplo del enunciado).
 --     precio = precio_base de Runner X, en euros y con punto (119.90).
 --     color  = el color de su unica variante.
 --     stock  = pares de cada talla. Tiene que llegar, como minimo, a los
