@@ -18,6 +18,7 @@
 
 - Las rutas de código y de resultados son relativas a la raíz del repositorio, rama `integracion/candidata-2` (las líneas se han comprobado con el código de `8cdc08c`, el que pasó la regresión del 13/11). Si alguien toca un archivo, las líneas pueden moverse: repasad las citas la víspera.
 - Los resultados de las pruebas están en `06_Intermodular/evidencias/regresion-final/` (regresión completa del 13/11, con la hora y el entorno de cada batería).
+- Las citas de los archivos modificados se han actualizado durante la limpieza basada en `a6151db`; las evidencias conservan sus resultados originales.
 - `archivo:12-20` significa «líneas 12 a 20».
 - **[PENDIENTE (quién)]**: no hay evidencias o falta hacerlo. **[PROVISIONAL]**: funciona con los datos de SO024 inventados. **[POR DECIDIR (los tres)]**: decisión del equipo. **[DUDA PARA EL PROFESOR (Dn)]**: pregunta abierta de la matriz de rúbricas.
 - No hay ninguna contraseña en esta guía ni debe haberla en las diapositivas.
@@ -272,40 +273,40 @@ El JSON se exporta solo después del COMMIT (`UsuarioDAO.java:139-147`) y sin la
 ### Preguntas probables
 
 **P4.1 ¿Qué hace el subsistema PSP y qué no hace?**
-Procesa una copia exportada en CSV de un pedido Custom con un proceso padre y tres hijos, y genera una ficha auxiliar para el taller y un registro. No escribe en PostgreSQL ni en Odoo, no toca el stock y no crea la orden de fabricación (`03_PSP/ProcesadorPedidosCustom.java:38-40`).
+Procesa una copia exportada en CSV de un pedido Custom con un proceso padre y tres hijos, y genera una ficha auxiliar para el taller y un registro. No escribe en PostgreSQL ni en Odoo, no toca el stock y no crea la orden de fabricación (`03_PSP/ProcesadorPedidosCustom.java:16`).
 
 **P4.2 ¿Qué hace cada hijo?**
-`ValidadorPedidoCustom` comprueba el CSV y lo normaliza; `Psp.AnalizadorTallas` agrupa los pares por modelo, color y talla; y `GeneradorFichaTaller` escribe la ficha (`ProcesadorPedidosCustom.java:55-58`). Cada uno es un programa Java con su propio `main` que se ejecuta en su propia máquina virtual.
+`ValidadorPedidoCustom` comprueba el CSV y lo normaliza; `Psp.AnalizadorTallas` agrupa los pares por modelo, color y talla; y `GeneradorFichaTaller` escribe la ficha (`ProcesadorPedidosCustom.java:21-24`). Cada uno es un programa Java con su propio `main` que se ejecuta en su propia máquina virtual.
 
 **P4.3 ¿Cómo se lanza un hijo?**
-Con `new ProcessBuilder(java, "-cp", classpath, clase)`, usando el mismo `java` y el mismo classpath que el padre (`03_PSP/GestorProcesos.java:84-92`). Si no arranca, se guarda el código especial `NO_ARRANCA` (-1) y el motivo (`:94-100`).
+Con `new ProcessBuilder(java, "-cp", classpath, clase)`, usando el mismo `java` y el mismo classpath que el padre (`03_PSP/GestorProcesos.java:52-60`). Si no arranca, se guarda el código especial `NO_ARRANCA` (-1) y el motivo (`:62-68`).
 
 **P4.4 ¿Cómo se comunican?**
-Siempre por stdin y stdout, pasando por el padre: el padre escribe el CSV en la entrada del validador, lee su salida y se la pasa al analizador, y así hasta el generador (`ProcesadorPedidosCustom.java:25-30` y `:119-207`). Los errores van por stderr y se leen por separado.
+Siempre por stdin y stdout, pasando por el padre: el padre escribe el CSV en la entrada del validador, lee su salida y se la pasa al analizador, y así hasta el generador (`ProcesadorPedidosCustom.java:13-14` y `:85-173`). Los errores van por stderr y se leen por separado.
 
 **P4.5 ¿Por qué `GestorProcesos` usa tres hilos?**
-Las tuberías tienen un tamaño limitado: si el hijo llena stdout o stderr y nadie las lee, se bloquea, y el padre, que lo espera, también (interbloqueo). Un hilo escribe en stdin y lo cierra, otros dos vacían stdout y stderr, y el principal queda libre para esperar con límite de tiempo (`GestorProcesos.java:102-138`). Cada hilo escribe en su propia lista y el principal no las lee hasta después de `join()`, así que no hace falta sincronizar.
+Las tuberías tienen un tamaño limitado: si el hijo llena stdout o stderr y nadie las lee, se bloquea, y el padre, que lo espera, también (interbloqueo). Un hilo escribe en stdin y lo cierra, otros dos vacían stdout y stderr, y el principal queda libre para esperar con límite de tiempo (`GestorProcesos.java:70-106`). Cada hilo escribe en su propia lista y el principal no las lee hasta después de `join()`, así que no hace falta sincronizar.
 
 **P4.6 ¿Qué códigos de salida hay?**
-Los hijos devuelven 0 si va bien y 2 si los datos no son válidos (`ValidadorPedidoCustom.java:269-272`); cualquier otro es un fallo. El padre devuelve 0 (correcto), 1 (problema con un archivo), 2 (pedido rechazado) o 3 (fallo de un proceso) (`ProcesadorPedidosCustom.java:42-48`). `GestorProcesos` añade -1 (no arranca) y -2 (tiempo agotado) (`GestorProcesos.java:49-53`).
+Los hijos devuelven 0 si va bien y 2 si los datos no son válidos (`ValidadorPedidoCustom.java:232-235`); cualquier otro es un fallo. El padre devuelve 0 (correcto), 1 (problema con un archivo), 2 (pedido rechazado) o 3 (fallo de un proceso) (`ProcesadorPedidosCustom.java:17`). `GestorProcesos` añade -1 (no arranca) y -2 (tiempo agotado) (`GestorProcesos.java:17-21`).
 
 **P4.7 ¿Qué pasa si un hijo se queda colgado?**
-`waitFor(10, TimeUnit.SECONDS)` espera como mucho 10 segundos (`GestorProcesos.java:138` y `ProcesadorPedidosCustom.java:61`). Si no ha terminado, se llama a `destroy()`, se espera un segundo más y, si sigue vivo, `destroyForcibly()` (`GestorProcesos.java:143-153`). La prueba 10 cancela un hijo a los 2 s con el código -2.
+`waitFor(10, TimeUnit.SECONDS)` espera como mucho 10 segundos (`GestorProcesos.java:106` y `ProcesadorPedidosCustom.java:27`). Si no ha terminado, se llama a `destroy()`, se espera un segundo más y, si sigue vivo, `destroyForcibly()` (`GestorProcesos.java:111-121`). La prueba 10 cancela un hijo a los 2 s con el código -2.
 
 **P4.8 ¿Cómo sabe el padre que la respuesta del hijo es buena?**
-`comprobarPaso` mira el tiempo, si arrancó, el código de salida, si el hijo recibió todos los datos, que la primera línea empiece por `OK;` y que hable del mismo pedido (`ProcesadorPedidosCustom.java:286-350`). Además comprueba que el validador y el analizador cuentan los mismos pares (`:179-182`). Si algo falla, no lanza el paso siguiente.
+`comprobarPaso` mira el tiempo, si arrancó, el código de salida, si el hijo recibió todos los datos, que la primera línea empiece por `OK;` y que hable del mismo pedido (`ProcesadorPedidosCustom.java:252-316`). Además comprueba que el validador y el analizador cuentan los mismos pares (`:145-148`). Si algo falla, no lanza el paso siguiente.
 
 **P4.9 ¿Qué evidencias deja?**
-`salidas/ficha_taller_<referencia>.txt` y `salidas/registro_psp.txt`, al que cada ejecución añade su bloque en modo APPEND (`ProcesadorPedidosCustom.java:218-223` y `:375-381`). Hay un ejemplo real en `03_PSP/evidencias/ficha_taller_CUSTOM-40.txt`, que termina diciendo que no sustituye a la orden de fabricación de Odoo (`:25-28`).
+`salidas/ficha_taller_<referencia>.txt` y `salidas/registro_psp.txt`, al que cada ejecución añade su bloque en modo APPEND (`ProcesadorPedidosCustom.java:184-189` y `:341-347`). Hay un ejemplo real en `03_PSP/evidencias/ficha_taller_CUSTOM-40.txt`, que termina diciendo que no sustituye a la orden de fabricación de Odoo (`:25-28`).
 
 **P4.10 ¿De dónde sale el CSV de entrada?**
-De `02_Acceso_Datos/sql/15_exportar_fabricacion.sql`, que exporta con `\copy` las ocho columnas de la ficha de un pedido confirmado (`:197`). El validador espera exactamente esa cabecera (`ValidadorPedidoCustom.java:52-53`).
+De `02_Acceso_Datos/sql/15_exportar_fabricacion.sql`, que exporta con `\copy` las ocho columnas de la ficha de un pedido confirmado (`:197`). El validador espera exactamente esa cabecera (`ValidadorPedidoCustom.java:15-16`).
 
 ### Código real
 
-- `03_PSP/GestorProcesos.java:87-153` — lanza el hijo, arranca los tres hilos, espera con límite y lo cancela si no termina.
-- `03_PSP/ProcesadorPedidosCustom.java:286-350` — `comprobarPaso`: decide si el paso fue bien antes de seguir.
-- `03_PSP/ValidadorPedidoCustom.java:269-272` — el error del hijo: el motivo por stderr y `System.exit(2)`.
+- `03_PSP/GestorProcesos.java:55-121` — lanza el hijo, arranca los tres hilos, espera con límite y lo cancela si no termina.
+- `03_PSP/ProcesadorPedidosCustom.java:252-316` — `comprobarPaso`: decide si el paso fue bien antes de seguir.
+- `03_PSP/ValidadorPedidoCustom.java:232-235` — el error del hijo: el motivo por stderr y `System.exit(2)`.
 
 ### Ejercicios
 
@@ -339,7 +340,7 @@ Leer y comprobar el esquema, aplicar las 12 reglas, quedarse con las filas váli
 Están en `calidad.py:27-40`: fichero vacío o sin cabeceras, IDs duplicados, claves huérfanas, fechas, cantidades, precios, estados, tallas, falta de cliente o modelo, líneas duplicadas, stock y coherencia. Hay tres gravedades (`:42-50`): bloqueante (no se publica nada), recuperable (se rechaza la fila) y advertencia (la fila se queda y se avisa).
 
 **P5.4 ¿Por qué se rechaza el pedido entero si falla una sola línea?**
-Para no contar nunca un pedido a medias: si se rechaza una línea, se rechaza su pedido con todas sus líneas, y si se rechaza un pedido, también sus líneas (`calidad.py:416-457`, sobre todo `:440-446`).
+Para no contar nunca un pedido a medias: si se rechaza una línea, se rechaza su pedido con todas sus líneas, y si se rechaza un pedido, también sus líneas (`calidad.py:420-461`, sobre todo `:444-450`).
 
 **P5.5 ¿Qué diferencia hay entre `df_lineas_enriquecidas` y `df_pedidos_unicos`?**
 La primera tiene una fila por línea, con los datos de su pedido, cliente, modelo y color (`analiticas.py:59-93`). La segunda tiene una fila por pedido, con los pares y el importe sumados desde sus líneas (`:96-152`). Un pedido de 3 líneas es 1 pedido: los pedidos se cuentan en la segunda.
@@ -367,7 +368,7 @@ Primero por la urgencia (alta: se puede dejar sin servir demanda que ya existe; 
 
 ### Código real
 
-- `04_Python/calidad.py:416-457` — `separar`: aparta las filas con incidencias y arrastra el pedido entero.
+- `04_Python/calidad.py:420-461` — `separar`: aparta las filas con incidencias y arrastra el pedido entero.
 - `04_Python/analiticas.py:23-44` — `cruzar`: merge con `validate`, `indicator` y comprobación del número de filas.
 - `04_Python/analiticas.py:108-115` — de líneas a pedidos: `groupby("id_pedido")` con número de líneas, pares, importe, modelos y tallas.
 
@@ -754,13 +755,13 @@ No. Es un hash de un solo sentido, no un cifrado. Para comprobarla se vuelve a c
 Para tardar lo mismo en los dos casos, y que el tiempo de respuesta no delate qué correos están registrados (`20_tienda_web.sql:166-170`). El mensaje también es siempre el mismo: «Correo o contraseña incorrectos».
 
 **P13.4 ¿Cómo funcionan las sesiones web?**
-Al entrar, el servidor crea un token aleatorio de 32 bytes (`servidor-admin/sesiones.js:54`), lo guarda en memoria con los datos del usuario y se lo da al navegador en una cookie que caduca a las 2 horas (`:21` y `:56`). La contraseña no se guarda en la sesión.
+Al entrar, el servidor crea un token aleatorio de 32 bytes (`servidor-admin/sesiones.js:41`), lo guarda en memoria con los datos del usuario y se lo da al navegador en una cookie que caduca a las 2 horas (`:8` y `:43`). La contraseña no se guarda en la sesión.
 
 **P13.5 ¿Qué significan HttpOnly y SameSite=Strict?**
-HttpOnly: el JavaScript de la página no puede leer la cookie, y eso protege el token si alguien consigue inyectar código (XSS). SameSite=Strict: el navegador no envía la cookie en peticiones que vienen de otras webs, y eso protege de CSRF (`sesiones.js:27-31`).
+HttpOnly: el JavaScript de la página no puede leer la cookie, y eso protege el token si alguien consigue inyectar código (XSS). SameSite=Strict: el navegador no envía la cookie en peticiones que vienen de otras webs, y eso protege de CSRF (`sesiones.js:14-18`).
 
 **P13.6 ¿Por qué hay dos cookies de sesión?**
-Una para el panel (`sesion_nova`, ruta `/`) y otra para la tienda (`sesion_tienda`, ruta `/api/tienda`), cada una con su propio almacén: una sesión de cliente no sirve en el panel, ni la de un trabajador para comprar (`sesiones.js:80-81`).
+Una para el panel (`sesion_nova`, ruta `/`) y otra para la tienda (`sesion_tienda`, ruta `/api/tienda`), cada una con su propio almacén: una sesión de cliente no sirve en el panel, ni la de un trabajador para comprar (`sesiones.js:67-68`).
 
 **P13.7 ¿Cómo limitáis los intentos de login?**
 Tras 5 fallos seguidos con el mismo usuario, el servidor responde 429 durante 5 minutos sin mirar la contraseña, aunque sea la buena (`servidor-admin/intentos.js:11-12` y `:41-43`; `servidor.js:120-124`). Se cuenta por nombre, exista o no la cuenta, y un acierto pone el contador a cero (`servidor.js:134`). Vale igual para el administrador y para el trabajador, porque entran por el mismo login. La tienda hace lo mismo con el correo (`servidor-admin/tienda.js:207-211`).
@@ -777,7 +778,7 @@ El rol de la aplicación (administrador, comercial o trabajador) es del negocio 
 ### Código real
 
 - `02_Acceso_Datos/sql/02_funciones.sql:1-39` — `iniciar_sesion`: comprueba la contraseña con bcrypt y deja el usuario firmado con HMAC para esa transacción.
-- `servidor-admin/sesiones.js:24-57` — opciones de la cookie y creación de la sesión con un token aleatorio.
+- `servidor-admin/sesiones.js:11-44` — opciones de la cookie y creación de la sesión con un token aleatorio.
 - `servidor-admin/bd.js:62-73` — transacción de solo lectura con `SET LOCAL ROLE panel_lectura` (la abre `enTransaccion`, `:41-57`).
 
 ### Ejercicios
@@ -787,7 +788,7 @@ El rol de la aplicación (administrador, comercial o trabajador) es del negocio 
 
 ### Limitaciones que conviene decir antes de que pregunten
 
-- Las sesiones y los intentos están en memoria: si se reinicia el servidor se pierden (`sesiones.js:17`).
+- Las sesiones y los intentos están en memoria: si se reinicia el servidor se pierden (`sesiones.js:4`).
 - La cookie no lleva `Secure` porque el servidor usa HTTP en 127.0.0.1. En producción haría falta HTTPS y `Secure`.
 - El límite de intentos es por nombre de usuario, no por IP: alguien podría probar una misma contraseña con muchos usuarios.
 - Java no tiene límite de intentos y guarda la contraseña en memoria durante la sesión.
@@ -877,7 +878,7 @@ Que el pedido existe, que está confirmado, que suma exactamente 40 pares y que 
 
 - `02_Acceso_Datos/sql/18_datos_so024.sql:1-40` — explica que el 18 prepara el cliente, Runner X y sus nueve SKU, pero no crea el pedido: SO024 se crea en Java.
 - `02_Acceso_Datos/sql/15_exportar_fabricacion.sql:197` — el `\copy` que escribe `fabricacion_psp.csv` con las ocho columnas, solo de un pedido confirmado.
-- `03_PSP/ProcesadorPedidosCustom.java:218-219` — la ficha lleva la referencia del pedido en su nombre: `ficha_taller_SO024.txt`.
+- `03_PSP/ProcesadorPedidosCustom.java:184-185` — la ficha lleva la referencia del pedido en su nombre: `ficha_taller_SO024.txt`.
 
 ### Ejercicios
 
@@ -974,11 +975,11 @@ Resultado: un pago, un único descuento de stock y un solo recibo, porque solo e
 
 **E3.2** En Java, el rol comercial no tiene `VER_AUDITORIA` en la matriz (`Sesion.java:82-87`), y `verAuditoria` llama a `comprobarPermiso` (`PedidoDAO.java:326`), que lanza «Acceso denegado» con el código 42501 (`Sesion.java:100-107`). Si alguien se salta Java, la conexión está en `nova_comercial` (por el SET ROLE) y solo `nova_admin` puede leer `log_eventos` (`07_seguridad.sql:60-61`): PostgreSQL responde «permission denied for table log_eventos». Son las pruebas F2 y F3.
 
-**E4.1** El validador solo comprueba que la talla sea un entero positivo (`ValidadorPedidoCustom.java:181-187`), así que la deja pasar y termina con 0. El analizador comprueba el rango de 20 a 55 y lanza `DatosIncorrectosException` (`03_PSP/src/Psp/AnalizadorTallas.java:85-87`), que termina con el código 2 (`:15` y `:27-29`). El padre ve el 2 en `comprobarPaso` y termina con «PEDIDO RECHAZADO (código 2)» sin lanzar el generador (`ProcesadorPedidosCustom.java:306-309`): no hay ficha, pero sí se escribe el registro. Es la prueba 12k de `06_Intermodular/evidencias/regresion-final/02_java_psp/04_psp_pruebas.txt`.
+**E4.1** El validador solo comprueba que la talla sea un entero positivo (`ValidadorPedidoCustom.java:144-150`), así que la deja pasar y termina con 0. El analizador comprueba el rango de 20 a 55 y lanza `DatosIncorrectosException` (`03_PSP/src/Psp/AnalizadorTallas.java:85-87`), que termina con el código 2 (`:15` y `:27-29`). El padre ve el 2 en `comprobarPaso` y termina con «PEDIDO RECHAZADO (código 2)» sin lanzar el generador (`ProcesadorPedidosCustom.java:272-275`): no hay ficha, pero sí se escribe el registro. Es la prueba 12k de `06_Intermodular/evidencias/regresion-final/02_java_psp/04_psp_pruebas.txt`.
 
-**E4.2** `readAllBytes()` no termina hasta que el hijo cierra su salida. Si el hijo se cuelga sin terminar, el lanzador se queda parado en la línea 29 y nunca llega al `waitFor` de la 32, así que el límite de 10 s no sirve. Además, si el hijo llena stderr mientras el padre espera stdout, se bloquean los dos. `GestorProcesos` hace lo contrario: lee stdout y stderr en dos hilos (`GestorProcesos.java:116-131`), el hilo principal espera primero con límite (`:138`) y cancela con `destroy()` y `destroyForcibly()` (`:143-153`). El coordinador usa `GestorProcesos`.
+**E4.2** `readAllBytes()` no termina hasta que el hijo cierra su salida. Si el hijo se cuelga sin terminar, el lanzador se queda parado en la línea 29 y nunca llega al `waitFor` de la 32, así que el límite de 10 s no sirve. Además, si el hijo llena stderr mientras el padre espera stdout, se bloquean los dos. `GestorProcesos` hace lo contrario: lee stdout y stderr en dos hilos (`GestorProcesos.java:84-99`), el hilo principal espera primero con límite (`:106`) y cancela con `destroy()` y `destroyForcibly()` (`:111-121`). El coordinador usa `GestorProcesos`.
 
-**E5.1** Salta la regla 05, «Cantidad nula, cero o negativa», con gravedad recuperable (`calidad.py:188-189`). `separar` rechaza esa línea, después su pedido y, por el pedido, las otras dos líneas (`calidad.py:440-446`): se rechazan 1 pedido y 3 líneas, y el resto se publica. Lo prueba `test_un_pedido_se_analiza_entero_o_no_se_analiza` (`tests/test_calidad.py:153`).
+**E5.1** Salta la regla 05, «Cantidad nula, cero o negativa», con gravedad recuperable (`calidad.py:188-189`). `separar` rechaza esa línea, después su pedido y, por el pedido, las otras dos líneas (`calidad.py:444-450`): se rechazan 1 pedido y 3 líneas, y el resto se publica. Lo prueba `test_un_pedido_se_analiza_entero_o_no_se_analiza` (`tests/test_calidad.py:153`).
 
 **E5.2** La regla 02 marca como BLOQUEANTE un ID repetido donde tiene que ser único (`calidad.py:143-147`), así que no se publica ninguna cifra. Si esa regla no existiera, `cruzar(..., "many_to_one")` lanzaría un `MergeError` que se convierte en `ErrorDatos` (`analiticas.py:34-37`). Sin `validate`, el merge duplicaría las líneas de ese modelo y los pares y el importe saldrían inflados sin avisar.
 

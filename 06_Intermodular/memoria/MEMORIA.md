@@ -71,7 +71,7 @@ El equipo incluye además dos módulos que trabajan sobre el mismo caso: **Acces
 | Bloque | Qué se entrega | Estado el 13/11/2026 | Evidencia principal |
 |---|---|---|---|
 | Desarrollo de Interfaces | Web responsive con inicio, catálogo, ficha, servicio Custom con formulario (envío simulado), «Nuestra visión» y contacto | Hecho y probado en Edge en 4 anchos y en 11 anchos de 320 a 1440 px, con axe sin violaciones. Falta la prueba de usabilidad con personas | `06_Intermodular/evidencias/regresion-final/05_web/02_interfaces.txt` (136/136), `03_web.txt` (114/114) y `01_mejoras.txt` (81/81) |
-| Sistemas de Gestión Empresarial (Odoo) | Instancia de Odoo con el flujo de SO024 | **[PENDIENTE (Berme): todo el bloque.]** No hay ninguna evidencia: `05_Odoo/` solo tiene la lista de tareas, el borrador del recorrido y la plantilla de su `README.md` | — |
+| Sistemas de Gestión Empresarial (Odoo) | Flujo empresarial documental | PDF real de Berme conservado: instalación, venta y fabricación documentadas. API no verificada aquí; SO024 no definitivo | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf`; §4 y estado final |
 | PSP | Aplicación Java de consola con un proceso coordinador y tres procesos hijos | Hecho y probado | `06_Intermodular/evidencias/regresion-final/02_java_psp/04_psp_pruebas.txt` (27/27) |
 | Acceso a Datos | Base PostgreSQL 17 reconstruible con 23 scripts, triggers, auditoría, roles y aplicación Java Swing con JDBC | Hecho y probado. Falta el E-R en PNG | `06_Intermodular/evidencias/regresion-final/01_sql/` (123 PASS, 0 FAIL y 1 ERROR previsto), `02_java_psp/02_pruebas_rubrica.txt` (47/47) y `07_ventanas_swing/` (76/76) |
 | Python | Pipeline de calidad, DataFrames con sus metadatos, KPIs, estadística, RFM, KMeans, predicción, informe ejecutivo priorizado y dashboard Streamlit con 6 filtros y refresco cada 60 s | Hecho y probado con datos de PRUEBA y SINTÉTICOS. Falta la exportación REAL | `06_Intermodular/evidencias/regresion-final/04_python/` (265 pruebas OK y las 93 salidas comparadas) |
@@ -209,30 +209,15 @@ Resultado comprobado el 13/11 sobre el árbol final: sin desplazamiento horizont
 
 ## 4. Configuración de Odoo y flujo comercial y operativo
 
-**[PENDIENTE (Berme): todo este apartado. No hay ninguna evidencia de Odoo en el repositorio (`README.md`, apartado «Odoo: PENDIENTE»).]** La lista exacta de tareas y capturas está en `05_Odoo/CHECKLIST_ODOO_BERME.md`. El apartado tiene que quedar con esta estructura:
+La evidencia entregada es `odoo/documentacion/Odoo-NOVA-Sneakers.pdf`, de Berme y el equipo. No se ha modificado. Sus páginas 3–6 documentan Ubuntu 24.04 en OrbStack, Odoo 19 Community, servicio y módulos; las 7–9, producto y fabricación; las 10–12, venta S00005, orden WH/MO/00002, entrega WH/OUT/00005 y factura INV/2026/00001; las 16–17, variantes y usuarios. Este es trabajo documentado, no una ejecución actual de la candidata.
 
-| Subapartado | Qué tiene que contar | Requisitos |
-|---|---|---|
-| 4.1 Entorno | Máquina virtual o instancia, sistema operativo, versión y edición de Odoo, gestor de datos, aplicaciones instaladas y cómo se instaló | IM-SGE-06, 08; RA1, RA2 |
-| 4.2 Empresa, usuarios y roles | Compañía NOVA Sneakers (o Sneaker Factory, D2) y usuarios de comercial, producción, almacén y administración, con sus permisos | IM-SGE-09 |
-| 4.3 Clientes y CRM | Club Halcones y otros clientes ficticios; oportunidad si CRM entra en el alcance | IM-SGE-10, 11 |
-| 4.4 Productos y variantes | Runner X con la talla de la 38 a la 46 y el color acordado; cada variante con su SKU en «Referencia interna» | IM-SGE-12 |
-| 4.5 Venta | Presupuesto → pedido de venta SO024, con sus líneas, cantidades, variantes y condiciones | IM-SGE-12, 17 |
-| 4.6 Fabricación | Lista de materiales y orden de fabricación de SO024 | IM-SGE-13 |
-| 4.7 Inventario y entrega | Stock, movimientos y albarán de salida | IM-SGE-14 |
-| 4.8 Facturación | Factura o simulación documentada | IM-SGE-15 |
-| 4.9 Trazabilidad | Secuencia de capturas del mismo pedido, de la venta a la factura | IM-SGE-16, 21 |
-| 4.10 Exportación | CSV del pedido desde Odoo y su correspondencia con PostgreSQL y PSP | RA3 |
-| 4.11 Adaptación | Qué se ha adaptado (campos, vistas, datos de entrada) y por qué | RA4 |
-| 4.12 Copia de seguridad | Cómo se hizo y dónde está | IM-COM-16 |
-| 4.13 Incidencias | Problemas encontrados y cómo se resolvieron | RA1–RA4 («documenta operaciones e incidencias») |
+El pedido mostrado es del Club Atletico NOVA, con 40 pares a 89 €/par antes del cambio de precio documentado a 99,90 €. No se identifica con el SO024 del Club Halcones. El PDF usa NOVA-4-* para Runner X, mientras parte de esos códigos corresponde a NOVA Velocity en los datos del proyecto. No se han cambiado SKU, pedidos ni precios para forzar igualdad.
 
-Lo que ya existe y sirve de base:
+La adaptación documentada incluye variantes 38–46, referencias internas, usuarios y lista de materiales. La compañía, módulos y documentos constan en el PDF. No hay una exportación del SO024 oficial ni backup/restauración de Odoo verificables en esta entrega; CRM y algunos perfiles requieren evidencia adicional. Se declaran como límites, no como resultados positivos.
 
-- `05_Odoo/recorrido-manual-odoo.md`: un **borrador** del recorrido a mano y la regla de identificadores: el SKU como «Referencia interna» de la variante y la referencia del pedido en «Referencia del cliente».
-- `servidor-admin/odoo.js`: el conector de Berme con la API JSON-2 de Odoo, integrado en la rama pero **desactivado** y sin probar contra ningún Odoo (anexo B). No sustituye a la configuración de Odoo que pide este apartado.
+El conector NOVA → Odoo no se ha verificado contra una instalación real accesible desde este entorno. `servidor-admin/pedidos.js` sigue sin montarse y no se amplían permisos. Las pruebas que el PDF describe pertenecen al entorno de Berme; no se trasladan como si fueran pruebas de esta candidata. No se rehace la integración: se entrega el flujo documental y se muestran los módulos disponibles.
 
----
+El detalle de conciliación y los siete datos no acordados permanece en `06_Intermodular/SO024/INTEGRACION_ODOO_SO024.md`; el guion de cierre usa CUSTOM-40 de PRUEBA, no SO024 definitivo.
 
 ## 5. Diseño del subsistema auxiliar PSP
 
@@ -287,6 +272,8 @@ Para SO024, cada dato aparece así en cada bloque:
 
 ## 7. Pruebas realizadas y resultados
 
+**Cierre nuevo:** SQL desde cero, Java 47/47, PSP 27/27, analizador 8/8, comprobador PSP correcto, Python 265, Node 23/39/24 sin saltos y 9 controles Edge. Dependencias instaladas en clon nuevo. Logs y límites en `06_Intermodular/evidencias/cierre-entrega-20261113/`. Las tablas anteriores al cierre conservan su fecha y contexto histórico.
+
 Todas se pasaron sobre bases PostgreSQL **desechables** (un clúster de pruebas aparte), nunca sobre la base del equipo. El **13/11** se repitió todo sobre el **árbol final** (`8cdc08c`, exportado con `git archive`), con la fecha, la hora y el entorno de cada batería en `06_Intermodular/evidencias/regresion-final/README.md`. La estrategia de Interfaces está en `01_Interfaces/memoria/ESTRATEGIA_PRUEBAS_INTERFACES.md`, y el detalle de AD, PSP y Python, en sus documentos.
 
 | Bloque | Qué se probó | Cómo | Fecha | Resultado | Archivo |
@@ -296,7 +283,7 @@ Todas se pasaron sobre bases PostgreSQL **desechables** (un clúster de pruebas 
 | Java | `PruebasRubrica`: login de los tres roles, pruebas A–J y permisos P | `nova.PruebasRubrica` (lo que lanza `pruebas.bat`) | 13/11 (01:01) | **47 PASS, 0 FAIL**, y el TXT, el JSON y el CSV que escribe | `06_Intermodular/evidencias/regresion-final/02_java_psp/02_pruebas_rubrica.txt` y `02_salidas_java/` |
 | Java | Ventanas Swing con los tres roles, comparadas con SQL | `ProbarVentanas`, que pulsa los botones | 13/11 (01:08) | **76 PASS, 0 FAIL** y 1/1 sin conexión | `06_Intermodular/evidencias/regresion-final/07_ventanas_swing/`; capturas en `02_Acceso_Datos/evidencias/java-swing/` (19, también del 13/11) |
 | PSP | `PruebasPsp`, con el analizador de Álvaro dentro del árbol, y los errores controlados | `java -cp clases PruebasPsp` | 13/11 (01:02) | **27 de 27**; CUSTOM-40 código 0; archivo inexistente código 1; cantidad 0 código 2 | `06_Intermodular/evidencias/regresion-final/02_java_psp/04_psp_pruebas.txt`, `05_*.txt` y `06_*.txt` |
-| PSP | Comprobación rápida de Berme | `scripts/comprobar_psp.py` | 13/11 | **Falla, como ya se sabía:** espera la respuesta antigua del validador (§8.3) | `06_Intermodular/evidencias/regresion-final/02_java_psp/07_comprobar_psp.txt` |
+| PSP | Comprobación rápida de Berme | `scripts/comprobar_psp.py` | 13/11 | Fallo histórico; corregido en el cierre (`4f09742`) y comprobado de nuevo con salida 0 | `06_Intermodular/evidencias/regresion-final/02_java_psp/07_comprobar_psp.txt` |
 | Python | Pruebas automáticas, incluidas las de Streamlit con `AppTest` (filtro de cliente, refresco que conserva filtros y pestaña, R6, casos A y N, metadatos y prioridad del informe) | `python -m unittest discover -s tests -v` | 13/11 (00:59–01:12) | **Ran 265 tests · OK** (712 s) | `06_Intermodular/evidencias/regresion-final/04_python/02_unittest.txt` |
 | Python | `main.py` en modo real, sintético y sintético con errores, y el generador, frente a la referencia | Comparación de las 93 salidas | 13/11 (01:12) | **91 idénticas**; 2 con 4 columnas nuevas a propósito (`informe_ejecutivo.csv`: prioridad, urgencia, impacto esperado y sustento; las 10 de antes, iguales); 4 archivos nuevos a propósito (`contraste_sql_caso_n.csv` y tres `metadatos_dataframes.csv`). «Caso N: 17 de 17 cifras coinciden con SQL» | `06_Intermodular/evidencias/regresion-final/04_python/03_salidas_93.txt` |
 | Python | Dashboard en Edge durante tres ciclos de 60 s sin tocarlo (caso K) | Playwright + Edge contra `streamlit run` | 13/11 (00:44–00:47, mismo código) | 4 capturas con cuatro horas de comprobación distintas y las cifras iguales | `04_Python/evidencias/dashboard/caso_k_*` |
@@ -358,7 +345,7 @@ Las pruebas de las ampliaciones (tienda, panel, reparto, correos y portal del tr
 - `nave.capacidad` no se comprueba: la nave tiene capacidad 2.000 y, con los 100 modelos del 21, guarda 17.170 pares. **[POR DECIDIR (los tres): qué hacer con la capacidad de la nave.]**
 - El criterio de «venta» no es el mismo en AD (todo lo que no está cancelado, P-A) y en el apartado 6.5 de Python (confirmados en adelante). Python calcula los tres. **[POR DECIDIR (los tres): cuál se usa en la memoria y en el dashboard.]**
 - El IVA no está decidido (`config.py`: «pendiente de confirmar»). **[POR DECIDIR (los tres): si los importes son con o sin IVA, igual en Odoo, AD y Python.]**
-- `scripts/comprobar_psp.py` falla en la primera comprobación porque espera la respuesta antigua del validador. Berme lo arregló en su rama (`862e37d`), que no se ha traído a esta. **[REVISIÓN (Berme) en la PR: traer su arreglo de `comprobar_psp.py`.]**
+- El fallo histórico de `scripts/comprobar_psp.py` se corrigió con el cambio original de Berme `0baf61f`, incorporado como `4f09742` y probado en el clon limpio. No se cambió el protocolo de producción.
 - Las rutas de `servidor-admin/pedidos.js` (crear pedidos y enviarlos a Odoo) no se montan: escriben directamente en `pedidos` y en `log_eventos`, y en esta base ningún rol de la web puede hacerlo fuera de las funciones y los triggers. Para activarlas habría que pasarlas a funciones `SECURITY DEFINER` como las del 22 y el 23.
 - La prueba SQL del reparto (`prueba_reparto.sql`, P7) depende del clúster: los roles y sus pertenencias son de todo el clúster, así que en uno donde alguna base tenga el 23 da `FAIL` también en una base sin él. No es un fallo del código (`06_Intermodular/evidencias/regresion-final/01_sql/06b_causa_P7.txt`).
 - El 20 da un error técnico con un correo de más de 150 caracteres (H53), aunque la web lo corta antes.
@@ -376,6 +363,8 @@ Las pruebas de las ampliaciones (tienda, panel, reparto, correos y portal del tr
 ---
 
 ## 9. Reparto real del trabajo y contribuciones
+
+**Declaración de cierre:** las cifras siguientes describen un corte anterior y no son un reparto personal confirmado. El historial actual se conserva íntegro. No se completan nombres, revisiones personales o responsabilidades con suposiciones. La asistencia de Codex en este cierre incluyó revisión, instalación aislada, regresión y documentación; las decisiones sobre límites de entrega las dio el usuario. Las afirmaciones personales no confirmadas quedan como NO VERIFICABLES, no como trabajo inventado.
 
 **Este apartado lo completan los tres** (IM-COM-29). Aquí solo hay lo que se puede comprobar en el historial de Git, y huecos para el resto. **No se debe dar por bueno nada que no sea verdad**: en la defensa puede haber preguntas individuales (IM-COM-09).
 
@@ -419,7 +408,7 @@ Los 8 commits de Ivan Bermejo en la rama:
 
 - **Autor del commit no es lo mismo que autor del trabajo.** Las fusiones de las ramas de Álvaro y de Berme las hizo `omar1676`, y `03_PSP/README.md` («Autoría») dice que `ProcesadorPedidosCustom` y `GeneradorFichaTaller` eran tareas de Berme en el reparto y las subió Omar.
 - Los cambios de los 100 modelos, los colores, el bloque de compra, el probador, el reparto, los recibos y Nodemailer 10.5.0 están en los commits `3bdc385`, `324b3cd` y `347d7f6`, de `omar1676`. Si alguien más hizo parte de ese trabajo, tiene que decirse en el §9.2.
-- **La rama `feature/berme` de GitHub** tiene, además del portal y del conector, 34 commits que copian archivos que ya estaban en la rama (idénticos byte a byte, con su autor real) y `862e37d`, el arreglo de `comprobar_psp.py`, que no se ha traído (§8.3).
+- **La rama `feature/berme` de GitHub** tiene, además del portal y del conector, 34 commits que copian archivos que ya estaban en la rama (idénticos byte a byte, con su autor real) y `862e37d`, el arreglo histórico de `comprobar_psp.py`. En el cierre se incorporó la corrección equivalente de Berme `0baf61f` como `4f09742` (§8.3).
 - El plan de reparto del equipo (`Sneaker_Factory_Reparto_Tareas_Git_Worktrees.pdf`) es una propuesta interna, no el reparto real.
 
 ### 9.2 Lo que hizo cada uno
@@ -455,7 +444,7 @@ Versiones que constan en la documentación del proyecto y en la regresión del 1
 | Node, npm, Express, pg, Nodemailer | 24.15 (requisito: 20.6 o superior), 11.12, 5.3.0, 8.23.1 y 10.5.0 | Servidor del panel, del portal y de la tienda (ampliación) | `servidor-admin/package.json` |
 | Microsoft Edge, Playwright, axe-core, Lighthouse | 157, 1.65, 4.12.1 y 12.8.2 | Pruebas de navegador y de accesibilidad | `06_Intermodular/evidencias/regresion-final/README.md`, `01_Interfaces/evidencias/web/README.md` |
 | pgModeler y draw.io | **[PENDIENTE (Álvaro): las versiones, al exportar el E-R elegido a PNG]** | Diagramas del modelo | `02_Acceso_Datos/modelo/`, `02_Acceso_Datos/modelo-er/` |
-| Odoo | **[PENDIENTE (Berme): versión y edición]** | ERP | — |
+| Odoo | 19 Community sobre Ubuntu 24.04, según el PDF | ERP documental; no verificado en vivo aquí | PDF de Berme |
 | Git y GitHub | — | Versionado, ramas y pull requests | — |
 
 ### 9.4 Uso de inteligencia artificial

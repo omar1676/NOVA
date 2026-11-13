@@ -3,48 +3,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 /**
- * NOVA Sneakers - PSP - Proceso hijo 1: validar el pedido Custom
- *
- * QUE HACE
- *   Lee por su entrada estandar (stdin) el CSV del pedido Custom que exporta
- *   PostgreSQL con el script 02_Acceso_Datos/sql/15_exportar_fabricacion.sql, y
- *   comprueba que los datos son correctos antes de que nadie los use.
- *
- * COMO CONTESTA
- *   Si todo esta bien, escribe en su salida estandar una primera linea con
- *   el resumen y, debajo, los datos del pedido ya NORMALIZADOS:
- *
- *       OK;CUSTOM-40;4;40                     <- referencia, lineas, pares
- *       CLIENTE;Club Atletico NOVA
- *       PERSONALIZACION;Club Atletico NOVA: logo bordado y ...
- *       PEDIDO;CUSTOM-40
- *       LINEA;NOVA-4-40;NOVA Velocity;Rojo;40;10
- *       LINEA;NOVA-4-41;NOVA Velocity;Rojo;41;10
- *       ...
- *       FIN
- *
- *   y termina con codigo de salida 0.
- *
- *   El bloque PEDIDO / LINEA / FIN es justo lo que lee por su stdin el
- *   AnalizadorTallas de Alvaro (paquete Psp), con su formato
- *   LINEA;sku;modelo;color;talla;cantidad. Asi el padre se lo puede pasar
- *   tal cual, sin volver a leer el CSV.
- *
- *   Si la personalizacion ocupa varias lineas, sale una linea
- *   PERSONALIZACION por cada una, en el mismo orden: no se pierde texto.
- *
- *   Si algo esta mal, NO escribe nada en la salida estandar. Escribe el
- *   motivo en la salida de error:
- *
- *       ERROR;La cantidad del registro 2 tiene que ser un numero entero, y es: diez
- *
- *   y termina con codigo de salida 2.
- *
- *   Este formato "OK;..." y "ERROR;..." es el mismo del ejemplo del profesor
- *   EstadisticasHijo2.java (mini_reto_1_lanzador_estadisticas).
- *
- * COMO SE PRUEBA SUELTO
- *   type datos\custom40_fabricacion_psp.csv | java -cp clases ValidadorPedidoCustom
+ * Valida el CSV del script 15 y emite datos normalizados para el analizador de Alvaro.
+ * Salida: OK;referencia;lineas;pares, CLIENTE, PERSONALIZACION y PEDIDO/LINEA/FIN.
+ * La personalizacion multilinea conserva su orden en varias lineas PERSONALIZACION.
+ * Termina con 0 si es valido; con 2 y ERROR por stderr si hay datos incorrectos.
+ * Sigue el protocolo del ejemplo EstadisticasHijo2.java del profesor.
  */
 public class ValidadorPedidoCustom {
 

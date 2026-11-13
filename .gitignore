@@ -4,6 +4,7 @@ node_modules/
 # Configuración privada
 .env
 .env.local
+.env.*
 *.env
 !.env.example
 
@@ -48,8 +49,15 @@ conexion.properties
 /acceso-datos/
 /psp/
 /python-analisis/
-/odoo/
 /integracion/
 /docs/
 /pruebas/
+
+# Estado local de herramientas.
+# Las instrucciones y la configuracion compartida siguen visibles.
 .claude/
+.codex/sessions/
+.codex/log/
+.codex/logs/
+.codex/tmp/
+.codex/history.jsonl

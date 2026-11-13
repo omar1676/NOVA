@@ -7,42 +7,10 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 /**
- * NOVA Sneakers - PSP - Lanzar un proceso hijo y recoger su resultado
- * (tarea PSP-05 del reparto: ProcessBuilder, stdin/stdout, codigos y tiempos)
- *
- * QUE HACE
- *   Cada objeto se encarga de UN proceso hijo:
- *     1. Lo lanza con ProcessBuilder, en otra maquina virtual de Java.
- *     2. Le envia los datos por su entrada estandar (stdin) y la cierra.
- *     3. Recoge POR SEPARADO su salida estandar (stdout) y su salida de
- *        error (stderr), cada una en su lista.
- *     4. Espera a que termine (waitFor), como mucho segundosMaximos. Si no
- *        termina a tiempo, lo cancela.
- *     5. Guarda el codigo de salida y lo que ha tardado.
- *
- *   No decide si el resultado es bueno o malo. Eso lo hace el proceso padre,
- *   ProcesadorPedidosCustom, que es quien sabe que esperaba de cada hijo.
- *
- * DE DONDE SALE
- *   Es el metodo ejecutarHijo() de LanzadorValidacion, pasado a una clase
- *   para que lo pueda usar el coordinador. Los tres hilos y el orden
- *   "primero esperar, despues leer" son los mismos, y alli estan explicados
- *   con lo que se midio. La diferencia es que aquel terminaba el programa
- *   con System.exit() al primer fallo, y este GUARDA el resultado, para que
- *   el padre pueda decidir y escribir siempre el resumen final.
- *
- * POR QUE TRES HILOS (resumen)
- *   Las tres tuberias (entrada, salida y error) tienen un tamano limitado.
- *   Si se llena una, quien escribe se queda bloqueado. Con un hilo en cada
- *   una, ninguna se llena, y el hilo principal queda libre para hacer
- *   waitFor() con limite de tiempo y cancelar al hijo si hace falta.
- *   Cada hilo trabaja con SU lista y el principal no las mira hasta despues
- *   de join(): por eso no hace falta sincronizar nada.
- *
- * USO
- *   GestorProcesos validador = new GestorProcesos("ValidadorPedidoCustom", 10);
- *   validador.ejecutar(contenidoCsv);
- *   int codigo = validador.getCodigoSalida();
+ * Ejecuta un hijo y recoge por separado stdout, stderr y su codigo de salida.
+ * Reutiliza el lanzador de validacion: devuelve el resultado sin cerrar el padre.
+ * Un hilo por tuberia evita bloqueos; join() permite leer las listas al terminar.
+ * El hilo principal espera con limite de tiempo y cancela al hijo si se agota.
  */
 public class GestorProcesos {
 

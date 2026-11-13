@@ -1,0 +1,32 @@
+<clon-limpio>\servidor-admin\bd.js:22
+  throw new Error('El servidor no puede conectarse como postgres: usa web_nova (script 19)');
+  ^
+
+Error: El servidor no puede conectarse como postgres: usa web_nova (script 19)
+    at Object.<anonymous> (<clon-limpio>\servidor-admin\bd.js:22:9)
+    at Module._compile (node:internal/modules/cjs/loader:1830:14)
+    at Object..js (node:internal/modules/cjs/loader:1961:10)
+    at Module.load (node:internal/modules/cjs/loader:1553:32)
+    at Module._load (node:internal/modules/cjs/loader:1355:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1576:12)
+    at require (node:internal/modules/helpers:153:16)
+    at Object.<anonymous> (<clon-limpio>\servidor-admin\servidor.js:17:12)
+    at Module._compile (node:internal/modules/cjs/loader:1830:14)
+
+Node.js v24.15.0
+✖ pruebas\api.test.js (844.3501ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 855.1327
+
+✖ failing tests:
+
+test at pruebas\api.test.js:1:1
+✖ pruebas\api.test.js (844.3501ms)
+  'test failed'

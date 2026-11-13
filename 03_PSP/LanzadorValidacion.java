@@ -8,28 +8,10 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 /**
- * NOVA Sneakers - PSP - Proceso padre
- *
- * QUE HACE
- *   1. Lee el CSV del pedido Custom que exporta PostgreSQL.
- *   2. Lanza ValidadorPedidoCustom y le manda el CSV por su stdin.
- *   3. Lee su respuesta, comprueba el codigo de salida y que empiece por OK.
- *   4. SOLO si la validacion es correcta, lanza AnalizadorTallas y le manda
- *      el mismo CSV, y muestra su resumen.
- *
- *   Si cualquiera de los dos falla, se muestra el error y NO se continua.
- *
- * DE DONDE VIENE EL CSV
- *   De PostgreSQL, del script 02_Acceso_Datos/sql/15_exportar_fabricacion.sql.
- *   Hoy NO viene de Odoo: el ERP todavia no exporta nada.
- *
- * QUE NO ES ESTA CLASE
- *   No es el ProcesadorPedidosCustom del enunciado. Ese es el coordinador
- *   del equipo, que encadena tambien GeneradorFichaTaller. Esta clase solo
- *   lanza y comprueba mis dos procesos.
- *
- * COMO SE EJECUTA (desde la carpeta 03_PSP, con todo compilado en "clases")
- *   java -cp clases LanzadorValidacion pruebas\custom40.csv
+ * Lanza el validador y el analizador CSV; si falla uno, no continua.
+ * Lee la exportacion del script 15, no una exportacion de Odoo.
+ * Conserva este recorrido para las comprobaciones independientes de PSP.
+ * El coordinador del equipo es ProcesadorPedidosCustom, con tres hijos.
  */
 public class LanzadorValidacion {
 

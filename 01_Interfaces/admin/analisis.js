@@ -1,12 +1,6 @@
-// Página «Análisis de datos» del panel: enseña dentro del panel el dashboard de
-// Python (04_Python/app_dashboard.py). Es una aplicación de Streamlit con su
-// propio servidor, así que aquí solo se carga en un iframe.
-//
-// Para verlo hay que tener arrancados los dos servidores:
-//   - el del panel:   npm start                          (en servidor-admin)
-//   - el de Python:   .venv\Scripts\streamlit.exe run app_dashboard.py   (en 04_Python)
-// El panel ya exige haber entrado como administrador. Streamlit solo escucha en
-// este ordenador (04_Python/.streamlit/config.toml).
+// Muestra el dashboard de Streamlit en un iframe; necesita ambos servidores.
+// El panel exige acceso de administrador y Streamlit escucha en este ordenador.
+// Arranque de Python y Node: README.md, «Web, panel, portal del trabajador y tienda».
 
 const PUERTO_DASHBOARD = 8501; // el puerto por defecto de Streamlit
 
@@ -17,8 +11,7 @@ const enlaceAnalisis = document.getElementById("adm-analisis-enlace");
 
 enlaceAnalisis.href = direccionDashboard;
 
-// Antes de cargarlo se comprueba que Streamlit está arrancado. Con "no-cors" la
-// respuesta no se puede leer, pero la petición solo falla si nadie contesta.
+// Con no-cors se detectan fallos de conexion, pero no se puede leer el estado HTTP.
 async function mostrarDashboard() {
   try {
     await fetch(direccionDashboard + "_stcore/health", { mode: "no-cors", cache: "no-store" });

@@ -10,45 +10,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 /**
- * NOVA Sneakers - PSP - Proceso padre: ProcesadorPedidosCustom
- * (tarea PSP-01 del reparto)
- *
- * QUE HACE
- *   Recibe el CSV exportado de UN pedido Custom y coordina tres procesos
- *   hijos. Cada hijo es otro programa Java, en su propia maquina virtual:
- *
- *     Paso 1  ValidadorPedidoCustom   comprueba el CSV y normaliza los datos
- *     Paso 2  Psp.AnalizadorTallas    agrupa los pares por variante y talla
- *                                     (es el de Alvaro, sin cambios)
- *     Paso 3  GeneradorFichaTaller    escribe la ficha auxiliar del taller
- *
- *   Los datos pasan de un hijo al siguiente A TRAVES DEL PADRE, siempre por
- *   la entrada y la salida estandar:
- *
- *     CSV --stdin--> validador --stdout--> padre
- *         padre --stdin--> analizador --stdout--> padre
- *         padre --stdin--> generador  --stdout--> padre --> archivo de ficha
- *
- *   Despues de cada paso el padre mira el codigo de salida y la respuesta.
- *   Si algo falla, NO lanza el paso siguiente.
- *
- *   Pase lo que pase, termina con un resumen en pantalla que tambien se
- *   anade al final de salidas/registro_psp.txt.
- *
- * LO QUE NO HACE
- *   No escribe en PostgreSQL ni en Odoo, no toca el stock y no crea la orden
- *   de fabricacion. Solo procesa una COPIA exportada del pedido.
- *
- * CODIGOS DE SALIDA DEL PADRE
- *   0  correcto: ficha generada
- *   1  problema con un archivo (el de entrada o al guardar): si es el de
- *      entrada, no se lanza ningun hijo
- *   2  un hijo ha rechazado los datos del pedido (el hijo devolvio 2)
- *   3  un hijo ha fallado: no arranca, codigo inesperado, tiempo agotado,
- *      respuesta que no se entiende o resultados que no cuadran
- *
- * COMO SE EJECUTA (desde la carpeta 03_PSP)
- *   java -cp clases ProcesadorPedidosCustom datos\custom40_fabricacion_psp.csv
+ * Procesa la copia CSV de un pedido: validador, analizador de Alvaro y generador.
+ * El padre pasa los datos entre hijos por stdin/stdout y se detiene si un paso falla.
+ * Genera una ficha auxiliar y anade el resumen a salidas/registro_psp.txt.
+ * No modifica PostgreSQL, Odoo ni el stock; no crea una orden de fabricacion.
+ * Codigos: 0 correcto, 1 error de archivo, 2 pedido rechazado, 3 fallo de proceso.
  */
 public class ProcesadorPedidosCustom {
 

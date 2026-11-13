@@ -1,43 +1,10 @@
 import java.util.ArrayList;
 
 /**
- * NOVA Sneakers - PSP - Leer un CSV y separarlo en registros y campos
- *
- * POR QUE EXISTE ESTA CLASE
- *   Leer bien un CSV no es tan simple como partir por comas. La usan
- *   ValidadorPedidoCustom (hijo 1) y el AnalizadorTallas antiguo de esta
- *   carpeta; asi el codigo esta en un solo sitio.
- *
- * LINEA FISICA NO ES LO MISMO QUE REGISTRO
- *   Esto es lo importante de esta clase. Un registro del CSV puede ocupar
- *   VARIAS lineas del archivo, porque un campo entrecomillado puede llevar un
- *   salto de linea dentro.
- *
- *   PostgreSQL los genera de verdad. Si una personalizacion se guarda asi:
- *
- *       Logo bordado, con el texto "NOVA"
- *       Segunda linea: numeracion en el talon
- *
- *   el CSV que exporta COPY ocupa DOS lineas del archivo para UN solo
- *   registro:
- *
- *       CUSTOM-40,NOVA-4-40,...,Rojo,"Logo bordado, con el texto ""NOVA""
- *       Segunda linea: numeracion en el talon",40,10
- *
- *   Por eso esta clase no lee linea a linea: recorre TODO el contenido letra
- *   a letra y decide ella misma donde acaba cada registro. Un salto de linea
- *   dentro de comillas es texto del campo; fuera de comillas, termina el
- *   registro.
- *
- * LAS REGLAS DEL CSV, QUE SON CUATRO
- *   1. Los campos se separan por comas.
- *   2. Un campo puede ir entre comillas dobles. Dentro, una coma es texto.
- *   3. Dentro de comillas, dos comillas seguidas ("") son una comilla de verdad.
- *   4. Dentro de comillas, un salto de linea es texto y se conserva tal cual.
- *
- * SI EL CSV ESTA MAL
- *   Lanza IllegalArgumentException con el motivo. El hijo que la llama la
- *   recoge con un try/catch y avisa por su salida de error.
+ * Lee registros CSV completos, incluidos campos con comas y saltos de linea.
+ * Dentro de un campo entrecomillado, dos comillas representan una comilla literal.
+ * Lo comparten el validador y el analizador CSV; un formato invalido lanza
+ * IllegalArgumentException para que el hijo avise por stderr.
  */
 public class LectorCsv {
 

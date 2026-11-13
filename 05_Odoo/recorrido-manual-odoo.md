@@ -1,5 +1,7 @@
 # Recorrido manual del pedido Custom: PostgreSQL → CSV → Odoo
 
+> **Borrador histórico anterior al PDF de Berme.** No usar sus ejemplos de CUSTOM-40 como acuerdo de SO024. El estado actual, los códigos y el orden de conciliación están en [INTEGRACION_ODOO_SO024.md](../06_Intermodular/SO024/INTEGRACION_ODOO_SO024.md).
+
 Borrador para revisar con Berme (OD-01 y OD-04), Álvaro (OD-02) y Omar (OD-03).
 
 - **Qué es:** un recorrido **manual**, sin sincronización automática y sin escribir

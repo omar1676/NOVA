@@ -3,7 +3,7 @@
 Cómo instalar, montar la base de datos, arrancar cada parte y pasar las pruebas, para que otro equipo pueda repetirlo (IM-COM-05).
 
 - **Probado** en Windows 11 el **13/11/2026**, siguiendo este mismo manual sobre una copia nueva del repositorio y una base de datos nueva y vacía. El resultado está en `06_Intermodular/evidencias/regresion-final/08_manual_instalacion/`.
-- **Rama:** `integracion/candidata-2` (la candidata final; se propone a `main` con una pull request). Cuando se fusione, todo esto vale igual desde `main`.
+- **Cierre final:** candidata `revision/incorporar-limpieza-main-20261113`, aún sin publicar. El código de `4f09742` se instaló en un clon nuevo, con venv nuevo, npm ci y clúster PostgreSQL aislado. Resultados nuevos en `../evidencias/cierre-entrega-20261113/`. Las evidencias iniciales enlazadas arriba se conservan como históricas.
 - **Convenciones.** Los comandos son de **PowerShell** y se lanzan desde la **raíz del repositorio**, salvo que se diga otra cosa.
 - **Contraseñas.** **Nunca se escribe ninguna en un archivo del repositorio.** Los scripts las piden por teclado, y los archivos de configuración que las llevan (`02_Acceso_Datos/java/conexion.properties` y `servidor-admin/.env`) están en el `.gitignore`. Cada equipo elige las suyas al instalar. **[DUDA PARA EL PROFESOR (D12): por qué medio se le dan las contraseñas de demostración el día de la defensa.]**
 
@@ -21,7 +21,7 @@ Cómo instalar, montar la base de datos, arrancar cada parte y pasar las pruebas
 | Node | **20.6 o superior** (probado con 24.15) | Solo para las ampliaciones: panel, portal del trabajador y tienda | `node --version` |
 | Dependencias de Node | express 5.3.0, pg 8.23.1 y nodemailer 10.5.0 (versiones exactas del `package-lock.json`) | Ídem | `servidor-admin/package.json` |
 | Navegador | Microsoft Edge o Chrome actual | Web, panel, portal, tienda y dashboard | — |
-| Odoo | **[PENDIENTE (Berme): versión, edición y máquina virtual]** | ERP | — |
+| Odoo | PDF de Berme: Odoo 19 Community sobre Ubuntu 24.04 en OrbStack | Evidencia documental; no necesario para ejecutar los módulos disponibles | API no verificada desde este entorno |
 
 Si `javac` o `psql` no están en el PATH, para la sesión actual:
 
@@ -48,6 +48,8 @@ git clone https://github.com/omar1676/NOVA.git
 cd NOVA
 git switch main
 ```
+
+**La candidata de cierre aún no está publicada:** el clone de GitHub obtiene el main publicado. Para revisar la candidata antes de autorizar su publicación, se puede clonar desde la ruta local indicada en el informe de entrega con `git clone --branch revision/incorporar-limpieza-main-20261113 <ruta-candidata> NOVA`. No confundir el código de main con cambios todavía locales.
 
 El repositorio es privado: el profesor necesita que le den acceso. Hasta que se fusione la pull request, la candidata final está en su propia rama (la que indica la pull request); se cambia `main` por el nombre de esa rama.
 
@@ -155,6 +157,10 @@ psql -U postgres -d nova_sneakers -v ON_ERROR_STOP=1 -v precio=<precio> -v color
 ```
 
 ---
+
+**Separar configuración administrativa y de aplicación:** abre otra consola para Node. Las variables ya exportadas en el entorno prevalecen sobre `--env-file=.env`; si PGUSER sigue siendo postgres, el servidor se niega correctamente. Usar web_nova y la base/puerto indicados en .env. No entregar .env ni conexion.properties.
+
+**Entrega sin SO024 oficial:** no ejecutar el 18 con valores inventados. El recorrido disponible usa CUSTOM-40 y CSV rotulados PRUEBA. El manual de demostración de este cierre no necesita una instancia de Odoo.
 
 ## 4. Aplicación Java (Acceso a Datos)
 
@@ -271,12 +277,12 @@ y abrir `http://127.0.0.1:8000/01_Interfaces/cliente/`. También funciona abrien
 | SQL | Scripts 09 a 16 en el orden del §3 | **123 PASS, 0 FAIL y 1 ERROR previsto** (S4b) | 123 / 0 / 1 (`06_Intermodular/evidencias/regresion-final/01_sql/`) |
 | Java | `02_Acceso_Datos\java\pruebas.bat` (pide las tres contraseñas de demostración) | `RESULTADO: 47 PASS, 0 FAIL` | 47 / 0 (`06_Intermodular/evidencias/regresion-final/02_java_psp/`) |
 | PSP | En `03_PSP`, tras compilar: `java -cp clases PruebasPsp` | `Pruebas superadas: 27 de 27` | 27 / 27 (ídem) |
-| Python | En `04_Python`: `.venv\Scripts\python.exe -m unittest discover -s tests -v` (tarda unos 12 minutos) | `Ran 265 tests` y `OK` | 265 OK (`06_Intermodular/evidencias/regresion-final/04_python/`) |
+| Python | En `04_Python`: `.venv\Scripts\python.exe -m unittest discover -s tests -v` (el tiempo depende del equipo; 265 pruebas, unos 157 s en este cierre) | `Ran 265 tests` y `OK` | 265 OK (`06_Intermodular/evidencias/regresion-final/04_python/`) |
 | Panel | En `servidor-admin`, con `$env:PRUEBA_ADMIN_USUARIO`, `PRUEBA_ADMIN_CLAVE`, `PRUEBA_OTRO_USUARIO` y `PRUEBA_OTRO_CLAVE` (y las `PRUEBA_COMERCIAL_*`): `npm test` | `tests 23`, `pass 23` con `PRUEBA_TIENDA_BASE_DESECHABLE=si` (sin ella, una se salta) | 23 / 23 y 22 + 1 saltada (`06_Intermodular/evidencias/regresion-final/03_node/`) |
 | Tienda | `$env:PRUEBA_TIENDA_BASE_DESECHABLE = "si"; npm run test:tienda` | `tests 39`, `pass 39` | 39 / 39 (ídem) |
 | Login único y portal | `$env:PRUEBA_TIENDA_BASE_DESECHABLE = "si"; $env:PRUEBA_SUPERUSUARIO = "postgres"; npm run test:portal` | `tests 24`, `pass 24` | 24 / 24 (ídem) |
 | Web (rápida) | `py scripts\comprobar_web.py` | Que existen los recursos que enlaza la web | Correcta (`06_Intermodular/evidencias/regresion-final/02_java_psp/08_comprobar_web.txt`) |
-| PSP (rápida) | `py scripts\comprobar_psp.py` (con `java` y `javac` en el PATH) | **Falla en la primera comprobación, ya se sabe:** espera la respuesta antigua del validador (`OK;CUSTOM-40;4;40`). El arreglo de Berme está en `feature/berme` (`862e37d`) y no se ha traído | Falla como se espera (ídem, `07_comprobar_psp.txt`) |
+| PSP (rápida) | `py scripts\comprobar_psp.py` (java y javac en PATH) | CSV multilínea, bloque normalizado, resumen y rechazos correctos | Correcta en `cierre-entrega-20261113/psp_comprobador.txt`; corrección de Berme `4f09742` |
 | Web en navegador | Scripts de Playwright, fuera del repositorio (`01_Interfaces/memoria/ESTRATEGIA_PRUEBAS_INTERFACES.md` §7) | 81/81, 136/136, 114/114, compra 139/139, reparto 29/29, portal 82/82 y Ethereal 16/16 | Ver `06_Intermodular/evidencias/regresion-final/README.md` |
 
 `npm test`, `test:tienda` y `test:portal` leen el `.env` (`node --env-file=.env`): tiene que existir, aunque las variables `PRUEBA_*` se pongan en la consola.

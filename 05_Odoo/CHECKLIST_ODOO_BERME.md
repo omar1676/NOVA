@@ -1,6 +1,6 @@
 # Odoo · Lista de tareas y capturas para Berme
 
-Sistemas de Gestión Empresarial (módulo 0491). **[PENDIENTE (Berme): todo lo de esta lista.]** A 13/11/2026 **no hay ninguna evidencia de Odoo** en el repositorio (`05_Odoo/` solo tiene esta lista, el borrador del recorrido y la plantilla de su `README.md`). Esta lista cubre los 17 requisitos de SGE de `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` (IM-SGE-06 a 17 y 21, y RA1 a RA4), más la copia de seguridad (IM-COM-16) y el punto 4 de la memoria (IM-COM-24).
+Sistemas de Gestión Empresarial (módulo 0491). **Actualización del 13/11/2026:** ya está el PDF de Berme, con evidencias OD-01 a OD-06. Su correspondencia con las rúbricas y los pendientes del SO024 oficial se revisa en [el plan actual](../06_Intermodular/SO024/INTEGRACION_ODOO_SO024.md). Las casillas siguientes son criterios de aceptación por verificar/cerrar para la entrega común; no significan que Berme no haya realizado el trabajo documentado. No se ha probado su instancia desde esta candidata.
 
 **Lo que ya hay de Berme en la rama** (anexo B de `06_Intermodular/memoria/MEMORIA.md`): el portal del trabajador, integrado y probado, y su conector con la API de Odoo, `servidor-admin/odoo.js`, integrado pero **desactivado** mientras falte alguna de `ODOO_URL`, `ODOO_DB` y `ODOO_API_KEY`. El conector **no se ha probado contra ningún Odoo** y no sustituye a nada de esta lista: el enunciado pide configurar Odoo y enseñar el flujo de SO024 en Odoo.
 

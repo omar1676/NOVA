@@ -2,39 +2,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 /**
- * NOVA Sneakers - PSP - Proceso hijo 2: resumir las cantidades por talla
- *
- * VERSION ANTERIOR: la lanza LanzadorValidacion. El hijo 2 de
- * ProcesadorPedidosCustom es otra clase, Psp.AnalizadorTallas (ver README).
- *
- * QUE HACE
- *   Lee por su entrada estandar (stdin) el mismo CSV del pedido Custom y
- *   agrupa las cantidades por talla. Despues escribe el resumen por su
- *   salida estandar:
- *
- *       Talla 40: 10 pares
- *       Talla 41: 10 pares
- *       Talla 42: 10 pares
- *       Talla 43: 10 pares
- *       Total: 40 pares
- *
- *   Y termina con codigo de salida 0.
- *
- *   NINGUNA de esas cifras esta escrita en el codigo: todas se calculan
- *   sumando lo que trae el archivo. Si el pedido cambia, el resumen cambia.
- *
- * COMO GUARDA LOS DATOS
- *   Con dos listas que van en paralelo:
- *
- *       tallas     ->  40    41    42    43
- *       cantidades ->  10    10    10    10
- *
- *   La talla que esta en la posicion 0 de "tallas" tiene sus pares en la
- *   posicion 0 de "cantidades". Es la forma mas sencilla de agrupar sin
- *   usar estructuras que no hemos dado.
- *
- * COMO SE PRUEBA SUELTO
- *   type pruebas\custom40.csv | java -cp clases AnalizadorTallas
+ * Analizador CSV que usa LanzadorValidacion en sus comprobaciones independientes.
+ * Agrupa pares por talla tras validar los registros; conserva el formato de salida.
+ * El coordinador del equipo utiliza Psp.AnalizadorTallas, de Alvaro.
  */
 public class AnalizadorTallas {
 

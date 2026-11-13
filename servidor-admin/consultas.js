@@ -1,21 +1,7 @@
-// consultas.js — las consultas SQL del panel de administracion.
-//
-// Todas son de SOLO LECTURA: bd.consultarSoloLectura las ejecuta dentro de
-// BEGIN ... READ ONLY y con el rol panel_lectura (script 19), que solo puede
-// leer las tablas y columnas que aparecen aqui.
-//
-// Salen de las que ya tenia el proyecto, para que el panel, Java y los
-// informes den las mismas cifras:
-//   - 02_Acceso_Datos/sql/12_consultas_panel.sql: C5 (filtros), C8 (stock bajo),
-//     P-A (ventas), P-B (pedidos por estado) y P-C (modelos mas solicitados).
-//   - PedidoDAO.verAuditoria (Java): la auditoria.
-//
-// Ninguna recalcula los totales de los pedidos ni el stock: importe_total,
-// cantidad_total y existencias los mantienen los triggers de PostgreSQL.
-// Solo se suman o se promedian para mostrarlos (ventas, ticket medio).
-//
-// Los filtros van siempre como parametros ($1, $2...), nunca pegados al SQL.
-// Un filtro vacio ('') no excluye nada, igual que en C5.
+// Consultas del panel, basadas en el script 12 y PedidoDAO.verAuditoria.
+// bd.consultarSoloLectura usa READ ONLY y el rol panel_lectura del script 19.
+// Los triggers mantienen importes y stock; aqui solo se consultan y se agregan.
+// Los filtros se pasan como parametros ($1, $2...); vacio significa no filtrar.
 
 // Stock bajo: MENOS de 10 unidades, como C8 y el panel de indicadores de Java.
 const UMBRAL_STOCK_BAJO = 10;
