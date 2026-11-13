@@ -7,7 +7,7 @@
 --   clientes.csv  modelos.csv  pedidos.csv  lineas_pedido.csv  stock.csv
 --
 -- Las columnas, el formato y de donde sale cada dato estan explicados en
--- la documentacion, apartado "Exportacion de los cinco CSV del contrato".
+-- 02_Acceso_Datos/documentacion/README.md, "Exportacion de los cinco CSV del dashboard".
 --
 -- SOLO LEE
 --   No modifica ninguna tabla. Lo pueden ejecutar postgres, nova_admin,

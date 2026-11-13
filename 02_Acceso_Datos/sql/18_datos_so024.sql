@@ -3,17 +3,17 @@
 --
 -- QUE HACE
 --   Deja en la base lo que necesita el pedido SO024 del enunciado
---   (Club Halcones, Runner X, 40 pares, tallas 38 a 46), pero NO crea el
---   pedido: SO024 se da de alta y se confirma desde la aplicacion Java
---   (pestana "Nuevo pedido").
---   No es CUSTOM-40: ese pedido (10 y 14) es el caso Custom de Acceso a
---   Datos y usa NOVA Velocity en lugar de Runner X. SO024 es el caso
---   comun del proyecto intermodular y usa un Runner X de verdad.
+--   (Club Halcones, Runner X, 40 pares, tallas 38 a 46):
 --     1. El cliente Club Halcones.
 --     2. El modelo Runner X, con un color.
 --     3. Sus nueve SKU, de la talla 38 a la 46, con el mismo formato que
 --        el resto del catalogo (05_datos_prueba.sql): NOVA-<variante>-<talla>.
 --     4. Sus existencias en la nave NOVA Central.
+--   NO crea el pedido: SO024 se da de alta y se confirma desde la
+--   aplicacion Java (pestana "Nuevo pedido").
+--   No es CUSTOM-40: ese pedido (10 y 14) es el caso Custom de Acceso a
+--   Datos y usa NOVA Velocity en lugar de Runner X. SO024 es el caso
+--   comun del proyecto intermodular y usa un Runner X de verdad.
 --
 --   No cambia ninguna tabla ni ningun trigger: solo hace INSERT, y en
 --   estas cinco tablas no hay ningun trigger de INSERT.

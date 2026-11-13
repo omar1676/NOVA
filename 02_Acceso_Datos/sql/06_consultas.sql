@@ -1,4 +1,4 @@
-
+-- Consulta 1. Ventas por modelo: unidades e importe, con X-NOVA y sin los pedidos cancelados.
 SELECT
     COALESCE(m.nombre, 'X-NOVA') AS modelo,
     SUM(l.cantidad) AS unidades,
@@ -13,7 +13,7 @@ GROUP BY COALESCE(m.nombre, 'X-NOVA')
 ORDER BY importe_total DESC;
 
 
-
+-- Consulta 2. Ranking de clientes: pedidos e importe sin cancelados, incluidos los que no han comprado.
 SELECT
     c.nombre,
     c.email,
@@ -56,7 +56,7 @@ HAVING COALESCE(SUM(e.cantidad), 0) - COALESCE(pendiente.pares, 0) < 10
 ORDER BY stock_previsto ASC, m.nombre;
 
 
-
+-- Consulta 4. Pedidos personalizados, incluidos los X-NOVA.
 SELECT
     p.referencia,
     c.nombre AS cliente,
@@ -70,7 +70,7 @@ WHERE p.personalizado = true
 ORDER BY p.fecha_pedido DESC;
 
 
-
+-- Consulta 5. Inventario por almacen: productos distintos y pares disponibles de cada nave.
 SELECT
     n.nombre AS almacen,
     n.ubicacion,
@@ -83,7 +83,7 @@ GROUP BY n.id_nave, n.nombre, n.ubicacion, n.capacidad
 ORDER BY pares_disponibles DESC;
 
 
-
+-- Consulta 6. Tallas mas pedidas, con la talla de referencia de los X-NOVA.
 SELECT
     COALESCE(s.talla, x.talla_referencia) AS talla,
     SUM(l.cantidad) AS pares_pedidos,
@@ -95,7 +95,7 @@ GROUP BY COALESCE(s.talla, x.talla_referencia)
 ORDER BY pares_pedidos DESC, talla;
 
 
-
+-- Consulta 7. Pedidos por mes: numero, importe y cuantos son personalizados.
 SELECT
     DATE_TRUNC('month', p.fecha_pedido)::date AS mes,
     COUNT(*) AS numero_pedidos,
@@ -106,7 +106,7 @@ GROUP BY DATE_TRUNC('month', p.fecha_pedido)
 ORDER BY mes DESC;
 
 
-
+-- Consulta 8. Resumen de pagos: pedidos, importe y pares por estado de pago.
 SELECT
     p.estado_pago,
     COUNT(*) AS numero_pedidos,

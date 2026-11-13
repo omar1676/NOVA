@@ -6,7 +6,7 @@
 -- SO024, se indica con -v referencia=SO024 (ver COMO SE EJECUTA).
 --
 -- QUE EXPORTA, Y QUE NO
---   Solo el pedido indicado, y solo si esta **confirmado** y suma 40
+--   Solo el pedido indicado, y solo si esta confirmado y suma 40
 --   pares. No mezcla ningun otro pedido: cada orden de fabricacion es de
 --   un pedido.
 --
