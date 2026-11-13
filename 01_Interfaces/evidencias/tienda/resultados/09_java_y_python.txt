@@ -6,7 +6,7 @@ Aviso de Python (regla 12, advertencia que no bloquea): los pedidos web cancelad
 mismas lineas salen como "posible pedido repetido".
 
 ===== Java: PruebasRubrica =====
-Contrase�a de admin.demo: Contrase�a de tienda.demo (comercial): Contrase�a de taller.demo (trabajador):
+Contraseña de admin.demo: Contraseña de tienda.demo (comercial): Contraseña de taller.demo (trabajador):
 --- Inicio de sesion y rol de conexion
 PASS L1 login de admin.demo -> rol administrador, conectado como nova_admin
 PASS L1 login de tienda.demo -> rol comercial, conectado como nova_comercial
@@ -43,7 +43,7 @@ PASS E4 limpiar filtros vuelve a todo -> 23 filas
 
 --- Prueba F: sin coincidencias y sin permiso
 PASS F1 busqueda sin coincidencias -> 0 filas
-PASS F2 el comercial no ve la auditoria (Java) -> Acceso denegado: el rol comercial no puede ver la auditor�a
+PASS F2 el comercial no ve la auditoria (Java) -> Acceso denegado: el rol comercial no puede ver la auditoría
 PASS F3 PostgreSQL lo deniega aunque se salte Java -> Acceso denegado por PostgreSQL: permission denied for table log_eventos
 
 --- Prueba G: registro TXT

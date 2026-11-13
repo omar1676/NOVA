@@ -1,12 +1,12 @@
 ===== escritorio (1280 px)
 --- acceso
 PASS  sin sesion, admin.html lleva a login.html (http://127.0.0.1:3100/login.html)
-PASS  contrasena mala: aviso y sigue en login (Usuario o contrase�a incorrectos)
+PASS  contrasena mala: aviso y sigue en login (Usuario o contraseña incorrectos)
 PASS  trabajador: no tiene permiso y sigue en login (El usuario taller.demo (trabajador) no tiene permiso para el panel.)
 PASS  al trabajador se le cierra la sesion (401) (401)
 PASS  administrador: entra al dashboard
 --- dashboard
-PASS  ventas acumuladas = P-A (10.686,45��)
+PASS  ventas acumuladas = P-A (10.686,45 €)
 PASS  pedidos del dia (12)
 PASS  pedidos pendientes (11)
 PASS  sugerencias: No disponible
@@ -39,7 +39,7 @@ PASS  pedidos: filtro pendiente (11)
 PASS  pedidos: filtro confirmado (['CUSTOM-40'])
 PASS  pedidos: buscador 'custom' (['CUSTOM-40'])
 PASS  pedidos: sin coincidencias -> 'No hay resultados'
-PASS  pedidos: una fila identica a PostgreSQL (['CUSTOM-40', 'Club Atletico NOVA', '11/11/2026', 'confirmado', '4796,00\xa0�'])
+PASS  pedidos: una fila identica a PostgreSQL (['CUSTOM-40', 'Club Atletico NOVA', '11/11/2026', 'confirmado', '4796,00\xa0€'])
 PASS  inventario: filtro bajo (0)
 PASS  inventario: filtro agotado (0)
 PASS  inventario: filtro suficiente (60)
@@ -47,9 +47,9 @@ PASS  auditoria: filtro ALTA (1)
 PASS  trabajadores: buscador 'taller' ([['Demo Taller', 'taller.demo', 'Operario de taller', 'trabajador', 'activo']])
 PASS  trabajadores: sin DNI en la pagina
 --- estadisticas
-PASS  ingresos del mes (10.686,45��)
+PASS  ingresos del mes (10.686,45 €)
 PASS  pedidos del mes (12)
-PASS  ticket medio (890,54��)
+PASS  ticket medio (890,54 €)
 PASS  pares del mes (90)
 PASS  mas vendidos = P-C (['NOVA Velocity|82', 'NOVA Archive|2', 'NOVA Eclipse|2', 'NOVA Origin|2', 'NOVA Aura|1', 'NOVA Pulse|1'])
 PASS  graficos de ventas e ingresos
@@ -70,12 +70,12 @@ PASS  y la API responde 401
 ===== movil (390 px)
 --- acceso
 PASS  sin sesion, admin.html lleva a login.html (http://127.0.0.1:3100/login.html)
-PASS  contrasena mala: aviso y sigue en login (Usuario o contrase�a incorrectos)
+PASS  contrasena mala: aviso y sigue en login (Usuario o contraseña incorrectos)
 PASS  trabajador: no tiene permiso y sigue en login (El usuario taller.demo (trabajador) no tiene permiso para el panel.)
 PASS  al trabajador se le cierra la sesion (401) (401)
 PASS  administrador: entra al dashboard
 --- dashboard
-PASS  ventas acumuladas = P-A (10.686,45��)
+PASS  ventas acumuladas = P-A (10.686,45 €)
 PASS  pedidos del dia (12)
 PASS  pedidos pendientes (11)
 PASS  sugerencias: No disponible
@@ -108,7 +108,7 @@ PASS  pedidos: filtro pendiente (11)
 PASS  pedidos: filtro confirmado (['CUSTOM-40'])
 PASS  pedidos: buscador 'custom' (['CUSTOM-40'])
 PASS  pedidos: sin coincidencias -> 'No hay resultados'
-PASS  pedidos: una fila identica a PostgreSQL (['CUSTOM-40', 'Club Atletico NOVA', '11/11/2026', 'confirmado', '4796,00\xa0�'])
+PASS  pedidos: una fila identica a PostgreSQL (['CUSTOM-40', 'Club Atletico NOVA', '11/11/2026', 'confirmado', '4796,00\xa0€'])
 PASS  inventario: filtro bajo (0)
 PASS  inventario: filtro agotado (0)
 PASS  inventario: filtro suficiente (60)
@@ -116,9 +116,9 @@ PASS  auditoria: filtro ALTA (1)
 PASS  trabajadores: buscador 'taller' ([['Demo Taller', 'taller.demo', 'Operario de taller', 'trabajador', 'activo']])
 PASS  trabajadores: sin DNI en la pagina
 --- estadisticas
-PASS  ingresos del mes (10.686,45��)
+PASS  ingresos del mes (10.686,45 €)
 PASS  pedidos del mes (12)
-PASS  ticket medio (890,54��)
+PASS  ticket medio (890,54 €)
 PASS  pares del mes (90)
 PASS  mas vendidos = P-C (['NOVA Velocity|82', 'NOVA Archive|2', 'NOVA Eclipse|2', 'NOVA Origin|2', 'NOVA Aura|1', 'NOVA Pulse|1'])
 PASS  graficos de ventas e ingresos
