@@ -1,8 +1,8 @@
 // consultas-tienda.js — el SQL de la tienda web.
 //
 // Dos tipos de sentencias:
-//   - Lecturas: el catalogo, los datos del cliente y sus pedidos. Siempre
-//     filtradas por el id del cliente que tiene la sesion abierta.
+//   - Lecturas: el catalogo (el mismo para todos) y los datos y pedidos del
+//     cliente, siempre filtrados por el id del cliente que tiene la sesion.
 //   - Llamadas a las funciones del script 20 (registrar_cliente,
 //     crear_compra_web, ...). Son lo unico que escribe en la base.
 // Aqui no se calcula ningun precio ni se toca el stock: lo hace PostgreSQL.

@@ -147,7 +147,7 @@ async function pedido(cliente, idPedido) {
 }
 
 // ---------------------------------------------------------------------
-// 3. Productos: un SKU por fila. Se sigue a anadir_linea_pedido (02_funciones.sql):
+// 3. Productos: un SKU por fila. Con las reglas de anadir_linea_pedido (02_funciones.sql):
 //    - precio = precio_base del modelo + suplemento_precio del color (aqui solo se ve);
 //    - un SKU solo se puede vender si el SKU y su modelo estan activos.
 // ---------------------------------------------------------------------

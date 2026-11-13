@@ -1,9 +1,10 @@
 // bd.js — las conexiones con PostgreSQL.
 //
-// El panel se conecta SIEMPRE con web_nova (script 19_usuario_web.sql),
-// nunca con postgres. Los datos de conexion salen de las variables de entorno
-// PGHOST, PGPORT, PGDATABASE, PGUSER y PGPASSWORD, que la libreria pg lee sola.
-// Se escriben en el archivo .env, que no se sube a Git.
+// El panel y el portal del trabajador se conectan SIEMPRE con web_nova
+// (script 19_usuario_web.sql), nunca con postgres. Los datos de conexion
+// salen de las variables de entorno PGHOST, PGPORT, PGDATABASE, PGUSER y
+// PGPASSWORD, que la libreria pg lee sola. Se escriben en el archivo .env,
+// que no se sube a Git.
 // La tienda usa su propio usuario, tienda_nova (ver mas abajo).
 
 const { Pool, types } = require('pg');
@@ -110,11 +111,11 @@ async function comprobarConexion() {
 // ---------------------------------------------------------------------
 // La tienda web usa OTRA conexion, con el usuario tienda_nova (script 20).
 // Asi web_nova sigue sin poder escribir nada, y la tienda solo puede lo que
-// permite tienda_web: leer el catalogo y sus pedidos, y llamar a las cinco
-// funciones de compra. Servidor, base y puerto son los mismos (PGHOST,
-// PGPORT, PGDATABASE); el usuario y la contrasena van en TIENDA_PGUSER y
-// TIENDA_PGPASSWORD. Si no estan, el panel funciona igual y la tienda
-// responde 503.
+// permite tienda_web: leer el catalogo, los datos del cliente y sus pedidos,
+// y llamar a las cinco funciones del script 20 (registro, login y compra).
+// Servidor, base y puerto son los mismos (PGHOST, PGPORT, PGDATABASE); el
+// usuario y la contrasena van en TIENDA_PGUSER y TIENDA_PGPASSWORD. Si no
+// estan, el panel funciona igual y la tienda responde 503.
 // ---------------------------------------------------------------------
 const tiendaConfigurada = Boolean(process.env.TIENDA_PGUSER && process.env.TIENDA_PGPASSWORD);
 

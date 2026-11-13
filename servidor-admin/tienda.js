@@ -23,7 +23,7 @@ const consultas = require('./consultas-tienda');
 const correo = require('./correo');
 
 const rutas = express.Router();
-const sesionesTienda = sesiones.tienda; // NO son las del panel (sesiones.js)
+const sesionesTienda = sesiones.tienda; // NO son las del personal (panel y portal)
 
 // ---------------------------------------------------------------------
 // Errores
@@ -198,7 +198,7 @@ rutas.post('/registro', async (req, res) => {
   res.status(201).json({ nombre, email });
 });
 
-// Igual que el login del panel: la contrasena la comprueba PostgreSQL y,
+// Igual que el login del personal: la contrasena la comprueba PostgreSQL y,
 // tras 5 fallos con el mismo correo, se responde 429 unos minutos.
 rutas.post('/login', async (req, res) => {
   const email = leerTexto(req.body, 'email', 150, true, 'el correo').toLowerCase();
