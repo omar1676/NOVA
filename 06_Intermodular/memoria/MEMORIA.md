@@ -368,7 +368,7 @@ Las pruebas de las ampliaciones (tienda, panel, reparto, correos y portal del tr
 1. Las ampliaciones para una integración productiva del apartado 2.4.
 2. Dar a cada error de negocio su propio código SQLSTATE, para que Java no tenga que leer el texto (`02_Acceso_Datos/documentacion/README.md` §13).
 3. Una máquina de estados en la base: hoy solo está bloqueado salir de `cancelado` (§12, problema 3). El portal ya solo deja avanzar un paso, pero lo comprueba su función, no la tabla.
-4. Dividir `main.ejecutar` de Python en pasos (propuesta del informe de simplificación de Python, fuera del repositorio).
+4. Python: partir la regla 12 de calidad y las pestañas del dashboard en funciones más pequeñas (propuestas de la limpieza del 13/11 que no se aplicaron; `main.ejecutar` ya está dividido en pasos).
 5. PSP con varios pedidos a la vez y un registro compartido sincronizado (IM-PSP-30).
 6. Las ampliaciones voluntarias de AD que no están hechas: vistas, índices con `EXPLAIN`, paginación, importación CSV, auditoría con JSONB o `LISTEN/NOTIFY` (AD-139 a 145).
 7. Activar el conector de Odoo con un usuario de permisos mínimos y las rutas de pedidos pasadas a funciones de la base, cuando haya un Odoo de verdad con el que probarlo.

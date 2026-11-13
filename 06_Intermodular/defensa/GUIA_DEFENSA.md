@@ -333,13 +333,13 @@ De `02_Acceso_Datos/sql/15_exportar_fabricacion.sql`, que exporta con `\copy` la
 De cinco CSV que exporta Acceso a Datos con `16_exportar_csv_dashboard.sql`: clientes, modelos, pedidos, líneas y stock, más un `ORIGEN.txt` que dice si son REAL, PRUEBA o SINTÉTICO (`04_Python/config.py:18-26` y `:44`). Python nunca se conecta a PostgreSQL ni escribe en la carpeta de entrada.
 
 **P5.2 ¿Qué pasos sigue el ETL?**
-Leer y comprobar el esquema, aplicar las 12 reglas, quedarse con las filas válidas, construir las dos vistas base, calcular los DataFrames y los KPIs, conciliar con SQL y sacar gráficos, estadística, segmentación, predicción e informe (`main.py`, función `ejecutar`, desde la línea 80). Si hay una incidencia bloqueante, para y no publica ninguna cifra (`main.py:126-133`).
+Leer y comprobar el esquema, aplicar las 12 reglas, quedarse con las filas válidas, construir las dos vistas base, calcular los DataFrames y los KPIs, conciliar con SQL y sacar gráficos, estadística, segmentación, predicción e informe (`main.py`, función `ejecutar`, que llama a un paso con nombre por cada fase: `paso_calidad`, `paso_tablas`, `paso_importes`, `paso_kpis`, `paso_conciliacion`…). Si hay una incidencia bloqueante, para y no publica ninguna cifra (`parar_por_bloqueo`, `main.py:158-166`).
 
 **P5.3 ¿Cuáles son las 12 reglas y qué gravedades hay?**
 Están en `calidad.py:27-40`: fichero vacío o sin cabeceras, IDs duplicados, claves huérfanas, fechas, cantidades, precios, estados, tallas, falta de cliente o modelo, líneas duplicadas, stock y coherencia. Hay tres gravedades (`:42-50`): bloqueante (no se publica nada), recuperable (se rechaza la fila) y advertencia (la fila se queda y se avisa).
 
 **P5.4 ¿Por qué se rechaza el pedido entero si falla una sola línea?**
-Para no contar nunca un pedido a medias: si se rechaza una línea, se rechaza su pedido con todas sus líneas, y si se rechaza un pedido, también sus líneas (`calidad.py:425-466`, sobre todo `:449-455`).
+Para no contar nunca un pedido a medias: si se rechaza una línea, se rechaza su pedido con todas sus líneas, y si se rechaza un pedido, también sus líneas (`calidad.py:416-457`, sobre todo `:440-446`).
 
 **P5.5 ¿Qué diferencia hay entre `df_lineas_enriquecidas` y `df_pedidos_unicos`?**
 La primera tiene una fila por línea, con los datos de su pedido, cliente, modelo y color (`analiticas.py:59-93`). La segunda tiene una fila por pedido, con los pares y el importe sumados desde sus líneas (`:96-152`). Un pedido de 3 líneas es 1 pedido: los pedidos se cuentan en la segunda.
@@ -351,10 +351,10 @@ La primera tiene una fila por línea, con los datos de su pedido, cliente, model
 Veinte, de K01 a K20, cada uno con su fórmula, la población que usa y su origen (`kpis.py:67-166`). Ejemplo: K09, el ticket medio, es el importe confirmado entre los pedidos confirmados, y «se divide entre pedidos, nunca entre líneas» (`kpis.py:87-88`).
 
 **P5.8 ¿Qué es una «venta»?**
-Se calculan tres criterios: todos los pedidos registrados, los no cancelados (el criterio del panel Java) y los confirmados en adelante (el de la rúbrica de Python) (`analiticas.py:155-181`). **[POR DECIDIR (los tres): cuál es el oficial y si los importes llevan IVA]** (`config.py:142`: «pendiente de confirmar»).
+Se calculan tres criterios: todos los pedidos registrados, los no cancelados (el criterio del panel Java) y los confirmados en adelante (el de la rúbrica de Python) (`analiticas.py:155-181`). **[POR DECIDIR (los tres): cuál es el oficial y si los importes llevan IVA]** (`config.py:156`: «pendiente de confirmar»).
 
 **P5.9 ¿Cómo sabéis que Python cuadra con PostgreSQL?**
-Con la conciliación: tres consultas SQL de Acceso a Datos (P-A, P-B y P-C, en `entrada_acc/conciliacion_sql/`) se comparan con los KPIs (`kpis.py:170` en adelante). Con la exportación del 16 salen calidad 100 %, 12 pedidos, 90 pares y 10.686,45 €, igual que en SQL. Además está el caso N: tres consultas más de `12_consultas_panel.sql` (`:244-289`; N-1, ingresos de un mes; N-2, la matriz talla × modelo; N-3, clientes únicos) se contrastan con pandas en `conciliacion.contrastar_caso_n` (`conciliacion.py:175`): 17 de 17 cifras coinciden (`04_Python/conciliacion_sql.md`).
+Con la conciliación: tres consultas SQL de Acceso a Datos (P-A, P-B y P-C, en `entrada_acc/conciliacion_sql/`) se comparan con los KPIs (`kpis.py:170` en adelante). Con la exportación del 16 salen calidad 100 %, 12 pedidos, 90 pares y 10.686,45 €, igual que en SQL. Además está el caso N: tres consultas más de `12_consultas_panel.sql` (`:244-289`; N-1, ingresos de un mes; N-2, la matriz talla × modelo; N-3, clientes únicos) se contrastan con pandas en `conciliacion.contrastar_caso_n` (`conciliacion.py:176`): 17 de 17 cifras coinciden (`04_Python/conciliacion_sql.md`).
 
 **P5.10 ¿Por qué no rellenáis los vacíos con ceros?**
 Porque cero es un dato y vacío es «no se sabe». Solo se pone 0 cuando es un recuento (un pedido sin líneas tiene 0 líneas), y el precio medio de un pedido sin pares se queda vacío (`analiticas.py:128-136`). La rúbrica lo prohíbe expresamente (PY-62).
@@ -367,7 +367,7 @@ Primero por la urgencia (alta: se puede dejar sin servir demanda que ya existe; 
 
 ### Código real
 
-- `04_Python/calidad.py:425-466` — `separar`: aparta las filas con incidencias y arrastra el pedido entero.
+- `04_Python/calidad.py:416-457` — `separar`: aparta las filas con incidencias y arrastra el pedido entero.
 - `04_Python/analiticas.py:23-44` — `cruzar`: merge con `validate`, `indicator` y comprobación del número de filas.
 - `04_Python/analiticas.py:108-115` — de líneas a pedidos: `groupby("id_pedido")` con número de líneas, pares, importe, modelos y tallas.
 
@@ -389,10 +389,10 @@ Primero por la urgencia (alta: se puede dejar sin servir demanda que ya existe; 
 ### Preguntas probables
 
 **P6.1 ¿Qué es el bootstrap?**
-Se sacan muchas muestras nuevas del mismo tamaño que la original, con reemplazo (un valor puede salir varias veces), y se calcula el estadístico en cada una (`estadistica.py:137-156`). El intervalo al 95 % va del percentil 2,5 al 97,5 de esos resultados (`:142-146`). Se hacen 2.000 remuestreos (`config.py:194`).
+Se sacan muchas muestras nuevas del mismo tamaño que la original, con reemplazo (un valor puede salir varias veces), y se calcula el estadístico en cada una (`estadistica.py:137-156`). El intervalo al 95 % va del percentil 2,5 al 97,5 de esos resultados (`:142-146`). Se hacen 2.000 remuestreos (`config.py:208`).
 
 **P6.2 ¿Para qué la semilla fija?**
-Para que el resultado se pueda reproducir: con `SEMILLA = 2026` (`config.py:186`) el intervalo sale igual cada vez. Sin semilla, cada ejecución daría un intervalo un poco distinto.
+Para que el resultado se pueda reproducir: con `SEMILLA = 2026` (`config.py:200`) el intervalo sale igual cada vez. Sin semilla, cada ejecución daría un intervalo un poco distinto.
 
 **P6.3 ¿Qué hipótesis planteasteis?**
 Tres, escritas antes de calcular nada (`estadistica.py:12-15`). H1: los pedidos Custom dejan más importe por pedido que los estándar. H2: las tallas 41, 42 y 43 reúnen más de la mitad de los pares. H3: los últimos 6 meses tienen más pares que los 6 anteriores.
@@ -410,7 +410,7 @@ Que el valor de referencia (0 o 50 %) cae dentro del intervalo, así que los dat
 Que personalizar haga gastar más a un mismo cliente: se comparan grupos distintos de clientes, no es un experimento, así que no demuestra causa. Y nada sobre clientes reales: con los sintéticos solo se comprueba que el método funciona, porque el generador ya da a los Custom más pares y un recargo del 20 % (`estadistica.py:251-253`).
 
 **P6.8 ¿Y con los datos de Acceso a Datos?**
-El ticket medio sale NO CALCULABLE: hay 1 pedido de venta y hacen falta al menos 5 (`config.py:198`; `...\referencia\simplificado\real\bootstrap_ticket_medio.csv`). Con los sintéticos sale 1.011,41 € (IC 878,59–1.153,02) con 822 pedidos.
+El ticket medio sale NO CALCULABLE: hay 1 pedido de venta y hacen falta al menos 5 (`config.py:212`; `...\referencia\simplificado\real\bootstrap_ticket_medio.csv`). Con los sintéticos sale 1.011,41 € (IC 878,59–1.153,02) con 822 pedidos.
 
 ### Código real
 
@@ -439,7 +439,7 @@ El ticket medio sale NO CALCULABLE: hay 1 pedido de venta y hacen falta al menos
 Tres números por cliente: Recency, los días desde su última compra válida hasta la fecha de corte; Frequency, cuántos pedidos de venta tiene (pedidos, no líneas); y Monetary, cuánto importe suman (`segmentacion.py:4-9` y `:41-61`).
 
 **P7.2 ¿Qué es una compra válida?**
-Un pedido confirmado en adelante (`de_venta`, `analiticas.py:249-251`) y nunca posterior a la fecha de corte (`segmentacion.py:47`). Es el mismo criterio que los KPIs de venta.
+Un pedido confirmado en adelante (`de_venta`, `analiticas.py:254-256`) y nunca posterior a la fecha de corte (`segmentacion.py:47`). Es el mismo criterio que los KPIs de venta.
 
 **P7.3 ¿Cómo se puntúa cada cliente?**
 De 1 a 5 por quintiles: el 20 % con más pedidos tiene F = 5, y así con M. En Recency es al revés: menos días es mejor, así que el más reciente tiene un 5 (`segmentacion.py:64-75` y `:88-91`).
@@ -454,7 +454,7 @@ Seis, con reglas que se aplican en orden y la primera que se cumple decide: Sin 
 Van a una categoría propia, «Sin compras válidas», con frequency 0, monetary 0 y la recency vacía, porque no hay última compra; no se les inventa actividad (`segmentacion.py:56-59` y `:98-99`).
 
 **P7.7 ¿Qué salió?**
-Con los sintéticos (40 clientes): Mejores clientes 7, En riesgo 6, Habituales 11, Inactivos 10, Ocasionales 6 y Sin compras 0 (`...\referencia\simplificado\sintetico\rfm_segmentos.csv`). Con los datos de PRUEBA no se puede: hacen falta 10 clientes con compras (`config.py:208`).
+Con los sintéticos (40 clientes): Mejores clientes 7, En riesgo 6, Habituales 11, Inactivos 10, Ocasionales 6 y Sin compras 0 (`...\referencia\simplificado\sintetico\rfm_segmentos.csv`). Con los datos de PRUEBA no se puede: hacen falta 10 clientes con compras (`config.py:222`).
 
 ### Código real
 
@@ -489,7 +489,7 @@ Porque KMeans agrupa por distancias, y días, pedidos y euros tienen escalas muy
 Porque unos pocos clubes con importes enormes decidirían los grupos. `log1p(x) = log(1 + x)` aplasta los valores grandes y acepta el 0 (`segmentacion.py:157-160`).
 
 **P8.4 ¿Qué valores de k probáis y cómo elegís?**
-k = 2, 3, 4 y 5 (`config.py:210`). Se queda el que tiene el silhouette más alto; si empatan, el k más pequeño (`segmentacion.py:191-202`).
+k = 2, 3, 4 y 5 (`config.py:224`). Se queda el que tiene el silhouette más alto; si empatan, el k más pequeño (`segmentacion.py:191-202`).
 
 **P8.5 ¿Qué es el silhouette?**
 Una medida de −1 a 1 de lo bien separados que están los grupos: compara lo cerca que está cada cliente de los de su grupo con lo cerca que está del grupo más próximo. Cuanto más alto, mejor separados (`segmentacion.py:176-177` y `:195`).
@@ -533,13 +533,13 @@ Los pares de demanda (pedidos no cancelados) de cada modelo en cada mes (`predic
 Los pares del mes anterior, la media de los tres meses anteriores, el mes del año como seno y coseno y el modelo en columnas de 0 y 1 (one-hot con `drop_first`) (`prediccion.py:36` y `:63-82`). Todas se conocen antes de que empiece el mes que se predice.
 
 **P9.3 ¿Qué es el baseline y para qué sirve?**
-Un método base muy simple: el mes que viene se piden los mismos pares que este (`prediccion.py:170-171`). Es obligatorio porque, sin él, no se sabe si el modelo de machine learning aporta algo.
+Un método base muy simple: el mes que viene se piden los mismos pares que este (`prediccion.py:195-196`). Es obligatorio porque, sin él, no se sabe si el modelo de machine learning aporta algo.
 
 **P9.4 ¿Cómo separáis entrenamiento y prueba?**
-Por fecha, nunca al azar: los 3 primeros meses son historial (no tienen 3 meses previos), los últimos 3 son evaluación y los del medio, entrenamiento (`prediccion.py:85-95`; `config.py:215`). Con los sintéticos: entrenamiento de 2025-08 a 2026-07 y evaluación de 2026-08 a 2026-10.
+Por fecha, nunca al azar: los 3 primeros meses son historial (no tienen 3 meses previos), los últimos 3 son evaluación y los del medio, entrenamiento (`prediccion.py:85-95`; `config.py:229`). Con los sintéticos: entrenamiento de 2025-08 a 2026-07 y evaluación de 2026-08 a 2026-10.
 
 **P9.5 ¿Qué es la fuga de información y cómo la evitáis?**
-Usar al entrenar algo que no se sabría en el momento de predecir: el propio mes, meses futuros o la variable objetivo. Aquí las entradas salen de `shift(1)`, `shift(2)` y `shift(3)` del mismo modelo (`prediccion.py:69-74`), la regresión se entrena solo con el conjunto de entrenamiento (`:157` y `:161`) y el mes sin terminar se quita (`:48-51`). Lo comprueban `test_el_mes_objetivo_no_es_una_entrada` y `test_agosto_septiembre_octubre_no_entrenan`.
+Usar al entrenar algo que no se sabría en el momento de predecir: el propio mes, meses futuros o la variable objetivo. Aquí las entradas salen de `shift(1)`, `shift(2)` y `shift(3)` del mismo modelo (`prediccion.py:69-74`), la regresión se entrena solo con el conjunto de entrenamiento (`:182` y `:186`) y el mes sin terminar se quita (`:48-51`). Lo comprueban `test_el_mes_objetivo_no_es_una_entrada` y `test_agosto_septiembre_octubre_no_entrenan`.
 
 **P9.6 ¿Qué son MAE y RMSE?**
 MAE es la media de los errores en valor absoluto: «de media me equivoco en tantos pares» (`prediccion.py:98-102`). RMSE es la raíz de la media de los errores al cuadrado: un error grande pesa mucho más que varios pequeños (`:105-109`).
@@ -548,19 +548,19 @@ MAE es la media de los errores en valor absoluto: «de media me equivoco en tant
 Con los sintéticos: baseline MAE 25,03 y RMSE 37,42; regresión MAE 26,28 y RMSE 36,15. La regresión mejora solo en RMSE y es peor en MAE: «solo en una métrica: RMSE sí, MAE no» (`...\referencia\simplificado\sintetico\metricas_prediccion.csv`). Hay que decirlo así: no mejora claramente al baseline.
 
 **P9.8 ¿Por qué una regresión lineal?**
-Porque no tiene hiperparámetros que ajustar mirando la evaluación (`prediccion.py:160`), es fácil de explicar y se pueden enseñar sus coeficientes. Como una recta puede dar pares negativos, la predicción se corta en 0 (`:163-164`).
+Porque no tiene hiperparámetros que ajustar mirando la evaluación (`prediccion.py:185`), es fácil de explicar y se pueden enseñar sus coeficientes. Como una recta puede dar pares negativos, la predicción se corta en 0 (`:188-189`).
 
 **P9.9 ¿Por qué el mes en seno y coseno?**
 Para que diciembre (12) y enero (1) queden cerca, como en el calendario. Si el mes fuera un número de 1 a 12, para la regresión estarían en los dos extremos (`prediccion.py:10-11` y `:76-77`).
 
 **P9.10 ¿Y con los datos reales?**
-NO CALCULABLE: hay 0 meses completos de demanda y hacen falta al menos 12 (3 de historial, 6 o más de entrenamiento y 3 de evaluación) (`prediccion.py:142-153`; `config.py:216`).
+NO CALCULABLE: hay 0 meses completos de demanda y hacen falta al menos 12 (3 de historial, 6 o más de entrenamiento y 3 de evaluación) (`prediccion.py:167-178`; `config.py:230`).
 
 ### Código real
 
 - `04_Python/prediccion.py:63-82` — `anadir_variables`: retardos con `shift`, media de 3 meses previos, seno y coseno y one-hot.
 - `04_Python/prediccion.py:85-95` — `separar_por_fecha`: historial, entrenamiento y evaluación por mes.
-- `04_Python/prediccion.py:155-189` — entrena solo con el entrenamiento, predice la evaluación y compara con el baseline.
+- `04_Python/prediccion.py:180-214` — entrena solo con el entrenamiento, predice la evaluación y compara con el baseline.
 
 ### Ejercicios
 
@@ -583,16 +583,16 @@ NO CALCULABLE: hay 0 meses completos de demanda y hacen falta al menos 12 (3 de 
 La función `panel` lleva `@st.fragment(run_every="60s")` (`app_dashboard.py:695-696`): Streamlit la vuelve a ejecutar sola cada 60 s mientras la página está abierta. `actualizar()` lanza un ciclo si han pasado 60 s, con 5 de margen, desde la última comprobación (`:50` y `:57-73`). No hay `time.sleep` ni bucles, que la rúbrica prohíbe (PY-135).
 
 **P10.2 ¿Qué hace cada ciclo?**
-Los cinco pasos de la rúbrica: comprueba los archivos y su huella SHA-256, lee y valida con las 12 reglas, recalcula todo con esa misma versión de los datos, publica todo o nada y lo anota en el registro (`actualizacion.py:1-21` y `:166-226`).
+Los cinco pasos de la rúbrica: comprueba los archivos y su huella SHA-256, lee y valida con las 12 reglas, recalcula todo con esa misma versión de los datos, publica todo o nada y lo anota en el registro (`actualizacion.py:1-21` y `:159-219`).
 
 **P10.3 ¿Qué estados hay?**
 Cuatro: CORRECTO (datos nuevos y válidos), SIN CAMBIOS (los mismos datos, recalculados), DATOS INVÁLIDOS (se leen, pero hay incidencias bloqueantes) y ERROR DE CARGA (falta un archivo o no se puede leer) (`actualizacion.py:41-45`).
 
 **P10.4 ¿Qué es la huella y para qué sirve?**
-Un SHA-256 del contenido de cada CSV y otro de todas las huellas juntas (`actualizacion.py:47-74`). Si se vuelve a exportar lo mismo, la huella no cambia y el estado es SIN CAMBIOS: la hora de la última actualización válida se mantiene (`:206-209`).
+Un SHA-256 del contenido de cada CSV y otro de todas las huellas juntas (`actualizacion.py:47-74`). Si se vuelve a exportar lo mismo, la huella no cambia y el estado es SIN CAMBIOS: la hora de la última actualización válida se mantiene (`:199-202`).
 
 **P10.5 ¿Qué pasa si llega un CSV roto?**
-No se publica ninguna cifra nueva. Se conserva el último resultado válido, pero solo se enseña si el usuario lo pide, y con el rótulo DESACTUALIZADO y su hora (`actualizacion.py:197-204` y `:223`; `app_dashboard.py:678-692`).
+No se publica ninguna cifra nueva. Se conserva el último resultado válido, pero solo se enseña si el usuario lo pide, y con el rótulo DESACTUALIZADO y su hora (`actualizacion.py:190-197` y `:216`; `app_dashboard.py:678-692`).
 
 **P10.6 Si se crea un pedido en PostgreSQL, ¿aparece solo en el dashboard?**
 No. Python solo lee los CSV: hasta que Acceso a Datos vuelva a exportarlos con el 16, los valores no cambian. Recalcular cada 60 s no es lo mismo que tener datos nuevos, y el propio dashboard lo dice (`app_dashboard.py:762-763`; `actualizacion.py:19-21`).
@@ -606,7 +606,7 @@ Los filtros (periodo, modelo, talla, tipo, estado y cliente) se guardan en `st.s
 ### Código real
 
 - `04_Python/app_dashboard.py:695-741` — `panel`, el fragmento que se repite cada 60 s.
-- `04_Python/actualizacion.py:166-226` — `ciclo`: comprobar, validar, recalcular, publicar o no y anotar.
+- `04_Python/actualizacion.py:159-219` — `ciclo`: comprobar, validar, recalcular, publicar o no y anotar.
 - `04_Python/app_dashboard.py:678-692` — `publicacion_visible`: el último resultado válido, rotulado como DESACTUALIZADO.
 
 ### Ejercicios
@@ -695,10 +695,10 @@ La instancia o máquina virtual, una copia o backup o evidencias suficientes par
 Las cinco que pide el enunciado (IM-INT-04): inicio, catálogo con 100 modelos (`01_Interfaces/cliente/js/modelos.js`), ficha de cada modelo con precio, descripción y tallas, el servicio Custom (`index.html:267`) y una parte corporativa («Nuestra visión») con contacto. El menú está en `index.html:31-36`.
 
 **P12.2 ¿Cómo la habéis hecho responsive?**
-Con CSS Grid y media queries: el catálogo tiene 4 columnas en escritorio (`css/inicio.css:627-632`) y pasa a 2 por debajo de 760 px (`:666` y `:680-683`); los títulos usan `clamp()` para ajustar el tamaño (`:144`) y las barras usan `flex-wrap`. Se probó en 11 anchos de 320 a 1440 px sin desplazamiento horizontal (H12).
+Con CSS Grid y media queries: el catálogo tiene 4 columnas en escritorio (`css/inicio.css:627-632`) y pasa a 2 por debajo de 760 px (`:671` y `:685-688`); los títulos usan `clamp()` para ajustar el tamaño (`:144`) y las barras usan `flex-wrap`. Se probó en 11 anchos de 320 a 1440 px sin desplazamiento horizontal (H12).
 
 **P12.3 ¿Qué habéis hecho para la accesibilidad?**
-Un enlace «Saltar al escaparate» (`index.html:23`), navegación con `aria-label`, una etiqueta en cada campo, las tallas agrupadas con `fieldset` y `legend` (`:348-349`), mensajes con `role="status"` y `aria-live` (`:366` y `:139`), foco visible (`css/inicio.css:30-32`) y menos animaciones si el usuario lo pide (`:550-560`). axe no da violaciones, hay 212/212 contrastes AA y Lighthouse da 100 en accesibilidad (11/11).
+Un enlace «Saltar al escaparate» (`index.html:23`), navegación con `aria-label`, una etiqueta en cada campo, las tallas agrupadas con `fieldset` y `legend` (`:348-349`), mensajes con `role="status"` y `aria-live` (`:366` y `:139`), foco visible (`css/inicio.css:30-32`) y menos animaciones si el usuario lo pide (`:555-565`). axe no da violaciones, hay 212/212 contrastes AA y Lighthouse da 100 en accesibilidad (11/11).
 
 **P12.4 ¿Qué estándar seguís y por qué?**
 WCAG 2.1 nivel AA, que es el que comprueban axe y Lighthouse (`01_Interfaces/evidencias/web/README.md:8-9`). Sirve para que la web la pueda usar más gente: con teclado, con lector de pantalla o con poca vista (contraste mínimo de 4,5:1 en texto normal).
@@ -815,7 +815,7 @@ Une dos historias. Si las dos ramas han avanzado, crea un commit de fusión con 
 Con `git log`, `git shortlog -sn` y `git blame`. Por ejemplo, `git log 7715f83^1..7715f83^2` lista los 25 commits que entraron con esa fusión, todos con su autor original (`Alvarobaz`), aunque el commit de fusión lo firme otra persona (`omar1676`). Lo mismo pasa con los dos commits del portal de Berme: entraron con `git cherry-pick -x` (`7341001` y `654ad8b`), así que conservan su autor y su fecha del 11/11 y llevan la línea «cherry picked from commit …». En la rama final, `git shortlog -sn` da 74 commits de `omar1676`, 25 de `Alvarobaz` y 8 de `Ivan Bermejo`. El número de commits no mide la contribución: **[PENDIENTE (los tres): el reparto real, punto 9 de la memoria]**.
 
 **P14.5 ¿Qué no se sube y por qué?**
-`.env`, `conexion.properties`, los `.class`, las salidas, los logs y el driver JDBC (`.gitignore:5-8`, `:11-14`, `:19`, `:31` y `:34`). Las contraseñas de las cuentas de la base se piden por teclado al ejecutar los scripts (`17_usuario_java.sql:35`) y en el repositorio solo hay plantillas vacías (`servidor-admin/.env.example` y `02_Acceso_Datos/java/conexion.properties.ejemplo`).
+`.env`, `conexion.properties`, los `.class`, las salidas, los logs y el driver JDBC (`.gitignore:5-8`, `:11-14`, `:24`, `:37` y `:40`). Las contraseñas de las cuentas de la base se piden por teclado al ejecutar los scripts (`17_usuario_java.sql:35`) y en el repositorio solo hay plantillas vacías (`servidor-admin/.env.example` y `02_Acceso_Datos/java/conexion.properties.ejemplo`).
 
 **P14.6 ¿Qué convención de commits seguís?**
 Al principio, la del plan del equipo (`feat(web): …`, `test(psp): …`; se ve en los commits que entraron con `150d02f`). Ahora, mensajes en inglés, en imperativo y sin prefijo, por ejemplo `4203fe7 Note the known failure of the PSP quick check`.
@@ -830,7 +830,7 @@ La candidata final (`integracion/candidata-2`) tiene sus commits en local, sin c
 
 - `7715f83` — fusión de la rama `feature/AlvaroBaz` (25 commits con su autor original).
 - `150d02f` — fusión de la rama de Berme (6 commits con su autor original).
-- `.gitignore:4-8` y `:30-31` — los archivos con credenciales que no se suben.
+- `.gitignore:4-8` y `:35-37` — los archivos con credenciales que no se suben.
 
 ### Ejercicios
 
@@ -978,9 +978,9 @@ Resultado: un pago, un único descuento de stock y un solo recibo, porque solo e
 
 **E4.2** `readAllBytes()` no termina hasta que el hijo cierra su salida. Si el hijo se cuelga sin terminar, el lanzador se queda parado en la línea 29 y nunca llega al `waitFor` de la 32, así que el límite de 10 s no sirve. Además, si el hijo llena stderr mientras el padre espera stdout, se bloquean los dos. `GestorProcesos` hace lo contrario: lee stdout y stderr en dos hilos (`GestorProcesos.java:116-131`), el hilo principal espera primero con límite (`:138`) y cancela con `destroy()` y `destroyForcibly()` (`:143-153`). El coordinador usa `GestorProcesos`.
 
-**E5.1** Salta la regla 05, «Cantidad nula, cero o negativa», con gravedad recuperable (`calidad.py:197-198`). `separar` rechaza esa línea, después su pedido y, por el pedido, las otras dos líneas (`calidad.py:449-455`): se rechazan 1 pedido y 3 líneas, y el resto se publica. Lo prueba `test_un_pedido_se_analiza_entero_o_no_se_analiza` (`tests/test_calidad.py:153`).
+**E5.1** Salta la regla 05, «Cantidad nula, cero o negativa», con gravedad recuperable (`calidad.py:188-189`). `separar` rechaza esa línea, después su pedido y, por el pedido, las otras dos líneas (`calidad.py:440-446`): se rechazan 1 pedido y 3 líneas, y el resto se publica. Lo prueba `test_un_pedido_se_analiza_entero_o_no_se_analiza` (`tests/test_calidad.py:153`).
 
-**E5.2** La regla 02 marca como BLOQUEANTE un ID repetido donde tiene que ser único (`calidad.py:145-149`), así que no se publica ninguna cifra. Si esa regla no existiera, `cruzar(..., "many_to_one")` lanzaría un `MergeError` que se convierte en `ErrorDatos` (`analiticas.py:34-37`). Sin `validate`, el merge duplicaría las líneas de ese modelo y los pares y el importe saldrían inflados sin avisar.
+**E5.2** La regla 02 marca como BLOQUEANTE un ID repetido donde tiene que ser único (`calidad.py:143-147`), así que no se publica ninguna cifra. Si esa regla no existiera, `cruzar(..., "many_to_one")` lanzaría un `MergeError` que se convierte en `ErrorDatos` (`analiticas.py:34-37`). Sin `validate`, el merge duplicaría las líneas de ese modelo y los pares y el importe saldrían inflados sin avisar.
 
 **E6.1** Con [−20, 300]: ni el extremo inferior es mayor que 0 ni el superior menor que 0, así que escribe «evidencia insuficiente: el intervalo incluye 0» (`estadistica.py:195-199`). Con [120, 300]: el extremo inferior es mayor que 0, así que escribe «los datos la apoyan» (`:195-196`).
 
@@ -988,23 +988,23 @@ Resultado: un pago, un único descuento de stock y un solo recibo, porque solo e
 
 **E7.1** Reglas en orden (`segmentacion.py:96-109`): no tiene F = 0; no cumple R, F y M de 4 o más (F = 2); no cumple F ≥ 3 con R ≤ 2; no cumple F ≥ 3; no cumple R ≤ 2. Cae en el último caso: **Ocasionales** (pocas compras, pero recientes).
 
-**E7.2** `de_venta` solo cuenta pedidos confirmados en adelante (`analiticas.py:249-251`), así que el cancelado no entra. El cliente se une igual porque se parte de todos los clientes (`segmentacion.py:54-55`): F = 0, M = 0 y la recency vacía (`:56-59`). Segmento: **Sin compras válidas** (`:98-99`).
+**E7.2** `de_venta` solo cuenta pedidos confirmados en adelante (`analiticas.py:254-256`), así que el cancelado no entra. El cliente se une igual porque se parte de todos los clientes (`segmentacion.py:54-55`): F = 0, M = 0 y la recency vacía (`:56-59`). Segmento: **Sin compras válidas** (`:98-99`).
 
 **E8.1** Mandaría `recency_dias`: son días (decenas o cientos), mientras que `log_frequency` y `log_monetary` son números pequeños después del logaritmo. Las distancias dependerían casi solo de la recencia, y los grupos serían «compró hace poco» frente a «hace mucho». Por eso se usa `StandardScaler` (`segmentacion.py:170`).
 
 **E8.2** Se elige k = 4, que tiene el silhouette más alto, 0,373 (`segmentacion.py:199-201`). La inercia baja siempre al añadir grupos (71,78 → 48,10 → 37,31 → 30,12): con más grupos, cada cliente queda más cerca de su centro. Si se eligiera la menor inercia, siempre ganaría el k más grande. El silhouette, en cambio, tiene un máximo.
 
-**E9.1** Con un reparto al azar se entrenaría con meses posteriores a algunos de los de prueba: el modelo «vería el futuro» (fuga de información), el MAE de la evaluación saldría más bajo de lo que de verdad sería y la comparación con el baseline no valdría. La rúbrica lo prohíbe (PY-106). El código lo evita asignando el conjunto por mes (`prediccion.py:85-95`) y entrenando solo con el entrenamiento (`:157` y `:161`).
+**E9.1** Con un reparto al azar se entrenaría con meses posteriores a algunos de los de prueba: el modelo «vería el futuro» (fuga de información), el MAE de la evaluación saldría más bajo de lo que de verdad sería y la comparación con el baseline no valdría. La rúbrica lo prohíbe (PY-106). El código lo evita asignando el conjunto por mes (`prediccion.py:85-95`) y entrenando solo con el entrenamiento (`:182` y `:186`).
 
-**E9.2** El baseline usa los pares de septiembre de ese modelo (`pares_mes_anterior`, que es `shift(1)`: `prediccion.py:70`, `:73` y `:171`). La regresión usa los pares de septiembre, la media de julio, agosto y septiembre (`:74`), el seno y el coseno del mes 10 (`:76-77`) y las columnas del modelo (`:81`). Los pares de octubre nunca son una entrada (`test_el_mes_objetivo_no_es_una_entrada`), y la regresión se entrenó solo hasta julio de 2026: no se vuelve a entrenar con agosto ni con septiembre (`prediccion.py:25-27`).
+**E9.2** El baseline usa los pares de septiembre de ese modelo (`pares_mes_anterior`, que es `shift(1)`: `prediccion.py:70`, `:73` y `:196`). La regresión usa los pares de septiembre, la media de julio, agosto y septiembre (`:74`), el seno y el coseno del mes 10 (`:76-77`) y las columnas del modelo (`:81`). Los pares de octubre nunca son una entrada (`test_el_mes_objetivo_no_es_una_entrada`), y la regresión se entrenó solo hasta julio de 2026: no se vuelve a entrenar con agosto ni con septiembre (`prediccion.py:25-27`).
 
-**E10.1** `cargar` no puede preparar la tabla y apunta una incidencia 01 BLOQUEANTE (`calidad.py:118-125`). Como no están las cinco tablas, el estado es ERROR DE CARGA (`actualizacion.py:197-200`) y no se publica ninguna cifra nueva. El último resultado válido se conserva y solo se ve si se activa el interruptor, con el rótulo DESACTUALIZADO y su hora (`actualizacion.py:223`; `app_dashboard.py:678-692`). Al reponer el archivo bueno, el siguiente ciclo vuelve a CORRECTO, o a SIN CAMBIOS si el contenido es el mismo de antes.
+**E10.1** `cargar` no puede preparar la tabla y apunta una incidencia 01 BLOQUEANTE (`calidad.py:118-125`). Como no están las cinco tablas, el estado es ERROR DE CARGA (`actualizacion.py:190-193`) y no se publica ninguna cifra nueva. El último resultado válido se conserva y solo se ve si se activa el interruptor, con el rótulo DESACTUALIZADO y su hora (`actualizacion.py:216`; `app_dashboard.py:678-692`). Al reponer el archivo bueno, el siguiente ciclo vuelve a CORRECTO, o a SIN CAMBIOS si el contenido es el mismo de antes.
 
-**E10.2** Cambian la «Última comprobación», el registro de ciclos (uno por minuto) y la duración del cálculo. El estado es SIN CAMBIOS y los KPIs no se mueven. La «Última actualización válida» tampoco cambia, porque se conserva la de la publicación anterior (`actualizacion.py:206-209`): la huella de los CSV es la misma (`:47-74`). Así salió en el caso K del 13/11 (`04_Python/evidencias/dashboard/caso_k_registro.txt`).
+**E10.2** Cambian la «Última comprobación», el registro de ciclos (uno por minuto) y la duración del cálculo. El estado es SIN CAMBIOS y los KPIs no se mueven. La «Última actualización válida» tampoco cambia, porque se conserva la de la publicación anterior (`actualizacion.py:199-202`): la huella de los CSV es la misma (`:47-74`). Así salió en el caso K del 13/11 (`04_Python/evidencias/dashboard/caso_k_registro.txt`).
 
 **E12.1** Con −3, el navegador lo para antes de enviar, por el `min="0"` del campo (`index.html:352`): el evento `submit` ni siquiera llega al JavaScript (lo explica `js/custom.js:29-31`). Con 0 en todas, el formulario sí se envía, pero el total es 0: sale «Indica cuántos pares quieres de al menos una talla» y el foco va a la primera talla (`js/custom.js:34-38`).
 
-**E12.2** Dos columnas: la media query `@media (max-width: 760px)` cambia `.catalogo-grid` a `repeat(2, minmax(0, 1fr))` (`css/inicio.css:671` y `:680-683`); en escritorio son 4 (`:622-627`). Por debajo de 370 px, además, se oculta el segundo enlace del menú, «Nuestra visión» (`:539-541`).
+**E12.2** Dos columnas: la media query `@media (max-width: 760px)` cambia `.catalogo-grid` a `repeat(2, minmax(0, 1fr))` (`css/inicio.css:671` y `:685-688`); en escritorio son 4 (`:627-632`). Por debajo de 370 px, además, se oculta el segundo enlace del menú, «Nuestra visión» (`:544-546`).
 
 **E13.1** Responde 429 «Demasiados intentos» con la cabecera `Retry-After`, sin comprobar la contraseña: `tiempoDeBloqueo` es mayor que 0 y el login sale antes de llamar a `iniciar_sesion` (`servidor.js:120-124`). El bloqueo lo puso el quinto fallo (`intentos.js:41-43`). Está probado en `01_Interfaces/evidencias/panel-admin/resultados/09_intentos_y_sesiones.txt` («6.o intento CON la contrasena buena -> 429»). Pasados 5 minutos puede volver a entrar.
 
