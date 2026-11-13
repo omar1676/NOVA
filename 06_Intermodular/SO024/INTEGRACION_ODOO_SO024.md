@@ -1,4 +1,6 @@
-# Preparación de Odoo y SO024 en la candidata única
+# Odoo y SO024: preparación conservada y límites de la entrega
+
+**Cierre del 13/11/2026:** este plan se conserva como explicación técnica. No se ejecutará una nueva integración en esta entrega, no se esperan más archivos y no se fijan datos oficiales. Las consultas no se ejecutaron sobre la base del equipo. El guion disponible usa CUSTOM-40 y evidencia documental de Odoo.
 
 Revisión del 13/11/2026 sobre `revision/incorporar-limpieza-main-20261113`, base de código `d24fa27`, descendiente de `a6151db`.
 
@@ -136,5 +138,5 @@ No basta con poner una clave en .env: antes hay que resolver los códigos, revis
 ## 7. Trabajo remoto ya localizado
 
 - El PDF de `origin/feature/berme` es idéntico al de main; no hace falta volver a incorporarlo.
-- Berme ya tiene un arreglo del comprobador PSP, `0baf61f`. No se trae ni se reescribe aquí: debe revisarse de forma aislada, conservando su autoría y las rutas actuales, sin incorporar su rama entera. El comprobador de la candidata sigue fallando por la aserción antigua; las pruebas principales de PSP siguen pasando.
+- Berme ya tiene un arreglo del comprobador PSP, `0baf61f`. La corrección se incorporó en el cierre como `4f09742`, conservando autor y fecha originales, sin traer la rama completa. Se revisó y aplicó de forma aislada, conservando su autoría y las rutas actuales, sin incorporar su rama entera. El comprobador y las pruebas principales de PSP pasan en el cierre.
 - `777868a` y `d24fa27` permanecen intactos. Toda esta preparación se hace en la misma candidata, sin ramas nuevas, sin merge y sin push.

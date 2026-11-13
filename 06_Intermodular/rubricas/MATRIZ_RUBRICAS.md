@@ -1,17 +1,17 @@
 # NOVA Sneakers · Matriz de rúbricas (final)
 
-**13/11/2026.** Rama `integracion/candidata-2`: **8cdc08c + commits de documentación del 13/11**. Sustituye a la matriz de la candidata 2 del 12/11 por la noche. **Revisada en la limpieza final** (rama `refactor/limpieza-final-nova`, apartado 0.2): rutas nuevas y la misma regresión repetida sobre el árbol limpio; ningún estado ha cambiado.
+**Cierre de entrega del 13/11/2026.** Candidata `revision/incorporar-limpieza-main-20261113`; código probado desde clon nuevo en `4f09742`, con documentos/evidencias finales posteriores. Esta versión incorpora la evidencia documental de Odoo y conserva los requisitos/ID originales. No presenta SO024 como definitivo.
 
 ## 0. Qué se ha auditado y cómo leer la matriz
 
 **Qué se ha auditado.**
-- **El código** de la rama final, exportado con `git archive` (`8cdc08c`). Entre `8cdc08c` y el final de la rama solo cambian documentación y evidencias: ni código, ni scripts SQL.
-- **Las pruebas de la Fase A del 13/11**, repetidas sobre ese árbol en bases desechables nuevas. Resultados, sin rutas personales, en `06_Intermodular/evidencias/regresion-final/` (resumen en su `README.md`).
+- **El código del cierre**, clonado desde la candidata `4f09742`, instalado con venv nuevo y npm ci, y probado con un clúster PostgreSQL nuevo. Logs actuales en `06_Intermodular/evidencias/cierre-entrega-20261113/`.
+- **Las pruebas históricas de la Fase A del 13/11**, conservadas con su contexto original. Resultados, sin rutas personales, en `06_Intermodular/evidencias/regresion-final/` (resumen en su `README.md`).
 - **La documentación de entrega** que ya está en el repositorio: las carpetas `memoria/` de cada asignatura, `05_Odoo/`, `06_Intermodular/` y `06_Intermodular/defensa/`.
 - **Los textos literales de las rúbricas**, extraídos el 12/11: IM y reparto de tareas, AD y Python. Los ID son los mismos que en la matriz del 12/11.
 
 **Reglas que se han aplicado:**
-- **«Probado» solo si hay un resultado del 13/11** que lo demuestra: la regresión de la Fase A o el cierre de requisitos de esa madrugada. Son los códigos R01 a R26.
+- **«Probado» solo si hay un resultado identificable** que lo demuestra: el cierre nuevo o, con su contexto, la regresión de la Fase A o el cierre de requisitos de esa madrugada. Son los códigos R01 a R26.
 - Si la última prueba es anterior, el estado es **CUMPLIDO SIN PRUEBA DEL 13/11**. Se cita su código A1 a A8, con la fecha.
 - **No se usa el número de pruebas como sustituto de la rúbrica.** Cada fila dice qué comprobación concreta cubre ese requisito: el nombre de la prueba, la verificación o la captura, o que no hay ninguna.
 - **Los requisitos que solo piden un texto** quedan como **CUMPLIDO (DOCUMENTADO)** si el texto está en el repositorio, y se cita dónde.
@@ -136,91 +136,26 @@ Lo que **no** se ha repetido sobre el árbol limpio:
 - **R24, el manual de instalación seguido desde un clon nuevo.** Las rutas del manual se actualizaron y se comprobaron una a una, pero el manual no se ha vuelto a seguir entero. **[REVISIÓN (los tres) en la PR]:** seguirlo otra vez antes de entregar.
 - **R26, la búsqueda de contraseñas.** Se rehízo con el escáner de la rama: las 5 contraseñas de demostración no aparecen en ninguno de sus 970 blobs.
 
-Lo pendiente sigue igual (apartado 4): Odoo (Berme), los 7 datos de SO024 y el SO024 oficial, la exportación REAL, la usabilidad con personas, el punto 9 de la memoria y el E-R en PNG.
+Al cierre se declaran las limitaciones del apartado 4: SO024 no definitivo, exportación REAL no aportada, usabilidad con personas no realizada aquí, aportaciones personales no confirmadas y E-R en PNG pendiente. Odoo sí tiene evidencia documental; su API no se verificó en este entorno.
 
-## 1. Resumen por asignatura
+## 1. Resumen definitivo de estados al cierre
 
-Recuento hecho con un script sobre las tablas del apartado 2. Cada fila es un requisito. El recuento de Odoo conserva el corte anterior al PDF de Berme: no refleja sus nuevas evidencias documentales. Ver la actualización del apartado 2.5 y el plan de SO024 antes de usar esas cifras. **Todas las columnas son filas de la rúbrica, no pruebas.**
-- **Cumplido:** el requisito se cumple entero.
-- **Probado:** hay un resultado del 13/11 que lo cubre, aunque sea en parte o con datos provisionales.
-- **Documentado:** su explicación está en un documento del repositorio.
-- **Evidencia localizada:** hay algo en el repositorio que se puede enseñar (resultado, captura o documento).
-- **Pendiente:** PARCIAL, PROVISIONAL, PENDIENTE o PENDIENTE DE DUDA.
+Recuento reproducido de las filas con estado del apartado 2; los identificadores agrupados y las filas opcionales no equivalen a un número de pruebas ni a una nota. Los resultados nuevos están en `06_Intermodular/evidencias/cierre-entrega-20261113/`. Las referencias R01…R26 se conservan como evidencia histórica, no como ejecuciones nuevas.
 
-| Asignatura | Filas que cuentan | Cumplido | Probado (13/11) | Documentado | Evidencia localizada | Pendiente | Riesgo de perder nota |
-|---|---|---|---|---|---|---|---|
-| Desarrollo de Interfaces | 14 | 13 | 12 | 14 | 14 | 1 | **MEDIO.** Lo técnico está probado el 13/11 (R16–R21). Falta la prueba de usabilidad **con personas** (RA4 CE i), y Lighthouse y el contraste no se han repetido desde el 11 y el 12/11 |
-| Acceso a Datos (PostgreSQL + Java) | 130 | 114 | 120 | 129 | 129 | 14 | **ALTO.** «Es imprescindible aprobar todas las partes» (AD-138). La memoria (MAD) existe, pero le faltan las aportaciones de cada uno y el E-R en PNG. La demo de SO024 es PROVISIONAL. El tribunal común depende también de Odoo |
-| PSP | 19 | 17 | 19 | 19 | 19 | 2 | **BAJO.** Todo lo técnico está probado el 13/11 (R09, R23). Falta relacionar la salida con el pedido de Odoo (PSP-10 y 29). `scripts/comprobar_psp.py` falla por lo ya conocido (el arreglo es de Berme) |
-| Python | 214 | 200 | 200 | 214 | 214 | 13 | **MEDIO-ALTO.** Sin exportación REAL, la defensa no puede enseñar lo que pide D1 (10 %: «Demostración con exportación ACC y refresco») ni R1–R3, L y el antes y después con datos reales. «Ninguna [ampliación] sustituye … el uso de datos reales». Las dos condiciones de aceptación se cumplen |
-| Sistemas de Gestión Empresarial (Odoo) | 17 | 0 | 0 | 0 | 0 | 17 | **RECUENTO ANTERIOR AL PDF.** Hay evidencia recibida; conciliación SO024 pendiente (ver §2.5). «El requisito estable es que Odoo sea el núcleo del flujo empresarial» (IM-SGE-17) |
-| Proyecto Intermodular (comunes e integración SO024) | 37 | 10 | 16 | 34 | 35 | 23 | **ALTO.** La memoria tiene vacíos el punto 4 (Odoo) y el 9 (reparto real e IA); el manual de demostración no tiene el paso de Odoo; SO024 es PROVISIONAL; la PR a `main` no está publicada. El tribunal (20 %) es común a todas |
+| Asignatura | Filas con estado | Cumplido probado/documentado | Solo evidencia documental | Parcial/provisional | Pendiente/no verificable/opcional |
+|---|---:|---:|---:|---:|---:|
+| Interfaces | 14 | 13 | 0 | 0 | 1 |
+| Acceso a Datos | 130 | 114 | 0 | 14 | 2 |
+| PSP | 19 | 17 | 0 | 2 | 0 |
+| Python | 214 | 200 | 0 | 13 | 1 |
+| Odoo | 17 | 0 | 8 | 7 | 2 |
+| Intermodular | 37 | 10 | 1 | 19 | 7 |
 
-**Estados, por asignatura** (las filas condicionales cuya condición no se da cuentan como OPCIONAL):
-- **Interfaces:** 12 CUMPLIDO Y PROBADO; 1 CUMPLIDO (DOCUMENTADO); 1 PENDIENTE.
-- **Acceso a Datos:** 108 CUMPLIDO Y PROBADO; 2 CUMPLIDO SIN PRUEBA DEL 13/11; 4 CUMPLIDO (DOCUMENTADO); 10 PARCIAL; 4 PROVISIONAL; 2 NO VERIFICABLE.
-- **PSP:** 17 CUMPLIDO Y PROBADO; 2 PARCIAL.
-- **Python:** 186 CUMPLIDO Y PROBADO; 8 CUMPLIDO SIN PRUEBA DEL 13/11; 6 CUMPLIDO (DOCUMENTADO); 12 PARCIAL; 1 PROVISIONAL; 1 OPCIONAL (condición que no se da).
-- **Odoo:** 17 PENDIENTE.
-- **Intermodular:** 2 CUMPLIDO Y PROBADO; 8 CUMPLIDO (DOCUMENTADO); 10 PARCIAL; 9 PROVISIONAL; 3 PENDIENTE; 1 PENDIENTE DE DUDA; 4 NO VERIFICABLE.
+«Cumplido sin prueba del 13/11» conserva la distinción original: no se transforma en prueba nueva. Las rúbricas de defensa, participación individual y usabilidad requieren personas; no se inventan. Una documentación de Odoo no demuestra la conexión de esta candidata con su instancia.
 
-En total, 431 filas. Las ampliaciones no están en este recuento (apartado 3).
+### Límites que pueden afectar la evaluación
 
-### 1.1 Lectura rápida
-
-- **Lo técnico de Interfaces, SQL, Java, PSP y Python está probado el 13/11** sobre el árbol final, con bases montadas desde cero: R01–R25. No ha hecho falta cambiar código.
-- **Lo que queda no es código:**
-  - Odoo (Berme);
-  - los 7 datos de SO024 y el SO024 oficial (los tres);
-  - la exportación REAL (los tres);
-  - la prueba de usabilidad con personas;
-  - el punto 9 de la memoria y las aportaciones de AD (los tres);
-  - el E-R en PNG (Álvaro);
-  - las capturas manuales de la ventana Java (Omar);
-  - publicar la PR (lo autoriza Omar).
-
-### 1.2 Lo que PUEDE IMPEDIR APROBAR
-
-Según el texto literal de cada rúbrica:
-- **AD:** «Es imprescindible aprobar todas las partes de los requisitos de Acceso a Datos para aprobar (Tribunal, memoria, entregable y defensa). La no superación de alguna de las partes supondrá una calificación inferior a 5» (AD-138, p. 8).
-- **IM** (Interfaces, PSP, Odoo y lo común): no hay una frase de «aprobar todas las partes». El descriptor «Insuficiente» es: «No puede demostrarse el flujo principal, faltan entregables esenciales o el equipo no puede explicar el trabajo presentado» (IM p. 9). Para Odoo, además: «El requisito estable es que Odoo sea el núcleo del flujo empresarial y que los alumnos puedan demostrar cómo se realiza una venta…» (IM-SGE-17).
-- **Python:** no hay una frase equivalente a la de AD. Sí hay dos condiciones de aceptación:
-  - «No se admiten indicadores prefijados… ni datos sintéticos etiquetados como reales» (PY-217);
-  - «No se evaluarán como válidas predicciones entrenadas con fechas futuras…» (PY-218).
-
-  Y el «criterio esencial»: «Una predicción con menor error no compensa una fuga de datos, un JOIN incorrecto, una afirmación no demostrada o resultados que no puedan reproducirse» (p. 12).
-
-| Asignatura | Requisitos marcados | Estado hoy | Qué lo desbloquea |
-|---|---|---|---|
-| Acceso a Datos | AD-121 (memoria), AD-117 (E-R), AD-113 a 116 (defensa con SO024), AD-138 | Memoria **PARCIAL** (faltan las aportaciones y el E-R en PNG); SO024 **PROVISIONAL**; tribunal y defensa, **NO VERIFICABLES** | Completar MAD §15 (los tres) y el E-R (Álvaro); los 7 datos y el SO024 oficial desde la ventana; ensayar la defensa |
-| Odoo | IM-SGE-06, 07, 12, 16 y 17; IM-COM-16 y 24 | **PARCIAL**: PDF recibido; falta conciliar el SO024 oficial | Los tres, con el plan de integración y la checklist de Odoo |
-| Intermodular | IM-COM-02 y 15 (repositorio), 18 (memoria), 19 (manual de demostración), IM-ITG-16 (trazabilidad) | PR **sin publicar**; memoria y manual **PARCIALES** (falta Odoo y el punto 9); trazabilidad **PROVISIONAL** | Publicar la PR (Omar autoriza; Álvaro y Berme revisan); Odoo; punto 9 |
-| Python | PY-217 y PY-218 (condiciones de aceptación) | **Se cumplen** (R14, R15): hoy no impiden nada | Mantenerlas: no etiquetar nada sintético como real |
-| Interfaces y PSP | — | El flujo principal se demuestra (R16–R21; R09, R23) | — |
-
-### 1.3 Cambios frente a la matriz del 12/11
-
-- **Hechos y probados el 13/11:**
-  - la consulta HAVING devuelve filas (AD-19 y AD-134);
-  - el filtro de cliente y la persistencia de filtros y pestaña (PY-168 y PY-136);
-  - los metadatos de cada DataFrame (PY-159);
-  - el informe ejecutivo con prioridad e impacto (PY-110 y PY-111);
-  - R6 (PY-188) y los casos N, A y K (PY-210, PY-197 y PY-207);
-  - la instalación de Python desde cero (PY-219);
-  - la prueba de ventanas Swing, repetida, con la captura tras «Limpiar filtros» (AD-39, 44, 47, 48, 49, 61, 86, 94 y 125);
-  - toda la web repetida sobre el árbol final (la antigua mejora M1).
-- **Documentados en el repositorio:**
-  - la memoria común con sus 9 puntos (4 y 9 sin completar);
-  - el apartado de AD;
-  - el informe técnico de Python;
-  - la documentación de PSP;
-  - la estrategia de pruebas y el procedimiento de usabilidad de Interfaces;
-  - los manuales de instalación (seguido y corregido) y de demostración;
-  - la presentación.
-- **El portal del trabajador de Berme ya no está EN INTEGRACIÓN.** Está integrado y probado como ampliación (apartado 3).
-- **Siguen igual:** Odoo, los 7 datos de SO024, la exportación REAL, la usabilidad con personas, el E-R en PNG, el punto 9 y las capturas manuales de Java.
-
----
+SO024 oficial, exportación REAL, usabilidad con personas, E-R final en PNG y evidencias de algunas operaciones manuales siguen pendientes/parciales. Odoo tiene evidencia real recibida, pero no exportación conciliada del SO024, backup/restauración verificados aquí ni API en vivo. La defensa y el reparto individual no confirmados son no verificables. La candidata local está preparada para revisión; no se ha publicado por instrucción del usuario. No se promete superar todos los requisitos por el hecho de que pasen las pruebas automáticas.
 
 ## 2. Matrices por asignatura
 
@@ -446,7 +381,7 @@ Las 130 filas obligatorias de la rúbrica de AD.
 | IM-PSP-28 | Separación de responsabilidades y código legible | CRITERIO | Tres hijos y un gestor; limpieza de comentarios (`b2a7379`) | 03–05 prueban cada hijo por separado | R09 (27/27 tras la limpieza de comentarios) | DPSP §2; MEM §5 | CUMPLIDO Y PROBADO | [POR DECIDIR (los tres)]: qué se hace con la versión anterior (`LanzadorValidacion` y el `AnalizadorTallas` de la raíz) |
 | IM-PSP-29 | Registro que permita seguir el pedido y relacionarlo con su referencia de Odoo | CRITERIO | `registro_psp.txt` | 05 | R09 (13/11) | DPSP §9.3; MEM §5 | PARCIAL | [PENDIENTE (Berme): Odoo]: la referencia real de Odoo en `registro_psp.txt` |
 | IM-PSP-RA1-cefg | RA1 CE c), e)-g): subprocesos, compartir información, sincronizar y valores de retorno | CRITERIO (RA/CE) | `03_PSP/` | 01–10 | R09 (13/11) | DPSP §5 y §10; MEM §5 | CUMPLIDO Y PROBADO | Aquí sincronizar es esperar con `waitFor`, un hijo tras otro. [DUDA PARA EL PROFESOR (D9)]: si la sincronización obliga a usar hilos |
-| IM-PSP-RA1-i | RA1 CE i): depurar y documentar | CRITERIO (RA/CE) | `03_PSP/README.md`; `scripts/comprobar_psp.py` | 27 pruebas y los errores controlados (R09). `scripts/comprobar_psp.py` **falla** en la primera comprobación, por lo ya conocido: espera la respuesta antigua del validador (R10) | R09, R10; DPSP; `03_PSP/README.md` (actualizado el 13/11) | DPSP §10 y §13; MEM §5 | CUMPLIDO Y PROBADO | [REVISIÓN (Berme) en la PR]: traer el arreglo de `comprobar_psp.py` (`862e37d`, en `feature/berme`) |
+| IM-PSP-RA1-i | RA1 CE i): depurar y documentar | CRITERIO (RA/CE) | `03_PSP/README.md`; `scripts/comprobar_psp.py` | Regresión final: 27/27 y comprobador rápido correcto con el cambio de Berme | cierre-entrega-20261113/psp_pruebas.txt y psp_comprobador.txt | DPSP §10 y §13; MEM §5 | CUMPLIDO Y PROBADO | — |
 
 **No obligatorios de PSP:**
 
@@ -696,61 +631,59 @@ Las 209 filas obligatorias y las 5 condicionales de la rúbrica de Python. Todas
 
 ### 2.5 Sistemas de Gestión Empresarial: Odoo (módulo 0491, IM §4.2 y RA1–RA4)
 
-**Actualización posterior a la recepción del PDF (13/11/2026):** existe evidencia documental OD-01…06 en `odoo/documentacion/Odoo-NOVA-Sneakers.pdf`. El mapa de páginas, las diferencias con SO024 y los criterios para conciliarlo están en `06_Intermodular/SO024/INTEGRACION_ODOO_SO024.md`.
-
-Las filas y recuentos siguientes conservan el corte anterior al PDF y no son una evaluación actual de sus 17 requisitos. No se recalifican automáticamente como cumplidos: el pedido demostrado es S00005 del Club Atletico NOVA, hay códigos de Runner X que chocan con NOVA Velocity y los datos oficiales de SO024 siguen sin acordarse. La checklist de COB sirve para cerrar esa verificación. La API de esta candidata continúa sin activarse y `pedidos.js` no se monta.
+**Estado final de la evidencia:** el PDF de Berme se conserva y se valora documentalmente. EVIDENCIA DOCUMENTAL no equivale a CUMPLIDO Y PROBADO en este entorno. SO024 permanece parcial, los códigos no se alteran y no se esperan más archivos para esta entrega. Se han actualizado las 17 filas, sin calificar como ejecutadas las pruebas de Odoo que no se hicieron aquí.
 
 | ID | REQUISITO | OBL/OPC | ARCHIVO | COMPROBACIÓN CONCRETA | EVIDENCIA | DOCUMENTADO EN | ESTADO | PENDIENTE |
 |---|---|---|---|---|---|---|---|---|
-| IM-SGE-06 | Instalar, configurar y adaptar Odoo a la empresa | OBLIGATORIO | `05_Odoo/` (vacía) | — | — | COB (lista de tareas, no es evidencia) | PENDIENTE | **PUEDE IMPEDIR APROBAR.** Berme: instalación y documento de instalación |
-| IM-SGE-07 | Odoo como sistema central: la venta encadena el resto del flujo | OBLIGATORIO (enunciativo) | — | — | — | COB (lista de tareas, no es evidencia) | PENDIENTE | **PUEDE IMPEDIR APROBAR.** Berme |
-| IM-SGE-08 | Máquina virtual con Ubuntu y Odoo instalado, documentado y operativo | OBLIGATORIO (enunciativo) | — | — | — | COB (lista de tareas, no es evidencia) | PENDIENTE | Berme: capturas, versión de Odoo y guía de instalación |
-| IM-SGE-09 | Compañía y perfiles: comercial, producción, almacén y administración | OBLIGATORIO (enunciativo; perfiles «cuando proceda») | — | — | — | COB (lista de tareas, no es evidencia) | PENDIENTE | Berme: usuarios y permisos, con capturas |
-| IM-SGE-10 | Clientes y contactos | OBLIGATORIO (enunciativo) | — | — | — | COB (lista de tareas, no es evidencia) | PENDIENTE | Berme: Club Halcones y otros clientes ficticios |
-| IM-SGE-11 | Oportunidades de CRM antes de la venta | CONDICIONAL (si CRM entra en el alcance) | — | — | — | COB (lista de tareas, no es evidencia) | PENDIENTE | Berme; confirmar el alcance (D5) |
-| IM-SGE-12 | Presupuesto y pedido de venta con líneas, cantidades, variantes y condiciones | OBLIGATORIO (enunciativo) | — | — | — | COB (lista de tareas, no es evidencia) | PENDIENTE | **PUEDE IMPEDIR APROBAR.** Berme: Runner X con variantes 38–46 y el pedido SO024 con el reparto acordado |
-| IM-SGE-13 | Fabricación: productos fabricados, listas de materiales y órdenes | OBLIGATORIO (enunciativo; lo trabajado en clase) | — | — | — | COB (lista de tareas, no es evidencia) | PENDIENTE | Berme: lista de materiales y orden de fabricación de SO024 |
-| IM-SGE-14 | Inventario, movimientos y entrega | CONDICIONAL (si se ha trabajado) | — | — | — | COB (lista de tareas, no es evidencia) | PENDIENTE | Berme |
-| IM-SGE-15 | Facturación o simulación documentada | CONDICIONAL (si entra en el alcance) | — | — | — | COB (lista de tareas, no es evidencia) | PENDIENTE | Berme; qué cuenta como simulación (D5) |
-| IM-SGE-16 | Trazabilidad: capturas, exportaciones o informes del mismo pedido de principio a fin | OBLIGATORIO (enunciativo) | — | — | — | COB (lista de tareas, no es evidencia) | PENDIENTE | **PUEDE IMPEDIR APROBAR.** Berme: secuencia de capturas de SO024 |
-| IM-SGE-17 | Requisito estable: Odoo es el núcleo y se demuestra una venta realista | OBLIGATORIO | — | — | — | COB (lista de tareas, no es evidencia) | PENDIENTE | **PUEDE IMPEDIR APROBAR.** Berme |
-| IM-SGE-21 | Autocomprobación: Odoo adaptado y con un flujo realista | AUTOCOMPROBACIÓN | — | — | — | COB (lista de tareas, no es evidencia) | PENDIENTE | Berme |
-| IM-SGE-RA1 | RA1 CE d)-h): verificar el entorno (sistema operativo, gestor de datos, configuración) y documentar operaciones e incidencias | CRITERIO (RA/CE) | — | — | — | COB (lista de tareas, no es evidencia) | PENDIENTE | Berme |
-| IM-SGE-RA2 | RA2 CE a)-f): implantar: módulos, instalación, configuración, verificación y documentación | CRITERIO (RA/CE) | — | — | — | COB (lista de tareas, no es evidencia) | PENDIENTE | Berme |
-| IM-SGE-RA3 | RA3 CE d), g) y h): exportar datos e informes y sacar información | CRITERIO (RA/CE) | — | — | — | COB (lista de tareas, no es evidencia) | PENDIENTE | Berme: exportación CSV del pedido desde Odoo, que es la entrada natural de PSP |
-| IM-SGE-RA4 | RA4 CE a), d), h) e i): adaptar interfaces de entrada y procesos, probar y documentar | CRITERIO (RA/CE) | — | — | — | COB (lista de tareas, no es evidencia) | PENDIENTE | Berme; qué adaptación se espera (D5) |
+| IM-SGE-06 | Instalar, configurar y adaptar Odoo a la empresa | OBLIGATORIO | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf` | Revisión documental; no ejecución en vivo en el cierre | PDF p. 3–6 | MEM §4; estado final de entrega | EVIDENCIA DOCUMENTAL | Instalación y configuración aportadas; no reproducidas en esta instancia |
+| IM-SGE-07 | Odoo como sistema central: la venta encadena el resto del flujo | OBLIGATORIO (enunciativo) | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf` | Revisión documental; no ejecución en vivo en el cierre | PDF p. 10–12 | MEM §4; estado final de entrega | PARCIAL | Flujo S00005 documentado; no es el SO024 común |
+| IM-SGE-08 | Máquina virtual con Ubuntu y Odoo instalado, documentado y operativo | OBLIGATORIO (enunciativo) | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf` | Revisión documental; no ejecución en vivo en el cierre | PDF p. 3–6 | MEM §4; estado final de entrega | EVIDENCIA DOCUMENTAL | Ubuntu/OrbStack y servicio documentados; sin acceso vivo aquí |
+| IM-SGE-09 | Compañía y perfiles: comercial, producción, almacén y administración | OBLIGATORIO (enunciativo; perfiles «cuando proceda») | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf` | Revisión documental; no ejecución en vivo en el cierre | PDF p. 6, 17 | MEM §4; estado final de entrega | PARCIAL | Usuarios documentados; no acreditados todos los perfiles de la rúbrica |
+| IM-SGE-10 | Clientes y contactos | OBLIGATORIO (enunciativo) | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf` | Revisión documental; no ejecución en vivo en el cierre | PDF p. 10, 13 | MEM §4; estado final de entrega | PARCIAL | Cliente histórico documentado; no acreditado Club Halcones oficial |
+| IM-SGE-11 | Oportunidades de CRM antes de la venta | CONDICIONAL (si CRM entra en el alcance) | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf` | Revisión documental; no ejecución en vivo en el cierre | Sin evidencia específica | MEM §4; estado final de entrega | PENDIENTE | CRM no acreditado; condicionado al alcance del profesor |
+| IM-SGE-12 | Presupuesto y pedido de venta con líneas, cantidades, variantes y condiciones | OBLIGATORIO (enunciativo) | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf` | Revisión documental; no ejecución en vivo en el cierre | PDF p. 10, 16 | MEM §4; estado final de entrega | PARCIAL | Venta y variantes documentadas; códigos y reparto SO024 sin conciliar |
+| IM-SGE-13 | Fabricación: productos fabricados, listas de materiales y órdenes | OBLIGATORIO (enunciativo; lo trabajado en clase) | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf` | Revisión documental; no ejecución en vivo en el cierre | PDF p. 7–11 | MEM §4; estado final de entrega | EVIDENCIA DOCUMENTAL | Lista de materiales y fabricación documentadas; sin ejecución actual aquí |
+| IM-SGE-14 | Inventario, movimientos y entrega | CONDICIONAL (si se ha trabajado) | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf` | Revisión documental; no ejecución en vivo en el cierre | PDF p. 11, 17 | MEM §4; estado final de entrega | EVIDENCIA DOCUMENTAL | Entrega y stock históricos documentados |
+| IM-SGE-15 | Facturación o simulación documentada | CONDICIONAL (si entra en el alcance) | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf` | Revisión documental; no ejecución en vivo en el cierre | PDF p. 12 | MEM §4; estado final de entrega | EVIDENCIA DOCUMENTAL | Factura/pago históricos documentados; no factura oficial de SO024 |
+| IM-SGE-16 | Trazabilidad: capturas, exportaciones o informes del mismo pedido de principio a fin | OBLIGATORIO (enunciativo) | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf` | Revisión documental; no ejecución en vivo en el cierre | PDF p. 10–12 | MEM §4; estado final de entrega | PARCIAL | Trazabilidad de S00005; falta cadena del SO024 común |
+| IM-SGE-17 | Requisito estable: Odoo es el núcleo y se demuestra una venta realista | OBLIGATORIO | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf` | Revisión documental; no ejecución en vivo en el cierre | PDF p. 10–12 | MEM §4; estado final de entrega | EVIDENCIA DOCUMENTAL | Venta realista en el PDF; no demostración ERP en vivo desde aquí |
+| IM-SGE-21 | Autocomprobación: Odoo adaptado y con un flujo realista | AUTOCOMPROBACIÓN | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf` | Revisión documental; no ejecución en vivo en el cierre | PDF p. 7–18 | MEM §4; estado final de entrega | EVIDENCIA DOCUMENTAL | Flujo y variantes documentados, con límites declarados |
+| IM-SGE-RA1 | RA1 CE d)-h): verificar el entorno (sistema operativo, gestor de datos, configuración) y documentar operaciones e incidencias | CRITERIO (RA/CE) | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf` | Revisión documental; no ejecución en vivo en el cierre | PDF p. 3–6 | MEM §4; estado final de entrega | PARCIAL | Entorno documentado; registro completo de incidencias/recuperación no aportado |
+| IM-SGE-RA2 | RA2 CE a)-f): implantar: módulos, instalación, configuración, verificación y documentación | CRITERIO (RA/CE) | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf` | Revisión documental; no ejecución en vivo en el cierre | PDF p. 3–6 | MEM §4; estado final de entrega | EVIDENCIA DOCUMENTAL | Implantación y módulos documentados |
+| IM-SGE-RA3 | RA3 CE d), g) y h): exportar datos e informes y sacar información | CRITERIO (RA/CE) | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf` | Revisión documental; no ejecución en vivo en el cierre | Sin evidencia específica | MEM §4; estado final de entrega | PENDIENTE | No se aporta exportación CSV del SO024 oficial desde Odoo |
+| IM-SGE-RA4 | RA4 CE a), d), h) e i): adaptar interfaces de entrada y procesos, probar y documentar | CRITERIO (RA/CE) | `odoo/documentacion/Odoo-NOVA-Sneakers.pdf` | Revisión documental; no ejecución en vivo en el cierre | PDF p. 16–18 | MEM §4; estado final de entrega | PARCIAL | Adaptaciones documentadas; no aceptación conjunta del caso oficial |
 
 En el apartado 2.6 hay dos filas más que también son de Berme: el entregable «ERP configurado» con su backup (IM-COM-16) y el punto 4 de la memoria (IM-COM-24).
 
-**No obligatorios de Odoo:** IM-SGE-01 a 03 (objetivos), 04 (flujo de referencia), 05 (ruta MTO, «ampliación») y 18 a 20 (ejemplo SO024 y guion de demo, pasos 3 y 4). Todos están sin hacer, por la misma razón.
+**No obligatorios de Odoo:** IM-SGE-01 a 03 (objetivos), 04 (flujo de referencia), 05 (ruta MTO) y 18 a 20 (ejemplo/guion). No se usan para compensar pendientes obligatorios; el guion final explica el alcance documental.
 
 ### 2.6 Proyecto Intermodular: entregables comunes e integración SO024
 
 | ID | REQUISITO | OBL/OPC | ARCHIVO | COMPROBACIÓN CONCRETA | EVIDENCIA | DOCUMENTADO EN | ESTADO | PENDIENTE |
 |---|---|---|---|---|---|---|---|---|
 | IM-COM-01 | Código propio y comprensible: el equipo explica sus decisiones | OBLIGATORIO | Todo el repositorio | — | — | GD; SD | NO VERIFICABLE | Se ve en la defensa. Banco de preguntas y ejercicios en GD; ensayo en SD |
-| IM-COM-02 | El código de la web, PSP y la documentación en un repositorio Git del equipo | OBLIGATORIO (enunciativo) | Todo el repositorio (rama `integracion/candidata-2`) | — | Rama `integracion/candidata-2` (local, 8cdc08c + commits de documentación del 13/11); en GitHub, `integracion/nova-candidata-2026-11-12` (4203fe7) y `main` con la estructura inicial | README raíz | PARCIAL | **PUEDE IMPEDIR APROBAR.** La PR a `main` está preparada pero sin publicar: la autoriza Omar y la revisan Álvaro y Berme |
+| IM-COM-02 | El código de la web, PSP y la documentación en un repositorio Git del equipo | OBLIGATORIO (enunciativo) | Repositorio NOVA y candidata de cierre | main a6151db publicado; cierre probado localmente, sin push autorizado | Git, archivo de entrega y regresión de cierre | README raíz | PARCIAL | La candidata final sigue sin publicarse por instrucción del usuario |
 | IM-COM-03a | No hay credenciales reales en el repositorio | OBLIGATORIO (prohibición) | `.gitignore` (`.env` y `conexion.properties`); `servidor-admin/.env.example` vacío | Búsqueda de las contraseñas de demostración en las evidencias y la documentación (entonces `pruebas/` y `docs/`) y los resultados del 13/11: 0 coincidencias (R26). El escaneo de los blobs de la rama, en la preparación de la PR | R26 | MI (convenciones); README raíz | CUMPLIDO Y PROBADO | — |
 | IM-COM-03b | Las contraseñas de demostración se comunican por el medio acordado | OBLIGATORIO (enunciativo) | — | — | — | MI (convenciones) | PENDIENTE DE DUDA | [DUDA PARA EL PROFESOR (D12)]: el medio para dar las contraseñas de demostración |
 | IM-COM-04 | Datos ficticios suficientes de varios productos, clientes y pedidos | OBLIGATORIO (enunciativo) | `05_datos_prueba.sql`, `21_catalogo_web.sql`, `generador_datos.py` | Base: 6 clientes, 107 modelos y 12 pedidos; sintéticos: 900 pedidos | R01, R14 | MAD §3.2; ITP §10 | CUMPLIDO Y PROBADO | — |
 | IM-COM-05 | Documentación que otro equipo pueda seguir para instalar, ejecutar y repetir el caso | OBLIGATORIO (enunciativo) | `README.md` y los README de cada módulo | El manual seguido al pie de la letra en un clon nuevo y una base vacía: 23 scripts con salida 0, 123/0/1, Java 47/47, PSP 27/27, Python y servidor (R24). Se corrigieron dos errores del manual que salieron al seguirlo | R24; MI; README raíz | MI; README raíz | PARCIAL | [PENDIENTE (Berme): Odoo]: instalación y restauración de Odoo |
 | IM-COM-07 | Todos conocen el funcionamiento global | OBLIGATORIO | — | — | — | GD; SD | NO VERIFICABLE | Simulación de defensa por persona |
 | IM-COM-09 | Preparación para preguntas individuales en la defensa | OBLIGATORIO (enunciativo) | — | — | — | GD; SD | NO VERIFICABLE | Ensayo individual (SD). El reparto real se cuenta en MEM §9 |
-| IM-COM-15 | Entregable: repositorio con la web, PSP, README e instrucciones | OBLIGATORIO (entregable) | Todo el repositorio; `README.md`; `06_Intermodular/manuales/MANUAL_INSTALACION.md` | Regresión completa sobre el árbol final (R01–R25) | R01–R25; README raíz | README raíz; MI | PARCIAL | **PUEDE IMPEDIR APROBAR.** Publicar la rama nueva y la PR a `main` (sin force-push), con la autorización de Omar |
+| IM-COM-15 | Entregable: repositorio con la web, PSP, README e instrucciones | OBLIGATORIO (entregable) | Repositorio NOVA y candidata de cierre | main a6151db publicado; cierre probado localmente, sin push autorizado | Git, archivo de entrega y regresión de cierre | README raíz; MI | PARCIAL | La candidata final sigue sin publicarse por instrucción del usuario |
 | IM-COM-16 | Entregable: ERP configurado y su copia o backup | OBLIGATORIO (entregable) | — | — | — | COB (lista de tareas, no es evidencia) | PENDIENTE | **PUEDE IMPEDIR APROBAR.** [PENDIENTE (Berme): Odoo]: ERP configurado y su backup |
 | IM-COM-17 | Entregable: ejemplos de órdenes en CSV/JSON y los ficheros de la demo | OBLIGATORIO (entregable) | `03_PSP/pruebas/custom40.csv`, `03_PSP/datos/custom40_fabricacion_psp.csv`, `04_Python/entrada_acc/` | PSP y Python procesan los CSV de CUSTOM-40 y SO024 PROVISIONAL | R09, R14, R23 (`SO024_PROVISIONAL_fabricacion.csv`, `06_pedidos_unicos_SO024.csv`) | MEM §6.2; SDP | PARCIAL | [PENDIENTE (los tres): los 7 datos de SO024 y el SO024 oficial]; [PENDIENTE (Berme): Odoo]: la exportación de Odoo |
-| IM-COM-18 | Entregable: memoria técnica común | OBLIGATORIO (entregable) | `06_Intermodular/memoria/MEMORIA.md` | — | `06_Intermodular/memoria/MEMORIA.md` (los 9 puntos) | MEM | PARCIAL | **PUEDE IMPEDIR APROBAR.** [PENDIENTE (Berme): Odoo]: punto 4; [PENDIENTE (los tres): punto 9, reparto real y uso de la IA] |
-| IM-COM-19 | Entregable: manual de demostración con los pasos exactos | OBLIGATORIO (entregable) | `06_Intermodular/manuales/MANUAL_DEMOSTRACION.md` | — | `06_Intermodular/manuales/MANUAL_DEMOSTRACION.md` | MD | PARCIAL | **PUEDE IMPEDIR APROBAR.** [PENDIENTE (Berme): Odoo]: paso 3; [PENDIENTE (los tres): los 7 datos de SO024 y el SO024 oficial] |
+| IM-COM-18 | Entregable: memoria técnica común | OBLIGATORIO (entregable) | `06_Intermodular/memoria/MEMORIA.md` | — | `06_Intermodular/memoria/MEMORIA.md` (los 9 puntos) | MEM | PARCIAL | Reparto personal no confirmado y SO024 oficial no demostrado; MEM §4 completado con evidencia documental real |
+| IM-COM-19 | Entregable: manual de demostración con los pasos exactos | OBLIGATORIO (entregable) | `06_Intermodular/manuales/MANUAL_DEMOSTRACION.md` | Guion final de módulos disponibles con CUSTOM-40 y PRUEBA | `06_Intermodular/manuales/MANUAL_DEMOSTRACION.md` | MD | PARCIAL | No demuestra el SO024 oficial ni Odoo en vivo; limitaciones explícitas |
 | IM-COM-20 | Entregable: presentación para la defensa y el tribunal | OBLIGATORIO (entregable) | `06_Intermodular/defensa/PRESENTACION.pptx`, `06_Intermodular/defensa/PRESENTACION.md` | — | `06_Intermodular/defensa/PRESENTACION.pptx` y `06_Intermodular/defensa/PRESENTACION.md` (15 diapositivas) | PRES | CUMPLIDO (DOCUMENTADO) | Ensayarla (SD); la diapositiva de Odoo cuenta lo que falta |
 | IM-COM-21 | Memoria 1: empresa, problema y alcance | OBLIGATORIO | `06_Intermodular/memoria/MEMORIA.md` | — | MEM §1 | MEM §1 | CUMPLIDO (DOCUMENTADO) | [DUDA PARA EL PROFESOR (D2)]: el nombre de la marca |
 | IM-COM-22 | Memoria 2: arquitectura y relación entre módulos | OBLIGATORIO | `06_Intermodular/memoria/MEMORIA.md` | — | MEM §2 | MEM §2 | CUMPLIDO (DOCUMENTADO) | — |
 | IM-COM-23 | Memoria 3: diseño de la interfaz y criterios responsive | OBLIGATORIO | `06_Intermodular/memoria/MEMORIA.md`; `01_Interfaces/evidencias/web/README.md`; `01_Interfaces/cliente/README.md` | — | MEM §3; EPI; PUS | MEM §3; EPI; PUS | CUMPLIDO (DOCUMENTADO) | La prueba con personas: [PENDIENTE (los tres)] (IM-INT-RA4-hi-usab) |
-| IM-COM-24 | Memoria 4: configuración de Odoo y flujo demostrado | OBLIGATORIO | `06_Intermodular/memoria/MEMORIA.md` (apartado vacío) | — | — | COB (lista de tareas) | PENDIENTE | **PUEDE IMPEDIR APROBAR.** [PENDIENTE (Berme): Odoo]: punto 4 de la memoria |
+| IM-COM-24 | Memoria 4: configuración de Odoo y flujo demostrado | OBLIGATORIO | MEM §4 y PDF de Berme | Síntesis documental y límites reales del cierre | PDF pp. 3–18 | MEM §4 | EVIDENCIA DOCUMENTAL | Sin ERP en vivo ni SO024 definitivo; no se presenta como integración probada |
 | IM-COM-25 | Memoria 5: diseño del subsistema PSP | OBLIGATORIO | `06_Intermodular/memoria/MEMORIA.md`; `03_PSP/memoria/DOCUMENTACION_PSP.md` | — | MEM §5; DPSP | MEM §5; DPSP | CUMPLIDO (DOCUMENTADO) | — |
 | IM-COM-26 | Memoria 6: modelo de datos común e integración CSV/JSON | OBLIGATORIO | `06_Intermodular/memoria/MEMORIA.md`; `06_Intermodular/` | — | MEM §6; `06_Intermodular/SO024/caso-comun-SO024.md`; `06_Intermodular/SO024/contrato-fabricacion.md` | MEM §6; SDP | PARCIAL | [PENDIENTE (los tres): los 7 datos de SO024 y el SO024 oficial] |
 | IM-COM-27 | Memoria 7: pruebas y resultados | OBLIGATORIO | `06_Intermodular/memoria/MEMORIA.md`; `06_Intermodular/evidencias/regresion-final/` | — | MEM §7; `06_Intermodular/evidencias/regresion-final/README.md` | MEM §7 | CUMPLIDO (DOCUMENTADO) | — |
 | IM-COM-28 | Memoria 8: dificultades, decisiones y mejoras | OBLIGATORIO | `06_Intermodular/memoria/MEMORIA.md` | — | MEM §8 | MEM §8 | CUMPLIDO (DOCUMENTADO) | — |
-| IM-COM-29 | Memoria 9: reparto real del trabajo y contribuciones | OBLIGATORIO | `06_Intermodular/memoria/MEMORIA.md` | — | MEM §9 (lo que dice Git: omar1676 74, Alvarobaz 25 e Ivan Bermejo 8 commits en la rama) | — (MEM §9 está sin completar) | PENDIENTE | [PENDIENTE (los tres): reparto real del trabajo y uso de la IA, sin inventar contribuciones] |
+| IM-COM-29 | Memoria 9: reparto real del trabajo y contribuciones | OBLIGATORIO | `06_Intermodular/memoria/MEMORIA.md` | Historial conservado; no se infieren responsabilidades personales por número de commits | MEM §9 (lo que dice Git: omar1676 74, Alvarobaz 25 e Ivan Bermejo 8 commits en la rama) | MEM §9 | NO VERIFICABLE | Las aportaciones personales no confirmadas se declaran, sin inventarlas |
 | IM-COM-32 | Autocomprobación: ¿se puede repetir la demo siguiendo la documentación? | AUTOCOMPROBACIÓN | — | — | MD; MI; R24 | MD; MI | PARCIAL | [PENDIENTE (Berme): Odoo]: sin Odoo no se puede repetir la demo entera |
 | IM-COM-33 | Autocomprobación: ¿todos explican el proyecto y su contribución? | AUTOCOMPROBACIÓN | — | — | — | GD; SD | NO VERIFICABLE | Simulación de defensa |
 | IM-ITG-04 | Un pedido colectivo como hilo conductor (40 pares) | OBLIGATORIO (enunciativo) | `06_Intermodular/SO024/caso-comun-SO024.md`, `18_datos_so024.sql` | Cadena SO024 | R23 | SDP; `06_Intermodular/SO024/caso-comun-SO024.md` | PROVISIONAL | [PENDIENTE (los tres): los 7 datos de SO024 y el SO024 oficial] |
@@ -812,61 +745,11 @@ No son ampliaciones, pero mejoran la calidad: la simplificación del Python y la
 
 ---
 
-## 4. Lo que falta, por prioridad
+## 4. Límites finales de esta entrega
 
-### 4.1 Bloqueante para entregar
+No es una lista de nuevas ampliaciones ni una espera de trabajo de compañeros. Se entrega lo existente con estos límites: SO024 no definitivo; códigos Runner X sin conciliar; exportación ACC de PRUEBA; usabilidad con personas y parte de evidencias manuales no repetidas; ERP documental sin API verificada aquí; backup/restauración Odoo no acreditados en este entorno; atribuciones personales no confirmadas. Véase `06_Intermodular/ESTADO_ENTREGA_FINAL.md` y el guion disponible.
 
-| # | Qué | Requisitos | Quién | Depende de |
-|---|---|---|---|---|
-| B1 | **Odoo completo**: instalación, compañía, usuarios, cliente, Runner X con variantes, presupuesto → SO024, fabricación, inventario y entrega, facturación o simulación, capturas, exportación CSV y backup. Y el punto 4 de la memoria | IM-SGE-06 a RA4, IM-COM-16, IM-COM-24, AD-22, AD-120, PSP-10 y 29 | **Berme** | B2 y el alcance que fije el profesor (D5) |
-| B2 | **Acordar los 7 datos de SO024**: reparto por talla, color, precio, stock, personalización, SKU en Odoo y número de pedido. Además, si Runner X entra en la web | IM-ITG-04, 08, 10 a 16 y 18; AD-113 a 116; PY-199; IM-COM-26 | **Los tres** (reunión) | — |
-| B3 | **SO024 oficial y exportación REAL**: en la base del equipo, desde la ventana de Java → 15 → PSP → 16 → Python con «Tipo: REAL» → dashboard abierto, con capturas antes y después | AD-113 a 116; PY-40, 130, 138, 183 a 185, 189, 199, 208 y 216 | **Omar**, con los otros dos delante | B2; para el número de pedido y el SKU, también B1 |
-| B4 | **Completar la memoria**: punto 9 (reparto real y uso de la IA); MAD §15 (aportaciones de cada uno); E-R oficial en PNG | IM-COM-18 y 29; AD-121; AD-05 y 117 | **Los tres**; el E-R, **Álvaro** | — |
-| B5 | **Publicar**: rama nueva y PR a `main` con «Create a merge commit», sin force-push. Ya está preparada | IM-COM-02 y 15 | **Omar** autoriza; **Álvaro y Berme** revisan | — |
-
-Para AD es especialmente grave: «Es imprescindible aprobar todas las partes» (AD-138). Sin la memoria completa (B4) y la defensa con el SO024 oficial (B3), una parte puede quedar suspensa.
-
-### 4.2 Obligatorio pendiente
-
-| # | Qué | Requisitos | Quién |
-|---|---|---|---|
-| O1 | Prueba de usabilidad con 3 a 5 personas y su informe (el procedimiento está en PUS) | IM-INT-RA4-hi-usab; IM-COM-23 | El equipo y las personas que la hagan |
-| O2 | Capturas manuales de la ventana Java para la memoria: crear, confirmar y cancelar (A, B, C, H), el ROLLBACK (D), el TXT abierto (G), la pestaña Usuarios con el JSON (I) y el CSV abierto | AD-14, 39, 75 a 78, 81 y 126 | Omar (cualquiera de los tres) |
-| O3 | Prueba de dos sesiones (COMMIT y ROLLBACK) con capturas, y el JSON tras un ROLLBACK | AD-35, AD-96 | Omar |
-| O4 | Llevar al README de Python la prueba de datos nuevos y la recuperación paso a paso | PY-214 | Omar |
-| O5 | Traer el arreglo de `scripts/comprobar_psp.py` (`862e37d`, en `feature/berme`). `03_PSP/README.md` ya está al día (13/11) | IM-PSP-RA1-i | **Berme** |
-| O6 | **[POR DECIDIR (los tres)]**: el criterio de venta y si los importes son netos o brutos; el rango de tallas; qué se hace con la versión anterior de PSP | AD-108; PY-56, 74, 81 y 175; IM-PSP-28 | **Los tres** |
-| O7 | Ensayo de la defensa individual con el banco de preguntas (GD y SD) | IM-COM-01, 07, 09 y 33; AD-135 | **Los tres** |
-| O8 | Acordar con el profesor cómo se dan las contraseñas de demostración | IM-COM-03b | El equipo y el profesor (D12) |
-
-### 4.3 Mejora recomendable
-
-| # | Qué | Quién |
-|---|---|---|
-| M1 | Repetir Lighthouse (el último es del 11/11) y la medida de contraste (12/11) sobre la web final | Omar |
-| M2 | Revisar su paleta adaptada, la etiqueta «Usuario o correo», el tiempo máximo del `LanzadorAnalizador` y `scrollable-region-focusable` en las tablas del panel | **Álvaro** |
-| M3 | Antes de cualquier demo, comprobar que la base de la demo tiene el 21, el 22 y el 23 | Omar |
-| M4 | Capacidad de la nave (2.000) frente al stock del catálogo completo (17.170) | Los tres |
-| M5 | Arreglar el fallo del 20 con un correo de más de 150 caracteres | Omar |
-| M6 | Llevar las copias de seguridad fuera del disco (USB o nube) y borrar las bases desechables del clúster de pruebas | Omar |
-
-**Hechos desde la matriz del 12/11:**
-- la estrategia de pruebas de Interfaces;
-- la consulta HAVING;
-- repetir la prueba de ventanas, con la captura sin filtros;
-- los casos N, A y K, y R6;
-- el informe técnico;
-- el impacto y la prioridad del informe ejecutivo;
-- los metadatos;
-- el filtro de cliente;
-- la instalación desde cero;
-- el refresco que conserva filtros y pestaña;
-- el manual técnico y el README raíz;
-- repetir la web sobre el árbol final;
-- el portal integrado;
-- la regresión completa.
-
----
+La corrección del comprobador PSP ya está incorporada con autoría de Berme (`4f09742`, origen `0baf61f`) y verificada. No se borran sus pruebas ni las evidencias del fallo anterior. Los cambios adicionales al catálogo, seguridad, algoritmo de predicción o integración ERP quedan fuera del cierre.
 
 ## 5. Dudas para el profesor
 

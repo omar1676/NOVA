@@ -1,0 +1,65 @@
+✔ catalogo: los 100 modelos de la web, con precio, color, tallas y stock de PostgreSQL (223.8853ms)
+✔ la web se sirve en /tienda/ y no deja salir de su carpeta (73.172ms)
+✔ registro: crea la cuenta, abre la sesion y la cookie es HttpOnly, SameSite=Strict y solo para /api/tienda (80.7471ms)
+✔ registro: rechaza datos que no valen (52.1063ms)
+✔ login: correcto, contrasena mala y correo que no existe (mismo mensaje) (40.614ms)
+✔ login: 5 fallos bloquean ese correo (429), exista o no, y despues se puede entrar (1837.372ms)
+✔ logout: la sesion deja de valer, tambien con la cookie antigua (40.4157ms)
+✔ la sesion de un cliente no sirve en el panel, ni sus credenciales en el login del panel (29.5411ms)
+✔ la sesion de un administrador no sirve en la tienda, ni sus credenciales en el login de la tienda (34.0209ms)
+✔ checkout sin sesion: 401 (12.5141ms)
+✔ checkout: carrito vacio, cantidades y productos que no valen (85.6934ms)
+✔ compra: un precio o un cliente manipulados se ignoran; precio y total salen de PostgreSQL (87.6963ms)
+Recibo de WEB-38074B07A45A4FDA9983 enviado
+✔ pago aceptado: confirmado y pagado; el stock baja exactamente lo comprado (88.6734ms)
+✔ pago rechazado: el pedido se cancela y el stock no cambia; ya no se puede pagar (38.9854ms)
+✔ cancelar antes de pagar: cancelado y sin tocar el stock (27.3053ms)
+✔ doble clic al crear: dos peticiones a la vez con la misma clave dan UN pedido (101.9552ms)
+✔ la clave de compra de otro cliente no le da su pedido (50.2207ms)
+Recibo de WEB-56296E07185144CBB579 enviado
+✔ doble clic al pagar: dos pagos a la vez descuentan el stock UNA sola vez (95.8271ms)
+Recibo de WEB-00AA8DB1FC7045E4B081 enviado
+✔ compras a la vez de los ultimos pares: uno compra, al otro se le cancela y el stock queda en 0 (114.5687ms)
+Recibo de WEB-46D9CA582D8C44A49C0B enviado
+✔ sin stock: una talla agotada no se puede pedir (102.8056ms)
+Recibo de WEB-6D3FBFDDFCDA4943B80D enviado
+✔ error a mitad del pago: si una linea se queda sin stock, no se descuenta ninguna (75.5529ms)
+✔ historial: cada cliente ve solo sus pedidos y no puede tocar los de otro (143.3535ms)
+Recibo de WEB-8E1D1C1DC1724DC2ABE0 enviado
+✔ panel: la compra sale en Pedidos, Dashboard, Inventario y Auditoria (117.0117ms)
+Recibo de WEB-A803FC76DF6F48BABED7 enviado
+✔ panel: el administrador marca la compra en reparto y el cliente la ve como enviada (145.0208ms)
+✔ tienda_nova (rol tienda_web) no puede marcar pedidos en reparto ni pasar a panel_reparto (5.8951ms)
+Recibo de WEB-95BA741193CA4F0B8255 enviado
+✔ recibo: pago aceptado -> un correo al email registrado, con la referencia, las lineas y el total (115.4844ms)
+✔ recibo: pago rechazado o pedido cancelado -> ningun correo (905.7618ms)
+Recibo de WEB-D6D899C6AEA14FB69239 sin enviar: falta RESEND_API_KEY o RESEND_FROM en .env
+✔ recibo: sin RESEND_API_KEY no se envia nada, se avisa con una linea y la compra va bien (356.9057ms)
+Recibo de WEB-C557AE2EF3D94632AE8A sin enviar: Resend ha respondido 500 {"message":"error simulado","eco":"Bearer ***"}
+✔ recibo: si Resend responde 500, la compra sigue confirmada y solo se apunta el error (sin la clave) (103.1053ms)
+Recibo de WEB-29F7D9E2BED84640A565 sin enviar: Resend no ha respondido en 5 s
+✔ recibo: si Resend no responde, se corta a los 5 s y la compra sigue confirmada (el cliente no espera) (5088.7087ms)
+Recibo de WEB-4F34D0B67DF849778F7C enviado
+✔ recibo: varios pagos a la vez del mismo pedido (doble clic) mandan un solo correo (914.8365ms)
+✔ recibo: la clave de Resend no sale nunca en la consola (0.8751ms)
+✔ CORREO_PROVEEDOR: sin indicar o "resend" -> Resend como siempre; "ethereal" solo fuera de produccion (1.9935ms)
+Vista previa del recibo WEB-777242D5BAB84E748121: https://ethereal.email/message/simulado1
+✔ ethereal: pago aceptado -> un recibo al email registrado, el mismo que con Resend, y su enlace en el detalle (234.8329ms)
+✔ ethereal: pago rechazado o pedido cancelado -> ningun recibo (883.6965ms)
+Vista previa del recibo WEB-9614BCC411964B15B692: https://ethereal.email/message/simulado2
+✔ ethereal: varios pagos a la vez del mismo pedido (doble clic) -> un solo recibo y el stock baja una vez (914.563ms)
+Recibo de WEB-629ECC0475584A93880F sin enviar: Ethereal ha fallado: fallo simulado de Ethereal
+Recibo de WEB-638961BE644F412CAE7C sin enviar: Ethereal ha fallado: el transporte ha lanzado un error
+✔ ethereal: si el transporte falla o lanza un error, la compra sigue confirmada y el stock baja una vez (91.3043ms)
+Recibo de WEB-1F99A02D5EE44B3AA014 sin enviar: Ethereal no ha respondido en 10 s
+✔ ethereal: si no responde, se corta a los 10 s y la compra sigue confirmada (el cliente no espera) (10322.5323ms)
+Recibo de WEB-D3670F87715848E09031 sin enviar: CORREO_PROVEEDOR=ethereal no se admite con NODE_ENV=production
+✔ ethereal con NODE_ENV=production: se niega, lo dice en la consola y no manda nada (ni por Resend) (563.4312ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 39
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 24920.0856

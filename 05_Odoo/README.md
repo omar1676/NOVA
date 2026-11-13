@@ -1,6 +1,8 @@
 # 05 · Sistemas de Gestión Empresarial (Odoo)
 
-**Estado a 13/11/2026: documentación de Berme recibida; conciliación del SO024 oficial pendiente.** El equipo confirma que los siete datos del caso común siguen por acordar. No debe presentarse la venta histórica del PDF como SO024.
+**Cierre de entrega (sin nuevas implementaciones):** se conserva el PDF y la evidencia real. El conector NOVA → Odoo no se ha verificado contra una instalación real accesible desde este entorno; `pedidos.js` no se monta. SO024 no es definitivo y sus códigos/datos no se alteran para aparentarlo. Los pendientes siguientes son limitaciones declaradas, no una espera de nuevos archivos.
+
+**Estado documental a 13/11/2026: documentación de Berme recibida; conciliación del SO024 oficial pendiente.** El equipo confirma que los siete datos del caso común siguen por acordar. No debe presentarse la venta histórica del PDF como SO024.
 
 ## Evidencia disponible
 

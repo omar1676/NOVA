@@ -54,7 +54,7 @@ Para cada asignatura, una tabla corta: **bloque de requisitos → archivo que lo
 | Función auxiliar sin sustituir a Odoo | IM-PSP-05, 15 | OK | `03_PSP/README.md` («Lo que no hace»); pie de la ficha | Leer el pie de la ficha de SO024 |
 | Salida relacionada con el pedido de Odoo | IM-PSP-10, 14, 29 | PARCIAL (falta Odoo) | `ficha_taller_<ref>.txt`, `registro_psp.txt`; `03_PSP/evidencias/so024_provisional/ficha_taller_SO024_PROVISIONAL.txt`. **[PENDIENTE (Berme): el pedido y su exportación en Odoo]** | Señalar la referencia SO024 en el CSV, la respuesta `OK;`, la ficha y el registro |
 | Documentación y depuración | IM-PSP-RA1-i, IM-COM-25 | OK (redactada; `03_PSP/README.md` al día) | `03_PSP/memoria/DOCUMENTACION_PSP.md`; `03_PSP/README.md` | — |
-| Comprobación rápida de Berme | — | Falla, ya se sabe | `02_java_psp/07_comprobar_psp.txt`. **[REVISIÓN (Berme) en la PR: traer su arreglo `862e37d`]** | — |
+| Comprobación rápida de Berme | — | CORRECTA EN EL CIERRE | `06_Intermodular/evidencias/cierre-entrega-20261113/psp_comprobador.txt` | Corrección de Berme incorporada en 4f09742; el fallo anterior se conserva como histórico |
 
 ## 4. Python
 
@@ -78,12 +78,12 @@ Para cada asignatura, una tabla corta: **bloque de requisitos → archivo que lo
 
 | Bloque | Requisitos | Estado | Evidencia | Cómo enseñarlo |
 |---|---|---|---|---|
-| Entorno e instalación | IM-SGE-06, 08; RA1, RA2 | PENDIENTE | — | Capturas de la máquina virtual y de las aplicaciones instaladas |
-| Empresa, usuarios y roles | IM-SGE-09 | PENDIENTE | — | Ajustes → Usuarios, con los cuatro perfiles |
-| Clientes, productos y venta | IM-SGE-10 a 12, 17 | PENDIENTE | — | Paso 3 de la demo |
-| Fabricación, inventario y factura | IM-SGE-13 a 15 | PENDIENTE | — | Ídem |
-| Trazabilidad y exportación | IM-SGE-16, 21; RA3, RA4 | PENDIENTE | — | Secuencia de capturas y CSV exportado |
-| Copia de seguridad | IM-COM-16 | PENDIENTE | — | Enseñar el archivo de la copia y cómo se restaura |
+| Entorno e instalación | IM-SGE-06, 08; RA1, RA2 | EVIDENCIA DOCUMENTAL | PDF pp. 3–6: Ubuntu/OrbStack, Odoo y módulos | Mostrar como evidencia documental y explicar límites; ver estado final |
+| Empresa, usuarios y roles | IM-SGE-09 | PARCIAL | PDF pp. 6 y 17: compañía y algunos perfiles; no todos acreditados | Mostrar como evidencia documental y explicar límites; ver estado final |
+| Clientes, productos y venta | IM-SGE-10 a 12, 17 | PARCIAL | PDF pp. 10, 13 y 16: clientes, venta y variantes históricas; SO024 no conciliado | Explicar la diferencia entre S00005 y SO024 |
+| Fabricación, inventario y factura | IM-SGE-13 a 15 | EVIDENCIA DOCUMENTAL | PDF pp. 7–12 y 17: recorrido histórico; no ejecución en vivo aquí | Mostrar como evidencia documental y explicar límites; ver estado final |
+| Trazabilidad y exportación | IM-SGE-16, 21; RA3, RA4 | PARCIAL | PDF pp. 10–12; no CSV del SO024 oficial | Mostrar como evidencia documental y explicar límites; ver estado final |
+| Copia de seguridad | IM-COM-16 | PENDIENTE | No se aporta backup/restauración verificable de Odoo en este cierre | Mostrar como evidencia documental y explicar límites; ver estado final |
 
 Todo lo que falta, con casillas: `05_Odoo/CHECKLIST_ODOO_BERME.md`.
 

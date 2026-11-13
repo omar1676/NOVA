@@ -1,5 +1,7 @@
 # NOVA Sneakers
 
+**Entrega de cierre (13/11/2026):** [estado final y limitaciones](06_Intermodular/ESTADO_ENTREGA_FINAL.md). Guion ejecutable con CUSTOM-40, datos de PRUEBA y Odoo documental; SO024 no se presenta como definitivo. Regresión nueva desde clon limpio en `06_Intermodular/evidencias/cierre-entrega-20261113/`.
+
 Proyecto intermodular de 2.º DAM (Omar, Álvaro y Berme): una marca de zapatillas con web de catálogo, base de datos PostgreSQL, aplicación Java de pedidos, procesos Java para preparar la fabricación y análisis de datos en Python. El caso común es el pedido personalizado **SO024** del Club Halcones (Runner X, 40 pares, tallas 38–46).
 
 **Estado a 13/11/2026** (detalle en `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md`):
@@ -184,7 +186,7 @@ py scripts/comprobar_web.py
 py scripts/comprobar_psp.py
 ```
 
-La primera comprueba que existen los recursos locales que enlaza la web; no evalúa el diseño ni la API. La segunda necesita `java` y `javac` en el PATH. **Falla en la primera comprobación, y se sabe por qué:** espera que el validador conteste solo `OK;CUSTOM-40;4;40`, y desde el commit `81db6e5` el validador añade después los datos normalizados. El arreglo de Berme (`862e37d`, en `feature/berme`) no está en esta rama. La lista de comprobaciones manuales está en `06_Intermodular/manuales/PRUEBAS_MANUALES.md` y se escribió antes de conectar el panel y la tienda.
+La primera comprueba que existen los recursos locales que enlaza la web; no evalúa el diseño ni la API. La segunda necesita `java` y `javac` en el PATH. **Correcta en el cierre:** se incorporó la corrección ya escrita por Berme en `0baf61f`, conservando su autoría (`4f09742`). Comprueba cabecera y bloque normalizado, además de los rechazos y pruebas del paquete Psp. La lista de comprobaciones manuales está en `06_Intermodular/manuales/PRUEBAS_MANUALES.md` y se escribió antes de conectar el panel y la tienda.
 
 ## Caso común SO024: PROVISIONAL
 
@@ -194,7 +196,7 @@ Mientras tanto, el recorrido se ha probado de principio a fin con **datos PROVIS
 
 ## Odoo: documentación recibida, SO024 pendiente
 
-La documentación de Berme ya está en `odoo/documentacion/Odoo-NOVA-Sneakers.pdf`. Incluye evidencias de Odoo y una venta histórica del Club Atletico NOVA; no equivale todavía al SO024 del Club Halcones. Hay que conciliar los códigos de Runner X con los de la base del equipo y acordar los siete datos oficiales.
+La documentación de Berme ya está en `odoo/documentacion/Odoo-NOVA-Sneakers.pdf`. Incluye evidencias de Odoo y una venta histórica del Club Atletico NOVA; no equivale todavía al SO024 del Club Halcones. La conciliación de códigos y los siete datos oficiales quedan declarados como limitaciones de esta entrega. No se rehace ni activa la integración de Odoo.
 
 La preparación actual y los criterios de aceptación están en `06_Intermodular/SO024/INTEGRACION_ODOO_SO024.md`. El conector conserva sus límites: `pedidos.js` no se monta y no se ha activado ni probado la API de esta candidata contra Odoo. Detalle del módulo: `05_Odoo/README.md`.
 

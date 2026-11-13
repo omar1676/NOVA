@@ -1,0 +1,268 @@
+[
+  {
+    "check": "01_initdb",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "02_crear_base",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_sneaker-factory-esquema",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_04_xnova",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_02_funciones",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_03_triggers",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_05_datos_prueba",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_07_seguridad",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_08_auditoria",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_17_usuario_java",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_19_usuario_web",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_06_consultas",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_09_pruebas",
+    "exit": 0,
+    "PASS": 91,
+    "FAIL": 0,
+    "ERROR": 1
+  },
+  {
+    "check": "sql_10_caso_custom",
+    "exit": 0,
+    "PASS": 6,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_11_dml_ejemplos",
+    "exit": 0,
+    "PASS": 12,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_12_consultas_panel",
+    "exit": 0,
+    "PASS": 1,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_13_activar_usuarios",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_14_caso_custom_persistente",
+    "exit": 0,
+    "PASS": 9,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_15_exportar_fabricacion",
+    "exit": 0,
+    "PASS": 2,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_16_exportar_csv_dashboard",
+    "exit": 0,
+    "PASS": 2,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_20_tienda_web",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_21_catalogo_web",
+    "exit": 0,
+    "PASS": 1,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_22_reparto_panel",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_23_portal_trabajador",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "sql_18_sin_parametros",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "node_api",
+    "exit": 1,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "node_api",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "node_tienda",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "node_portal",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "java_compilar",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "java_rubrica",
+    "exit": 0,
+    "PASS": 48,
+    "FAIL": 1,
+    "ERROR": 0
+  },
+  {
+    "check": "psp_compilar",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "psp_pruebas",
+    "exit": 1,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "psp_pruebas",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "psp_analizador",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "psp_custom40",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "psp_comprobador",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  },
+  {
+    "check": "web_recursos",
+    "exit": 0,
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0
+  }
+]

@@ -1,0 +1,28 @@
+===== Orden de fabricacion para PSP: pedido CUSTOM-40 =====
+
+El CSV se deja como fabricacion_psp.csv en el directorio actual.
+BEGIN
+SELECT 1
+
+--- Comprobaciones previas
+psql:<workspace>/work/verificacion-entrega-20261113/02_Acceso_Datos/sql/15_exportar_fabricacion.sql:160: NOTICE:  PASS: CUSTOM-40 (id 46) esta confirmado, con 4 lineas, 4 tallas y 40 pares.
+DO
+
+--- Filas que se van a exportar
+ referencia |    sku    |      cliente       |    modelo     | color |                      personalizacion                      | talla | cantidad 
+------------+-----------+--------------------+---------------+-------+-----------------------------------------------------------+-------+----------
+ CUSTOM-40  | NOVA-4-40 | Club Atletico NOVA | NOVA Velocity | Rojo  | Club Atletico NOVA: logo bordado y numeracion en el talon |    40 |       10
+ CUSTOM-40  | NOVA-4-41 | Club Atletico NOVA | NOVA Velocity | Rojo  | Club Atletico NOVA: logo bordado y numeracion en el talon |    41 |       10
+ CUSTOM-40  | NOVA-4-42 | Club Atletico NOVA | NOVA Velocity | Rojo  | Club Atletico NOVA: logo bordado y numeracion en el talon |    42 |       10
+ CUSTOM-40  | NOVA-4-43 | Club Atletico NOVA | NOVA Velocity | Rojo  | Club Atletico NOVA: logo bordado y numeracion en el talon |    43 |       10
+(4 rows)
+
+
+--- Exportacion
+COPY 4
+psql:<workspace>/work/verificacion-entrega-20261113/02_Acceso_Datos/sql/15_exportar_fabricacion.sql:224: NOTICE:  PASS: la orden exportada son 4 filas, 4 tallas y 40 pares.
+DO
+COMMIT
+
+Exportacion terminada.
+
