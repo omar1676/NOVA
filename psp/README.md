@@ -220,7 +220,11 @@ Para ver un fallo controlado:
 ```
 
 Trabajan en una carpeta temporal nueva y no tocan el repositorio. La última
-ejecución está en `../pruebas/psp/04_resultado_pruebas.txt`.
+ejecución está en `../pruebas/psp/04_resultado_pruebas.txt` y la de la
+regresión final del 13/11, en `../pruebas/regresion-final/02_java_psp/`.
+
+**Sin `-Dfile.encoding=UTF-8`:** con esa opción, las pruebas comparan textos
+con tildes en otro juego de caracteres y fallan. Se lanzan tal cual, como arriba.
 
 ### Cada hijo, suelto
 
@@ -268,10 +272,14 @@ El script deja `fabricacion_psp.csv` en la carpeta desde la que se lanza.
   - en el nombre de la ficha y dentro de ella;
   - en el registro, junto con el nombre del archivo de origen.
 - **Lo que falta para Odoo.** Hoy **no hay ninguna exportación de Odoo** en el
-  repositorio, y el pedido del ejemplo del enunciado (SO024, Club Halcones,
-  Runner X, tallas 38–46) **no está en PostgreSQL**. No se ha supuesto que
-  CUSTOM-40 y SO024 sean el mismo pedido. Cuando Odoo tenga el pedido, hay dos
-  caminos:
+  repositorio. El pedido del ejemplo del enunciado (SO024, Club Halcones,
+  Runner X, tallas 38–46) solo se ha probado con datos **PROVISIONALES**: el
+  script 18 lo prepara en PostgreSQL, la aplicación Java lo crea y lo confirma,
+  el 15 lo exporta con `-v referencia=SO024` y PSP lo procesa con código 0
+  (`../pruebas/psp/so024_provisional/`). Faltan los 7 datos que tienen que
+  acordar los tres (`../integracion/caso-comun-SO024.md`). No se ha supuesto
+  que CUSTOM-40 y SO024 sean el mismo pedido. Cuando Odoo tenga el pedido, hay
+  dos caminos:
   - exportar sus líneas a un CSV con estas mismas 8 columnas, y PSP lo procesa
     sin cambiar nada;
   - o registrar CUSTOM-40 en Odoo con esa misma referencia (ver
