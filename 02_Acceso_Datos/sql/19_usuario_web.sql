@@ -17,8 +17,8 @@
 --   2. Crea el usuario de PostgreSQL web_nova, que puede conectarse
 --      (LOGIN). La contrasena se pide por teclado y no se guarda en el
 --      repositorio: el servidor la lee de servidor-admin/.env.
---      Es NOINHERIT y solo puede pasar a panel_lectura. El servidor abre
---      cada consulta con
+--      Es NOINHERIT y pasa a panel_lectura (22 y 23 le anaden panel_reparto
+--      y portal_trabajador). El servidor abre cada lectura del panel con
 --         BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY;
 --         SET LOCAL ROLE panel_lectura;
 --      Aunque el codigo olvidara el READ ONLY, PostgreSQL no le dejaria
@@ -105,7 +105,7 @@ SELECT EXISTS (
 REVOKE nova_admin FROM web_nova;
 \endif
 
--- Solo puede pasar a panel_lectura, y solo con SET ROLE (no hereda sus permisos).
+-- Pasa a panel_lectura solo con SET ROLE (no hereda sus permisos), como en 22 y 23.
 -- Las opciones van escritas: si web_nova ya era miembro y heredaba, repetir el
 -- script lo corrige (un GRANT sin opciones dejaria la herencia como estaba).
 GRANT panel_lectura TO web_nova WITH INHERIT FALSE, SET TRUE;

@@ -2,9 +2,9 @@
 -- 17_usuario_java.sql — la cuenta con la que se conecta la aplicacion Java
 --
 -- QUE HACE
---   1. Crea el usuario de PostgreSQL java_nova, que es el unico que puede
---      conectarse (LOGIN). La contrasena se pide por teclado y no se
---      guarda en el repositorio: Java la lee de conexion.properties.
+--   1. Crea el usuario de PostgreSQL java_nova, el unico de la aplicacion
+--      Java que puede conectarse (LOGIN). La contrasena se pide por teclado
+--      y no se guarda en el repositorio: Java la lee de conexion.properties.
 --
 --   2. Le concede los tres roles de la aplicacion, pero es NOINHERIT: por
 --      si solo no tiene ninguno de sus permisos. Despues del login, Java

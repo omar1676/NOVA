@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
  * No escribe en el repositorio: todo lo que genera va a una carpeta
  * temporal nueva.
  *
- * COMO SE EJECUTA (desde la carpeta psp, con todo compilado en "clases",
+ * COMO SE EJECUTA (desde la carpeta 03_PSP, con todo compilado en "clases",
  * tambien el analizador de Alvaro; ver README)
  *   java -cp clases PruebasPsp
  *
@@ -40,7 +40,7 @@ public class PruebasPsp {
 
         if (!Files.exists(Path.of(CSV_CUSTOM40))) {
             System.out.println("No encuentro " + CSV_CUSTOM40
-                    + ". Ejecuta las pruebas desde la carpeta psp.");
+                    + ". Ejecuta las pruebas desde la carpeta 03_PSP.");
             System.exit(1);
         }
 
