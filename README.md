@@ -210,7 +210,7 @@ La primera comprueba que existen los recursos locales que enlaza la web; no eval
 
 ## Caso de Odoo: S00005 del Club Atlético NOVA
 
-md`. SO024 es el ejemplo del enunciado v0.3, no un identificador obligatorio expresamente ni una venta realizada en Odoo. No se creará un «SO024 oficial» para esta entrega.
+SO024 es el ejemplo del enunciado v0.3, no un identificador obligatorio. El caso documentado en Odoo es S00005 (ver `05_Odoo/README.md`).
 
 El PDF original de Berme documenta S00005. No se modifica ni se atribuye a ese pedido la cadena de PostgreSQL → PSP → Python: no hay pruebas de ello. El conector sigue sin verificarse contra una instalación real accesible y `pedidos.js` no se monta.
 

@@ -62,7 +62,7 @@ Playwright, axe-core y Lighthouse **no son dependencias del proyecto**: se usan 
 
 - **Web:** no hay pruebas unitarias de JavaScript. `custom.js` tiene 52 líneas y su lógica (sumar los pares, exigir al menos uno y componer el mensaje) se prueba en el navegador con los casos del §4.2. **Mejora opcional:** sacar `contarPares` a una función pura y probarla con `node --test`.
 - **Servidor (ampliación):** `node --test` sobre la API: `servidor-admin/pruebas/api.test.js` (panel), `tienda.test.js` (tienda) y `portal.test.js` (login único y portal).
-- Java, PSP y Python tienen sus propias pruebas automáticas (la memoria del proyecto (`Memoria_NOVA_Sneakers.pdf`) §7).
+- Java, PSP y Python tienen sus propias pruebas automáticas (ver `Memoria_NOVA_Sneakers.pdf`).
 
 ### 4.2 Pruebas funcionales en el navegador
 

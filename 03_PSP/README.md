@@ -37,8 +37,8 @@ archivos en `salidas/`.
 | `pruebas/PruebasPsp` | pruebas | — | Las 27 pruebas, lanzando los programas de verdad |
 | `pruebas/HijoDePrueba` | hijo solo para pruebas | — | Tarda, falla o devuelve un código raro a propósito |
 
-`Psp.AnalizadorTallas` es la clase de Álvaro (`03_PSP/src/Psp/`, en su rama
-la parte de Álvaro). **Se usa sin cambiarla**: el padre la lanza por su nombre
+`Psp.AnalizadorTallas` es la clase de Álvaro (`03_PSP/src/Psp/`).
+**Se usa sin cambiarla**: el padre la lanza por su nombre
 y el validador le prepara la entrada en el formato que ella ya leía.
 
 ## Cómo se comunican los procesos
@@ -214,7 +214,7 @@ Para ver un fallo controlado:
 
 Trabajan en una carpeta temporal nueva y no tocan el repositorio. La última
 ejecución está en `evidencias/04_resultado_pruebas.txt` y la de la
-regresión final del 13/11, en la regresión del 13/11.
+regresión final del 13/11.
 
 **Sin `-Dfile.encoding=UTF-8`:** con esa opción, las pruebas comparan textos
 con tildes en otro juego de caracteres y fallan. Se lanzan tal cual, como arriba.

@@ -1402,8 +1402,7 @@ usa, esta exportación lleva los nuestros y **no se ha inventado ninguna
 correspondencia**.
 
 **De Odoo no se afirma nada.** No hay ningún identificador de Odoo acordado ni
-comprobado: el número del pedido y el SKU en Odoo son dos de los datos por
-md`.
+comprobado: el número del pedido y el SKU en Odoo no están acordados.
 
 **Este CSV no es ninguno de los cinco del dashboard.** Es la orden de
 fabricación de un pedido concreto y se mantiene aparte, hasta que se acuerde el
