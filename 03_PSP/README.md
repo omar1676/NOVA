@@ -12,6 +12,18 @@ auxiliar para el taller**.
 crea la orden de fabricación. Solo lee una copia exportada del pedido y genera
 archivos en `salidas/`.
 
+## En resumen
+
+| | |
+|---|---|
+| **Tecnologías** | Java 17 (`ProcessBuilder`, hilos para leer la salida de cada hijo, esperas con límite). Sin librerías |
+| **Qué necesita** | JDK 17 |
+| **Cómo se inicia** | Desde esta carpeta: `javac -encoding UTF-8 -d clases *.java pruebas\*.java src\Psp\*.java` y `java -cp clases ProcesadorPedidosCustom datos\custom40_fabricacion_psp.csv` |
+| **Pruebas** | `java -cp clases PruebasPsp`: 27 de 27. `scripts/comprobar_psp.py` (raíz del repositorio) falla en su primera comprobación por un motivo conocido (ver el `README.md` principal) |
+| **Rúbrica** | IM §4.3 y anexo: 19 requisitos, 17 cumplidos; falta relacionar la ficha con el pedido de Odoo. Detalle en `06_Intermodular/rubricas/MATRIZ_RUBRICAS.md` (§2.3) |
+| **Conexión con otras asignaturas** | Lee el CSV que genera `02_Acceso_Datos/sql/15_exportar_fabricacion.sql`, con el formato de `06_Intermodular/SO024/contrato-fabricacion.md`. La ficha es para el taller del caso común SO024 |
+| **Evidencias y memoria** | `evidencias/` (ejecución de CUSTOM-40, errores controlados, hijos por separado, pruebas y SO024 provisional) y `memoria/DOCUMENTACION_PSP.md` |
+
 ## Las clases
 
 | Clase | Qué es | Tarea del reparto | Qué hace |

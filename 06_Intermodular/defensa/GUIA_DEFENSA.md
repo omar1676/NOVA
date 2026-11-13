@@ -624,7 +624,7 @@ Los filtros (periodo, modelo, talla, tipo, estado y cliente) se guardan en `st.s
 
 ## 11. Odoo [PENDIENTE (Berme)]
 
-> **Estado:** no hay ninguna evidencia de Odoo. La carpeta `05_Odoo/` solo tiene `.gitkeep`; no hay instalación documentada, capturas, exportaciones ni backup, y el conector de Berme está desactivado. Todo lo de esta sección es **[PENDIENTE (Berme)]** (lista de tareas en `05_Odoo/CHECKLIST_ODOO_BERME.md`). No inventéis pantallas, números de pedido ni resultados: si preguntan, se dice que está pendiente y qué falta.
+> **Estado:** no hay ninguna evidencia de Odoo. La carpeta `05_Odoo/` solo tiene la lista de tareas, el borrador del recorrido y la plantilla de su `README.md`; no hay instalación documentada, capturas, exportaciones ni backup, y el conector de Berme está desactivado. Todo lo de esta sección es **[PENDIENTE (Berme)]** (lista de tareas en `05_Odoo/CHECKLIST_ODOO_BERME.md`). No inventéis pantallas, números de pedido ni resultados: si preguntan, se dice que está pendiente y qué falta.
 
 ### Lo que pide la rúbrica
 
@@ -695,7 +695,7 @@ La instancia o máquina virtual, una copia o backup o evidencias suficientes par
 Las cinco que pide el enunciado (IM-INT-04): inicio, catálogo con 100 modelos (`01_Interfaces/cliente/js/modelos.js`), ficha de cada modelo con precio, descripción y tallas, el servicio Custom (`index.html:267`) y una parte corporativa («Nuestra visión») con contacto. El menú está en `index.html:31-36`.
 
 **P12.2 ¿Cómo la habéis hecho responsive?**
-Con CSS Grid y media queries: el catálogo tiene 4 columnas en escritorio (`css/inicio.css:622-627`) y pasa a 2 por debajo de 760 px (`:666` y `:680-683`); los títulos usan `clamp()` para ajustar el tamaño (`:144`) y las barras usan `flex-wrap`. Se probó en 11 anchos de 320 a 1440 px sin desplazamiento horizontal (H12).
+Con CSS Grid y media queries: el catálogo tiene 4 columnas en escritorio (`css/inicio.css:627-632`) y pasa a 2 por debajo de 760 px (`:666` y `:680-683`); los títulos usan `clamp()` para ajustar el tamaño (`:144`) y las barras usan `flex-wrap`. Se probó en 11 anchos de 320 a 1440 px sin desplazamiento horizontal (H12).
 
 **P12.3 ¿Qué habéis hecho para la accesibilidad?**
 Un enlace «Saltar al escaparate» (`index.html:23`), navegación con `aria-label`, una etiqueta en cada campo, las tallas agrupadas con `fieldset` y `legend` (`:348-349`), mensajes con `role="status"` y `aria-live` (`:366` y `:139`), foco visible (`css/inicio.css:30-32`) y menos animaciones si el usuario lo pide (`:550-560`). axe no da violaciones, hay 212/212 contrastes AA y Lighthouse da 100 en accesibilidad (11/11).
@@ -734,7 +734,7 @@ De la API `/api/admin/...` del servidor (`01_Interfaces/admin/script.js:62-100`)
 - **[PENDIENTE (los tres): la prueba de usabilidad con personas (RA4, CE i)].** El procedimiento está preparado en `01_Interfaces/memoria/PROCEDIMIENTO_USABILIDAD.md`. La estrategia de pruebas (RA8) está en `01_Interfaces/memoria/ESTRATEGIA_PRUEBAS_INTERFACES.md`.
 - El formulario Custom no pide la fecha objetivo ni enseña un número de pedido (el enunciado dice «Puede mostrarse o simularse»).
 - Runner X, el modelo de SO024, no está en el catálogo de la web.
-- Por debajo de 370 px se oculta el enlace «Nuestra visión» del menú (`css/inicio.css:539-541`); la sección sigue ahí bajando por la página.
+- Por debajo de 370 px se oculta el enlace «Nuestra visión» del menú (`css/inicio.css:544-546`); la sección sigue ahí bajando por la página.
 - En móvil, axe avisa de `scrollable-region-focusable` en las tablas del panel; el panel y el portal cargan Lucide (y el panel, Chart.js) de internet.
 - Las baterías de la web se repitieron el 13/11 sobre el código final: 136/136, 114/114, 81/81 y la compra 139/139 (`06_Intermodular/evidencias/regresion-final/05_web/`). Lighthouse es del 11/11.
 
@@ -1004,7 +1004,7 @@ Resultado: un pago, un único descuento de stock y un solo recibo, porque solo e
 
 **E12.1** Con −3, el navegador lo para antes de enviar, por el `min="0"` del campo (`index.html:352`): el evento `submit` ni siquiera llega al JavaScript (lo explica `js/custom.js:29-31`). Con 0 en todas, el formulario sí se envía, pero el total es 0: sale «Indica cuántos pares quieres de al menos una talla» y el foco va a la primera talla (`js/custom.js:34-38`).
 
-**E12.2** Dos columnas: la media query `@media (max-width: 760px)` cambia `.catalogo-grid` a `repeat(2, minmax(0, 1fr))` (`css/inicio.css:666` y `:680-683`); en escritorio son 4 (`:622-627`). Por debajo de 370 px, además, se oculta el segundo enlace del menú, «Nuestra visión» (`:539-541`).
+**E12.2** Dos columnas: la media query `@media (max-width: 760px)` cambia `.catalogo-grid` a `repeat(2, minmax(0, 1fr))` (`css/inicio.css:671` y `:680-683`); en escritorio son 4 (`:622-627`). Por debajo de 370 px, además, se oculta el segundo enlace del menú, «Nuestra visión» (`:539-541`).
 
 **E13.1** Responde 429 «Demasiados intentos» con la cabecera `Retry-After`, sin comprobar la contraseña: `tiempoDeBloqueo` es mayor que 0 y el login sale antes de llamar a `iniciar_sesion` (`servidor.js:120-124`). El bloqueo lo puso el quinto fallo (`intentos.js:41-43`). Está probado en `01_Interfaces/evidencias/panel-admin/resultados/09_intentos_y_sesiones.txt` («6.o intento CON la contrasena buena -> 429»). Pasados 5 minutos puede volver a entrar.
 
