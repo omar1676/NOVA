@@ -338,7 +338,6 @@ async function estadisticas(cliente) {
 }
 
 module.exports = {
-  UMBRAL_STOCK_BAJO,
   ESTADOS_PEDIDO,
   ESTADOS_ACTIVO,
   ESTADOS_STOCK,

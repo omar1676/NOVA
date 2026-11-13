@@ -78,7 +78,7 @@ Si `.env` dice `PGUSER=postgres`, el servidor se niega a arrancar.
 | Archivo | Qué hace |
 |---|---|
 | `servidor.js` | Arranca Express y entrega las páginas del panel, del portal y de la tienda. Tiene el login único, el logout, las 8 rutas de lectura del panel y la de «Marcar en reparto», monta las rutas del portal y comprueba la sesión y el rol, contra la base, en cada petición |
-| `bd.js` | Las dos conexiones con PostgreSQL. `consultarSoloLectura` (panel) abre `BEGIN ... READ ONLY` y `SET LOCAL ROLE panel_lectura`; `marcarEnReparto` (solo el botón del panel) abre una transacción aparte con `SET LOCAL ROLE panel_reparto`; `consultarComoTrabajador` y `cambiarComoTrabajador` (portal) hacen lo mismo con `portal_trabajador`; `operarEnTienda` (tienda) abre una transacción con `SET LOCAL ROLE tienda_web` |
+| `bd.js` | Las dos conexiones con PostgreSQL. `consultarSoloLectura` (panel) abre `BEGIN ... READ ONLY` y `SET LOCAL ROLE panel_lectura`; `marcarEnReparto` (solo el botón del panel) abre una transacción aparte con `SET LOCAL ROLE panel_reparto`; `consultarComoTrabajador` y `cambiarComoTrabajador` (portal) hacen lo mismo con `portal_trabajador`; `operarEnTienda` (tienda) abre una transacción con `SET LOCAL ROLE tienda_web`. Las cinco usan `enTransaccion`, que abre la transacción, cambia de rol y hace `COMMIT` o `ROLLBACK` |
 | `consultas.js` | Las 8 consultas SQL del panel. Salen de `12_consultas_panel.sql` y de `PedidoDAO.verAuditoria` (Java) |
 | `tienda.js` | Las rutas de la tienda (`/api/tienda/...`): comprueban los datos y llaman a las funciones del script 20 con el cliente de la sesión |
 | `consultas-tienda.js` | El SQL de la tienda: catálogo, cuenta, historial y las llamadas a las funciones de compra |
@@ -92,7 +92,7 @@ Si `.env` dice `PGUSER=postgres`, el servidor se niega a arrancar.
 | `pruebas/tienda.test.js` | Pruebas automáticas de la tienda (`npm run test:tienda`). Crean clientes y pedidos: **solo con una base desechable** |
 | `pruebas/portal.test.js` | Pruebas del login único y del portal (`npm run test:portal`). Las que cambian algo, **solo con una base desechable** |
 | `../01_Interfaces/admin/login.html` y `login.js` | La página de acceso única del personal |
-| `../01_Interfaces/trabajador/` | **De Berme.** Las cuatro páginas del portal, su `script.js` y su `styles.css` (una copia de la hoja del panel de Álvaro) |
+| `../01_Interfaces/trabajador/` | **De Berme.** Las cuatro páginas del portal, su `script.js` y su `styles.css` (sacada de la hoja del panel de Álvaro; solo quedan las reglas que usa el portal) |
 
 ## Las rutas
 
