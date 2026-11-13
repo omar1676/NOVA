@@ -132,7 +132,7 @@ cd salidas
 psql -U postgres -d nova_sneakers -f ..\02_Acceso_Datos\sql\15_exportar_fabricacion.sql     # fabricacion_psp.csv (CUSTOM-40)
 cd ..\04_Python\entrada_acc
 psql -U postgres -d nova_sneakers -f ..\..\02_Acceso_Datos\sql\16_exportar_csv_dashboard.sql | Tee-Object -FilePath ..\..\16_exportar_csv_dashboard.log   # los 5 CSV
-cd ..\..\docs..
+cd ..\..
 ```
 
 (El 15 se lanza igual, con `| Tee-Object -FilePath ..\15_exportar_fabricacion.log`, si se quiere contar también en la batería.)
@@ -176,7 +176,7 @@ Los archivos `actividad_sneaker.txt`, `usuarios_sneaker.json` y `consulta_pedido
 ## 5. PSP
 
 ```powershell
-cd psp
+cd 03_PSP
 javac -encoding UTF-8 -d clases *.java pruebas\*.java src\Psp\*.java
 java -cp clases ProcesadorPedidosCustom datos\custom40_fabricacion_psp.csv
 type salidas\ficha_taller_CUSTOM-40.txt
@@ -190,7 +190,7 @@ Para otro pedido, se le pasa el `fabricacion_psp.csv` que genera el 15 (por ejem
 ## 6. Python (consola y dashboard)
 
 ```powershell
-cd python-analisis
+cd 04_Python
 py -3.13 -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
 .venv\Scripts\python.exe main.py                          # modo real: entrada_acc\ → outputs\real\

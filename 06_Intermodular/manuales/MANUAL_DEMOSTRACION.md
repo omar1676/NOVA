@@ -122,7 +122,7 @@ Guion breve con los pasos exactos para enseñar el caso de uso completo (IM-COM-
 - **Usuario:** ninguno (PSP no se conecta a nada).
 - **Qué hacer:**
   ```powershell
-  cd psp
+  cd 03_PSP
   java -cp clases ProcesadorPedidosCustom ..\salidas\fabricacion_psp.csv
   type salidas\ficha_taller_SO024.txt
   java -cp clases ProcesadorPedidosCustom datos\prueba_cantidad_cero.csv
@@ -149,7 +149,7 @@ Guion breve con los pasos exactos para enseñar el caso de uso completo (IM-COM-
      ```powershell
      cd 04_Python\entrada_acc
      psql -U postgres -d nova_sneakers -f ..\..\02_Acceso_Datos\sql\16_exportar_csv_dashboard.sql
-     cd ..\..\docs..
+     cd ..\..
      ```
      (y regenerar P-A, P-B, P-C y N-1 a N-3 como dice `04_Python/conciliacion_sql.md`).
   3. Esperar al siguiente ciclo (60 s como máximo) o pulsar «Actualizar ahora».
