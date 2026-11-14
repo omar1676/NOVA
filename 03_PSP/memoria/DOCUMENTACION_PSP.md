@@ -29,7 +29,7 @@ Una **aplicación Java de consola** que recibe la **exportación CSV de un pedid
 | `pruebas/PruebasPsp` | Pruebas | — | Las 27 pruebas, lanzando los programas de verdad |
 | `pruebas/HijoDePrueba` | Hijo solo para pruebas | — | Tarda, falla o devuelve un código raro a propósito |
 
-Cada hijo se lanza en **otra máquina virtual de Java**, con el comando que se construye con `java.home` y el classpath del propio padre (`GestorProcesos.java`, líneas 52–55):
+Cada hijo se lanza en **otra máquina virtual de Java**, con el comando que se construye con `java.home` y el classpath del propio padre (`GestorProcesos.java`, líneas 33–36):
 
 ```java
 String java = Path.of(System.getProperty("java.home"), "bin", "java").toString();
@@ -186,7 +186,7 @@ La «sincronización» que pide el RA1 se hace aquí esperando con `waitFor` a c
 ## 7. Tiempos de espera (IM-PSP-27)
 
 - El padre da a cada hijo **10 segundos** (`SEGUNDOS_MAXIMOS = 10` en `ProcesadorPedidosCustom.java`).
-- `GestorProcesos` espera con `proceso.waitFor(segundosMaximos, TimeUnit.SECONDS)`. Si el hijo no ha terminado, le pide que acabe con `destroy()`; si en un segundo sigue vivo, lo mata con `destroyForcibly()` y espera a que muera (`GestorProcesos.java`, líneas 106–121).
+- `GestorProcesos` espera con `proceso.waitFor(segundosMaximos, TimeUnit.SECONDS)`. Si el hijo no ha terminado, le pide que acabe con `destroy()`; si en un segundo sigue vivo, lo mata con `destroyForcibly()` y espera a que muera (`GestorProcesos.java`, líneas 73–87).
 - El resultado es `TIEMPO_AGOTADO` (−2) y el padre termina con código 3.
 - **Prueba 10 (13/11):** un hijo que duerme 60 s se cancela a los 2 s (en la prueba el límite es 2): código −2 en 2,0 s en lugar de 60 (la regresión del 13/11).
 - **Lo que no está probado:** el tiempo agotado dentro del padre completo con un hijo real que se cuelgue, porque ninguno de los tres hijos se cuelga (`03_PSP/evidencias/README.md`, «Lo que no está probado»).

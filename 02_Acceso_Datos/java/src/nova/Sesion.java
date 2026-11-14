@@ -2,23 +2,6 @@ package nova;
 
 import java.sql.SQLException;
 
-/**
- * Quien ha iniciado sesion y que puede hacer.
- *
- * Matriz de permisos de la aplicacion:
- *
- *                               administrador  comercial  trabajador
- *   crear pedidos                    si           si          no
- *   consultar pedidos                si           si          si
- *   confirmar o cancelar pedidos     si           si          si
- *   ver indicadores y stock          si           si          si
- *   ver auditoria (log_eventos)      si           no          no
- *   gestionar usuarios y JSON        si           no          no
- *
- * Esta comprobacion es la primera barrera. La segunda es PostgreSQL: la
- * conexion usa el rol de la base de ese usuario (SET ROLE), y aunque alguien
- * se saltara este metodo, la base rechazaria la operacion.
- */
 public class Sesion {
 
     public static final String CREAR_PEDIDO = "crear pedidos";
@@ -32,9 +15,6 @@ public class Sesion {
     private static String usuario;
     private static String rol;
 
-    // Hace falta para llamar a iniciar_sesion al empezar cada transaccion,
-    // que es como PostgreSQL sabe quien firma la auditoria. Solo esta en
-    // memoria mientras dura la sesion: no se escribe en ningun sitio.
     private static String contrasena;
 
     public static void iniciar(int id, String nombreUsuario, String nombreRol, String clave) {
@@ -71,7 +51,6 @@ public class Sesion {
         return contrasena;
     }
 
-    /** Aplica la matriz de permisos de arriba. */
     public static boolean puede(String operacion) {
         if (rol == null) {
             return false;
@@ -93,10 +72,6 @@ public class Sesion {
         return false;
     }
 
-    /**
-     * Se llama al principio de cada operacion de los DAO. Si no hay sesion o
-     * el rol no puede, lanza el mismo codigo de error que PostgreSQL (42501).
-     */
     public static void comprobarPermiso(String operacion) throws SQLException {
         if (!puede(operacion)) {
             if (rol == null) {
@@ -106,7 +81,6 @@ public class Sesion {
         }
     }
 
-    /** Rol de PostgreSQL que corresponde a cada rol de la aplicacion. */
     public static String rolPostgres(String nombreRol) {
         if ("administrador".equals(nombreRol)) {
             return "nova_admin";

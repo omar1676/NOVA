@@ -9,29 +9,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 
-/**
- * Inicio de sesion y gestion de usuarios.
- *
- * Las contrasenas las comprueba y las cifra PostgreSQL con bcrypt
- * (iniciar_sesion y establecer_password). Java nunca ve un hash.
- */
 public class UsuarioDAO {
 
-    // ------------------------------------------------------------------
-    // Inicio y cierre de sesion
-    // ------------------------------------------------------------------
-
-    /**
-     * 1. iniciar_sesion compara la contrasena con el hash bcrypt. Si no
-     *    coincide, PostgreSQL lanza "Usuario o contrasena incorrectos".
-     * 2. Se lee el rol del usuario.
-     * 3. SET ROLE: desde aqui la conexion solo tiene los permisos de ese rol.
-     */
     public static void login(String usuario, String contrasena) throws SQLException {
         try {
             Connection conexion = ConexionBD.getConexion();
 
-            // Por si habia otra sesion abierta en esta misma conexion
             Sesion.cerrar();
             ConexionBD.quitarRol();
 
@@ -83,11 +66,6 @@ public class UsuarioDAO {
         }
     }
 
-    // ------------------------------------------------------------------
-    // Consultar usuarios (solo administrador)
-    // ------------------------------------------------------------------
-
-    /** Lista de usuarios, sin la columna password_hash. */
     public static DefaultTableModel listarUsuarios() throws SQLException {
         Sesion.comprobarPermiso(Sesion.GESTIONAR_USUARIOS);
         String sql = "SELECT u.id_usuario, u.username, r.nombre AS rol, u.activo "
@@ -111,15 +89,6 @@ public class UsuarioDAO {
         return roles;
     }
 
-    // ------------------------------------------------------------------
-    // Cambios (solo administrador). Despues de cada cambio confirmado se
-    // vuelve a generar usuarios_sneaker.json.
-    // ------------------------------------------------------------------
-
-    /**
-     * crear_usuario lo da de alta sin contrasena y establecer_password le
-     * pone el hash bcrypt. Van en la misma transaccion: o las dos o ninguna.
-     */
     public static void crearUsuario(String usuario, String rol, String contrasena)
             throws SQLException, IOException {
         String detalle = "usuario " + usuario + ", rol " + rol;
@@ -161,12 +130,10 @@ public class UsuarioDAO {
                 activo, idUsuario, accion, "id_usuario " + idUsuario);
     }
 
-    /** Un UPDATE sobre un usuario: un valor y el id_usuario. */
     private static void modificarUsuario(String sql, Object valor, int idUsuario,
                                          String accion, String detalle) throws SQLException, IOException {
         try {
             Sesion.comprobarPermiso(Sesion.GESTIONAR_USUARIOS);
-            // Para no quedarse sin administrador por error
             if (idUsuario == Sesion.getIdUsuario()) {
                 throw new SQLException("No puedes cambiar tu propio usuario mientras lo estás usando", "P0001");
             }
@@ -190,15 +157,6 @@ public class UsuarioDAO {
         exportarUsuariosJson();
     }
 
-    // ------------------------------------------------------------------
-    // usuarios_sneaker.json
-    // ------------------------------------------------------------------
-
-    /**
-     * Exporta los usuarios tal y como estan confirmados en la base. Se llama
-     * despues de cada COMMIT o desde el boton Exportar, nunca a mitad de una
-     * transaccion: asi no publica un cambio deshecho.
-     */
     public static File exportarUsuariosJson() throws SQLException, IOException {
         try {
             DefaultTableModel usuarios = listarUsuarios();

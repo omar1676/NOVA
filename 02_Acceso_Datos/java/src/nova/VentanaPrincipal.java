@@ -10,12 +10,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-/**
- * Ventana principal, con una pestana por seccion.
- *
- * Solo se anaden las pestanas que el rol puede usar. Aun asi, cada operacion
- * se vuelve a comprobar al ejecutarse (Java y PostgreSQL).
- */
 public class VentanaPrincipal extends JFrame {
 
     public VentanaPrincipal() {
@@ -43,7 +37,6 @@ public class VentanaPrincipal extends JFrame {
         add(cabecera, BorderLayout.NORTH);
         add(pestanas, BorderLayout.CENTER);
 
-        // Al cerrar la ventana se registra el logout y se cierra la conexion
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             @Override

@@ -17,12 +17,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-/**
- * Pestana "Nuevo pedido": cliente, modelo, talla y cantidad.
- *
- * Se pueden anadir varias lineas (por ejemplo, un pedido Custom de 40 pares
- * en cuatro tallas) y despues se crea todo de una vez con "Crear pedido".
- */
 public class PanelNuevoPedido extends JPanel {
 
     private final JTextField campoReferencia = new JTextField(12);
@@ -33,8 +27,6 @@ public class PanelNuevoPedido extends JPanel {
     private final JCheckBox casillaCustom = new JCheckBox("Pedido Custom. Personalización:");
     private final JTextField campoPersonalizacion = new JTextField(30);
 
-    // Las lineas que se van anadiendo: lo que se ve en la tabla y lo que se envia.
-    // Cada int[] es {idVariante, talla, cantidad}, como lo espera PedidoDAO.crearPedido.
     private final DefaultTableModel modeloLineas =
             new DefaultTableModel(new Object[] {"Modelo y color", "Talla", "Cantidad"}, 0);
     private final ArrayList<int[]> lineas = new ArrayList<>();
@@ -74,7 +66,7 @@ public class PanelNuevoPedido extends JPanel {
         arriba.add(botones, BorderLayout.SOUTH);
 
         JTable tablaLineas = new JTable(modeloLineas);
-        tablaLineas.setDefaultEditor(Object.class, null);   // no se edita a mano
+        tablaLineas.setDefaultEditor(Object.class, null);
         JScrollPane cajaLineas = new JScrollPane(tablaLineas);
         cajaLineas.setBorder(BorderFactory.createTitledBorder("Líneas del pedido"));
 
@@ -97,7 +89,6 @@ public class PanelNuevoPedido extends JPanel {
         }
     }
 
-    /** Anade una linea a la lista. Todavia no se guarda nada en la base. */
     private void anadirLinea() {
         Opcion variante = (Opcion) comboModelo.getSelectedItem();
         if (variante == null) {
@@ -126,7 +117,6 @@ public class PanelNuevoPedido extends JPanel {
         modeloLineas.setRowCount(0);
     }
 
-    /** Envia el pedido a la base. Si PostgreSQL lo rechaza, se ensena el motivo. */
     private void crearPedido() {
         String referencia = campoReferencia.getText().trim();
         Opcion cliente = (Opcion) comboCliente.getSelectedItem();

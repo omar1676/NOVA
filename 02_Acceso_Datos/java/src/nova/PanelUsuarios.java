@@ -16,10 +16,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
-/**
- * Pestaña "Usuarios" (solo administrador): alta, cambio de rol,
- * activar/desactivar y exportación a usuarios_sneaker.json.
- */
 public class PanelUsuarios extends JPanel {
 
     private final JTable tabla = new JTable();
@@ -124,7 +120,6 @@ public class PanelUsuarios extends JPanel {
         if (idUsuario < 0) {
             return;
         }
-        // Columna 3 = activo. Se pone el valor contrario.
         boolean activo = Boolean.parseBoolean(tabla.getValueAt(tabla.getSelectedRow(), 3).toString());
         try {
             UsuarioDAO.cambiarActivo(idUsuario, !activo);
@@ -147,7 +142,6 @@ public class PanelUsuarios extends JPanel {
         }
     }
 
-    /** El id de la fila seleccionada (columna 0 = id_usuario), o -1. */
     private int usuarioSeleccionado() {
         int fila = tabla.getSelectedRow();
         if (fila < 0) {

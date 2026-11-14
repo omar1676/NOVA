@@ -5,18 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.table.DefaultTableModel;
 
-/**
- * Indicadores del panel. Todos se calculan en PostgreSQL con COUNT, SUM y
- * GROUP BY; Java solo los muestra. Hacen las mismas cuentas que P-A, P-B,
- * P-C, P-D y C8 de 12_consultas_panel.sql.
- *
- * Regla: los pedidos cancelados NO cuentan como ventas. Y se cuenta en la
- * tabla pedidos, no en las lineas, para que un pedido de tres lineas cuente
- * como un pedido.
- */
 public class IndicadoresDAO {
 
-    /** Total de pedidos, y pedidos, pares e importe sin contar cancelados. */
     public static DefaultTableModel resumen() throws SQLException {
         return consultar("SELECT count(*) AS \"Pedidos (todos)\", "
                 + "count(CASE WHEN estado <> 'cancelado' THEN 1 END) AS \"Pedidos sin cancelar\", "
@@ -41,8 +31,6 @@ public class IndicadoresDAO {
                 + "LEFT JOIN variantes v ON v.id_variante = s.id_variante "
                 + "LEFT JOIN modelos m ON m.id_modelo = v.id_modelo "
                 + "WHERE p.estado <> 'cancelado' "
-                // Si dos modelos tienen los mismos pares, van por nombre:
-                // asi el orden es siempre el mismo
                 + "GROUP BY COALESCE(m.nombre, 'X-NOVA') "
                 + "ORDER BY sum(l.cantidad) DESC, COALESCE(m.nombre, 'X-NOVA')", null);
     }
@@ -58,10 +46,6 @@ public class IndicadoresDAO {
                 + "GROUP BY COALESCE(s.talla, x.talla_referencia) ORDER BY 1", null);
     }
 
-    /**
-     * Referencias con menos stock que el umbral, de menos a mas. Con el
-     * mismo stock, por modelo, color y talla, para que el orden no cambie.
-     */
     public static DefaultTableModel stockBajo(int umbral) throws SQLException {
         return consultar("SELECT m.nombre AS \"Modelo\", v.color AS \"Color\", s.talla AS \"Talla\", "
                 + "s.sku AS \"SKU\", COALESCE(sum(e.cantidad), 0) AS \"Stock\" "
@@ -74,7 +58,6 @@ public class IndicadoresDAO {
                 + "ORDER BY COALESCE(sum(e.cantidad), 0), m.nombre, v.color, s.talla", umbral);
     }
 
-    /** Ejecuta una consulta con un parametro opcional y la pasa a un modelo de JTable. */
     private static DefaultTableModel consultar(String sql, Integer parametro) throws SQLException {
         Sesion.comprobarPermiso(Sesion.VER_INDICADORES);
         try (PreparedStatement sentencia = ConexionBD.getConexion().prepareStatement(sql)) {

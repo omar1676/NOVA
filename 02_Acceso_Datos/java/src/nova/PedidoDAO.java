@@ -8,19 +8,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 
-/**
- * Todo lo que tiene que ver con pedidos: crearlos, confirmarlos,
- * cancelarlos y consultarlos.
- *
- * Java NO calcula importes ni toca el stock ni escribe la auditoria: eso lo
- * hacen los triggers de PostgreSQL. Java llama a las funciones de la base y
- * cambia el estado del pedido.
- */
 public class PedidoDAO {
-
-    // ------------------------------------------------------------------
-    // Listas para los JComboBox
-    // ------------------------------------------------------------------
 
     public static ArrayList<Opcion> listarClientes() throws SQLException {
         return listarOpciones("SELECT id_cliente AS id, nombre AS texto FROM clientes "
@@ -31,18 +19,12 @@ public class PedidoDAO {
         return listarOpciones("SELECT id_modelo AS id, nombre AS texto FROM modelos ORDER BY nombre");
     }
 
-    /** Modelo y color juntos, porque el color es lo que distingue una variante. */
     public static ArrayList<Opcion> listarVariantes() throws SQLException {
         return listarOpciones("SELECT v.id_variante AS id, m.nombre || ' - ' || v.color AS texto "
                 + "FROM variantes v JOIN modelos m ON m.id_modelo = v.id_modelo "
                 + "WHERE m.activo ORDER BY m.nombre, v.color");
     }
 
-    /**
-     * Las listas se usan en Nuevo pedido y en los filtros de Consultas, y
-     * los tres roles pueden consultar. Sin sesion iniciada, Java no deja
-     * leerlas. Si alguien se saltara esto, PostgreSQL tambien lo rechaza.
-     */
     private static ArrayList<Opcion> listarOpciones(String sql) throws SQLException {
         Sesion.comprobarPermiso(Sesion.CONSULTAR);
         ArrayList<Opcion> opciones = new ArrayList<>();
@@ -55,18 +37,6 @@ public class PedidoDAO {
         return opciones;
     }
 
-    // ------------------------------------------------------------------
-    // Crear un pedido
-    // ------------------------------------------------------------------
-
-    /**
-     * Crea un pedido con todas sus lineas en UNA sola transaccion: o se
-     * guarda entero o no se guarda nada.
-     *
-     * Cada linea es un int[] con {idVariante, talla, cantidad}.
-     *
-     * El pedido queda pendiente. El stock no se toca hasta confirmarlo.
-     */
     public static int crearPedido(String referencia, int idCliente, ArrayList<int[]> lineas,
                                   boolean custom, String personalizacion) throws SQLException {
         String detalle = "referencia " + referencia + ", " + lineas.size() + " lineas";
@@ -84,7 +54,6 @@ public class PedidoDAO {
                 int[] linea = lineas.get(i);
                 int idSku = buscarSku(conexion, linea[0], linea[1]);
                 if (i == 0) {
-                    // La primera linea crea la cabecera del pedido
                     idPedido = realizarCompra(conexion, referencia, idCliente, idSku, idNave, linea[2]);
                 } else {
                     anadirLinea(conexion, idPedido, idSku, idNave, linea[2]);
@@ -105,7 +74,6 @@ public class PedidoDAO {
         return idPedido;
     }
 
-    /** Solo hay una nave (NOVA Central): se usa la primera. */
     private static int buscarNave(Connection conexion) throws SQLException {
         String sql = "SELECT id_nave FROM nave ORDER BY id_nave LIMIT 1";
         try (PreparedStatement sentencia = conexion.prepareStatement(sql);
@@ -117,7 +85,6 @@ public class PedidoDAO {
         }
     }
 
-    /** El SKU es la combinacion de variante (modelo + color) y talla. */
     private static int buscarSku(Connection conexion, int idVariante, int talla) throws SQLException {
         String sql = "SELECT id_producto_sku FROM producto_sku "
                 + "WHERE id_variante = ? AND talla = ? AND activo";
@@ -133,7 +100,6 @@ public class PedidoDAO {
         }
     }
 
-    /** realizar_compra crea la cabecera y su primera linea. Devuelve el id. */
     private static int realizarCompra(Connection conexion, String referencia, int idCliente,
                                       int idSku, int idNave, int cantidad) throws SQLException {
         try (PreparedStatement sentencia = conexion.prepareStatement(
@@ -173,21 +139,12 @@ public class PedidoDAO {
         }
     }
 
-    // ------------------------------------------------------------------
-    // Confirmar y cancelar
-    // ------------------------------------------------------------------
-
-    /**
-     * Al confirmar, un trigger descuenta el stock de cada linea. Si no hay
-     * bastante, PostgreSQL lanza un error y se deshace todo.
-     */
     public static void confirmarPedido(int idPedido) throws SQLException {
         String sql = "UPDATE pedidos SET estado = 'confirmado' "
                 + "WHERE id_pedido = ? AND estado = 'pendiente'";
         cambiarEstado(idPedido, sql, "CONFIRMAR PEDIDO", "Solo se puede confirmar un pedido pendiente");
     }
 
-    /** Al cancelar, un trigger devuelve al almacen el stock descontado. */
     public static void cancelarPedido(int idPedido) throws SQLException {
         String sql = "UPDATE pedidos SET estado = 'cancelado' "
                 + "WHERE id_pedido = ? AND estado IN ('pendiente', 'confirmado')";
@@ -218,17 +175,6 @@ public class PedidoDAO {
         Archivos.registrar(accion, "correcto", "id_pedido " + idPedido);
     }
 
-    // ------------------------------------------------------------------
-    // Consultas
-    // ------------------------------------------------------------------
-
-    /**
-     * Busca pedidos. Un filtro que vale null no se aplica, asi que con todo
-     * a null salen todos los pedidos.
-     *
-     * Solo se anade al WHERE el trozo de cada filtro que se usa, y su valor
-     * va siempre como parametro (?), nunca pegado al texto del SQL.
-     */
     public static DefaultTableModel buscarPedidos(Integer idCliente, Integer idModelo, String estado,
                                                   LocalDate desde, LocalDate hasta) throws SQLException {
         String filtros = "cliente=" + idCliente + ", modelo=" + idModelo + ", estado=" + estado
@@ -244,7 +190,6 @@ public class PedidoDAO {
                     + "p.personalizacion AS \"Personalizacion\" "
                     + "FROM pedidos p JOIN clientes c ON c.id_cliente = p.id_cliente "
                     + "WHERE 1 = 1";
-            // 1 = 1 siempre se cumple: asi cada filtro se puede anadir con " AND ..."
             ArrayList<Object> parametros = new ArrayList<>();
 
             if (idCliente != null) {
@@ -252,7 +197,6 @@ public class PedidoDAO {
                 parametros.add(idCliente);
             }
             if (idModelo != null) {
-                // El modelo esta en las lineas: basta con que una sea de ese modelo
                 sql += " AND EXISTS (SELECT 1 FROM linea_pedido l"
                         + " JOIN producto_sku s ON s.id_producto_sku = l.id_producto_sku"
                         + " JOIN variantes v ON v.id_variante = s.id_variante"
@@ -291,7 +235,6 @@ public class PedidoDAO {
         }
     }
 
-    /** Las lineas de un pedido. */
     public static DefaultTableModel verDetalle(int idPedido) throws SQLException {
         try {
             Sesion.comprobarPermiso(Sesion.CONSULTAR);
@@ -320,7 +263,6 @@ public class PedidoDAO {
         }
     }
 
-    /** Los ultimos eventos de log_eventos. Solo el administrador. */
     public static DefaultTableModel verAuditoria() throws SQLException {
         try {
             Sesion.comprobarPermiso(Sesion.VER_AUDITORIA);

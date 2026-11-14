@@ -335,8 +335,7 @@ h1 span {
   color: #a8a09b;
   margin-top: 35px;
 }
-/* Pie de página único (.pie): arriba el contacto (.contacto, más abajo) y
-   debajo la línea final con la marca (.pie__final), separada por una raya. */
+
 .pie {
   max-width: 1500px;
   margin: auto;
@@ -666,7 +665,6 @@ dialog::backdrop {
   }
 }
 
-/* Enlace «Desliza o ver catálogo», al pie del escaparate. */
 .escaparate__ir-catalogo {
   color: #f6e7dd;
   text-decoration: none;
@@ -686,7 +684,6 @@ dialog::backdrop {
   transform: translateY(4px);
 }
 
-/* Filtros propios del catálogo. */
 .catalogo__filtros {
   display: flex;
   gap: 6px;
@@ -731,13 +728,11 @@ dialog::backdrop {
     text-align: right;
   }
 }
-/* La franja inferior admite el gesto sin impedir el desplazamiento del resto. */
 .escaparate__pie {
   touch-action: pan-x;
   min-height: 50px;
 }
 
-/* Primera vista conceptual del probador. */
 .ficha__probador {
   margin-bottom: 10px;
   background: #ca875d;
@@ -763,7 +758,6 @@ dialog::backdrop {
 .probador__vista[data-escenario="tokio"] {
   background-image: url("../images/probador/tokio.png");
 }
-/* El modelo ocupa menos espacio para que se vea completo. */
 .probador__modelo {
   position: absolute;
   bottom: 0;
@@ -895,9 +889,7 @@ dialog::backdrop {
 .catalogo__herramientas {
   flex-wrap: wrap;
 }
-/* Sin uso desde el rediseño de Álvaro (202c1d0): ninguna tarjeta lleva --con-fondo.
-   Se queda hasta decidir si el catálogo vuelve a la foto con fondo (ver README).
-   El bloque va delante del modificador para ganar a .catalogo__tarjeta img. */
+
 .catalogo__tarjeta.catalogo__tarjeta--con-fondo img {
   object-fit: cover;
   padding: 0;
@@ -914,7 +906,6 @@ dialog::backdrop {
   }
 }
 
-/* Una sombra suave bajo los pies ayuda a integrar el modelo en el suelo. */
 .probador__vista::after {
   content: "";
   position: absolute;
@@ -934,7 +925,6 @@ dialog::backdrop {
 .probador__etiqueta {
   z-index: 2;
 }
-/* La figura y su sombra comparten la misma línea de suelo. */
 @media (min-width: 761px) {
   .probador__modelo {
     bottom: 5%;
@@ -944,8 +934,7 @@ dialog::backdrop {
     bottom: 4%;
   }
 }
-/* Escena fija: fondo liso. El bloque va delante del modificador para que gane
-   también a .probador__vista[data-escenario="tokio"]. */
+
 .probador__vista.probador__vista--escena-fija {
   background: #302d2a;
 }
@@ -963,7 +952,6 @@ dialog::backdrop {
   opacity: 0.45;
   cursor: not-allowed;
 }
-/* Las escenas completas rellenan el panel y conservan al modelo entero. */
 @media (min-width: 761px) {
   .probador__vista--escena-fija {
     position: relative;
@@ -995,7 +983,6 @@ dialog::backdrop {
     overflow-y: auto;
   }
 }
-/* Todas las vistas ocupan la altura completa del panel en escritorio. */
 @media (min-width: 761px) {
   .probador__vista {
     position: relative;
@@ -1005,7 +992,6 @@ dialog::backdrop {
     top: auto;
   }
 }
-/* El logo abre la página brevemente sin bloquear la navegación. */
 .entrada-nova {
   position: fixed;
   inset: 0;
@@ -1071,12 +1057,10 @@ dialog::backdrop {
     display: none;
   }
 }
-/* Sin foto con la zapatilla puesta: la zapatilla elegida, sola y en grande, sobre el
-   escenario, en lugar de una persona con otro calzado. */
+
 .probador__zapatilla {
   position: absolute;
   left: 50%;
-  /* Siempre por encima de las etiquetas inferiores, también en móvil. */
   bottom: max(13%, 96px);
   z-index: 1;
   width: 84%;
@@ -1102,8 +1086,7 @@ dialog::backdrop {
   font-size: 0.62rem;
   letter-spacing: 0.08em;
 }
-/* Con una figura (delgada, media o amplia): la figura algo a la izquierda y
-   la zapatilla elegida en una tarjeta blanca a su derecha. */
+
 .probador__vista--con-figura .probador__modelo,
 .probador__vista--con-figura::after {
   left: 38%;
@@ -1125,15 +1108,13 @@ dialog::backdrop {
   filter: drop-shadow(0 8px 10px #0007);
 }
 
-/* Precio en la banda de datos de la tarjeta del catálogo. */
 .catalogo__datos {
   flex-wrap: wrap;
 }
 .catalogo__datos .catalogo__precio {
   font-weight: bold;
 }
-/* Ficha: el nombre y la compra van sobre un panel oscuro liso; en escritorio,
-   la foto a la izquierda y el panel a la derecha, como en una tienda. */
+
 .ficha__texto,
 .ficha__info {
   background: #1c1a1d;
@@ -1172,7 +1153,6 @@ dialog::backdrop {
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 10px;
 }
-/* Los dos botones de abajo son secundarios: el principal es «Añadir al carrito». */
 .ficha__acciones .boton,
 .ficha__acciones .ficha__probador {
   margin: 0;
@@ -1223,7 +1203,6 @@ dialog::backdrop {
   }
 }
 
-/* Servicio Custom: sección clara, como el catálogo. */
 .custom {
   background: #eeece6;
   color: #201e1d;
@@ -1330,7 +1309,6 @@ dialog::backdrop {
   font-weight: bold;
 }
 
-/* Contacto, dentro del pie: oscuro, como «Nuestra visión». */
 .contacto {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1360,11 +1338,9 @@ dialog::backdrop {
 }
 
 @media (max-width: 760px) {
-  /* En el móvil caben tres enlaces: «Nuestra visión» se ve bajando por la página. */
   nav a:nth-child(2) {
     display: none;
   }
-  /* Zona táctil más alta (36 px) sin cambiar el aspecto del menú. */
   nav a {
     padding: 10px 0;
   }
@@ -1398,8 +1374,6 @@ dialog::backdrop {
   }
 }
 
-/* Inicio de sesión: estilos de Álvaro (commit 74da21a). Solo cambian los
-   nombres de clase, pasados a BEM. */
 dialog.acceso {
   width: min(440px, 92vw);
 }
@@ -1457,18 +1431,6 @@ dialog.acceso {
   margin: 0 0 14px;
 }
 
-/* Tarjetas del catálogo con los colores de cada colección: el rediseño de
-   Álvaro (commit 202c1d0) con su misma paleta, adaptado para que el texto
-   llegue a 4,5:1 y el foco a 3:1 (medido en Edge):
-   - Sus degradados van en la zona de la foto. Allí no hay texto.
-   - Su etiqueta de colección va en una pastilla del tono oscuro de su
-     degradado (en su versión, texto blanco sobre el tono claro: 2,9:1).
-   - Su banda de datos es opaca, del tono oscuro (en su versión, negro
-     translúcido sobre el degradado): nombre, precio y estado en claro.
-   - El foco: su contorno claro (#f6c696) pegado a la tarjeta y otro oscuro
-     por fuera, que es el que contrasta con el fondo claro del catálogo.
-   Cada colección pone su paleta (--col-claro y --col-oscuro) en el modificador
-   de la tarjeta y en el del filtro: catalogo__tarjeta--street, etc. */
 .catalogo__tarjeta--street,
 .catalogo__filtro--street {
   --col-claro: #3d5a73;
@@ -1581,7 +1543,6 @@ dialog.acceso {
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
-/* Un punto con el color de la colección en cada filtro del catálogo (menos en «Todos») */
 .catalogo__filtro--street::before,
 .catalogo__filtro--luxe::before,
 .catalogo__filtro--casual::before,

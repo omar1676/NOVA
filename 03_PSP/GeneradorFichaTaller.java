@@ -4,11 +4,6 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-/**
- * Recibe el pedido normalizado y el analisis de tallas; genera la ficha del taller.
- * Es una ficha auxiliar: no sustituye la orden de fabricacion de Odoo.
- * El padre guarda su salida; este proceso solo utiliza stdin, stdout y stderr.
- */
 public class GeneradorFichaTaller {
 
     private static final String RAYA_DOBLE =
@@ -18,26 +13,23 @@ public class GeneradorFichaTaller {
 
     public static void main(String[] args) throws Exception {
 
-        // En UTF-8, que es como lee el proceso padre.
         System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
         System.setErr(new PrintStream(System.err, true, StandardCharsets.UTF_8));
 
         BufferedReader entrada = new BufferedReader(
                 new InputStreamReader(System.in, StandardCharsets.UTF_8));
 
-        // Los datos que vamos recogiendo.
         String referencia = "";
         String origen = "";
         String cliente = "";
         ArrayList<String> personalizacion = new ArrayList<>();
 
-        // Las filas de la ficha se van preparando segun llegan.
         ArrayList<String> filasVariantes = new ArrayList<>();
         ArrayList<String> filasTallas = new ArrayList<>();
 
         int sumaVariantes = 0;
         int sumaTallas = 0;
-        int total = -1;              // -1 = todavia no ha llegado el TOTAL
+        int total = -1;
         boolean hayFin = false;
         int numeroLinea = 0;
 
@@ -47,8 +39,6 @@ public class GeneradorFichaTaller {
 
             numeroLinea++;
 
-            // La primera linea dice de que pedido es todo: PEDIDO;referencia.
-            // Sin referencia (solo "PEDIDO;") no vale.
             if (numeroLinea == 1) {
                 if (!linea.startsWith("PEDIDO;") || linea.equals("PEDIDO;")) {
                     error("La primera linea tiene que ser PEDIDO;referencia");
@@ -62,7 +52,6 @@ public class GeneradorFichaTaller {
                 break;
             }
 
-            // Con -1, split no descarta los campos vacios del final: la cuenta de partes es exacta
             String[] partes = linea.split(";", -1);
             String tipo = partes[0];
 
@@ -76,19 +65,16 @@ public class GeneradorFichaTaller {
                 personalizacion.add(loQueSigue(linea));
 
             } else if (tipo.equals("VARIANTE_TALLA")) {
-                // VARIANTE_TALLA;modelo;color;talla;pares
                 if (partes.length != 5) {
                     error("La linea " + numeroLinea + " tendria que ser"
                             + " VARIANTE_TALLA;modelo;color;talla;pares");
                 }
                 int pares = aNumero(partes[4], numeroLinea);
-                // %-20s: texto a la izquierda en 20 columnas; %6d: numero en 6 columnas
                 filasVariantes.add(String.format("  %-20s %-12s %5s %6d",
                         partes[1], partes[2], partes[3], pares));
                 sumaVariantes = sumaVariantes + pares;
 
             } else if (tipo.equals("TALLA")) {
-                // TALLA;talla;pares
                 if (partes.length != 3) {
                     error("La linea " + numeroLinea + " tendria que ser TALLA;talla;pares");
                 }
@@ -97,7 +83,6 @@ public class GeneradorFichaTaller {
                 sumaTallas = sumaTallas + pares;
 
             } else if (tipo.equals("TOTAL")) {
-                // TOTAL;pares
                 if (partes.length != 2) {
                     error("La linea " + numeroLinea + " tendria que ser TOTAL;pares");
                 }
@@ -108,7 +93,6 @@ public class GeneradorFichaTaller {
             }
         }
 
-        // --- Comprobaciones antes de escribir nada ----------------------
         if (numeroLinea == 0) {
             error("No ha llegado ningun dato");
         }
@@ -125,16 +109,11 @@ public class GeneradorFichaTaller {
             error("Falta la linea TOTAL");
         }
 
-        /*
-         * Las tres cuentas tienen que dar lo mismo. Si no, alguien ha perdido
-         * pares por el camino y la ficha no seria fiable.
-         */
         if (sumaVariantes != total || sumaTallas != total) {
             error("Las cantidades no cuadran: por variante suman " + sumaVariantes
                     + ", por talla " + sumaTallas + " y el total dice " + total);
         }
 
-        // --- Todo bien: primero el OK y despues la ficha ----------------
         System.out.println("OK;" + referencia);
 
         System.out.println(RAYA_DOBLE);
@@ -177,12 +156,10 @@ public class GeneradorFichaTaller {
         System.out.println(RAYA_DOBLE);
     }
 
-    /** Todo lo que va detras del primer ";" de la linea. */
     private static String loQueSigue(String linea) {
         return linea.substring(linea.indexOf(';') + 1);
     }
 
-    /** Convierte un texto en un entero no negativo, o termina con error. */
     private static int aNumero(String texto, int numeroLinea) {
 
         try {
@@ -195,11 +172,10 @@ public class GeneradorFichaTaller {
 
         } catch (NumberFormatException e) {
             error("La linea " + numeroLinea + " trae una cantidad que no es un numero: " + texto);
-            return 0;   // no se llega: error() termina el programa
+            return 0;
         }
     }
 
-    /** Escribe el motivo por stderr y termina con codigo 2 (datos incorrectos). */
     private static void error(String motivo) {
         System.err.println("ERROR;" + motivo);
         System.exit(2);

@@ -14,10 +14,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-/**
- * Pestaña "Indicadores": cinco tablas pequeñas calculadas en PostgreSQL.
- * El umbral de stock bajo se puede cambiar y no puede ser negativo.
- */
 public class PanelIndicadores extends JPanel {
 
     private final JTextField campoUmbral = new JTextField("10", 4);
@@ -46,7 +42,6 @@ public class PanelIndicadores extends JPanel {
         tablas.add(caja("Modelos más solicitados", tablaModelos));
         tablas.add(caja("Pares por talla", tablaTallas));
 
-        // La tabla de stock lleva debajo un aviso con cuantas referencias hay
         JPanel cajaStock = new JPanel(new BorderLayout());
         cajaStock.add(caja("Stock por debajo del umbral", tablaStock), BorderLayout.CENTER);
         cajaStock.add(etiquetaStock, BorderLayout.SOUTH);
@@ -75,7 +70,6 @@ public class PanelIndicadores extends JPanel {
             JOptionPane.showMessageDialog(this, "El umbral tiene que ser un número entero");
             return;
         }
-        // El stock nunca es negativo, asi que un umbral negativo no tiene sentido
         if (umbral < 0) {
             JOptionPane.showMessageDialog(this, "El umbral no puede ser negativo. Escribe 0 o un número mayor.");
             return;
