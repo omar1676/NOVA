@@ -1,27 +1,15 @@
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-/**
- * Analizador CSV que usa LanzadorValidacion en sus comprobaciones independientes.
- * Agrupa pares por talla tras validar los registros; conserva el formato de salida.
- * El coordinador del equipo utiliza Psp.AnalizadorTallas, de Alvaro.
- */
 public class AnalizadorTallas {
 
     public static void main(String[] args) throws Exception {
 
-        // Las dos listas que van en paralelo.
         ArrayList<Integer> tallas = new ArrayList<>();
         ArrayList<Integer> cantidades = new ArrayList<>();
 
-        /*
-         * Leemos TODA la entrada de golpe, igual que el validador, porque un
-         * registro del CSV puede ocupar varias lineas del archivo cuando un
-         * campo entrecomillado lleva un salto de linea dentro.
-         */
         String contenido = new String(System.in.readAllBytes(), StandardCharsets.UTF_8);
 
-        // LectorCsv nos da los registros ya separados en campos.
         ArrayList<ArrayList<String>> registros;
 
         try {
@@ -30,15 +18,13 @@ public class AnalizadorTallas {
         } catch (IllegalArgumentException e) {
             System.err.println("ERROR;El CSV esta mal formado: " + e.getMessage());
             System.exit(2);
-            return;   // no se llega: exit termina el programa
+            return;
         }
 
-        // Recorremos los registros saltando la cabecera, que es el primero.
         for (int i = 1; i < registros.size(); i++) {
 
             ArrayList<String> campos = registros.get(i);
 
-            // Si un registro viene mal, avisamos y no seguimos.
             if (campos.size() != 8) {
                 System.err.println("ERROR;El registro " + i
                         + " no tiene 8 campos");
@@ -56,14 +42,9 @@ public class AnalizadorTallas {
                 System.err.println("ERROR;El registro " + i
                         + " tiene una talla o una cantidad que no son numeros");
                 System.exit(2);
-                return;   // no se llega: exit termina el programa
+                return;
             }
 
-            /*
-             * Buscamos si esa talla ya la habiamos visto antes.
-             * Si la encontramos, le sumamos los pares.
-             * Si no, la anadimos al final de las dos listas.
-             */
             int posicion = buscarTalla(tallas, talla);
 
             if (posicion == -1) {
@@ -74,17 +55,13 @@ public class AnalizadorTallas {
             }
         }
 
-        // Si no habia ninguna linea de pedido, no hay nada que resumir.
         if (tallas.isEmpty()) {
             System.err.println("ERROR;No hay ninguna linea de pedido que resumir");
             System.exit(2);
         }
 
-        // Ordenamos de talla menor a mayor, para que el resumen salga igual
-        // aunque el archivo venga desordenado.
         ordenarPorTalla(tallas, cantidades);
 
-        // Escribimos el resumen y vamos sumando el total.
         int totalPares = 0;
 
         for (int i = 0; i < tallas.size(); i++) {
@@ -97,10 +74,6 @@ public class AnalizadorTallas {
         System.out.println("Total: " + totalPares + " pares");
     }
 
-    /**
-     * Devuelve la posicion de una talla dentro de la lista,
-     * o -1 si todavia no esta.
-     */
     private static int buscarTalla(ArrayList<Integer> tallas, int talla) {
 
         for (int i = 0; i < tallas.size(); i++) {
@@ -113,12 +86,6 @@ public class AnalizadorTallas {
         return -1;
     }
 
-    /**
-     * Ordena las dos listas de menor a mayor talla.
-     *
-     * Cada vez que intercambia dos tallas, intercambia tambien sus
-     * cantidades, para que sigan estando en la misma posicion.
-     */
     private static void ordenarPorTalla(ArrayList<Integer> tallas,
                                         ArrayList<Integer> cantidades) {
 

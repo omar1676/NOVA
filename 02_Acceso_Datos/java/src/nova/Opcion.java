@@ -1,9 +1,5 @@
 package nova;
 
-/**
- * Un elemento de un JComboBox: el id de la base de datos y el texto que se
- * ve. El JComboBox muestra lo que devuelve toString().
- */
 public class Opcion {
 
     private final int id;

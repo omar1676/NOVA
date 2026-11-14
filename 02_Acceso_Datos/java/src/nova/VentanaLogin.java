@@ -13,7 +13,6 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-/** Ventana de inicio de sesion. Aqui empieza la aplicacion (main). */
 public class VentanaLogin extends JFrame {
 
     private final JTextField campoUsuario = new JTextField(15);
@@ -30,7 +29,7 @@ public class VentanaLogin extends JFrame {
 
         JButton botonEntrar = new JButton("Entrar");
         botonEntrar.addActionListener(e -> entrar());
-        getRootPane().setDefaultButton(botonEntrar);   // Enter = Entrar
+        getRootPane().setDefaultButton(botonEntrar);
 
         JPanel contenido = new JPanel(new BorderLayout(10, 10));
         contenido.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));

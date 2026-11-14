@@ -18,7 +18,6 @@
   box-sizing: border-box;
 }
 
-
 .adm-sidebar {
   width: 240px;
   min-height: 100vh;
@@ -70,7 +69,6 @@
   padding: 30px;
 }
 
-
 .adm-tarjetas {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -94,7 +92,6 @@
 .adm-tarjeta strong {
   font-size: 28px;
 }
-
 
 .adm-fila {
   display: grid;
@@ -130,7 +127,6 @@
 .adm-lista-estados span:last-child {
   color: var(--adm-texto-suave);
 }
-
 
 .adm-grafico-vacio {
   display: flex;
@@ -183,7 +179,6 @@
   color: var(--adm-texto-suave);
 }
 
-
 .adm-herramientas {
   display: flex;
   gap: 12px;
@@ -206,7 +201,6 @@
 .adm-herramientas input::placeholder {
   color: var(--adm-texto-suave);
 }
-
 
 .adm-tabla-caja {
   background: var(--adm-panel);
@@ -272,14 +266,11 @@
 .adm-prioridad.adm-media { color: var(--adm-dorado); }
 .adm-prioridad.adm-baja  { color: var(--adm-texto-suave); }
 
-
-
 .adm-fase-planificada { --adm-fase: #6aa3ff; }
 .adm-fase-desarrollo  { --adm-fase: #c9a24b; }
 .adm-fase-pruebas     { --adm-fase: #b48cf2; }
 .adm-fase-publicada   { --adm-fase: #5fc58a; }
 .adm-fase-cancelada   { --adm-fase: #e66a6a; }
-
 
 .adm-cabecera h1 {
   margin: 0;
@@ -290,7 +281,6 @@
   color: var(--adm-texto-suave);
   font-size: 14px;
 }
-
 
 .adm-resumen {
   display: grid;
@@ -321,7 +311,6 @@
   color: #e66a6a;
 }
 
-
 .adm-progreso {
   background: var(--adm-panel);
   border: 1px solid var(--adm-borde);
@@ -351,7 +340,6 @@
   height: 100%;
   background: var(--adm-fase);
 }
-
 
 .adm-kanban {
   display: grid;
@@ -402,7 +390,6 @@
   font-size: 11px;
   font-weight: normal;
 }
-
 
 .adm-mejora {
   position: relative;
@@ -496,7 +483,6 @@
   font-size: 13px;
   color: var(--adm-texto-suave);
 }
-
 
 .adm-ajustes {
   display: grid;
@@ -744,7 +730,6 @@
   }
 } 
 
-/* ===== Acceso al panel (login.html) ===== */
 .adm-login {
   min-height: 100vh;
   align-items: center;
@@ -776,7 +761,6 @@
   color: #e66a6a;
 }
 
-/* ===== Avisos del panel conectado a la API ===== */
 .adm-prototipo {
   margin: 12px 0 0;
   padding: 10px 14px;
@@ -791,13 +775,11 @@
   color: var(--adm-texto-suave);
 }
 
-/* Foco bien visible en el formulario de acceso */
 .adm-login-caja .adm-campo input:focus {
   outline: 2px solid var(--adm-dorado);
   outline-offset: 1px;
 }
 
-/* ===== Pedidos: botón «Marcar en reparto» y su aviso ===== */
 .adm-boton-reparto {
   padding: 6px 12px;
   font-size: 13px;
@@ -815,7 +797,6 @@
   cursor: wait;
 }
 
-/* Vacío no ocupa sitio; con texto, queda entre el buscador y la tabla */
 .adm-aviso-reparto {
   margin: 0 0 16px;
   font-size: 14px;

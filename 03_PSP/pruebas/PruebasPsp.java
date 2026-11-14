@@ -6,22 +6,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-/**
- * NOVA Sneakers - PSP - Pruebas del procesador de pedidos Custom
- *
- * Lanza los programas DE VERDAD, como procesos, y comprueba lo que hacen.
- * No escribe en el repositorio: todo lo que genera va a una carpeta
- * temporal nueva.
- *
- * COMO SE EJECUTA (desde la carpeta 03_PSP, con todo compilado en "clases",
- * tambien el analizador de Alvaro; ver README)
- *   java -cp clases PruebasPsp
- *
- * Termina con codigo 0 si pasan todas y con 1 si falla alguna.
- */
 public class PruebasPsp {
 
-    // El CSV real que exporto el script 15 sobre la base de PRUEBA.
     private static final String CSV_CUSTOM40 = "datos/custom40_fabricacion_psp.csv";
 
     private static final String CABECERA =
@@ -30,10 +16,8 @@ public class PruebasPsp {
     private static int superadas = 0;
     private static int fallidas = 0;
 
-    // Carpeta temporal donde trabaja el coordinador en las pruebas.
     private static Path carpeta;
 
-    // Lo que escribio el coordinador en la ultima prueba.
     private static String ultimaConsola = "";
 
     public static void main(String[] args) throws Exception {
@@ -59,7 +43,6 @@ public class PruebasPsp {
         String csvCustom40 = Files.readString(Path.of(CSV_CUSTOM40), StandardCharsets.UTF_8);
         Files.writeString(carpeta.resolve("custom40.csv"), csvCustom40, StandardCharsets.UTF_8);
 
-        // =================================================================
         System.out.println("=== 1. Pedido Custom valido (exportacion real de CUSTOM-40) ===");
         int codigo = coordinador("custom40.csv");
         Path ficha40 = carpeta.resolve("salidas/ficha_taller_CUSTOM-40.txt");
@@ -68,7 +51,6 @@ public class PruebasPsp {
                         && Files.exists(ficha40),
                 "codigo " + codigo + ", " + ultimaLinea(ultimaConsola));
 
-        // =================================================================
         System.out.println("=== 2. Varias tallas y cantidades (pedido de prueba, no real) ===");
         String csvVarias = CABECERA + "\n"
                 + fila("PRUEBA-01", "SKU-R-44", "Rojo", 44, "3")
@@ -82,7 +64,7 @@ public class PruebasPsp {
                 + fila("PRUEBA-01", "SKU-R-46", "Rojo", 46, "2")
                 + fila("PRUEBA-01", "SKU-N-42", "Negro", 42, "4")
                 + fila("PRUEBA-01", "SKU-N-40", "Negro", 40, "2")
-                + fila("PRUEBA-01", "SKU-R-42", "Rojo", 42, "2");   // talla repetida
+                + fila("PRUEBA-01", "SKU-R-42", "Rojo", 42, "2");
         escribir("varias.csv", csvVarias);
 
         codigo = coordinador("varias.csv");
@@ -94,10 +76,9 @@ public class PruebasPsp {
                         && fichaVarias.contains("Talla 42: 12 pares")
                         && fichaVarias.contains("Talla 46: 2 pares")
                         && fichaVarias.contains("TOTAL: 40 pares")
-                        && contar(fichaVarias, "\n  Talla ") == 9,   // lineas "  Talla NN: ..."
+                        && contar(fichaVarias, "\n  Talla ") == 9,
                 "codigo " + codigo + "; 9 tallas, la 42 suma 6 + 2 + 4 = 12, total 40");
 
-        // =================================================================
         System.out.println("=== 3. Validacion correcta (el validador, solo) ===");
         GestorProcesos validador = new GestorProcesos("ValidadorPedidoCustom", 10);
         validador.ejecutar(csvCustom40);
@@ -112,7 +93,6 @@ public class PruebasPsp {
                         && salidaValidador.get(salidaValidador.size() - 1).equals("FIN"),
                 "primera linea: " + primera(salidaValidador));
 
-        // =================================================================
         System.out.println("=== 4. Agrupacion de tallas (validador -> analizador de Alvaro) ===");
         GestorProcesos validadorVarias = new GestorProcesos("ValidadorPedidoCustom", 10);
         validadorVarias.ejecutar(csvVarias);
@@ -136,7 +116,6 @@ public class PruebasPsp {
                         && salidaAnalizador.contains("TOTAL;40"),
                 "Rojo 42 = 6 + 2 = 8; talla 42 = 12; total 40");
 
-        // =================================================================
         System.out.println("=== 5. Generacion de la ficha auxiliar ===");
         String textoFicha40 = leerSiExiste(ficha40);
         String registro = leerSiExiste(carpeta.resolve("salidas/registro_psp.txt"));
@@ -149,7 +128,6 @@ public class PruebasPsp {
                         && registro.contains("Resultado: CORRECTO"),
                 "ficha de " + contar(textoFicha40, "\n") + " lineas y registro_psp.txt");
 
-        // =================================================================
         System.out.println("=== 6. Comunicacion entre procesos ===");
         GestorProcesos eco = new GestorProcesos("HijoDePrueba", 10);
         eco.ejecutar("ECO\nuno\ndos;tres\ncuatro, con coma\n");
@@ -166,7 +144,6 @@ public class PruebasPsp {
                         && fichaVarias.contains("  Segunda linea: nombre en el talon"),
                 "las dos lineas, con la coma y las comillas");
 
-        // =================================================================
         System.out.println("=== 7. Captura de stdout y stderr por separado ===");
         GestorProcesos dos = new GestorProcesos("HijoDePrueba", 10);
         dos.ejecutar("DOS_SALIDAS\n");
@@ -178,7 +155,6 @@ public class PruebasPsp {
                         && dos.getErrores().get(0).equals("AVISO;esto va por stderr"),
                 "stdout " + dos.getSalida() + " / stderr " + dos.getErrores());
 
-        // =================================================================
         System.out.println("=== 8. Codigos de salida ===");
         GestorProcesos siete = new GestorProcesos("HijoDePrueba", 10);
         siete.ejecutar("CODIGO;7\n");
@@ -194,7 +170,6 @@ public class PruebasPsp {
                         && primera(rechazo.getErrores()).startsWith("ERROR;"),
                 "codigo " + rechazo.getCodigoSalida() + ", " + rechazo.getErrores());
 
-        // =================================================================
         System.out.println("=== 9. Fallo controlado de un proceso ===");
         GestorProcesos excepcion = new GestorProcesos("HijoDePrueba", 10);
         excepcion.ejecutar("EXCEPCION\n");
@@ -210,7 +185,6 @@ public class PruebasPsp {
                         && String.join(" ", noExiste.getErrores()).contains("ClassNotFoundException"),
                 "codigo " + noExiste.getCodigoSalida() + ", " + primera(noExiste.getErrores()));
 
-        // =================================================================
         System.out.println("=== 10. Tiempo de espera agotado ===");
         GestorProcesos dormilon = new GestorProcesos("HijoDePrueba", 2);
         dormilon.ejecutar("DORMIR\n");
@@ -220,7 +194,6 @@ public class PruebasPsp {
                 "codigo " + dormilon.getCodigoSalida() + " (TIEMPO_AGOTADO) en "
                         + String.format("%.1f", dormilon.getSegundos()) + " s, en vez de 60");
 
-        // =================================================================
         System.out.println("=== 11. Archivo inexistente ===");
         codigo = coordinador("no_existe.csv");
         comprobar("11 El padre avisa y no lanza ningun hijo",
@@ -228,7 +201,6 @@ public class PruebasPsp {
                         && !ultimaConsola.contains("Paso 1"),
                 ultimaLinea(ultimaConsola));
 
-        // =================================================================
         System.out.println("=== 12. Datos mal formados (el padre debe parar) ===");
 
         rechazado("12a Comilla sin cerrar", "MALO-01",
@@ -279,14 +251,12 @@ public class PruebasPsp {
 
         rechazado("12l Archivo vacio", "MALO-12", "", 1, "El archivo esta vacio");
 
-        // Un .json no se acepta: hoy solo hay exportacion en CSV.
         escribir("pedido.json", "{\"referencia\": \"MALO-13\"}");
         codigo = coordinador("pedido.json");
         comprobar("12m Formato que no es CSV",
                 codigo == 1 && ultimaConsola.contains("Formato no admitido"),
                 ultimaLinea(ultimaConsola));
 
-        // =================================================================
         System.out.println();
         System.out.println("Pruebas superadas: " + superadas + " de " + (superadas + fallidas));
 
@@ -295,11 +265,6 @@ public class PruebasPsp {
         }
     }
 
-    // ---------------------------------------------------------------------
-    // Ayudas de las pruebas
-    // ---------------------------------------------------------------------
-
-    /** Escribe [SUPERADA] o [FALLIDA] y lleva la cuenta. */
     private static void comprobar(String nombre, boolean bien, String detalle) {
 
         if (bien) {
@@ -313,10 +278,6 @@ public class PruebasPsp {
         }
     }
 
-    /**
-     * Prueba un CSV que el coordinador tiene que rechazar: comprueba el
-     * codigo, el motivo y que NO se haya generado ninguna ficha.
-     */
     private static void rechazado(String nombre, String referencia, String contenido,
                                   int codigoEsperado, String motivo) throws Exception {
 
@@ -332,13 +293,6 @@ public class PruebasPsp {
                 "codigo " + codigo + ", sin ficha: " + motivoDelFallo(ultimaConsola));
     }
 
-    /**
-     * Lanza el coordinador como un proceso, en la carpeta temporal, y
-     * devuelve su codigo de salida. Lo que escribe queda en ultimaConsola.
-     *
-     * Aqui no hace falta enviarle nada por stdin, asi que basta con mandar su
-     * salida a un archivo (redirectOutput) y esperar: no puede bloquearse.
-     */
     private static int coordinador(String archivo) throws Exception {
 
         String java = Path.of(System.getProperty("java.home"), "bin", "java").toString();
@@ -346,8 +300,8 @@ public class PruebasPsp {
         ProcessBuilder pb = new ProcessBuilder(java, "-cp", classpathAbsoluto(),
                 "ProcesadorPedidosCustom", archivo);
 
-        pb.directory(carpeta.toFile());          // trabaja en la carpeta temporal
-        pb.redirectErrorStream(true);            // stdout y stderr juntos
+        pb.directory(carpeta.toFile());
+        pb.redirectErrorStream(true);
 
         File consola = carpeta.resolve("consola.txt").toFile();
         pb.redirectOutput(consola);
@@ -360,15 +314,10 @@ public class PruebasPsp {
             return -99;
         }
 
-        // El coordinador escribe con el juego de caracteres por defecto.
         ultimaConsola = Files.readString(consola.toPath(), Charset.defaultCharset());
         return proceso.exitValue();
     }
 
-    /**
-     * El classpath con rutas absolutas. Hace falta porque el coordinador se
-     * lanza en otra carpeta y una ruta relativa como "clases" ya no valdria.
-     */
     private static String classpathAbsoluto() {
 
         String[] partes = System.getProperty("java.class.path").split(File.pathSeparator);
@@ -383,7 +332,6 @@ public class PruebasPsp {
         return classpath.toString();
     }
 
-    /** Una fila del CSV de prueba, con cliente, modelo y personalizacion fijos. */
     private static String fila(String referencia, String sku, String color,
                                int talla, String cantidad) {
 
@@ -404,7 +352,6 @@ public class PruebasPsp {
         return Files.readString(archivo, StandardCharsets.UTF_8);
     }
 
-    /** Cuantas veces aparece un trozo de texto. */
     private static int contar(String texto, String trozo) {
 
         int veces = 0;
@@ -417,10 +364,8 @@ public class PruebasPsp {
         return veces;
     }
 
-    /** La linea "Resultado: ..." de la consola del coordinador. */
     private static String ultimaLinea(String consola) {
 
-        // "\r?\n": final de linea de Windows (\r\n) o de Linux (\n)
         for (String linea : consola.split("\r?\n")) {
             if (linea.startsWith("Resultado:")) {
                 return linea;
@@ -429,7 +374,6 @@ public class PruebasPsp {
         return "(sin linea de resultado)";
     }
 
-    /** El motivo que dio el hijo (la linea ERROR;...) o, si no hay, el resultado. */
     private static String motivoDelFallo(String consola) {
 
         for (String linea : consola.split("\r?\n")) {

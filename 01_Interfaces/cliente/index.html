@@ -38,7 +38,6 @@
         >EXPLORAR <span aria-hidden="true">↗</span></a
       >
     </header>
-    <!-- Tienda online: cuenta y carrito (js/tienda.js). -->
     <div class="barra-tienda" aria-label="Tu cuenta y tu carrito" role="region">
       <p class="barra-tienda__saludo" id="barra-saludo" hidden></p>
       <a href="#acceso" id="abrir-acceso">Iniciar sesión</a>
@@ -367,8 +366,7 @@
         </form>
       </section>
     </main>
-    <!-- Un solo pie de página: la sección de contacto y los datos finales.
-         Antes eran dos bloques oscuros seguidos y parecían dos footers. -->
+    
     <footer class="pie" id="contacto" aria-labelledby="titulo-contacto">
       <div class="contacto">
         <div>
@@ -430,8 +428,7 @@
             </p>
           </div>
           <p id="detalle-tallas"></p>
-          <!-- Compra (js/tienda.js): color, talla y cantidad con datos de
-               PostgreSQL. Cada error sale junto a su campo. -->
+          
           <p class="ficha__aviso" id="compra-aviso" hidden></p>
           <div class="compra" id="compra" hidden>
             <fieldset class="compra__grupo">
@@ -571,8 +568,7 @@
               />
             </label>
           </div>
-          <!-- Las vistas «puesta» solo se ofrecen con su zapatilla (campo
-               probador de modelos.js); las tres figuras, con todas. -->
+          
           <label class="probador__campo" for="tipo-modelo"
             >Vista y complexión
             <select id="tipo-modelo">
@@ -630,8 +626,7 @@
         </div>
       </div>
     </dialog>
-    <!-- Inicio de sesión: diálogo de Álvaro (commit 74da21a). Solo se le ha
-         añadido el enlace para crear una cuenta y sus clases están en BEM. -->
+    
     <dialog id="acceso" class="acceso" aria-labelledby="titulo-acceso">
       <form class="acceso__caja" id="formulario-acceso" novalidate>
         <button class="cerrar" type="button" aria-label="Cerrar inicio de sesión">×</button>
@@ -660,7 +655,6 @@
       </form>
     </dialog>
 
-    <!-- Tienda online (js/tienda.js) -->
     <dialog id="registro" class="acceso" aria-labelledby="titulo-registro">
       <form class="acceso__caja" id="formulario-registro" novalidate>
         <button class="cerrar" type="button" aria-label="Cerrar registro">×</button>

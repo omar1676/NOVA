@@ -1,9 +1,3 @@
-/* tienda.css — estilos de la tienda online (js/tienda.js): la barra de
-   cuenta y carrito, la compra en la ficha, el carrito, el pedido y «Mis
-   pedidos». Usa los colores y los botones de inicio.css. */
-
-/* El atributo hidden oculta siempre, aunque alguna regla le dé display a ese
-   elemento (el display: none del navegador perdería contra ella). */
 .barra-tienda [hidden],
 .ficha__info [hidden],
 .acceso [hidden],
@@ -11,13 +5,10 @@
   display: none !important;
 }
 
-/* El escaparate ocupa la pantalla menos la cabecera (72 px) y la barra de la
-   tienda (40 px). */
 .escaparate {
   min-height: calc(100vh - 112px);
 }
 
-/* ---------- Barra de la tienda, bajo la cabecera ---------- */
 .barra-tienda {
   display: flex;
   justify-content: flex-end;
@@ -57,8 +48,6 @@
   color: var(--brillo);
 }
 
-/* ---------- Tarjetas del catálogo: disponible, agotado o no disponible ----------
-   Van sobre la banda oscura de cada colección (inicio.css): tonos claros. */
 .catalogo__datos .catalogo__estado {
   order: 4;
   width: 100%;
@@ -77,11 +66,6 @@
   color: #e4ddd9;
 }
 
-/* ---------- La compra dentro de la ficha ----------
-   De arriba abajo, como en una tienda: precio, color (muestras y nombre),
-   talla (cuadrícula), aviso de stock, cantidad (− y +), «Añadir al carrito»
-   y, debajo de cada campo, su error. Va sobre el panel liso de la ficha
-   (#1c1a1d, inicio.css), así que los contrastes no dependen del degradado. */
 .ficha__aviso {
   margin: 0 0 16px;
   padding: 10px 12px;
@@ -118,8 +102,6 @@
   text-transform: none;
 }
 
-/* Muestras de color y tallas: el radio de verdad queda encima, transparente.
-   Se usa con el ratón y con el teclado (flechas) y el lector lo anuncia. */
 .compra__colores {
   display: flex;
   flex-wrap: wrap;
@@ -187,7 +169,6 @@
 .compra__talla input:disabled {
   cursor: not-allowed;
 }
-/* Agotada: tachada, con una raya en diagonal y desactivada */
 .compra__talla input:disabled + b {
   border-style: dashed;
   border-color: #ffffff4d;
@@ -200,13 +181,11 @@
   color: #a49b97;
   text-decoration: line-through;
 }
-/* «Elige una talla»: borde rojo en las que se pueden elegir. El bloque va
-   delante del modificador para que gane también al :hover de la talla. */
+
 .compra__grupo.compra__grupo--error .compra__talla input:not(:disabled) + b {
   border-color: #f2a38d;
 }
 
-/* Aviso de stock: el punto de color acompaña al texto, que ya lo dice */
 .ficha__info .compra__stock {
   display: flex;
   align-items: baseline;
@@ -233,7 +212,6 @@
   background: #f2a38d;
 }
 
-/* Cantidad con − y + */
 .compra__cantidad {
   display: flex;
   align-items: center;
@@ -289,7 +267,6 @@
   box-shadow: inset 0 0 0 2px #f2a38d;
 }
 
-/* El botón principal */
 .ficha__info .compra__boton {
   justify-content: center;
   margin-top: 16px;
@@ -309,7 +286,6 @@
   cursor: not-allowed;
 }
 
-/* Errores (debajo de su campo) y mensaje de «añadido» (debajo del botón) */
 .ficha__info .compra__error {
   margin: 0;
   color: #f6b3a1;
@@ -337,7 +313,6 @@
   color: #f6b3a1;
 }
 
-/* ---------- Diálogos de cuenta (los de Álvaro) ---------- */
 .acceso__pie {
   margin: 16px 0 0;
   font-size: 0.78rem;
@@ -368,7 +343,6 @@
   color: white;
 }
 
-/* ---------- Carrito, pedido y mis pedidos ---------- */
 dialog.tienda {
   width: min(760px, 94vw);
 }

@@ -14,13 +14,6 @@ import java.sql.Statement;
 import java.util.Properties;
 import javax.swing.table.DefaultTableModel;
 
-/**
- * La conexion con PostgreSQL y las transacciones.
- *
- * Los datos de conexion estan en conexion.properties, que NO se sube al
- * repositorio (ver conexion.properties.ejemplo). Asi la contrasena no esta
- * en el codigo.
- */
 public class ConexionBD {
 
     private static final String ARCHIVO_CONFIGURACION = "conexion.properties";
@@ -28,7 +21,6 @@ public class ConexionBD {
     private static Properties configuracion;
     private static Connection conexion;
 
-    /** Lee un valor de conexion.properties. */
     public static String getPropiedad(String nombre, String valorPorDefecto) {
         if (configuracion == null) {
             configuracion = new Properties();
@@ -43,7 +35,6 @@ public class ConexionBD {
         return configuracion.getProperty(nombre, valorPorDefecto);
     }
 
-    /** Devuelve la conexion abierta, o la abre si todavia no existe. */
     public static Connection getConexion() throws SQLException {
         if (conexion == null || conexion.isClosed()) {
             String url = getPropiedad("url", "jdbc:postgresql://localhost:5432/nova_sneakers");
@@ -51,8 +42,6 @@ public class ConexionBD {
             String contrasena = getPropiedad("contrasena", "");
             conexion = DriverManager.getConnection(url, usuario, contrasena);
 
-            // Si la conexion se habia cortado con una sesion abierta, se
-            // vuelve a poner el rol del usuario.
             if (Sesion.haySesion()) {
                 usarRol(Sesion.rolPostgres(Sesion.getRol()));
             }
@@ -60,12 +49,6 @@ public class ConexionBD {
         return conexion;
     }
 
-    /**
-     * Cambia el rol de PostgreSQL de la conexion (SET ROLE).
-     *
-     * SET ROLE no admite parametros con ?, asi que solo se aceptan estos
-     * tres nombres fijos. Nunca llega aqui texto escrito por el usuario.
-     */
     public static void usarRol(String rolPostgres) throws SQLException {
         if (!"nova_admin".equals(rolPostgres)
                 && !"nova_comercial".equals(rolPostgres)
@@ -77,20 +60,12 @@ public class ConexionBD {
         }
     }
 
-    /** Vuelve al usuario de conexion, que sin rol no tiene permisos. */
     public static void quitarRol() throws SQLException {
         try (Statement sentencia = getConexion().createStatement()) {
             sentencia.execute("RESET ROLE");
         }
     }
 
-    /**
-     * Empieza una transaccion que va a escribir.
-     *
-     * Lo primero es iniciar_sesion: asi los triggers de auditoria saben que
-     * usuario hace la operacion y lo guardan en log_eventos. Ese dato solo
-     * dura hasta el COMMIT o el ROLLBACK, por eso se repite en cada una.
-     */
     public static Connection empezarTransaccion() throws SQLException {
         Connection con = getConexion();
         con.setAutoCommit(false);
@@ -110,7 +85,6 @@ public class ConexionBD {
         conexion.setAutoCommit(true);
     }
 
-    /** Deshace la transaccion en curso. Si no habia ninguna, no hace nada. */
     public static void hacerRollback() {
         try {
             if (conexion != null && !conexion.isClosed() && !conexion.getAutoCommit()) {
@@ -133,10 +107,6 @@ public class ConexionBD {
         conexion = null;
     }
 
-    /**
-     * Copia el resultado de una consulta en un modelo de JTable. Los nombres
-     * de las columnas salen de los alias de la consulta (AS "Cliente").
-     */
     public static DefaultTableModel crearModelo(ResultSet resultado) throws SQLException {
         ResultSetMetaData columnas = resultado.getMetaData();
         int numeroColumnas = columnas.getColumnCount();
@@ -156,16 +126,14 @@ public class ConexionBD {
         return modelo;
     }
 
-    /** Convierte un error de la base de datos en un mensaje que se entiende. */
     public static String mensajeError(SQLException e) {
         String codigo = e.getSQLState();
         String texto = primeraLinea(e.getMessage());
 
         if ("42501".equals(codigo)) {
             if (texto.startsWith("Acceso denegado")) {
-                return texto;                       // lo ha denegado Java
+                return texto;
             }
-            // Lo ha denegado PostgreSQL. Entre parentesis va su mensaje original.
             return "Acceso denegado: la base de datos no permite esta operación a tu rol (" + texto + ")";
         }
         if ("23505".equals(codigo)) {
@@ -182,7 +150,6 @@ public class ConexionBD {
             return "La contraseña de conexión de conexion.properties no es correcta";
         }
         if (codigo != null && codigo.startsWith("08")) {
-            // El detalle tecnico va en otra linea para que la ventana no sea enorme
             return "No se puede conectar con la base de datos.\n"
                     + "Comprueba que PostgreSQL está arrancado y la url de conexion.properties.\n"
                     + "Detalle: " + texto;
@@ -190,13 +157,6 @@ public class ConexionBD {
         return texto;
     }
 
-    /**
-     * "rechazado" si la base o Java han dicho que no (permiso, regla de
-     * negocio, restriccion), "error" si algo ha fallado de verdad.
-     *
-     * P0001 es el codigo de RAISE EXCEPTION en PL/pgSQL, 23xxx el de las
-     * restricciones (UNIQUE, CHECK...) y 42501 el de permiso denegado.
-     */
     public static String tipoResultado(SQLException e) {
         String codigo = e.getSQLState();
         if (codigo != null
@@ -206,7 +166,6 @@ public class ConexionBD {
         return "error";
     }
 
-    /** Quita el "ERROR:" del principio y las lineas de contexto del final. */
     private static String primeraLinea(String mensaje) {
         if (mensaje == null) {
             return "Error desconocido";

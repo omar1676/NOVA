@@ -13,18 +13,6 @@ import java.util.List;
 import java.util.Scanner;
 import javax.swing.table.DefaultTableModel;
 
-/**
- * Pruebas A-J del enunciado, mas las de inicio de sesion (L) y permisos (P),
- * lanzadas desde Java con los MISMOS metodos que usan los botones de la
- * aplicacion. Cada resultado se comprueba despues con una consulta SQL.
- * Escribe PASS o FAIL por cada comprobacion.
- *
- * Pide por teclado las contrasenas de admin.demo, tienda.demo y taller.demo.
- *
- * Deja en la base, como evidencia, pedidos PRUEBA-* y un usuario prueba.*
- * desactivado. Sus nombres llevan un numero distinto cada vez, asi que se
- * puede lanzar varias veces.
- */
 public class PruebasRubrica {
 
     private static int aciertos = 0;
@@ -73,9 +61,6 @@ public class PruebasRubrica {
         }
     }
 
-    // ------------------------------------------------------------------
-    // Inicio de sesion: un usuario por rol, y cada uno con su rol de base
-    // ------------------------------------------------------------------
     private static void pruebaLogin() throws SQLException {
         titulo("Inicio de sesion y rol de conexion");
         String[][] cuentas = {
@@ -99,9 +84,6 @@ public class PruebasRubrica {
         }
     }
 
-    // ------------------------------------------------------------------
-    // A: pedido Custom valido desde Java, confirmado por un comercial
-    // ------------------------------------------------------------------
     private static int pruebaA() throws SQLException {
         titulo("Prueba A: pedido Custom valido");
         UsuarioDAO.login("tienda.demo", claveComercial);
@@ -134,7 +116,6 @@ public class PruebasRubrica {
         comprobar("A4 stock tras confirmar", stock41Despues == stock41 - 2 && stock42Despues == stock42 - 3,
                 "talla 41: " + stock41 + " -> " + stock41Despues + ", talla 42: " + stock42 + " -> " + stock42Despues);
 
-        // log_eventos solo lo puede leer el administrador
         UsuarioDAO.login("admin.demo", claveAdmin);
         int idComercial = numero("SELECT id_usuario FROM usuarios WHERE username = 'tienda.demo'");
         int eventos = numero("SELECT count(*) FROM log_eventos WHERE tabla_afectada = 'pedidos' "
@@ -149,9 +130,6 @@ public class PruebasRubrica {
         return idPedido;
     }
 
-    // ------------------------------------------------------------------
-    // B: confirmar sin stock suficiente
-    // ------------------------------------------------------------------
     private static void pruebaB() throws SQLException {
         titulo("Prueba B: stock insuficiente");
         UsuarioDAO.login("tienda.demo", claveComercial);
@@ -176,13 +154,9 @@ public class PruebasRubrica {
         comprobar("B2 sin cambios parciales", estado.equals("pendiente") && marcadas == 0 && stockDespues == stockAntes,
                 "estado " + estado + ", stock " + stockAntes + " -> " + stockDespues);
 
-        // Se cancela para que este pedido imposible no cuente como venta
         PedidoDAO.cancelarPedido(idPedido);
     }
 
-    // ------------------------------------------------------------------
-    // C: cancelar un pedido confirmado (lo hace el trabajador)
-    // ------------------------------------------------------------------
     private static void pruebaC(int idPedido) throws SQLException {
         titulo("Prueba C: cancelacion");
         UsuarioDAO.login("taller.demo", claveTrabajador);
@@ -206,9 +180,6 @@ public class PruebasRubrica {
         comprobar("C3 cancelacion auditada", detalle != null && detalle.startsWith("taller.demo"), detalle);
     }
 
-    // ------------------------------------------------------------------
-    // D: ROLLBACK deliberado
-    // ------------------------------------------------------------------
     private static void pruebaD() throws SQLException {
         titulo("Prueba D: ROLLBACK deliberado");
         UsuarioDAO.login("tienda.demo", claveComercial);
@@ -223,7 +194,6 @@ public class PruebasRubrica {
         int eventosAntes = numero("SELECT count(*) FROM log_eventos WHERE tabla_afectada = 'pedidos' "
                 + "AND id_registro = ?", idPedido);
 
-        // Se confirma dentro de una transaccion y se deshace a proposito
         UsuarioDAO.login("tienda.demo", claveComercial);
         ConexionBD.empezarTransaccion();
         try (PreparedStatement sentencia = ConexionBD.getConexion().prepareStatement(
@@ -247,14 +217,10 @@ public class PruebasRubrica {
         comprobar("D3 la auditoria tambien se deshace", eventosDespues == eventosAntes,
                 eventosAntes + " eventos antes y " + eventosDespues + " despues");
 
-        // Era solo para la prueba: se cancela para que no cuente como venta
         UsuarioDAO.login("tienda.demo", claveComercial);
         PedidoDAO.cancelarPedido(idPedido);
     }
 
-    // ------------------------------------------------------------------
-    // E: consulta sin filtros, con filtros combinados y "Limpiar filtros"
-    // ------------------------------------------------------------------
     private static void pruebaE() throws SQLException {
         titulo("Prueba E: consultas y filtros");
         UsuarioDAO.login("taller.demo", claveTrabajador);
@@ -290,9 +256,6 @@ public class PruebasRubrica {
         comprobar("E4 limpiar filtros vuelve a todo", limpio.getRowCount() == total, limpio.getRowCount() + " filas");
     }
 
-    // ------------------------------------------------------------------
-    // F: busqueda sin resultados y perfil sin permiso
-    // ------------------------------------------------------------------
     private static void pruebaF() throws SQLException {
         titulo("Prueba F: sin coincidencias y sin permiso");
         UsuarioDAO.login("tienda.demo", claveComercial);
@@ -308,8 +271,6 @@ public class PruebasRubrica {
                     ConexionBD.mensajeError(e));
         }
 
-        // Interfaz manipulada: Java cree que es administrador, pero la
-        // conexion sigue siendo nova_comercial. Lo para PostgreSQL.
         Sesion.iniciar(Sesion.getIdUsuario(), "tienda.demo", "administrador", claveComercial);
         try {
             PedidoDAO.verAuditoria();
@@ -322,9 +283,6 @@ public class PruebasRubrica {
         UsuarioDAO.login("tienda.demo", claveComercial);
     }
 
-    // ------------------------------------------------------------------
-    // G: tres consultas = tres lineas nuevas en el TXT
-    // ------------------------------------------------------------------
     private static void pruebaG() throws Exception {
         titulo("Prueba G: registro TXT");
         UsuarioDAO.login("taller.demo", claveTrabajador);
@@ -348,9 +306,6 @@ public class PruebasRubrica {
                 && lineas.get(lineas.size() - 1).contains("| 0 filas;"), (lineas.size() - lineasAntes) + " lineas");
     }
 
-    // ------------------------------------------------------------------
-    // H: pedido desde Java + error forzado
-    // ------------------------------------------------------------------
     private static void pruebaH() throws Exception {
         titulo("Prueba H: pedido completo y error forzado");
         UsuarioDAO.login("tienda.demo", claveComercial);
@@ -380,7 +335,6 @@ public class PruebasRubrica {
                 txt.contains("| CREAR PEDIDO | correcto | id_pedido " + idPedido)
                         && txt.contains("| CONFIRMAR PEDIDO | correcto | id_pedido " + idPedido), "las dos lineas estan");
 
-        // Error forzado: la misma referencia otra vez
         try {
             PedidoDAO.crearPedido(referencia, idCliente, lineas, false, "");
             comprobar("H4 error forzado", false, "se ha creado un duplicado");
@@ -399,9 +353,6 @@ public class PruebasRubrica {
         comprobar("H5 en log_eventos solo queda el alta buena", altas == 1, altas + " alta");
     }
 
-    // ------------------------------------------------------------------
-    // I: crear, cambiar y desactivar un usuario; JSON y permisos
-    // ------------------------------------------------------------------
     private static void pruebaI() throws Exception {
         titulo("Prueba I: usuarios y JSON");
         UsuarioDAO.login("admin.demo", claveAdmin);
@@ -444,9 +395,6 @@ public class PruebasRubrica {
         }
     }
 
-    // ------------------------------------------------------------------
-    // J: indicadores frente a SQL y CSV filtrado frente a la tabla
-    // ------------------------------------------------------------------
     private static void pruebaJ() throws Exception {
         titulo("Prueba J: indicadores y CSV filtrado");
         UsuarioDAO.login("admin.demo", claveAdmin);
@@ -506,9 +454,6 @@ public class PruebasRubrica {
                 + consulta.getColumnCount() + " columnas en " + csv.getName());
     }
 
-    // ------------------------------------------------------------------
-    // Permisos: operacion denegada sin cambiar datos, por Java y por la base
-    // ------------------------------------------------------------------
     private static void pruebaPermisos() throws SQLException {
         titulo("Permisos: el trabajador no crea pedidos y el comercial no crea usuarios");
         UsuarioDAO.login("taller.demo", claveTrabajador);
@@ -524,7 +469,7 @@ public class PruebasRubrica {
             comprobar("P1 trabajador crea pedido (Java)", "42501".equals(e.getSQLState()), ConexionBD.mensajeError(e));
         }
 
-        Sesion.iniciar(Sesion.getIdUsuario(), "taller.demo", "comercial", claveTrabajador);   // interfaz manipulada
+        Sesion.iniciar(Sesion.getIdUsuario(), "taller.demo", "comercial", claveTrabajador);
         try {
             PedidoDAO.crearPedido("PRUEBA-P2-" + sufijo, idCliente, lineas, false, "");
             comprobar("P2 trabajador crea pedido saltandose Java", false, "lo ha creado");
@@ -539,7 +484,7 @@ public class PruebasRubrica {
         UsuarioDAO.login("admin.demo", claveAdmin);
         int usuariosAntes = numero("SELECT count(*) FROM usuarios");
         UsuarioDAO.login("tienda.demo", claveComercial);
-        Sesion.iniciar(Sesion.getIdUsuario(), "tienda.demo", "administrador", claveComercial);   // manipulada
+        Sesion.iniciar(Sesion.getIdUsuario(), "tienda.demo", "administrador", claveComercial);
         try {
             UsuarioDAO.crearUsuario("intruso." + sufijo, "administrador", "Intruso-12345");
             comprobar("P4 comercial crea usuario saltandose Java", false, "lo ha creado");
@@ -554,10 +499,6 @@ public class PruebasRubrica {
         int usuariosDespues = numero("SELECT count(*) FROM usuarios");
         comprobar("P5 ningun usuario nuevo", usuariosDespues == usuariosAntes, usuariosAntes + " -> " + usuariosDespues);
     }
-
-    // ------------------------------------------------------------------
-    // Ayudas
-    // ------------------------------------------------------------------
 
     private static void titulo(String texto) {
         System.out.println();
@@ -574,7 +515,6 @@ public class PruebasRubrica {
         }
     }
 
-    /** Primer valor de una consulta, como texto (con el rol de la sesion actual). */
     private static String texto(String sql, Object... parametros) throws SQLException {
         try (PreparedStatement sentencia = ConexionBD.getConexion().prepareStatement(sql)) {
             for (int i = 0; i < parametros.length; i++) {

@@ -20,10 +20,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-/**
- * Pestana "Consultas": filtros combinables, JTable con los pedidos y las
- * acciones sobre el pedido seleccionado.
- */
 public class PanelConsultas extends JPanel {
 
     private static final String[] ESTADOS = {
@@ -42,7 +38,6 @@ public class PanelConsultas extends JPanel {
         setLayout(new BorderLayout(5, 5));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Dos filas, para que quepan aunque la ventana sea estrecha
         JPanel filaUno = new JPanel(new FlowLayout(FlowLayout.LEFT));
         filaUno.add(new JLabel("Cliente:"));
         filaUno.add(comboCliente);
@@ -88,7 +83,7 @@ public class PanelConsultas extends JPanel {
         acciones.add(botonAuditoria);
         acciones.add(etiquetaResultado);
 
-        tabla.setDefaultEditor(Object.class, null);   // la tabla solo se lee
+        tabla.setDefaultEditor(Object.class, null);
 
         add(filtros, BorderLayout.NORTH);
         add(new JScrollPane(tabla), BorderLayout.CENTER);
@@ -99,7 +94,6 @@ public class PanelConsultas extends JPanel {
     }
 
     private void cargarListas() {
-        // El primer elemento, con id 0, significa "sin filtro"
         comboCliente.addItem(new Opcion(0, "(todos)"));
         comboModelo.addItem(new Opcion(0, "(todos)"));
         try {
@@ -114,7 +108,6 @@ public class PanelConsultas extends JPanel {
         }
     }
 
-    /** Lee los filtros y lanza la consulta. Un filtro vacio no restringe. */
     private void buscar() {
         Integer idCliente = idElegido(comboCliente);
         Integer idModelo = idElegido(comboModelo);
@@ -134,8 +127,6 @@ public class PanelConsultas extends JPanel {
             return;
         }
 
-        // Se vacia antes de buscar: si la consulta falla, no se queda a la
-        // vista un resultado anterior como si fuera el nuevo.
         tabla.setModel(new DefaultTableModel());
         try {
             DefaultTableModel resultado = PedidoDAO.buscarPedidos(idCliente, idModelo, estado, desde, hasta);
@@ -177,7 +168,6 @@ public class PanelConsultas extends JPanel {
         return LocalDate.parse(texto);
     }
 
-    /** El id del pedido de la fila seleccionada (columna "Id"), o -1. */
     private int pedidoSeleccionado() {
         int fila = tabla.getSelectedRow();
         if (fila < 0 || tabla.getColumnCount() == 0) {
@@ -225,10 +215,9 @@ public class PanelConsultas extends JPanel {
         } catch (SQLException e) {
             mostrarError("No se ha podido " + accion + " el pedido", e);
         }
-        buscar();   // se refresca la tabla para no ensenar datos viejos
+        buscar();
     }
 
-    /** Exporta exactamente lo que se ve en la tabla. */
     private void exportarCsv() {
         try {
             File archivo = Archivos.exportarCsv(tabla.getModel(), "consulta_pedidos.csv");
@@ -250,7 +239,6 @@ public class PanelConsultas extends JPanel {
         }
     }
 
-    /** Ensena una tabla en una ventana aparte. */
     private void mostrarTabla(String titulo, DefaultTableModel modelo) {
         JTable tablaVentana = new JTable(modelo);
         tablaVentana.setDefaultEditor(Object.class, null);
