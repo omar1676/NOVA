@@ -39,7 +39,7 @@ for script in sneaker-factory-esquema 04_xnova 02_funciones 03_triggers 05_datos
   instalar "$script"
 done
 
-# 2. Usuarios de conexion de Java y del servidor
+# 2. Usuarios de conexion (java_nova y los del servidor)
 instalar 17_usuario_java "$CLAVE_JAVA"
 instalar 19_usuario_web "$CLAVE_WEB"
 

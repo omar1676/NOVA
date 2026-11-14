@@ -1504,7 +1504,7 @@ ROLLBACK;
 \echo '===== AUTORIZACION: IDENTIDAD NO ES PERMISO ====='
 \echo ''
 \echo 'Una identidad bien registrada no autoriza nada por si sola. Estas pruebas'
-\echo 'separan lo que protege PostgreSQL de lo que tiene que comprobar Java.'
+\echo 'separan lo que protege PostgreSQL de lo que tiene que comprobar la aplicacion.'
 \echo ''
 \echo '--- G1 un usuario desactivado NO conserva su sesion anterior'
 BEGIN;

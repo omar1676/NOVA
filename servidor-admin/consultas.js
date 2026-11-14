@@ -1,9 +1,9 @@
-// Consultas del panel, basadas en el script 12 y PedidoDAO.verAuditoria.
+// Consultas del panel, basadas en los scripts 12 y 08_auditoria.sql.
 // bd.consultarSoloLectura usa READ ONLY y el rol panel_lectura del script 19.
 // Los triggers mantienen importes y stock; aqui solo se consultan y se agregan.
 // Los filtros se pasan como parametros ($1, $2...); vacio significa no filtrar.
 
-// Stock bajo: MENOS de 10 unidades, como C8 y el panel de indicadores de Java.
+// Stock bajo: MENOS de 10 unidades, como la consulta C8.
 const UMBRAL_STOCK_BAJO = 10;
 
 // Valores que se aceptan en los filtros (los de los CHECK y los triggers)
@@ -246,7 +246,7 @@ async function trabajadores(cliente, estado, texto) {
 }
 
 // ---------------------------------------------------------------------
-// 7. Auditoria: la misma consulta que PedidoDAO.verAuditoria (Java),
+// 7. Auditoria: los ultimos movimientos de log_eventos,
 //    con las acciones tal como las guardan los triggers de 08_auditoria.sql.
 // ---------------------------------------------------------------------
 const LIMITE_AUDITORIA = 100;

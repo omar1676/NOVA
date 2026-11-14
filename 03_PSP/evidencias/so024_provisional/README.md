@@ -25,10 +25,8 @@ en una base desechable (clúster de pruebas, no la base del equipo).
 1. Base nueva con los scripts 01 a 23 de `02_Acceso_Datos/sql` (la batería 09–16 dio
    123 PASS, 0 FAIL y el ERROR previsto).
 2. `18_datos_so024.sql -v precio=99.90 -v color=PROVISIONAL -v stock=10`.
-3. SO024 se creó y se confirmó con los **mismos métodos que usa la pestaña «Nuevo
-   pedido»** de la aplicación Java (`PedidoDAO.crearPedido` y
-   `PedidoDAO.confirmarPedido`, con la sesión de `admin.demo`), desde un lanzador de
-   prueba. No se usó la ventana.
+3. SO024 se creó y se confirmó desde un lanzador de prueba (`SO024Provisional`), con
+   la sesión de `admin.demo`: alta del pedido y cambio de estado a confirmado.
 4. `15_exportar_fabricacion.sql -v referencia=SO024` dejó el CSV de fabricación.
 5. PSP lo procesó: `java -cp clases ProcesadorPedidosCustom datos\SO024_PROVISIONAL_fabricacion.csv`.
 

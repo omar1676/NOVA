@@ -2,7 +2,7 @@
 
 Programación de Servicios y Procesos (módulo 0490). Es el punto 5 de la memoria («Diseño del subsistema auxiliar PSP: procesos, entradas/salidas, comunicación, códigos de retorno, gestión de errores y relación con los datos exportados de Odoo», IM-COM-25), ampliado.
 
-**Convenciones.** Rutas relativas a la raíz del repositorio, casi todas en `03_PSP/`.md`, donde está el estado de cada uno (§2.3). Marcas: **[PENDIENTE (quién): …]** es trabajo que falta de verdad; , una decisión del equipo; , una pregunta de la lista de dudas de la matriz; , algo que tiene que mirar un compañero al revisar la pull request.
+**Convenciones.** Rutas relativas a la raíz del repositorio, casi todas en `03_PSP/`. Marcas: **[PENDIENTE (quién): …]** es trabajo que falta de verdad.
 
 **Versión:** código de `1bcbb10` (13/11/2026). PSP no ha cambiado des publicada el 12/11 (`2ccfed5`); lo nuevo son sus pruebas del 13/11 y la evidencia de SO024 provisional.
 
@@ -226,7 +226,7 @@ El tercer fallo controlado, el mismo pedido correcto **sin** el analizador de Á
 
 ### 9.1 Cómo se genera la entrada
 
-`02_Acceso_Datos/sql/15_exportar_fabricacion.sql` lee el pedido **guardado** en PostgreSQL. Antes de escribir comprueba que existe, que está **confirmado** y que suma exactamente 40 pares; si algo falla, psql se para con un código de error y el CSV anterior queda intacto (`02_Acceso_Datos/documentacion/README.md` §14, «Cómo se genera `fabricacion_psp.csv`»). Por defecto exporta `CUSTOM-40`; con `-v referencia=SO024`, otro pedido:
+`02_Acceso_Datos/sql/15_exportar_fabricacion.sql` lee el pedido **guardado** en PostgreSQL. Antes de escribir comprueba que existe, que está **confirmado** y que suma exactamente 40 pares; si algo falla, psql se para con un código de error y el CSV anterior queda intacto (`02_Acceso_Datos/documentacion/README.md` §13, «Cómo se genera `fabricacion_psp.csv`»). Por defecto exporta `CUSTOM-40`; con `-v referencia=SO024`, otro pedido:
 
 ```
 psql -U postgres -d nova_sneakers -v referencia=SO024 -f 02_Acceso_Datos\sql\15_exportar_fabricacion.sql
@@ -316,7 +316,7 @@ Un hijo suelto, con una tubería:
 Get-Content datos\custom40_fabricacion_psp.csv | java -cp clases ValidadorPedidoCustom
 ```
 
-Para SO024: generar el CSV con el 15 (§9.1) y pasárselo al padre. Detalle en `manuales/MANUAL_INSTALACION.md` §5 y `manuales/MANUAL_DEMOSTRACION.md`.
+Para SO024: generar el CSV con el 15 (§9.1) y pasárselo al padre. Detalle en `manuales/MANUAL_INSTALACION.md` §4 y `manuales/MANUAL_DEMOSTRACION.md`.
 
 ---
 

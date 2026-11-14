@@ -118,7 +118,7 @@ def calcular_kpis(pedidos, tabla_abc, tabla_tallas, tabla_stock, tabla_meses):
                      "foto en la fecha de corte de stock.csv; no es un histórico"))
     lista.append(kpi("K17", "Referencias con stock bajo", int(tabla_stock["alerta_stock_bajo"].sum()), "SKU",
                      f"nº de SKU con stock_disponible < {config.UMBRAL_STOCK_BAJO}", "stock", "stock_variantes",
-                     f"umbral {config.UMBRAL_STOCK_BAJO} pares, como el panel de Java y la consulta C8"))
+                     f"umbral {config.UMBRAL_STOCK_BAJO} pares, como la consulta C8 de Acceso a Datos"))
 
     # Los que dependen de datos que no hay
     lista.append(kpi_no_calculable(

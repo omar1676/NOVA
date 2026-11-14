@@ -12,7 +12,7 @@
 // Catalogo: los modelos a la venta, con sus colores, tallas y stock.
 // El precio es precio_base + suplemento del color: lo que mostrara la ficha.
 // El que se guarda en el pedido lo pone anadir_linea_pedido al crearlo.
-// El stock es el de la nave que usan los pedidos (la primera, como en Java).
+// El stock es el de la nave que usan los pedidos (la primera).
 // ---------------------------------------------------------------------
 async function catalogo(cliente) {
   const resultado = await cliente.query(`

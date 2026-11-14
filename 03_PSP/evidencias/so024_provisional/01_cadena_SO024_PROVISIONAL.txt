@@ -1,6 +1,6 @@
 == Base nova_cierre_so024: scripts 01-23 (09-16: PASS 123 FAIL 0 ERROR 1)
 18_datos_so024.sql -v precio=99.90 -v color=PROVISIONAL -v stock=10 -> salida 0
-== Java (metodos de la pestana Nuevo pedido, lanzador SO024Provisional)
+== Alta y confirmacion de SO024 (lanzador SO024Provisional, sesion de admin.demo)
 Cliente 10, variante 114, 9 lineas, 40 pares (reparto PROVISIONAL)
 Creado SO024 con id 47 (pendiente)
 Confirmado SO024 (id 47)

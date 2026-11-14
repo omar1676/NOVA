@@ -14,8 +14,8 @@
 --   fabrica: en los dos casos el script se detiene con un error.
 --
 --   Lee el pedido GUARDADO en la base, no datos temporales. CUSTOM-40 lo
---   crea 14_caso_custom_persistente.sql; SO024 se crea desde la
---   aplicacion Java.
+--   crea 14_caso_custom_persistente.sql; SO024 se crea con realizar_compra
+--   y anadir_linea_pedido (ver 18_datos_so024.sql).
 --
 -- ESTE CSV NO ES NINGUNO DE LOS CINCO DEL DASHBOARD
 --   Los cinco CSV del dashboard de Python (clientes.csv, modelos.csv,
@@ -124,7 +124,7 @@ BEGIN
 
     IF v_pedido IS NULL THEN
         RAISE EXCEPTION
-            'No existe el pedido %. CUSTOM-40 lo crea 14_caso_custom_persistente.sql y SO024 la aplicacion Java',
+            'No existe el pedido %. CUSTOM-40 lo crea 14_caso_custom_persistente.sql y SO024 se crea antes en la base',
             v_ref;
     END IF;
 

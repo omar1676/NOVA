@@ -172,8 +172,8 @@ TOLERANCIA_EUROS = 0.005
 #            No es un cobro comprobado ni lleva IVA (pendiente de confirmar).
 ESTADO_PAGADO = "pagado"
 
-# Stock bajo: menos de este numero de pares, igual que el panel de Java y la
-# consulta C8 de Acceso a Datos
+# Stock bajo: menos de este numero de pares, igual que la consulta C8 de
+# Acceso a Datos
 UMBRAL_STOCK_BAJO = 10
 
 # Cobertura de stock (apartado 6.15, DataFrame 08): demanda de los ultimos 28

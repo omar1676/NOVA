@@ -2,7 +2,7 @@
 
 El portal de Berme (`01_Interfaces/trabajador/`, rutas en `servidor-admin/rutas-trabajador.js`) integrado con el login único del personal y el script `23_portal_trabajador.sql`. Es una **ampliación**: ninguna rúbrica lo pide.
 
-**Prueba:** Edge sin ventana (Playwright) contra el servidor de pruebas, sobre una base desechable montada desde cero con los scripts 01–23, en escritorio (1440 px) y en móvil (390 px). **82 PASS, 0 FAIL** (la regresión del 13/11). Además, `npm run test:portal` 24/24 y el SQL del 23 50/50 (la regresión del 13/11 y `01_sql/`).
+**Prueba:** Edge sin ventana (Playwright) contra el servidor de pruebas, sobre una base desechable montada desde cero con los scripts 01–23, en escritorio (1440 px) y en móvil (390 px). **82 PASS, 0 FAIL** (la regresión del 13/11). Además, `npm run test:portal` 24/24 y el SQL del 23 50/50 (la regresión del 13/11 y la regresión del 13/11).
 
 Qué se comprueba:
 

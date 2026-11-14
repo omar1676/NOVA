@@ -33,16 +33,13 @@ __pycache__/
 Thumbs.db
 Desktop.ini
 
-# Acceso a Datos: credenciales de conexion de Java (ver conexion.properties.ejemplo).
-# Sin carpeta delante, para que tampoco se suba una copia que se quede en otra ruta.
+# Credenciales y drivers locales de conexion: no se suben, esten en la carpeta que esten.
 conexion.properties
-
-# Driver JDBC descargado localmente (ver 02_Acceso_Datos/java/README.md)
-**/java/lib/*.jar
+**/lib/*.jar
 
 # Carpetas de antes de la reorganización por asignaturas (13/11/2026). En un clon
 # que ya existía pueden quedar con archivos privados o generados (.venv,
-# conexion.properties, clases, outputs): se ignoran para no subirlos por error.
+# clases, outputs): se ignoran para no subirlos por error.
 # Lo que haga falta se pasa a mano a la carpeta nueva (README, «Si vienes de la
 # estructura anterior»).
 /interfaces/

@@ -1,4 +1,4 @@
-Caso K (13/11/2026, rama integracion/candidata-2): app_dashboard.py servido con streamlit run en localhost,
+Caso K (13/11/2026): app_dashboard.py servido con streamlit run en localhost,
 abierto en Microsoft Edge sin ventana (Playwright) con la exportacion de PRUEBA de entrada_acc (una copia).
 El navegador no recarga ni pulsa nada: solo espera a que el fragmento de 60 s se ejecute solo.
 

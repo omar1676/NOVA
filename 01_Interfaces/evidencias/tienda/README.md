@@ -6,7 +6,6 @@ Pruebas de la tienda online (`01_Interfaces/cliente` + `servidor-admin` + script
 - Windows 11, Node 24.15.0, Express 5.3.0 y pg 8.23.1.
 - PostgreSQL 17.11, en una base **desechable** (`nova_tienda`) montada desde cero con los scripts 01–21. No se usó la base real, y todos los datos son ficticios (correos `@example.com`).
 - Edge 157 manejado con Playwright 1.65, axe-core 4.12.1 y Lighthouse 12.8.2.
-- JDK 17.0.12 para Java.
 
 Playwright, axe-core y Lighthouse no son dependencias del proyecto. Las pruebas de navegador se ejecutaron desde una carpeta temporal y aquí solo se guardan sus resultados. Lo que cualquiera puede repetir es `npm test` y `npm run test:tienda` (ver `servidor-admin/README.md`).
 
@@ -24,7 +23,7 @@ La pasada final (archivos 01 a 06) se hizo seguida, sobre una base recién monta
 | `resultados/06_compra_edge.txt` | La compra completa en Edge, en escritorio y en móvil, comprobando cada paso en PostgreSQL y pasando axe-core a cada pantalla nueva | 111 de 111 |
 | `resultados/07_regresion_panel.txt` | Todas las pruebas del panel (`01_Interfaces/evidencias/panel-admin`) con el servidor nuevo y una base con compras web | Autenticación 44/44, seguridad 27/27, API 69/69, intentos 25/25, caducidad 4/4, navegador 124/124 e iconos 12/12; axe sin violaciones |
 | `resultados/08_regresion_interfaces.txt` | Los requisitos de Interfaces con la tienda, la web completa y Lighthouse | 136 de 136, 114 de 114; axe sin violaciones; Lighthouse 100 y 100 en escritorio y en móvil |
-| `resultados/09_java_y_python.txt` | Java (`PruebasRubrica`) y Python (`main.py` con los CSV del 16) sobre la base con la tienda | Java 47 de 47. Python termina bien y con los datos al 100 % de calidad |
+| `resultados/09_python.txt` | Python (`main.py` con los CSV del 16) sobre la base con la tienda | Python termina bien y con los datos al 100 % de calidad |
 
 **Pruebas que se han tenido que tocar** (lo explica cada archivo):
 - **Panel (07):** dos comprobaciones comparaban la lista de pedidos confirmados con una consulta sin `ORDER BY`. Solo funcionaban mientras había un pedido confirmado. Se les añadió el orden del panel; **el panel no se ha cambiado**.

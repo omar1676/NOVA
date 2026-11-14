@@ -1,14 +1,14 @@
 -- =====================================================================
--- 17_usuario_java.sql — la cuenta con la que se conecta la aplicacion Java
+-- 17_usuario_java.sql — la cuenta de conexion con los roles de la base
 --
 -- QUE HACE
---   1. Crea el usuario de PostgreSQL java_nova, el unico de la aplicacion
---      Java que puede conectarse (LOGIN). La contrasena se pide por teclado
---      y no se guarda en el repositorio: Java la lee de conexion.properties.
+--   1. Crea el usuario de PostgreSQL java_nova, la cuenta con la que se
+--      entra con los roles de la base (LOGIN). La contrasena se pide por
+--      teclado y no se guarda en el repositorio.
 --
 --   2. Le concede los tres roles de la aplicacion, pero es NOINHERIT: por
---      si solo no tiene ninguno de sus permisos. Despues del login, Java
---      hace SET ROLE al rol que corresponde al usuario:
+--      si solo no tiene ninguno de sus permisos. Despues del login, la
+--      conexion hace SET ROLE al rol que corresponde al usuario:
 --         administrador -> nova_admin
 --         comercial     -> nova_comercial
 --         trabajador    -> nova_trabajador
@@ -20,7 +20,7 @@
 --
 --   4. Deja que el comercial marque un pedido como Custom (columnas
 --      personalizado y personalizacion). Antes solo podia el administrador,
---      y el enunciado pide que el pedido Custom se registre desde Java.
+--      y el comercial tambien registra pedidos Custom.
 --
 -- COMO SE EJECUTA
 --   Con el usuario que instalo la base, despues de 07_seguridad.sql:
@@ -30,9 +30,9 @@
 
 \set ON_ERROR_STOP on
 
-\echo '===== Usuario de conexion para la aplicacion Java ====='
+\echo '===== Usuario de conexion java_nova ====='
 \echo ''
-\prompt 'Contrasena para java_nova (la que ira en conexion.properties): ' clave_java
+\prompt 'Contrasena para java_nova: ' clave_java
 
 SELECT NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'java_nova') AS hay_que_crear
 \gset

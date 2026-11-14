@@ -2,8 +2,8 @@
 //
 // NO SE MONTAN en servidor.js, a proposito:
 //   - crearian pedidos sin login ni rol (segun la matriz de permisos, el
-//     trabajador no crea pedidos; lo hacen el administrador y el comercial
-//     desde la aplicacion Java);
+//     trabajador no crea pedidos; los crean el administrador y el
+//     comercial);
 //   - escriben en pedidos y log_eventos directamente, y web_nova no tiene
 //     (ni debe tener) esos permisos;
 //   - necesitan un Odoo, que no esta: odoo.js queda desactivado.

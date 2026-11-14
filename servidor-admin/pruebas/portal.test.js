@@ -668,7 +668,7 @@ test('10d. en PostgreSQL, portal_trabajador solo hace lo que dice el 23', { skip
     assert.equal(await comoRol(rol, "SELECT * FROM public.avanzar_pedido_trabajador(1, 1, 'en_preparacion')"), '42501', String(rol));
     assert.equal(await comoRol(rol, 'SELECT * FROM public.ajustar_existencias_trabajador(1, 1, 1, 1)'), '42501', String(rol));
   }
-  // web_nova sigue sin poder pasar a los roles de Java ni al superusuario
+  // web_nova sigue sin poder pasar a los roles nova_* ni al superusuario
   for (const rol of ['nova_admin', 'nova_trabajador', 'nova_comercial', 'postgres']) {
     assert.equal(await comoRol(null, `SET LOCAL ROLE ${rol}`), '42501', rol);
   }

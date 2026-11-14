@@ -9,7 +9,7 @@
 \echo '  psql -U postgres -d nova_sneakers -f 13_activar_usuarios.sql'
 \echo ''
 \echo 'Minimo 8 caracteres. Al menos la cuenta admin.demo hace falta para que'
-\echo 'Java pueda hacer el primer inicio de sesion.'
+\echo 'el panel pueda hacer el primer inicio de sesion.'
 \echo ''
 
 \prompt 'Contrasena para admin.demo   : ' clave_admin
