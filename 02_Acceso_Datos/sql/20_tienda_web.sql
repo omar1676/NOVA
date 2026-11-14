@@ -5,7 +5,7 @@
 --   1. Crea cuentas_cliente: la contrasena de cada cliente que se registra
 --      en la web. Es una tabla aparte de usuarios (las cuentas de los
 --      trabajadores), asi que una cuenta de cliente nunca sirve para entrar
---      en el panel ni en Java, y al reves.
+--      en el panel ni en el portal, y al reves.
 --
 --   2. Crea cinco funciones SECURITY DEFINER. Son la UNICA forma que tiene
 --      la tienda de escribir en la base:
@@ -34,7 +34,7 @@
 --
 -- QUIEN ES QUIEN
 --   usuario con LOGIN   pasa con SET ROLE a                    lo usa
---   java_nova   (17)    nova_admin, nova_comercial o           la aplicacion Java
+--   java_nova   (17)    nova_admin, nova_comercial o           conexion con los roles
 --                       nova_trabajador
 --   web_nova    (19)    panel_lectura (y los roles del 22 y 23) el panel y el portal
 --   tienda_nova (20)    tienda_web                             la tienda web
@@ -263,7 +263,7 @@ BEGIN
         RAISE EXCEPTION 'El telefono es demasiado largo';
     END IF;
 
-    -- 6. La nave: como en Java, la primera (solo hay una, NOVA Central)
+    -- 6. La nave: la primera (solo hay una, NOVA Central)
     SELECT id_nave INTO v_id_nave FROM public.nave ORDER BY id_nave LIMIT 1;
 
     -- 7. Cada producto existe, esta a la venta y hay stock AHORA.

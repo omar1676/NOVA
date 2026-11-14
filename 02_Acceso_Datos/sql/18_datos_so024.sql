@@ -9,8 +9,8 @@
 --     3. Sus nueve SKU, de la talla 38 a la 46, con el mismo formato que
 --        el resto del catalogo (05_datos_prueba.sql): NOVA-<variante>-<talla>.
 --     4. Sus existencias en la nave NOVA Central.
---   NO crea el pedido: SO024 se da de alta y se confirma desde la
---   aplicacion Java (pestana "Nuevo pedido").
+--   NO crea el pedido: SO024 se da de alta con realizar_compra y
+--   anadir_linea_pedido y despues se confirma, como CUSTOM-40 en el 14.
 --   No es CUSTOM-40: ese pedido (10 y 14) es el caso Custom de Acceso a
 --   Datos y usa NOVA Velocity en lugar de Runner X. SO024 es el EJEMPLO
 --   del enunciado intermodular; el caso de Odoo documentado es S00005.
@@ -37,7 +37,7 @@
 --
 -- CUANDO SE EJECUTA
 --   Con el usuario que instalo la base, al final: despues de 14 y de
---   exportar CUSTOM-40 con 15 y 16. Luego se crea SO024 en Java y se
+--   exportar CUSTOM-40 con 15 y 16. Luego se crea SO024 y se
 --   exporta con 15 -v referencia=SO024. Antes de las pruebas (09) no,
 --   porque 09 cuenta los datos de 05 (P2 y S1).
 --
@@ -161,4 +161,4 @@ JOIN public.existencias e   ON e.id_producto_sku  = s.id_producto_sku
 WHERE m.nombre = 'Runner X'
 ORDER BY v.color, s.talla;
 
-\echo 'SO024 se crea ahora desde la aplicacion Java (pestana "Nuevo pedido").'
+\echo 'SO024 se crea ahora con realizar_compra y anadir_linea_pedido, y se confirma.'

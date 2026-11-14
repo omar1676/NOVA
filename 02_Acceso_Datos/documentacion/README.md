@@ -45,13 +45,13 @@ cuándo se escribió cada uno.
 | 9 | `09_pruebas.sql` | La batería de pruebas. Opcional | no |
 | 10 | `10_caso_custom.sql` | El caso del club deportivo: 40 pares en varias tallas, de principio a fin. Opcional | no |
 | 11 | `11_dml_ejemplos.sql` | Ejemplos de INSERT, UPDATE y DELETE, y casos rechazados por las restricciones. Opcional | no |
-| 12 | `12_consultas_panel.sql` | Consultas parametrizadas de búsqueda e indicadores para el panel Java, y las tres del caso N de Python (N-1 a N-3). Opcional | no |
+| 12 | `12_consultas_panel.sql` | Consultas parametrizadas de búsqueda e indicadores del panel, y las tres del caso N de Python (N-1 a N-3). Opcional | no |
 | 13 | `13_activar_usuarios.sql` | **Pone las contraseñas de las tres cuentas de demostración.** Pregunta por teclado; no guarda nada en el repositorio | **sí** |
 | 14 | `14_caso_custom_persistente.sql` | **Deja el pedido `CUSTOM-40` guardado de verdad**, con 40 pares en cuatro tallas. Va al final, después de las pruebas. Opcional | no |
 | 15 | `15_exportar_fabricacion.sql` | Exporta a un CSV para PSP la orden de fabricación de un pedido Custom confirmado de 40 pares: `CUSTOM-40` por defecto (necesita el 14) u otro con `-v referencia=SO024`. Opcional | no |
 | 16 | `16_exportar_csv_dashboard.sql` | Exporta los cinco CSV del dashboard de Python (clientes, modelos, pedidos, líneas y stock). Solo lee. Opcional | no |
-| 17 | `17_usuario_java.sql` | **Crea `java_nova`, el usuario con el que se conecta la aplicación Java**, y deja al comercial marcar pedidos Custom. Pide la contraseña por teclado. Se puede lanzar después del 7 o al final | **sí** |
-| 18 | `18_datos_so024.sql` | **Datos del ensayo opcional SO024**: el cliente Club Halcones, el modelo Runner X con sus tallas 38–46 (SKU y existencias). **No crea el pedido**: SO024 se crea y confirma desde la aplicación Java. El precio, el color y el stock se pasan con `-v` para reproducir el ensayo; sin ellos no inserta nada. Va al final, después de las pruebas | no |
+| 17 | `17_usuario_java.sql` | **Crea `java_nova`, un usuario de conexión**, y deja al comercial marcar pedidos Custom. Pide la contraseña por teclado. Se puede lanzar después del 7 o al final | **sí** |
+| 18 | `18_datos_so024.sql` | **Datos del ensayo opcional SO024**: el cliente Club Halcones, el modelo Runner X con sus tallas 38–46 (SKU y existencias). **No crea el pedido**: SO024 se crea después con `realizar_compra` y `anadir_linea_pedido`, y se confirma cambiando su estado. El precio, el color y el stock se pasan con `-v` para reproducir el ensayo; sin ellos no inserta nada. Va al final, después de las pruebas | no |
 | 19 | `19_usuario_web.sql` | **Crea `panel_lectura`, un rol de solo lectura, y `web_nova`, el usuario con el que se conecta el servidor del panel de administración** (`servidor-admin/`). `web_nova` solo puede pasar a `panel_lectura` con `SET ROLE` y no hereda nada. `panel_lectura` no puede escribir en ninguna tabla ni leer `password_hash`, `dni` ni `direccion_entrega`. Pide la contraseña por teclado. Se puede lanzar después del 7 o al final | **sí** |
 | 20 | `20_tienda_web.sql` | **Tienda web.** Crea `cuentas_cliente` (las contraseñas de los clientes que se registran en la web, aparte de las de los trabajadores) y cinco funciones: `registrar_cliente`, `iniciar_sesion_cliente`, `crear_compra_web`, `confirmar_compra_web` y `cancelar_compra_web`. Las de compra usan `realizar_compra`, `anadir_linea_pedido` y los triggers de siempre. Crea también `tienda_web`, un rol que no puede escribir en ninguna tabla salvo a través de esas funciones, y `tienda_nova`, el usuario de la tienda en `servidor-admin/`. Pide la contraseña por teclado. **Va después de la batería** | **sí** |
 | 21 | `21_catalogo_web.sql` | **Inserta los 100 modelos de la web, todos a la venta**, con su nombre comercial (NOVA Street Vortex, NOVA Luxe Onyx...): un color, las tallas de su colección y 5 pares por talla en los 12 que ya se vendían o 20 en los otros 88. Se puede repetir y renombra los 12 si la base tenía los nombres antiguos (NOVA Street 01...). **Va después de la batería** | no |
@@ -94,13 +94,12 @@ scripts anteriores.
 cambian nada de lo anterior: solo añaden funciones y roles sin login que no
 se llaman `nova_*`, porque el 09 cuenta los roles con ese prefijo.
 
-**Roles de la web y matriz de permisos.** Las cuentas son las mismas que en
-Java (`usuarios` y `roles`), y la web sigue la matriz de
-`02_Acceso_Datos/java/README.md`: el administrador entra en el panel de
+**Roles de la web.** La web usa las cuentas de `usuarios` y `roles`, y lo que
+deja hacer depende del rol funcional: el administrador entra en el panel de
 administración (`panel_lectura` y, para «Marcar en reparto», `panel_reparto`),
 el trabajador en el portal del trabajador (`portal_trabajador`) y el comercial
-no tiene panel web (trabaja con la aplicación Java). Lo explica
-`servidor-admin/README.md`, en «Login único y roles».
+no tiene panel web. Lo explica `servidor-admin/README.md`, en «Login único y
+roles».
 
 El primer script necesita permisos de administrador porque crea una
 extensión. `CREATE EXTENSION pgcrypto` solo lo puede hacer un superusuario o
@@ -203,14 +202,13 @@ psql, porque las variables se borran con `\unset` al acabar.
 Nunca hay que escribir un `UPDATE` a mano sobre `password_hash`: de hecho ya no
 se puede, porque ningún rol tiene permiso sobre esa columna (ver apartado 9).
 
-**El primer inicio de sesión de Java.** Hay un orden que no se puede saltar:
-Java no puede entrar como administrador hasta que `admin.demo` tenga
-contraseña, y ponerla requiere acceso a la base. Es decir, **activar las
-cuentas es un paso de instalación, no algo que haga la aplicación**. El orden
-es: instalar los scripts 1 a 7, lanzar el 13 y teclear las contraseñas, y a
-partir de ahí Java ya puede hacer login. Si alguien arranca Java antes, todos
-los logins fallarán con "La cuenta no tiene contrasena establecida", que es el
-comportamiento correcto.
+**El primer inicio de sesión.** Hay un orden que no se puede saltar: nadie
+puede entrar como administrador hasta que `admin.demo` tenga contraseña, y
+ponerla requiere acceso a la base. Es decir, **activar las cuentas es un paso
+de instalación**. El orden es: instalar los scripts 1 a 7, lanzar el 13 y
+teclear las contraseñas, y a partir de ahí `iniciar_sesion` ya acepta el
+login. Antes, todos los logins fallan con "La cuenta no tiene contrasena
+establecida", que es el comportamiento correcto.
 
 De los 11 pedidos de demostración, **9 tienen un usuario asignado y 2 no**
 (`id_usuario` a nulo), para que se vea que la columna es opcional y que la
@@ -279,8 +277,10 @@ cada producto adicional. **Ninguna de las dos toca el inventario**: el stock se
 mueve al confirmar el pedido, y se devuelve al cancelarlo. Ver apartado 7b.
 
 El último parámetro de `realizar_compra`, `p_id_usuario`, es opcional y vale
-NULL si no se pasa. Sirve para guardar quién hizo la compra. Mientras la
-aplicación no lo envíe, se queda a nulo (ver problemas conocidos).
+NULL si no se pasa. Sirve para guardar quién hizo la compra. La llamada de
+cinco parámetros funciona igual y deja el usuario a nulo. Si se pasa, tiene
+que ser un `id_usuario` que exista en `usuarios`, o la clave foránea rechazará
+el pedido.
 
 ## 7. Triggers
 
@@ -393,9 +393,9 @@ almacén no se sabría dónde reponer las unidades.
 
 ## 9. Roles y permisos
 
-Cuatro roles, todos `NOLOGIN`: no se conecta nadie con ellos directamente, los
-usa la aplicación. Para probarlos en pgAdmin se usa `SET ROLE nombre_del_rol`
-y luego `RESET ROLE`.
+Cuatro roles, todos `NOLOGIN`: no se conecta nadie con ellos directamente, se
+llega a ellos con `SET ROLE`. Para probarlos en pgAdmin se usa
+`SET ROLE nombre_del_rol` y luego `RESET ROLE`.
 
 | | nova_cliente | nova_comercial | nova_trabajador | nova_admin |
 |---|---|---|---|---|
@@ -435,7 +435,7 @@ la prueba `G8`:
 | `comercial` | `nova_comercial` |
 
 `nova_cliente` se queda para el escaparate web: solo ve catálogo y puede
-comprar. No es un rol funcional de la aplicación de gestión.
+comprar. No corresponde a ningún rol funcional de la tabla `roles`.
 
 Tres decisiones que hay que saber explicar:
 
@@ -476,6 +476,14 @@ sea superusuario. La prueba `P1b` comprueba que todas las funciones
 `SECURITY DEFINER` pertenecen al mismo dueño que las tablas, y la `P1c` que
 todas fijan su `search_path`.
 
+**Los importes, el stock y la auditoría no se tocan a mano.**
+`existencias.cantidad`, `pedidos.importe_total`, `pedidos.cantidad_total` y
+`log_eventos` los mantienen los triggers. Los permisos ya lo impiden para
+`nova_cliente`. Para `nova_trabajador` (que sí puede cambiar
+`existencias.cantidad`, `07_seguridad.sql`) y para `nova_admin` (con permiso
+sobre `pedidos` y `existencias` para los ajustes de inventario) es una norma de
+uso.
+
 ### Tres cosas distintas que se llaman "usuario"
 
 Esto es lo que más se confunde al explicar el proyecto, así que conviene
@@ -487,11 +495,11 @@ tenerlo separado:
 | **Usuario de la aplicación** (fila de `usuarios`) | En la tabla `usuarios` | Es quien hace login en la aplicación: tiene `username`, contraseña y un rol funcional |
 | **Rol funcional** (fila de `roles`) | En la tabla `roles` | Agrupa a los usuarios de la aplicación: administrador, trabajador, comercial |
 
-Los cuatro roles de PostgreSQL son `NOLOGIN`: nadie se conecta con ellos. La
-aplicación Java se conecta con **un solo usuario de PostgreSQL**, `java_nova`
-(script 17), que puede pasar con `SET ROLE` a `nova_admin`, `nova_comercial` o
-`nova_trabajador`. **Tener cuatro roles de PostgreSQL no demuestra que haya
-login**: el login es lo del apartado siguiente.
+Los cuatro roles de PostgreSQL son `NOLOGIN`: nadie se conecta con ellos. El
+usuario de conexión `java_nova` (script 17) es `NOINHERIT` y puede pasar con
+`SET ROLE` a `nova_admin`, `nova_comercial` o `nova_trabajador`. **Tener
+cuatro roles de PostgreSQL no demuestra que haya login**: el login es lo del
+apartado siguiente.
 
 ### Quién hace cada operación: el operador de la transacción
 
@@ -595,14 +603,13 @@ para abrir ni cerrar puertas. Si no hay sesión, la operación se hace igual y e
 registro queda con el operador a nulo, que es lo honesto: la prueba `G6`
 comprueba exactamente eso.
 
-**La consecuencia práctica, y es una regla del contrato con Java:** la
-aplicación tiene que **conectarse con el rol de PostgreSQL que corresponda al
-rol funcional del usuario que ha hecho login**, usando la tabla de arriba. Si
-Java se conecta siempre como `nova_admin`, los permisos de la base dejan de
-servir para nada y cualquier usuario podría gestionar cuentas llamando a la
-función directamente. Con la conexión por rol, un comercial recibe
-`permission denied` aunque invoque el DAO a mano, que es lo que pide el
-enunciado (prueba `G10`).
+**La consecuencia práctica:** cada conexión tiene que **pasar al rol de
+PostgreSQL que corresponda al rol funcional del usuario que ha hecho login**,
+usando la tabla de arriba. Si todo se conectara como `nova_admin`, los permisos
+de la base dejarían de servir para nada y cualquier usuario podría gestionar
+cuentas llamando a la función directamente. Con la conexión por rol, un
+comercial recibe `permission denied` aunque invoque la función a mano, que es
+lo que pide el enunciado (prueba `G10`).
 
 ### Un usuario desactivado perdía la sesión... y no la perdía
 
@@ -646,9 +653,8 @@ Qué garantiza y qué no, dicho claro:
   `P11b`.
 - **No sobrevive a la transacción**, así que en un pool de conexiones la
   identidad de una petición no se filtra a la siguiente. Prueba `A12`.
-- **Lo que esto no resuelve:** cualquiera que tenga las credenciales de
-  conexión a PostgreSQL de la aplicación puede abrir una sesión y hacer lo que
-  su rol le permita, aunque ya no pueda hacerse pasar por otro usuario. La
+- **Lo que esto no resuelve:** cualquiera que tenga las credenciales de un
+  usuario de conexión puede abrir una sesión y hacer lo que su rol le permita, aunque ya no pueda hacerse pasar por otro usuario. La
   frontera real es que **las credenciales de conexión no pueden estar en manos
   del usuario final**. Eso es responsabilidad del despliegue, y el enunciado lo
   pide por otro lado: "las credenciales se mantendrán fuera del código
@@ -658,12 +664,12 @@ Reparto de responsabilidades:
 
 - **PostgreSQL** guarda los usuarios y sus hashes, comprueba la contraseña,
   marca el operador de la transacción, aplica los permisos del rol y escribe
-  la auditoría. Nada de esto se puede saltar desde Java.
-- **Java** pide usuario y contraseña, llama a `iniciar_sesion` al principio de
-  cada transacción, decide qué pantallas muestra según el rol funcional, y
-  comprueba que el pedido sobre el que opera es del cliente que ha iniciado
-  sesión. Esta última comprobación **no la puede hacer la base**, porque
-  `realizar_compra` acepta cualquier `id_cliente`.
+  la auditoría. Nada de esto se puede saltar desde fuera de la base.
+- **Fuera de la base** quedan pedir usuario y contraseña, llamar a
+  `iniciar_sesion` al principio de cada transacción que escribe y comprobar de
+  quién es el pedido sobre el que se opera. Esta última comprobación **no la
+  puede hacer la base**, porque `realizar_compra` acepta cualquier
+  `id_cliente` (problema 1 del apartado 12).
 
 ## 10. Las ocho consultas
 
@@ -702,6 +708,11 @@ Las consultas 1 y 2 excluyen los pedidos cancelados porque son informes de
 ventas. La 6 no los excluye, porque mide lo que la gente pide, no lo que se
 cobra. La 8 tampoco, porque es un resumen de estados de pago y los cancelados
 forman parte de él.
+
+Las búsquedas con filtros están en `12_consultas_panel.sql`, con variables de
+psql en el sitio de cada parámetro. Los filtros combinables siguen el patrón
+`(valor = '' OR columna = valor)`, de forma que un filtro vacío no excluya
+filas: lo prueban las consultas `C5` y `C6` de ese archivo.
 
 ## 11. Pruebas
 
@@ -894,7 +905,7 @@ automático.
 
 ### Visibilidad con COMMIT y ROLLBACK, con dos sesiones
 
-También hay que hacerla a mano, con dos ventanas. Sesión A:
+También hay que hacerla a mano, con dos sesiones de psql abiertas a la vez. Sesión A:
 
 ```sql
 BEGIN;
@@ -944,7 +955,7 @@ cambiaron; los números sí.
 
 Esta no está en `09_pruebas.sql` y no puede estarlo: hacen falta **dos
 sesiones a la vez**, y un archivo de psql solo abre una. Hay que hacerla a
-mano, con dos ventanas.
+mano, con dos sesiones de psql abiertas.
 
 Preparación, en una sesión cualquiera:
 
@@ -986,7 +997,10 @@ nunca en negativo, y solo se creó un pedido de los dos.
 Esto funciona porque `descontar_stock` pone la comprobación dentro del `WHERE`
 del `UPDATE` en vez de hacer un `SELECT` antes. PostgreSQL vuelve a evaluar
 esa condición después de esperar al otro cliente, así que no se puede vender
-la misma unidad dos veces.
+la misma unidad dos veces. Con el nivel de aislamiento por defecto (READ
+COMMITTED) el control de stock funciona bien. Si se subiera el nivel, las
+compras simultáneas empezarían a dar errores de serialización y habría que
+reintentarlas.
 
 ## 12. Problemas conocidos
 
@@ -995,27 +1009,25 @@ tocar la base.
 
 **1. La base no comprueba de quién es el pedido.** `realizar_compra` acepta
 cualquier `p_id_cliente` y `anadir_linea_pedido` cualquier `p_id_pedido`, así
-que un cliente podría crear un pedido a nombre de otro. **Esa comprobación
-tiene que hacerla Java**, no se puede resolver con permisos de PostgreSQL,
-porque la aplicación se conecta con un único usuario y dentro de la base no
-existe "el cliente que está conectado ahora". Está en el contrato del
-apartado 13.
+que un cliente podría crear un pedido a nombre de otro. **Esa comprobación no
+se puede resolver con permisos de PostgreSQL**: no existe ninguna clave ajena
+entre `usuarios` y `clientes` (prueba `G7`), porque los usuarios son empleados
+y los clientes son otra cosa, así que dentro de la base no existe "el cliente
+que está conectado ahora". Está comprobado que se puede crear un pedido a
+nombre de otro cliente y añadir líneas a un pedido ajeno.
 
-**1b. El operador solo queda registrado si Java llama a `iniciar_sesion`.**
-El mecanismo funciona y está probado (apartado 9), pero si la aplicación no lo
-usa, `log_eventos.id_usuario` se queda a nulo. No es un fallo de la base: es
-un requisito de integración, y la aplicación Java lo cumple:
-`ConexionBD.empezarTransaccion` llama a `iniciar_sesion` al empezar cada
-transacción que escribe, y la prueba A de `PruebasRubrica` comprueba que
-`log_eventos` guarda el usuario y la hora.
+**1b. El operador solo queda registrado si se llama a `iniciar_sesion`.**
+El mecanismo funciona y está probado (apartado 9), pero si no se usa,
+`log_eventos.id_usuario` se queda a nulo (prueba `G6`). No es un fallo de la
+base: es un requisito de integración.
 
 **1c. La autorización depende del rol de conexión, no del usuario
 autenticado.** Todas las operaciones funcionan sin haber hecho login: lo que
 decide si se pueden hacer o no es el rol de PostgreSQL con el que está abierta
 la conexión. Las funciones **no** consultan el rol funcional de la tabla
 `roles`. Esto es admisible porque el enunciado deja la capa GRANT/REVOKE como
-opcional y permite validar en el acceso a datos, pero **obliga a que Java se
-conecte con el rol correcto** (ver apartado 13, control 1). Si alguien
+opcional y permite validar en el acceso a datos, pero **obliga a que cada
+conexión pase al rol correcto** (ver apartado 9, «Identidad no es permiso»). Si alguien
 simplifica y conecta todo como `nova_admin`, la seguridad de la base se queda
 en nada.
 
@@ -1056,7 +1068,11 @@ nombre, cogería uno cualquiera sin avisar.
 porque usan `CREATE OR REPLACE`, pero sus `CREATE TRIGGER` fallarían. El resto
 falla si los objetos ya existen. Para repetir una instalación hay que borrar la
 base y crearla otra vez. Los cuatro archivos de pruebas (9 a 12) sí se pueden
-repetir todas las veces que se quiera.
+repetir todas las veces que se quiera. Si se vuelve a lanzar
+`02_funciones.sql` sobre una base que ya existía, hay que ejecutar
+`07_seguridad.sql` **después**: el `DROP FUNCTION IF EXISTS` del principio de
+`02_funciones.sql` borra la versión antigua de `realizar_compra` y con ella sus
+permisos.
 
 **6b. El archivo de pgModeler se ha actualizado a mano y falta abrirlo.**
 `02_Acceso_Datos/modelo/sneaker-factory.dbm` ya declara las **14 tablas** reales,
@@ -1092,155 +1108,16 @@ ventas reales y la 7 mide actividad.
 **8. El orden de las columnas de `linea_pedido` es distinto** al de una base
 donde `id_nave` y `stock_descontado` se añadieron con `ALTER TABLE`. No afecta
 a nada porque todas las inserciones nombran sus columnas y ninguna consulta
-usa `SELECT *`, pero sí importaría si el código Java leyera por posición.
+usa `SELECT *`, pero sí importaría si alguien leyera las columnas por
+posición: hay que leerlas siempre por nombre.
 
-## 13. Relación con Java/JDBC
+**9. Todos los errores de negocio llevan el mismo SQLSTATE.** Llegan con el
+código `P0001`, que es el genérico de `RAISE EXCEPTION`. Eso significa que
+quien llama no puede distinguir "stock insuficiente" de "producto no
+disponible" si no es leyendo el texto del mensaje. Se podría mejorar dando un
+código distinto a cada error, pero no se ha hecho todavía.
 
-Esto es el contrato que la parte Java puede dar por bueno. La aplicación ya
-existe: está en `02_Acceso_Datos/java` y su README explica cómo se ejecuta. Así
-cumple los cuatro controles de más abajo:
-
-1. Se conecta con `java_nova` (script 17), que es `NOINHERIT`: sin rol no lee
-   nada. Después del login hace `SET ROLE` al rol que toca.
-2. No aplica: la usan empleados que registran pedidos de cualquier cliente.
-   Este control es para una aplicación en la que entren los propios clientes.
-3. `ConexionBD.empezarTransaccion()` llama a `iniciar_sesion` al principio de
-   cada transacción que escribe.
-4. No guarda el testigo: lo vuelve a pedir en cada transacción.
-
-**Funciones que debe llamar la aplicación:**
-
-```sql
--- login, devuelve el id_usuario. Primera llamada de cada transaccion
-SELECT iniciar_sesion(?, ?);
--- parametros: username, password en claro (viaja por la conexion, no se guarda)
-
--- crea el pedido en estado pendiente, devuelve su id. NO mueve stock
-SELECT realizar_compra(?, ?, ?, ?, ?, ?);
--- parametros: referencia, id_cliente, id_producto_sku, id_nave, cantidad, id_usuario
-
--- confirmar el pedido: ES AQUI donde PostgreSQL descuenta el stock
-UPDATE pedidos SET estado = 'confirmado' WHERE id_pedido = ?;
-
--- cancelar el pedido: devuelve el stock de las lineas descontadas
-UPDATE pedidos SET estado = 'cancelado' WHERE id_pedido = ?;
-
--- producto adicional en el mismo pedido
-SELECT anadir_linea_pedido(?, ?, ?, ?);
--- parametros: id_pedido, id_producto_sku, id_nave, cantidad
-
--- compra personalizada
-SELECT realizar_compra_xnova(?, ?);
--- parametros: referencia, id_configuracion
-
--- alta o cambio de contrasena, solo para el rol administrador
-SELECT establecer_password(?, ?);
--- parametros: username, password nueva (minimo 8 caracteres)
-```
-
-**El patrón de cada operación que escribe**, y no es opcional si queremos que
-la auditoría tenga sentido:
-
-```java
-conexion.setAutoCommit(false);
-try (PreparedStatement sesion =
-        conexion.prepareStatement("SELECT iniciar_sesion(?, ?)")) {
-    sesion.setString(1, username);
-    sesion.setString(2, password);
-    sesion.executeQuery();
-}
-// ... aqui las operaciones de la transaccion ...
-conexion.commit();
-```
-
-`iniciar_sesion` marca el operador **solo para la transacción en curso**. Con
-`autoCommit` activado cada sentencia es su propia transacción, así que el
-operador se perdería antes de la siguiente llamada y la auditoría quedaría a
-nulo. Hay que desactivar `autoCommit` y agrupar.
-
-**Cosas a tener en cuenta:**
-
-- `realizar_compra` acepta un sexto parámetro opcional, `p_id_usuario`. La
-  llamada de cinco parámetros sigue funcionando igual: se comprobó
-  ejecutándola, y deja el usuario a nulo sin dar ningún error. Cuando se pase
-  un usuario, los cambios de estado de ese pedido quedarán registrados con él.
-  El valor tiene que ser un `id_usuario` que exista en la tabla `usuarios`, o
-  la clave foránea rechazará el pedido.
-### Los cuatro controles que Java tiene que implementar
-
-Esto no es una lista de buenas intenciones: son cuatro cosas que la base de
-datos **no puede** hacer, comprobadas atacándola. Si Java no las hace, no las
-hace nadie.
-
-**1. Conectarse con el rol de PostgreSQL que toque.** Según el rol funcional
-del usuario que acaba de hacer login:
-
-| Rol funcional | Rol de conexión |
-|---|---|
-| `administrador` | `nova_admin` |
-| `trabajador` | `nova_trabajador` |
-| `comercial` | `nova_comercial` |
-
-Se puede hacer con una cuenta de PostgreSQL por rol, o con una sola cuenta a la
-que se le concedan los tres y un `SET ROLE` nada más iniciar sesión. **Lo que no
-vale es conectarse siempre como `nova_admin`**: eso anula toda la capa de
-permisos de la base y cualquier usuario podría gestionar cuentas llamando al
-DAO directamente.
-
-**2. Comprobar de quién es el pedido.** La base no lo puede hacer, y no es
-pereza: **no existe ninguna clave ajena entre `usuarios` y `clientes`** (prueba
-`G7`). Los usuarios de la aplicación son empleados, y los clientes son otra
-cosa. Así que dentro de la base no hay forma de preguntar "¿este pedido es del
-cliente que ha iniciado sesión?". `realizar_compra` acepta cualquier
-`id_cliente` y `anadir_linea_pedido` cualquier `id_pedido`; está comprobado que
-se puede crear un pedido a nombre de otro cliente y añadir líneas a un pedido
-ajeno. Esa validación va en Java, antes de llamar.
-
-**3. Llamar a `iniciar_sesion` al principio de cada transacción que escriba.**
-Si no, la operación se hace igual pero la auditoría queda sin operador (prueba
-`G6`). No es un fallo de la base: es que la identidad la aporta la aplicación.
-
-**4. No guardar el testigo de sesión entre peticiones.** El valor de
-`nova.id_usuario` es local a la transacción y hay que regenerarlo con
-`iniciar_sesion` en cada una. Guardarlo y reinyectarlo funciona mientras el
-usuario siga activo y no cambie su contraseña, pero es una mala práctica: deja
-de reflejar el estado real de la cuenta hasta la siguiente transacción.
-- Si se vuelve a instalar la base sobre una que ya existía, hay que ejecutar
-  `07_seguridad.sql` **después** de `02_funciones.sql`. El `DROP FUNCTION IF
-  EXISTS` del principio de `02_funciones.sql` borra la versión antigua de
-  `realizar_compra` y con ella sus permisos.
-- **Leer siempre las columnas por nombre**, no por posición (ver problema 8).
-- Todos los errores de negocio llegan como `PSQLException` con el SQLSTATE
-  `P0001`, que es el genérico de `RAISE EXCEPTION`. Eso significa que Java no
-  puede distinguir "stock insuficiente" de "producto no disponible" si no es
-  leyendo el texto del mensaje. Se podría mejorar dando un código distinto a
-  cada error, pero no se ha hecho todavía.
-- La aplicación debe conectarse con un usuario al que se le haya concedido uno
-  de los tres roles. Con el nivel de aislamiento por defecto (READ COMMITTED)
-  el control de stock funciona bien. Si se subiera el nivel, las compras
-  simultáneas empezarían a dar errores de serialización y Java tendría que
-  reintentarlas.
-- No hay que insertar en `linea_pedido` directamente: los roles no tienen
-  permiso, y además se saltaría el descuento de stock.
-- **Nada de tocar a mano `existencias.cantidad`, `pedidos.importe_total`,
-  `pedidos.cantidad_total` ni `log_eventos`.** Los calculan los triggers. Los
-  permisos ya lo impiden para `nova_cliente`. Para `nova_trabajador` (que sí puede
-  cambiar `existencias.cantidad`, `07_seguridad.sql`) y para `nova_admin` (con permiso
-  sobre `pedidos` y `existencias` para los ajustes de inventario) es una norma del contrato.
-- **Todas las consultas con `PreparedStatement` y `?`**, nunca concatenando
-  texto. Las consultas de `12_consultas_panel.sql` están escritas con
-  variables de psql justamente para que se vea dónde va cada `?`.
-- Los filtros combinables se escriben con el patrón
-  `(? = '' OR columna = ?)`, de forma que un filtro vacío no excluya filas.
-  Está probado en las consultas `C5` y `C6` de ese archivo. La aplicación Java
-  lo hace de otra forma, igual de segura: añade al `WHERE` solo los filtros que
-  se usan, cada uno con su `?` (`PedidoDAO.buscarPedidos`).
-- Las consultas que puede lanzar cada rol dependen de sus permisos de SELECT:
-  `nova_cliente` no puede leer `pedidos`, así que el panel de indicadores solo
-  funciona para `nova_admin`, `nova_trabajador` y `nova_comercial` (el
-  comercial de la aplicación Java).
-
-## 14. Estado
+## 13. Estado
 
 La instalación desde cero, las funciones, los triggers, el control de stock,
 las cancelaciones con cada rol, X-NOVA, los permisos, la auditoría y las ocho
@@ -1605,14 +1482,5 @@ perdedor se queda en `pendiente` sin stock negativo.
 **También se actualizó el `.dbm` de pgModeler** a las 14 tablas reales (ver el
 problema 6b, que explica qué falta comprobar).
 
-El 7 de noviembre de 2026 quedaban pendientes los puntos del apartado 12 y
-**toda la parte de Java/JDBC**, que entonces no tenía ningún archivo `.java` en
-el repositorio. La aplicación Java se hizo después: está descrita en el
-apartado siguiente.
+El 7 de noviembre de 2026 quedaban pendientes los puntos del apartado 12.
 
-### Parte Java (9 de noviembre de 2026)
-
-La aplicación Swing + JDBC ya está en `02_Acceso_Datos/java`: login, pedidos,
-consultas con filtros, indicadores, usuarios, TXT, JSON y CSV. Las pruebas
-A–J se lanzan con `pruebas.bat`, y sobre una base reconstruida desde cero con
-los scripts 1–17 dieron 47 PASS y 0 FAIL. El detalle está en su README.

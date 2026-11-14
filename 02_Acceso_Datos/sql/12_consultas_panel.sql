@@ -1,8 +1,8 @@
 \echo '===== CONSULTAS PARAMETRIZADAS Y PANEL DE INDICADORES ====='
 \echo ''
-\echo 'Estas consultas son las que necesita la aplicacion Java. Aqui los'
-\echo 'parametros se ponen con variables de psql para poder probarlas; en Java'
-\echo 'cada uno de esos valores es un ? de PreparedStatement.'
+\echo 'Consultas parametrizadas C1 a C8 y panel de indicadores. Aqui los'
+\echo 'parametros se ponen con variables de psql para poder probarlas; desde'
+\echo 'un programa, cada valor va como parametro, nunca pegado al texto.'
 \echo ''
 
 \set cliente_buscado 'ferrer'

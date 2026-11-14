@@ -3,9 +3,8 @@
 Cómo instalar, montar la base de datos, arrancar cada parte y pasar las pruebas, para que otro equipo pueda repetirlo (IM-COM-05).
 
 - **Probado** en Windows 11 el **13/11/2026**, siguiendo este mismo manual sobre una copia nueva del repositorio y una base de datos nueva y vacía. El resultado está en la regresión del 13/11.
-- **Cierre final:** código publicado en `main` mediante la PR #2 (`4a25d5a`); esta revisión documental no cambia ese código. El código de `4f09742` se instaló en un clon nuevo, con venv nuevo, npm ci y clúster PostgreSQL aislado. Resultados nuevos en `../evidencias/cierre-entrega-20261113/`. Las evidencias iniciales enlazadas arriba se conservan como históricas.
 - **Convenciones.** Los comandos son de **PowerShell** y se lanzan desde la **raíz del repositorio**, salvo que se diga otra cosa.
-- **Contraseñas.** **Nunca se escribe ninguna en un archivo del repositorio.** Los scripts las piden por teclado, y los archivos de configuración que las llevan (`02_Acceso_Datos/java/conexion.properties` y `servidor-admin/.env`) están en el `.gitignore`. Cada equipo elige las suyas al instalar.
+- **Contraseñas.** **Nunca se escribe ninguna en un archivo del repositorio.** Los scripts las piden por teclado, y el archivo de configuración que las lleva (`servidor-admin/.env`) está en el `.gitignore`. Cada equipo elige las suyas al instalar.
 
 ---
 
@@ -14,8 +13,7 @@ Cómo instalar, montar la base de datos, arrancar cada parte y pasar las pruebas
 | Software | Versión | Para qué | Comprobar |
 |---|---|---|---|
 | PostgreSQL | **17** (probado con la 17.11), con `psql` o pgAdmin 4 | Base de datos | `psql --version` |
-| JDK | **17** (probado con el 17.0.12) | Aplicación Java y PSP | `javac -version` |
-| Driver JDBC de PostgreSQL | **42.7.14**, como `02_Acceso_Datos/java/lib/postgresql-42.7.14.jar` | Aplicación Java | El archivo existe. **No se sube al repositorio:** hay que descargarlo (por ejemplo, de la web oficial del driver de PostgreSQL o de Maven Central) |
+| JDK | **17** (probado con el 17.0.12) | PSP | `javac -version` |
 | Python | **3.12 o superior** (probado con 3.13.5), con un entorno virtual `.venv` | Análisis y dashboard | `py -3.13 --version` |
 | Dependencias de Python | pandas 3.1.1, numpy 2.5.4, matplotlib 3.11.2, scikit-learn 1.9.1 y streamlit 1.67.0 | Ídem | `04_Python/requirements.txt` |
 | Node | **20.6 o superior** (probado con 24.15) | Solo para las ampliaciones: panel, portal del trabajador y tienda | `node --version` |
@@ -49,7 +47,7 @@ cd NOVA
 git switch main
 ```
 
-La versión de entrega se obtiene de `main`. La PR #2 conserva el cierre de código y sus pruebas; la revisión documental posterior fija S00005 como caso de Odoo, sin modificar los módulos.
+La versión de entrega se obtiene de `main`.
 
 El repositorio es privado: el profesor necesita acceso para clonarlo. También puede instalarse desde el ZIP de fuentes correspondiente a la versión que se entregue.
 
@@ -74,13 +72,13 @@ psql -U postgres -c "CREATE DATABASE nova_sneakers;"
 | 5 | `05_datos_prueba.sql` | Datos de demostración | No | No | Salida 0 |
 | 6 | `07_seguridad.sql` | Los 4 roles `nova_*` y sus permisos | **Sí** | No | Salida 0 |
 | 7 | `08_auditoria.sql` | Las 5 funciones y 5 triggers de auditoría | No | No | Salida 0 |
-| 8 | `17_usuario_java.sql` | El usuario `java_nova` de la aplicación Java | **Sí** | **Sí** (`java_nova`) | Salida 0 |
+| 8 | `17_usuario_java.sql` | El usuario de conexión `java_nova` | **Sí** | **Sí** (`java_nova`) | Salida 0 |
 | 9 | `19_usuario_web.sql` | `panel_lectura` y el usuario `web_nova` del servidor | **Sí** | **Sí** (`web_nova`) | Salida 0 |
 | 10 | `06_consultas.sql` | Las 8 consultas (solo leen). La 3 (`HAVING`) devuelve **1 fila** con los datos de prueba: `NOVA-4-43` | No | No | Salida 0 |
 | 11 | `09_pruebas.sql` | **Batería de pruebas** | No | No | **91 PASS y 1 ERROR previsto** (S4b) |
 | 12 | `10_caso_custom.sql` | Caso del club, dentro de un ROLLBACK | No | No | 6 PASS |
 | 13 | `11_dml_ejemplos.sql` | INSERT, UPDATE, DELETE y 6 rechazos | No | No | 12 PASS |
-| 14 | `12_consultas_panel.sql` | Consultas del panel Java y del caso N de Python | No | No | 1 PASS |
+| 14 | `12_consultas_panel.sql` | Consultas parametrizadas C1 a C8 y caso N de Python | No | No | 1 PASS |
 | 15 | `13_activar_usuarios.sql` | Contraseñas de `admin.demo`, `taller.demo` y `tienda.demo` | **Sí** | **Sí** (las tres, y otra vez la de `admin.demo` para probar el login) | Salida 0 |
 | 16 | `14_caso_custom_persistente.sql` | Guarda el pedido `CUSTOM-40` | No | **Sí** (la de `tienda.demo`) | 9 PASS |
 | 17 | `15_exportar_fabricacion.sql` | CSV para PSP | No | No | 2 PASS y `fabricacion_psp.csv` |
@@ -158,28 +156,11 @@ psql -U postgres -d nova_sneakers -v ON_ERROR_STOP=1 -v precio=<precio> -v color
 
 ---
 
-**Separar configuración administrativa y de aplicación:** abre otra consola para Node. Las variables ya exportadas en el entorno prevalecen sobre `--env-file=.env`; si PGUSER sigue siendo postgres, el servidor se niega correctamente. Usar web_nova y la base/puerto indicados en .env. No entregar .env ni conexion.properties.
+**Separar configuración administrativa y de aplicación:** abre otra consola para Node. Las variables ya exportadas en el entorno prevalecen sobre `--env-file=.env`; si PGUSER sigue siendo postgres, el servidor se niega correctamente. Usar web_nova y la base/puerto indicados en .env. No entregar el .env.
 
 **Caso de entrega:** S00005 está documentado en el PDF de Berme y no se instala ni recrea con el script 18. SO024 es un ejemplo; no hay que convertirlo en una venta nueva. La demo ejecutable conserva CUSTOM-40 y CSV de PRUEBA, sin atribuirlos a S00005. No ejecutar el 18 para aparentar una integración.
 
-## 4. Aplicación Java (Acceso a Datos)
-
-1. Descargar el driver y dejarlo como `02_Acceso_Datos\java\lib\postgresql-42.7.14.jar`. **La carpeta `lib` no viene en el repositorio** (el `.jar` está en el `.gitignore`): hay que crearla antes, con `New-Item -ItemType Directory -Force 02_Acceso_Datos\java\lib`.
-2. Copiar `02_Acceso_Datos\java\conexion.properties.ejemplo` como `02_Acceso_Datos\java\conexion.properties` y escribir la contraseña de `java_nova` (la del paso 8):
-   ```
-   url=jdbc:postgresql://localhost:5432/nova_sneakers
-   usuario=java_nova
-   contrasena=
-   carpeta_salida=salidas
-   ```
-3. Arrancar: `02_Acceso_Datos\java\ejecutar.bat` (compila y abre la ventana de login).
-4. Entrar con `admin.demo`, `tienda.demo` o `taller.demo` y la contraseña que se puso en el paso 15.
-
-Los archivos `actividad_sneaker.txt`, `usuarios_sneaker.json` y `consulta_pedidos.csv` se guardan en `carpeta_salida`.
-
----
-
-## 5. PSP
+## 4. PSP
 
 ```powershell
 cd 03_PSP
@@ -193,7 +174,7 @@ Para otro pedido, se le pasa el `fabricacion_psp.csv` que genera el 15 (por ejem
 
 ---
 
-## 6. Python (consola y dashboard)
+## 5. Python (consola y dashboard)
 
 ```powershell
 cd 04_Python
@@ -217,7 +198,7 @@ cd ..
 
 ---
 
-## 7. Web, panel, portal del trabajador y tienda
+## 6. Web, panel, portal del trabajador y tienda
 
 **Solo la web** (escaparate, catálogo, ficha, probador, Custom y contacto), sin servidor:
 
@@ -253,14 +234,14 @@ y abrir `http://127.0.0.1:8000/01_Interfaces/cliente/`. También funciona abrien
    ```powershell
    npm start
    ```
-   - **Login único del personal:** `http://127.0.0.1:3000/login.html`. `admin.demo` (administrador) entra al panel; `taller.demo` (trabajador), al portal del trabajador; `tienda.demo` (comercial) recibe «Acceso denegado» (no tiene ningún panel web), porque trabaja con la aplicación Java.
+   - **Login único del personal:** `http://127.0.0.1:3000/login.html`. `admin.demo` (administrador) entra al panel; `taller.demo` (trabajador), al portal del trabajador; `tienda.demo` (comercial) recibe «Acceso denegado» (no tiene ningún panel web).
    - Panel: `http://127.0.0.1:3000/admin.html`. Portal: `http://127.0.0.1:3000/trabajador/`.
    - Tienda: `http://127.0.0.1:3000/tienda/`.
    - Al arrancar, la consola dice si la tienda, el correo y Odoo están configurados.
 
 ---
 
-## 8. Portal del trabajador y Odoo
+## 7. Portal del trabajador y Odoo
 
 - **Portal del trabajador (Berme), integrado.** Cuatro páginas (`01_Interfaces/trabajador/`): resumen, pedidos («Avanzar estado»: `confirmado` → `en_preparacion` → `enviado` → `entregado`), inventario («Guardar» la cantidad) y personalizados. Se entra por el login único con una cuenta de rol **trabajador** (`taller.demo`). El servidor se conecta como `web_nova` y, para el portal, pasa al rol `portal_trabajador` (script 23), que solo lee las columnas que enseña el portal y solo cambia algo con dos funciones que dejan la auditoría a nombre del trabajador.
 - **Lo que de Berme no está activo:** el conector de Odoo (`odoo.js`) está **desactivado** sin `ODOO_*`, y las rutas de `pedidos.js` (crear pedidos y enviarlos a Odoo) **no se montan** (`servidor-admin/README.md`, «Lo que falta del portal»).
@@ -268,14 +249,13 @@ y abrir `http://127.0.0.1:8000/01_Interfaces/cliente/`. También funciona abrien
 
 ---
 
-## 9. Pruebas: cómo se lanza cada batería y qué tiene que salir
+## 8. Pruebas: cómo se lanza cada batería y qué tiene que salir
 
-**Todas sobre una base de PRUEBA, nunca la del equipo:** la batería Java deja pedidos `PRUEBA-*` y un usuario `prueba.*`, y las de la tienda y el portal crean clientes, pedidos y cambios de verdad.
+**Todas sobre una base de PRUEBA, nunca la del equipo:** las de la tienda y el portal crean clientes, pedidos y cambios de verdad.
 
 | Batería | Cómo se lanza | Resultado esperado | Último resultado (13/11) |
 |---|---|---|---|
 | SQL | Scripts 09 a 16 en el orden del §3 | **123 PASS, 0 FAIL y 1 ERROR previsto** (S4b) | 123 / 0 / 1 (la regresión del 13/11) |
-| Java | `02_Acceso_Datos\java\pruebas.bat` (pide las tres contraseñas de demostración) | `RESULTADO: 47 PASS, 0 FAIL` | 47 / 0 (la regresión del 13/11) |
 | PSP | En `03_PSP`, tras compilar: `java -cp clases PruebasPsp` | `Pruebas superadas: 27 de 27` | 27 / 27 (ídem) |
 | Python | En `04_Python`: `.venv\Scripts\python.exe -m unittest discover -s tests -v` (el tiempo depende del equipo; 265 pruebas, unos 157 s en este cierre) | `Ran 265 tests` y `OK` | 265 OK (la regresión del 13/11) |
 | Panel | En `servidor-admin`, con `$env:PRUEBA_ADMIN_USUARIO`, `PRUEBA_ADMIN_CLAVE`, `PRUEBA_OTRO_USUARIO` y `PRUEBA_OTRO_CLAVE` (y las `PRUEBA_COMERCIAL_*`): `npm test` | `tests 23`, `pass 23` con `PRUEBA_TIENDA_BASE_DESECHABLE=si` (sin ella, una se salta) | 23 / 23 y 22 + 1 saltada (la regresión del 13/11) |
@@ -289,7 +269,7 @@ y abrir `http://127.0.0.1:8000/01_Interfaces/cliente/`. También funciona abrien
 
 ---
 
-## 10. Qué hacer si algo falla
+## 9. Qué hacer si algo falla
 
 | Síntoma | Causa probable | Qué hacer |
 |---|---|---|
@@ -297,14 +277,11 @@ y abrir `http://127.0.0.1:8000/01_Interfaces/cliente/`. También funciona abrien
 | En el 09, `FAIL` en A1 y A2 | Se lanzó el 13 antes del 09 | Es lo esperado en ese orden. Para ver 91 PASS, montar de nuevo en el orden del §3 |
 | En el 09, `FAIL` en P1, P2 o S1 | Se lanzaron el 18, el 20 o el 21 antes del 09 | Ídem |
 | En el 09, un `ERROR` en S4b | Es la prueba de permisos: el cliente no puede ejecutar `descontar_stock` | Nada: es el error previsto |
-| Java: «La cuenta no tiene contrasena establecida» | No se ha lanzado el 13 | Lanzar `13_activar_usuarios.sql` |
-| Java: `ClassNotFoundException: org.postgresql.Driver` | Falta el driver | Copiar `postgresql-42.7.14.jar` en `02_Acceso_Datos\java\lib\` |
-| Java: `javac` no se reconoce | El JDK no está en el PATH | Ver §1 |
-| Java: «password authentication failed for user java_nova» | `conexion.properties` mal o no se ha lanzado el 17 | Revisar la contraseña o volver a lanzar el 17 |
-| Java: «Acceso denegado» en una operación | El rol no tiene ese permiso | Es correcto (matriz de permisos de `02_Acceso_Datos/memoria/MEMORIA_ACCESO_DATOS.md` §9.2) |
-| El 15 se para y no genera el CSV | El pedido no existe, no está confirmado o no suma 40 pares | Lanzar el 14 (para `CUSTOM-40`) o confirmar el pedido en Java; el CSV anterior queda intacto |
+| Login: «La cuenta no tiene contrasena establecida» | No se ha lanzado el 13 | Lanzar `13_activar_usuarios.sql` |
+| PSP: `javac` no se reconoce | El JDK no está en el PATH | Ver §1 |
+| El 15 se para y no genera el CSV | El pedido no existe, no está confirmado o no suma 40 pares | Lanzar el 14 (para `CUSTOM-40`) o confirmarlo en la base; el CSV anterior queda intacto |
 | El 18 dice «Falta el precio…» y no inserta nada | Faltan los `-v` |md`) |
-| PSP: «No se encuentra la clase Psp.AnalizadorTallas» (código 3) | No se compiló `src\Psp` | Compilar con `src\Psp\*.java`, como en el §5 |
+| PSP: «No se encuentra la clase Psp.AnalizadorTallas» (código 3) | No se compiló `src\Psp` | Compilar con `src\Psp\*.java`, como en el §4 |
 | `PruebasPsp` falla con caracteres raros | Se lanzó con `-Dfile.encoding=UTF-8` | Lanzarla sin esa opción |
 | `python` abre la Microsoft Store | Es el alias de Windows | Usar `py` o `.venv\Scripts\python.exe` |
 | `main.py` termina con «DATOS BLOQUEADOS» | Hay incidencias bloqueantes | Ver `outputs\<modo>\incidencias.csv`; los CSV de entrada no se tocan |
@@ -313,11 +290,10 @@ y abrir `http://127.0.0.1:8000/01_Interfaces/cliente/`. También funciona abrien
 | El dashboard pone «PRUEBA» en naranja | Es lo que dice `ORIGEN.txt` | Poner `Tipo: REAL` solo si la exportación es de la base del equipo |
 | Un pedido nuevo no sale en el dashboard | No se ha vuelto a exportar | Lanzar el 16 y esperar al siguiente ciclo de 60 s (o «Actualizar ahora») |
 | El servidor no arranca: se niega con `PGUSER=postgres` | Es una protección | Usar `web_nova` |
-| `npm test` dice que no encuentra `.env` | Los scripts de `package.json` usan `--env-file=.env` | Crear el `.env` (§7) |
+| `npm test` dice que no encuentra `.env` | Los scripts de `package.json` usan `--env-file=.env` | Crear el `.env` (§6) |
 | La tienda dice «no disponible» | Faltan `TIENDA_PGUSER` y `TIENDA_PGPASSWORD`, o no se lanzó el 20 | Rellenar el `.env`, lanzar el 20 y reiniciar |
 | Todos los modelos salen «No disponible» | La base no tiene el 21 nuevo (100 modelos) | Lanzar el 21 (se puede repetir y renombra los 12 antiguos) |
 | `taller.demo` entra pero el portal da error | No se ha lanzado el 23 | Lanzar `23_portal_trabajador.sql` (después del 22) |
-| `tienda.demo` no entra en el panel ni en el portal | Es un comercial: trabaja con la aplicación Java | Nada: es lo previsto (403) |
 | El panel o el portal salen sin iconos ni gráficos | No hay internet: Lucide y Chart.js vienen de una CDN | Conectarse a internet. El portal sigue funcionando sin iconos |
 | No llega el recibo de Ethereal | `NODE_ENV=production`, sin red o Ethereal no responde en 10 s | La compra sigue confirmada; revisar la consola |
 | El puerto 3000 está ocupado | Otro servidor | Cambiar `PUERTO` en el `.env` |

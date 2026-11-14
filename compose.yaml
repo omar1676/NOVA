@@ -1,5 +1,5 @@
 # NOVA Sneakers con Docker Compose: la base de datos, el servidor Node y el
-# dashboard de Python. Java Swing y PSP se siguen ejecutando fuera de Docker.
+# dashboard de Python. PSP se sigue ejecutando fuera de Docker.
 #
 #   1. Copiar .env.example como .env (en esta carpeta) y escribir las contrasenas.
 #   2. docker compose up -d --build
@@ -26,7 +26,7 @@ services:
       - ./02_Acceso_Datos/sql:/nova/sql:ro
       - ./02_Acceso_Datos/docker/iniciar_base.sh:/docker-entrypoint-initdb.d/iniciar_base.sh:ro
     ports:
-      - "127.0.0.1:${PUERTO_BD:-5433}:5432"   # para Java Swing, PSP y pgAdmin
+      - "127.0.0.1:${PUERTO_BD:-5433}:5432"   # para PSP y pgAdmin
     healthcheck:
       # Por TCP: mientras se monta la base, PostgreSQL todavia no escucha en la red
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d nova_sneakers"]

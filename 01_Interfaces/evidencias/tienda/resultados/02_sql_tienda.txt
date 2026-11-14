@@ -64,7 +64,7 @@ PASS P5 un pedido pagado no se cancela desde la web: P0001 Un pedido pagado no s
 PASS P6 un pedido cancelado no se puede pagar: P0001 Este pedido ya no se puede pagar
 PASS P7 pago rechazado o cancelado: el pedido queda cancelado
 PASS P8 cancelar un pendiente no cambia el stock
-PASS P9 un pedido de Java (no WEB-) no se paga desde la web: P0001 El pedido no existe
+PASS P9 un pedido que no es de la web (no WEB-) no se paga desde la web: P0001 El pedido no existe
 === Error a mitad de la confirmacion: no queda nada a medias
 PASS E1 falta stock de la segunda linea al pagar: P0001 Stock insuficiente o producto no encontrado
 PASS E2 no se descuenta la primera linea y el pedido sigue pendiente

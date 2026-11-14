@@ -1,14 +1,14 @@
 # NOVA Sneakers
 
 
-Proyecto intermodular de 2.º DAM (Omar, Álvaro y Berme): una marca de zapatillas con web de catálogo, base de datos PostgreSQL, aplicación Java de pedidos, procesos Java para preparar la fabricación y análisis de datos en Python. El caso común elegido para la evidencia de Odoo es **S00005 del Club Atlético NOVA**. SO024 es el ejemplo del enunciado, no una venta realizada en Odoo.md).
+Proyecto intermodular de 2.º DAM (Omar, Álvaro y Berme): una marca de zapatillas con web de catálogo, base de datos PostgreSQL, procesos Java para preparar la fabricación y análisis de datos en Python. El caso común elegido para la evidencia de Odoo es **S00005 del Club Atlético NOVA**. SO024 es el ejemplo del enunciado, no una venta realizada en Odoo.md).
 
 **Estado a 13/11/2026**:
 
 | Parte | Estado |
 |---|---|
 | Interfaces (web) | Hecha y probada en Edge. Falta la prueba de usabilidad **con personas** |
-| Acceso a Datos (PostgreSQL + Java) | Hecha y probada. Persisten límites de evidencia/manuales; no hay prueba de S00005 en este módulo |
+| Acceso a Datos (PostgreSQL) | Hecha y probada. Persisten límites de evidencia/manuales; no hay prueba de S00005 en este módulo |
 | PSP | Hecha y probada (27/27). CUSTOM-40 probado; SO024 solo como ensayo **PROVISIONAL**, sin prueba de S00005 |
 | Python | Hecho y probado (265 pruebas). Los CSV son de una base de **PRUEBA**: falta la exportación **REAL** |
 | Odoo | S00005 documentado en el PDF de Berme; sin integración entre sistemas verificada. Ver `05_Odoo/README.md` |
@@ -20,7 +20,7 @@ Cada asignatura tiene su carpeta con su código, sus pruebas, sus evidencias y s
 ```
 NOVA/
 ├── 01_Interfaces/        Web de la marca y tienda (cliente/), panel de administración (admin/), portal del trabajador (trabajador/)
-├── 02_Acceso_Datos/      PostgreSQL (sql/, documentacion/, modelo/, modelo-er/) y aplicación Java Swing + JDBC (java/)
+├── 02_Acceso_Datos/      PostgreSQL (sql/, documentacion/, modelo/, modelo-er/)
 ├── 03_PSP/               Procesador de pedidos Custom con tres procesos hijos (y el analizador de tallas en src/Psp/)
 ├── 04_Python/            Calidad de datos, KPIs, estadística, segmentación, predicción y dashboard Streamlit
 ├── 05_Odoo/              Estado de Odoo y evidencia de S00005 (PDF en odoo/documentacion/)
@@ -50,7 +50,6 @@ Dentro de cada asignatura: `evidencias/` guarda los resultados y las capturas de
                      Web (01_Interfaces/cliente)  ─┐
  Panel (01_Interfaces/admin) y portal (…/trabajador) ─┼─► servidor-admin (Node) ─► PostgreSQL (02_Acceso_Datos/sql)
                                                     ┘                                   │
- Aplicación Java (02_Acceso_Datos/java) ──── JDBC ──────────────────────────────────────┤
                                                                                         ├─ script 15 ─► CSV ─► PSP (03_PSP) ─► ficha del taller
                                                                                         └─ script 16 ─► 5 CSV ─► Python (04_Python) ─► dashboard
  Odoo (S00005 documental)     SIN trazabilidad de S00005 verificada     PostgreSQL (PRUEBA)
@@ -61,7 +60,7 @@ En todas las asignaturas hemos trabajado los tres: quién hizo cada cambio se ve
 ## Requisitos
 
 - **PostgreSQL 17** (probado con la 17.11) y `psql` o pgAdmin.
-- **JDK 17** (probado con el 17.0.12). La aplicación Java necesita el driver `postgresql-42.7.14.jar` en `02_Acceso_Datos/java/lib/`. Hay que descargarlo (no se sube al repositorio) y crear antes la carpeta `lib`.
+- **JDK 17** (probado con el 17.0.12), para PSP.
 - **Python 3.12 o superior** (probado con 3.13.5), con las versiones exactas de `04_Python/requirements.txt`: pandas 3.1.1, numpy 2.5.4, matplotlib 3.11.2, scikit-learn 1.9.1 y streamlit 1.67.0.
 - **Node 20.6 o superior** (probado con 24.15), solo para el panel, el portal y la tienda. Dependencias exactas en `servidor-admin/package-lock.json`: express 5.3.0, pg 8.23.1 y nodemailer 10.5.0 (`npm ci`).
 
@@ -69,7 +68,7 @@ El paso a paso completo, probado el 13/11 sobre un clon nuevo y una base vacía,
 
 ## Arrancar con Docker (opcional)
 
-Ninguna rúbrica pide Docker. Es otra forma de poner en marcha, con un solo comando, la base de datos, el servidor Node (tienda, panel y portal) y el dashboard de Python. La aplicación Java y PSP se siguen ejecutando fuera de Docker.
+Ninguna rúbrica pide Docker. Es otra forma de poner en marcha, con un solo comando, la base de datos, el servidor Node (tienda, panel y portal) y el dashboard de Python. PSP se sigue ejecutando fuera de Docker.
 
 **Qué se necesita:** Docker Desktop (o Docker Engine con el plugin `compose`).
 
@@ -96,7 +95,7 @@ Ninguna rúbrica pide Docker. Es otra forma de poner en marcha, con un solo coma
 | `docker compose down` y luego `docker compose up -d` | Para y vuelve a arrancar. **Los datos se conservan** en el volumen `datos_postgres` |
 | `docker compose down -v` | Lo borra todo, también la base. La próxima vez se vuelve a montar desde los scripts |
 
-**Java y PSP con la base de Docker:** la base se publica en `localhost:5433`, para no chocar con un PostgreSQL instalado en el 5432. En `02_Acceso_Datos/java/conexion.properties` hay que poner `url=jdbc:postgresql://localhost:5433/nova_sneakers` y la contraseña de `CLAVE_JAVA`. Para exportar un pedido para PSP: `psql -h localhost -p 5433 -U postgres -d nova_sneakers -f 02_Acceso_Datos/sql/15_exportar_fabricacion.sql`.
+**PSP con la base de Docker:** la base se publica en `localhost:5433`, para no chocar con un PostgreSQL instalado en el 5432. Para exportar un pedido para PSP: `psql -h localhost -p 5433 -U postgres -d nova_sneakers -f 02_Acceso_Datos/sql/15_exportar_fabricacion.sql`.
 
 **Límites:**
 - Los puertos solo se abren en este ordenador (`127.0.0.1`).
@@ -109,7 +108,7 @@ Ninguna rúbrica pide Docker. Es otra forma de poner en marcha, con un solo coma
 Sobre una base **nueva y vacía** (`CREATE DATABASE nova_sneakers;`), se lanzan los scripts de `02_Acceso_Datos/sql/` con `psql -U postgres -d nova_sneakers -f <script>`. **El número del archivo no es el orden de ejecución.** El orden es este:
 
 1. Instalación: `sneaker-factory-esquema.sql`, `04_xnova.sql`, `02_funciones.sql`, `03_triggers.sql`, `05_datos_prueba.sql`, `07_seguridad.sql` y `08_auditoria.sql`.
-2. Usuarios de conexión: `17_usuario_java.sql` (Java) y `19_usuario_web.sql` (servidor).
+2. Usuarios de conexión: `17_usuario_java.sql` (`java_nova`) y `19_usuario_web.sql` (servidor).
 3. Consultas y pruebas: `06_consultas.sql`, `09_pruebas.sql`, `10_caso_custom.sql`, `11_dml_ejemplos.sql` y `12_consultas_panel.sql`.
 4. `13_activar_usuarios.sql` (contraseñas de `admin.demo`, `tienda.demo` y `taller.demo`) y `14_caso_custom_persistente.sql` (guarda el pedido `CUSTOM-40`).
 5. Exportaciones: `15_exportar_fabricacion.sql` (CSV para PSP) y `16_exportar_csv_dashboard.sql` (los cinco CSV de Python). Dejan los archivos en la carpeta desde la que se lanza `psql`.
@@ -123,13 +122,6 @@ Sobre una base **nueva y vacía** (`CREATE DATABASE nova_sneakers;`), se lanzan 
 Necesitan un usuario administrador `sneaker-factory-esquema.sql`, `07_seguridad.sql`, el 13, el 17, el 19, el 20, el 22 y el 23. El detalle de cada script está en `02_Acceso_Datos/documentacion/README.md`.
 
 ## Cómo se arranca cada parte
-
-### Aplicación Java (Acceso a Datos)
-
-1. Lanzar `17_usuario_java.sql` y copiar `02_Acceso_Datos/java/conexion.properties.ejemplo` como `conexion.properties`, con la contraseña de `java_nova`. Ese archivo está en el `.gitignore`.
-2. `02_Acceso_Datos\java\ejecutar.bat` compila y abre la ventana de login.
-
-Más detalle en `02_Acceso_Datos/java/README.md`.
 
 ### PSP
 
@@ -168,7 +160,7 @@ Así funcionan el escaparate, el catálogo, la ficha, el probador, Custom y Cont
 1. Lanzar `19_usuario_web.sql`; para la tienda, también el 20 y el 21; para el reparto, el 22; para el portal del trabajador, el 23.
 2. En `servidor-admin`, `npm ci`.
 3. Copiar `.env.example` como `.env` y escribir las contraseñas de `web_nova` y, para la tienda, de `tienda_nova`. El `.env` no se sube a Git.
-4. `npm start` y abrir `http://127.0.0.1:3000/login.html`, la página de acceso única del personal: `admin.demo` (administrador) pasa al panel, `taller.demo` (trabajador) al portal del trabajador, y `tienda.demo` (comercial) recibe «Acceso denegado» (no tiene ningún panel web), porque trabaja con la aplicación Java. La tienda está en `http://127.0.0.1:3000/tienda/`.
+4. `npm start` y abrir `http://127.0.0.1:3000/login.html`, la página de acceso única del personal: `admin.demo` (administrador) pasa al panel, `taller.demo` (trabajador) al portal del trabajador, y `tienda.demo` (comercial) recibe «Acceso denegado» (no tiene ningún panel web). La tienda está en `http://127.0.0.1:3000/tienda/`.
 
 5. Para la página **«Análisis de datos»** del panel (el dashboard de Python dentro del panel de administración), arrancar también Streamlit, en otra consola:
 
@@ -183,13 +175,12 @@ El conector de Odoo de Berme (`servidor-admin/odoo.js`) está **desactivado** mi
 
 ## Pruebas
 
-Todas sobre una base de **prueba**, nunca la del equipo: la batería Java deja pedidos `PRUEBA-*` y las de la tienda y el portal crean clientes, pedidos y cambios de verdad.
+Todas sobre una base de **prueba**, nunca la del equipo: las de la tienda y el portal crean clientes, pedidos y cambios de verdad.
 
 | Parte | Cómo se lanza | Resultado esperado | Regresión del 13/11 |
 | --- | --- | --- | --- |
 | SQL | Scripts 09 a 16, en el orden de arriba | 123 PASS, 0 FAIL y 1 ERROR previsto (la S4b: PostgreSQL deniega `descontar_stock` al cliente a propósito) | 123 / 0 / 1 |
 | SQL de la tienda, del reparto y del portal | `psql -U postgres -d <copia de la base 01–23> -At -f <script>` con los tres scripts de la regresión del 13/11 | 55, 37 y 50 PASS | 55 / 0, 37 / 0 y 50 / 0 |
-| Java | `02_Acceso_Datos\java\pruebas.bat` (pide las contraseñas de demostración) | 47 PASS, 0 FAIL | 47 / 0; ventanas Swing 76 / 0 |
 | PSP | En `03_PSP`, tras compilar: `java -cp clases PruebasPsp` | 27 de 27 | 27 / 27 |
 | Python | En `04_Python`: `.venv\Scripts\python.exe -m unittest discover -s tests -v` | 265 pruebas OK | 265 OK; las 93 salidas de `main.py`, iguales a la referencia salvo los cambios hechos a propósito |
 | Panel | En `servidor-admin`: `npm test` (con las variables `PRUEBA_*` de su README) | 23 de 23 con `PRUEBA_TIENDA_BASE_DESECHABLE=si` (sin ella, 22 y 1 saltada) | 23 / 23 |

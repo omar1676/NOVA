@@ -20,7 +20,7 @@ archivos en `salidas/`.
 | **Qué necesita** | JDK 17 |
 | **Cómo se inicia** | Desde esta carpeta: `javac -encoding UTF-8 -d clases *.java pruebas\*.java src\Psp\*.java` y `java -cp clases ProcesadorPedidosCustom datos\custom40_fabricacion_psp.csv` |
 | **Pruebas** | `java -cp clases PruebasPsp`: 27 de 27. `scripts/comprobar_psp.py` (raíz del repositorio) correcto en la regresión de cierre; corrección de Berme incorporada en `4f09742`, con su autoría |
-| **Rúbrica** | IM §4.3 y anexo: 19 requisitos, 17 cumplidos; falta relacionar la ficha con el pedido de Odoo.md` (§2.3) |
+| **Rúbrica** | IM §4.3 y anexo: 19 requisitos, 17 cumplidos; falta relacionar la ficha con el pedido de Odoo |
 | **Conexión con otras asignaturas** | Lee el CSV que genera `02_Acceso_Datos/sql/15_exportar_fabricacion.sql`, con el formato de `03_PSP/memoria/DOCUMENTACION_PSP.md`. La ficha se demuestra con CUSTOM-40; SO024 es un ensayo provisional y no hay ficha acreditada de S00005 |
 | **Evidencias y memoria** | `evidencias/` (ejecución de CUSTOM-40, errores controlados, hijos por separado, pruebas y SO024 provisional) y `memoria/DOCUMENTACION_PSP.md` |
 

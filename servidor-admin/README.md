@@ -80,7 +80,7 @@ Si `.env` dice `PGUSER=postgres`, el servidor se niega a arrancar.
 |---|---|
 | `servidor.js` | Arranca Express y entrega las páginas del panel, del portal y de la tienda. Tiene el login único, el logout, las 8 rutas de lectura del panel y la de «Marcar en reparto», monta las rutas del portal y comprueba la sesión y el rol, contra la base, en cada petición |
 | `bd.js` | Las dos conexiones con PostgreSQL. `consultarSoloLectura` (panel) abre `BEGIN ... READ ONLY` y `SET LOCAL ROLE panel_lectura`; `marcarEnReparto` (solo el botón del panel) abre una transacción aparte con `SET LOCAL ROLE panel_reparto`; `consultarComoTrabajador` y `cambiarComoTrabajador` (portal) hacen lo mismo con `portal_trabajador`; `operarEnTienda` (tienda) abre una transacción con `SET LOCAL ROLE tienda_web`. Las cinco usan `enTransaccion`, que abre la transacción, cambia de rol y hace `COMMIT` o `ROLLBACK` |
-| `consultas.js` | Las 8 consultas SQL del panel. Salen de `12_consultas_panel.sql` y de `PedidoDAO.verAuditoria` (Java) |
+| `consultas.js` | Las 8 consultas SQL del panel. Salen de `12_consultas_panel.sql` y de la auditoría de `08_auditoria.sql` |
 | `tienda.js` | Las rutas de la tienda (`/api/tienda/...`): comprueban los datos y llaman a las funciones del script 20 con el cliente de la sesión |
 | `consultas-tienda.js` | El SQL de la tienda: catálogo, cuenta, historial y las llamadas a las funciones de compra |
 | `correo.js` | El recibo por correo de cada compra pagada: con la API de Resend (`fetch` de Node) o, solo en desarrollo, con Ethereal (Nodemailer) |
@@ -111,7 +111,7 @@ Todas devuelven JSON. Las de `/api/admin/` necesitan una sesión de administrado
 | `GET /api/admin/inventario` | `estado`, `texto` | C8 sin agrupar, por SKU y nave |
 | `GET /api/admin/clientes` | `estado`, `texto` | `csv_clientes` (16), sin la dirección de entrega |
 | `GET /api/admin/trabajadores` | `estado`, `texto` | P-H, más `personal` para el nombre y el puesto. Nunca el DNI |
-| `GET /api/admin/auditoria` | `accion`, `texto` | `PedidoDAO.verAuditoria`: los últimos 100 eventos |
+| `GET /api/admin/auditoria` | `accion`, `texto` | Los últimos 100 eventos de `log_eventos` |
 | `GET /api/admin/estadisticas` | — | P-A del mes en curso, P-B, P-C y los ingresos por mes |
 | `POST /api/admin/pedidos/:id/reparto` | JSON `{}` | `marcar_pedido_en_reparto` (22): un pedido **confirmado** pasa a `enviado`. **200** con el pedido, **404** si no existe, **409** si no está confirmado, **415** si no llega JSON |
 
@@ -173,13 +173,13 @@ Es una prueba: el administrador pulsa el botón en un pedido confirmado y el cli
 
 ### Login único y roles
 
-Hay **una sola página de acceso** para el personal, `login.html`. El servidor decide adónde va cada uno según el rol de la tabla `roles`, siguiendo la matriz de permisos de `02_Acceso_Datos/java/README.md`:
+Hay **una sola página de acceso** para el personal, `login.html`. El servidor decide adónde va cada uno según el rol de la tabla `roles`, siguiendo la matriz de permisos de `02_Acceso_Datos/documentacion/README.md`:
 
 | Rol | Cuenta de demostración | Al entrar | Por qué |
 |---|---|---|---|
 | `administrador` | `admin.demo` | Panel de administración (`/admin.html`) | Ve todo, también la auditoría, y es el único que marca pedidos en reparto desde el panel |
 | `trabajador` | `taller.demo` | Portal del trabajador (`/trabajador/`) | Prepara pedidos y controla el almacén: avanza el estado de los pedidos y corrige el stock. No vende ni ve la auditoría |
-| `comercial` | `tienda.demo` | **Acceso denegado** (403, sin sesión) | Vende desde la aplicación Java. Ninguna página web es suya |
+| `comercial` | `tienda.demo` | **Acceso denegado** (403, sin sesión) | Ninguna página web es suya |
 
 - **Cada uno solo entra en su panel.** El administrador no entra en el portal (ya tiene su panel) y el trabajador no entra en el panel: sus páginas le llevan a `login.html` y todas las rutas `/api/admin/` le responden 403.
 - **Contraseña mal, usuario que no existe o cuenta desactivada:** 401 con el mismo mensaje, «Usuario o contraseña incorrectos». Así no se sabe qué cuentas existen ni cuáles están desactivadas.
@@ -268,7 +268,7 @@ La web cliente (`01_Interfaces/cliente/`) se sirve en `/tienda/`. Su JavaScript 
 | En el prototipo | Ahora | Motivo |
 |---|---|---|
 | Auditoría con las acciones crear, modificar, eliminar y acceso | `ALTA`, `CAMBIO_ESTADO`, `CAMBIO_STOCK` y `BAJA_LOGICA`, con los mismos colores | Son las que guardan los triggers de `08_auditoria.sql`. Los accesos no se registran en la base |
-| Stock bajo con «10 unidades o menos» | **Menos de 10** | Es el criterio de C8, de P-E y del panel de Java |
+| Stock bajo con «10 unidades o menos» | **Menos de 10** | Es el criterio de C8 y de P-E |
 | Stock bajo en el portal del trabajador | **Menos de 5** (`01_Interfaces/trabajador/script.js:185` y `/api/trabajador/resumen`) | El portal de Berme usa su propio umbral: una talla con 5 a 9 pares sale «bajo» en el panel y «suficiente» en el portal. Es una diferencia conocida; no se ha cambiado el código |
 | Sugerencias pendientes | «No disponible» | No hay tabla de sugerencias |
 | Trabajadores: activo o inactivo | También «sin cuenta» | Personal sin usuario en la tabla `usuarios`. Las cuentas sin ficha de personal (las de `crear_usuario`) salen con el nombre en blanco |

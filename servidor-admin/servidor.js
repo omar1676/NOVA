@@ -32,8 +32,8 @@ const CARPETA_PORTAL = path.join(__dirname, '..', '01_Interfaces', 'trabajador')
 // Login unico para el personal: cada rol de la tabla roles entra en su panel.
 //   administrador -> panel de administracion (01_Interfaces/admin)
 //   trabajador    -> portal del trabajador (01_Interfaces/trabajador, de Berme)
-// Un rol que no esta aqui (comercial) no tiene panel web: trabaja con la
-// aplicacion Java, asi que el login le deniega el acceso.
+// Un rol que no esta aqui (comercial) no tiene panel web, asi que el
+// login le deniega el acceso.
 const ROL_PANEL = 'administrador';
 const ROL_PORTAL = 'trabajador';
 const PANELES = {
@@ -89,8 +89,8 @@ app.get('/api/estado', async (req, res) => {
 // ---------------------------------------------------------------------
 // Login y logout
 //
-// La contrasena la comprueba PostgreSQL con iniciar_sesion (bcrypt), igual
-// que en la aplicacion Java. Si no coincide, o la cuenta no tiene contrasena
+// La contrasena la comprueba PostgreSQL con iniciar_sesion (bcrypt).
+// Si no coincide, o la cuenta no tiene contrasena
 // o esta desactivada, iniciar_sesion lanza una excepcion (RAISE EXCEPTION,
 // codigo P0001).
 //

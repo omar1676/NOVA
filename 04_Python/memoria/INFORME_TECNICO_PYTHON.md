@@ -2,7 +2,7 @@
 
 Ampliación de Python: ciencia de datos y dashboard. Es el informe técnico que pide la rúbrica: «Uno técnico (método, pruebas, métricas, sesgos)» (PY-194), con el contenido de la memoria técnica de Python (PY-215). El informe ejecutivo, con las cinco decisiones priorizadas, es `04_Python/informe_ejecutivo.md`.
 
-**Convenciones.** Las rutas son relativas a la raíz del repositorio; casi todo el código está en `04_Python/`.md` §2.4. Marcas:
+**Convenciones.** Las rutas son relativas a la raíz del repositorio; casi todo el código está en `04_Python/`.
 
 
 **Versión:** commit `1bcbb10`. Todas las cifras de pruebas son de la **regresión final del 13/11/2026**, sobre ese árbol exportado con `git archive` (la regresión del 13/11).
@@ -84,7 +84,7 @@ Python no se conecta a PostgreSQL: lee los cinco CSV que exporta Acceso a Datos.
 | `lineas_pedido.csv` | `id_linea`, `id_pedido`, `sku`, `id_modelo`, `talla`, `cantidad`, `precio_unitario`, `importe_linea` |
 | `stock.csv` | `sku`, `id_modelo`, `color`, `talla`, `activo`, `stock_disponible`, `fecha_corte` |
 
-**Formato** (`diccionario_datos.md`, «Formato de los cinco archivos»; `02_Acceso_Datos/documentacion/README.md` §14): UTF-8 (se acepta el BOM de Excel), coma como separador, primera fila con los nombres, punto decimal y sin símbolo de moneda (euros), fechas `AAAA-MM-DD HH:MM:SS`, lógicos `true`/`false` y un campo vacío es un nulo.
+**Formato** (`diccionario_datos.md`, «Formato de los cinco archivos»; `02_Acceso_Datos/documentacion/README.md` §13): UTF-8 (se acepta el BOM de Excel), coma como separador, primera fila con los nombres, punto decimal y sin símbolo de moneda (euros), fechas `AAAA-MM-DD HH:MM:SS`, lógicos `true`/`false` y un campo vacío es un nulo.
 
 **Los ID son identificadores, no cantidades:** se leen como texto y nunca entran en un cálculo estadístico (PY-26; prueba `test_identificadores_que_no_se_confunden`).
 
@@ -424,7 +424,7 @@ Fuente: `dashboard.md` y las capturas de `04_Python/evidencias/dashboard/` (`ref
 **Datos nuevos y recuperación, paso a paso (PY-214).** Para repetirlo en la defensa:
 
 1. Abrir el dashboard (`.venv\Scripts\streamlit.exe run app_dashboard.py`) con la exportación en `entrada_acc/` y apuntar las cifras de Dirección.
-2. Dar de alta un pedido desde la aplicación Java (o cancelarlo, o cambiar el stock) y volver a exportar con el 16 en `entrada_acc/`.
+2. Dar de alta un pedido en la base (o cancelarlo, o cambiar el stock) y volver a exportar con el 16 en `entrada_acc/`.
 3. Esperar al siguiente ciclo (o pulsar «Actualizar ahora»): el estado pasa a «Correcto» y cambian las cifras, sin contar nada dos veces.
 4. Para la recuperación: mover fuera `pedidos.csv`; al minuto, «Error de carga», sin cifras y el último resultado válido rotulado DESACTUALIZADO. Devolver el archivo: vuelven las cifras.
 
@@ -468,7 +468,7 @@ Con los sintéticos el orden es **1, 4, 2, 3 y 5**; con PRUEBA, 1 a 5. Pruebas: 
 
 Los cinco grupos de la rúbrica están cubiertos: carga y esquema, integridad, cálculo, reproducibilidad y ML/temporalidad. Se usa `unittest` (viene con Python); la rúbrica recomienda pytest, que puede lanzar estas mismas pruebas.
 
-**Instalación desde cero (PY-219).** El 13/11 se siguió `manuales/MANUAL_INSTALACION.md` §6 sobre un clon nuevo: entorno virtual nuevo, `pip install -r requirements.txt`, `main.py` en los tres modos y Streamlit (la regresión del 13/11).
+**Instalación desde cero (PY-219).** El 13/11 se siguió `manuales/MANUAL_INSTALACION.md` §5 sobre un clon nuevo: entorno virtual nuevo, `pip install -r requirements.txt`, `main.py` en los tres modos y Streamlit (la regresión del 13/11).
 
 ### 15.2 Salidas reproducibles
 
@@ -488,7 +488,7 @@ Los cinco grupos de la rúbrica están cubiertos: carga y esquema, integridad, c
 |---|---|---|---|
 | A | Pedido Custom de 40 pares: línea a línea y total en los KPIs | Hecho | `test_pedido_custom_de_40_pares_linea_a_linea`; CUSTOM-40 en la exportación de PRUEBA; SO024 PROVISIONAL como un solo pedido de 9 líneas y 40 pares (la regresión del 13/11) |
 | B | Cancelado y pendiente: qué es venta y qué es actividad | Hecho | `importes_por_criterio.csv`; `test_kpis.py` |
-| C | Alta desde Java → exportación → Python | PROVISIONAL | SO024 creado y confirmado con los métodos de «Nuevo pedido» de Java (no con la ventana) → 15 → PSP → 16 → Python, el 13/11 (la regresión del 13/11). **Límite PY-199:** falta la evidencia de alta desde la ventana Java y de indicadores antes/después; no exige el identificador SO024 ni acredita S00005. |
+| C | Alta en la base → exportación → Python | PROVISIONAL | SO024 creado y confirmado en la base → 15 → PSP → 16 → Python, el 13/11 (la regresión del 13/11). **Límite PY-199:** falta la evidencia de indicadores antes/después; no exige el identificador SO024 ni acredita S00005. |
 | D | Huérfano, fecha inválida y duplicado: tres alertas | Hecho | `calidad_datos.md`, caso D |
 | E | Al menos tres cifras de SQL conciliadas | Hecho | 21 de 21 (§9) |
 | F | RFM de un cliente con varios pedidos | Hecho | `test_segmentacion.py` |
@@ -548,7 +548,7 @@ Los cinco grupos de la rúbrica están cubiertos: carga y esquema, integridad, c
 |---|---|---|
 | Exportación REAL de la base del equipo, con «Tipo: REAL», y regenerar P-A, P-B, P-C y N-1 a N-3 | PY-40, 130, 138 | **[PENDIENTE (los tres)]** |
 | R1–R3 y el caso L con la exportación real; capturas antes y después | PY-183 a 185, 208, 216 | **[PENDIENTE (los tres, con la exportación REAL)]** |
-| Alta desde la ventana Java y cambio de indicadores (caso C) | PY-199 | Falta evidencia completa; no hay prueba de S00005 en Python y no se exige crear SO024 |
+| Alta de un pedido y cambio de indicadores (caso C) | PY-199 | Falta evidencia completa; no hay prueba de S00005 en Python y no se exige crear SO024 |
 | Criterio de venta, IVA (neto o bruto), rango de tallas válidas y si NOVA-0011 y CUSTOM-40 son el mismo encargo | PY-74, 81, 175, 56 | |
 | Pestañas (5 o 6), predicciones sintéticas en la sexta, número de CSV y si una base de prueba cuenta como REAL | PY-40, 161, 167, 192 | |
 | Copiar al README de `04_Python` los pasos de datos nuevos y recuperación del §14.3 (hoy están en `dashboard.md`) | PY-214 | Omar (documentación) |
