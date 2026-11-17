@@ -20,6 +20,6 @@ La base de datos PostgreSQL de NOVA Sneakers.
 | `sql/` | Los 23 scripts: esquema, funciones, triggers, datos de demostración, seguridad, auditoría, pruebas, exportaciones y ampliaciones |
 | `documentacion/` | Instalación de la base, qué hace cada script, decisiones de diseño, seguridad y pruebas (`README.md`), y el modelo relacional |
 | `modelo/`, `modelo-er/` | Modelo de pgModeler (`.dbm`) y diagrama entidad-relación (`.drawio`) |
-| `memoria/` | `MEMORIA_ACCESO_DATOS.md`, el apartado de Acceso a Datos que pide la rúbrica |
+| `memoria/` | `Memoria_Acceso_Datos_NOVA_Sneakers.pdf`, la memoria de la asignatura, y `MEMORIA_ACCESO_DATOS.md`, el apartado de Acceso a Datos que pide la rúbrica |
 
 Quién ha hecho cada parte se ve con `git log --follow <archivo>`: en la base de datos y en la aplicación han trabajado los tres.
