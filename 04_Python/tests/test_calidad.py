@@ -1,11 +1,3 @@
-"""
-Pruebas de las doce reglas de calidad (calidad.py) y de los CSV que genera.
-
-Cada prueba parte de los cinco CSV validos de test_pipeline.py (que no tienen
-ninguna incidencia) y les mete un fallo concreto para comprobar que se
-detecta, con su regla, su gravedad y su tratamiento. Todo en una carpeta
-temporal: nunca se tocan entrada_acc/ ni la base de datos.
-"""
 import hashlib
 
 import pandas as pd
@@ -16,7 +8,6 @@ from test_pipeline import VALIDOS, PruebaConCarpeta
 
 
 class PruebaCalidad(PruebaConCarpeta):
-    """Base: escribir un CSV con un cambio y evaluar la carpeta."""
 
     def cambiar(self, archivo, antes, despues):
         texto = VALIDOS[archivo]

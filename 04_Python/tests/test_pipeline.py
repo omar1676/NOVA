@@ -1,13 +1,3 @@
-"""
-Pruebas de la lectura de CSV y de las comprobaciones iniciales (fase 1).
-
-Cada prueba escribe sus propios CSV pequenos en una carpeta temporal que se
-borra al terminar. NUNCA usan entrada_acc/ ni la base de datos: son datos
-de prueba inventados, no datos reales.
-
-Se ejecutan desde la carpeta 04_Python:
-    python -m unittest discover -s tests -v
-"""
 import hashlib
 import tempfile
 import unittest
@@ -18,8 +8,6 @@ import pandas as pd
 import comprobaciones
 import pipeline
 
-# Cinco CSV pequenos y coherentes entre si. Llevan tildes y enes para
-# comprobar que el UTF-8 se lee bien, y comas dentro de comillas.
 VALIDOS = {
     "clientes.csv": (
         "id_cliente,nombre,tipo,correo,telefono,activo\n"
@@ -53,7 +41,6 @@ VALIDOS = {
 
 
 class PruebaConCarpeta(unittest.TestCase):
-    """Base: una carpeta temporal con los cinco CSV validos."""
 
     def setUp(self):
         self.temporal = tempfile.TemporaryDirectory()

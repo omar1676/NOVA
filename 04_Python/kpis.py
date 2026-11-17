@@ -1,19 +1,3 @@
-"""
-Indicadores (KPIs) de NOVA Sneakers, apartado 6.5 de la rubrica.
-
-Cada KPI es una fila con: codigo, nombre, valor, unidad, detalle, formula,
-poblacion (que pedidos cuenta), tabla_origen (de que tabla sale) y estado.
-
-Poblaciones (config.py):
-  todos     todos los pedidos validos, en cualquier estado
-  demanda   pedidos no cancelados
-  venta     pedidos confirmados en adelante
-  pagado    estado_pago = "pagado" (lo que marca Acceso a Datos; no es caja)
-
-Nunca se calcula un margen sin coste, ni se supone IVA ni cobros. Si un KPI
-no se puede calcular, su estado es NO CALCULABLE y el detalle dice por que.
-Todos usan las mismas funciones que las tablas: no hay dos formulas para lo mismo.
-"""
 import pandas as pd
 
 import config
@@ -24,24 +8,18 @@ COLUMNAS = ["codigo", "nombre", "valor", "unidad", "detalle", "formula", "poblac
 
 
 def kpi(codigo, nombre, valor, unidad, formula, poblacion, origen, detalle=""):
-    """Un KPI calculado. Si el valor sale nulo (division por 0), su estado es 'sin datos'."""
     estado = "calculado" if valor is not None else "sin datos"
     return {"codigo": codigo, "nombre": nombre, "valor": valor, "unidad": unidad, "detalle": detalle,
             "formula": formula, "poblacion": poblacion, "tabla_origen": origen, "estado": estado}
 
 
 def kpi_no_calculable(codigo, nombre, unidad, formula, poblacion, origen, motivo):
-    """Un KPI sin valor: estado NO CALCULABLE y el motivo en el detalle."""
     fila = kpi(codigo, nombre, None, unidad, formula, poblacion, origen, motivo)
     fila["estado"] = NO_CALCULABLE
     return fila
 
 
 def mas_solicitado(codigo, nombre, tabla, etiqueta, origen):
-    """
-    El elemento con mas pares de demanda (modelo o talla). Si hay empate se
-    nombran todos: no se elige uno a dedo.
-    """
     formula = f"máximo de pares de demanda por {etiqueta}"
     if len(tabla) == 0 or tabla["pares"].max() == 0:
         return kpi(codigo, nombre, None, "pares", formula, "demanda", origen, "no hay demanda")
@@ -53,10 +31,6 @@ def mas_solicitado(codigo, nombre, tabla, etiqueta, origen):
 
 
 def calcular_kpis(pedidos, tabla_abc, tabla_tallas, tabla_stock, tabla_meses):
-    """
-    Los KPIs a partir de df_pedidos_unicos y de las tablas de analiticas.py.
-    Devuelve un DataFrame con una fila por KPI.
-    """
     demanda = de_demanda(pedidos)
     venta = de_venta(pedidos)
     pagados = pedidos[pedidos["estado_pago"] == config.ESTADO_PAGADO]
@@ -98,8 +72,6 @@ def calcular_kpis(pedidos, tabla_abc, tabla_tallas, tabla_stock, tabla_meses):
         mas_solicitado("K14", "Talla más solicitada", tabla_tallas, "talla", "ventas_por_talla"),
     ]
 
-    # Pareto: que parte de los pares se lleva el 20 % de los modelos con mas pares.
-    # int(x + 0.5) redondea al entero mas cercano; como minimo se cuenta 1 modelo
     modelos = len(tabla_abc)
     if modelos > 0:
         cuantos = max(1, int(modelos * config.PARETO_PORCENTAJE / 100 + 0.5))
@@ -131,7 +103,6 @@ def calcular_kpis(pedidos, tabla_abc, tabla_tallas, tabla_stock, tabla_meses):
 
 
 def variacion_mensual(tabla_meses):
-    """Variacion del importe de venta del ultimo mes frente al anterior. Hacen falta 2 meses."""
     formula = "(importe del último mes / importe del mes anterior - 1) x 100"
     if es_no_calculable(tabla_meses):
         meses = 0   # no hay ningun mes con ventas
@@ -150,7 +121,6 @@ def variacion_mensual(tabla_meses):
 
 
 def cobertura_total(tabla_stock):
-    """Semanas que duraria todo el stock con la demanda de los ultimos 28 dias."""
     formula = f"stock total / (pares de demanda de los últimos {config.DIAS_DEMANDA} días / 4)"
     if len(tabla_stock) == 0 or str(tabla_stock["estado_cobertura"].iloc[0]).startswith(NO_CALCULABLE):
         if len(tabla_stock) > 0:
@@ -168,10 +138,6 @@ def cobertura_total(tabla_stock):
 
 
 def coherencia_con_sql(tabla_kpis, carpeta_sql):
-    """
-    Contrasta los KPIs que tambien calcula Acceso a Datos con sus consultas
-    P-A y P-B (las mismas de la conciliacion). None si faltan los resultados.
-    """
     if conciliacion.faltan_resultados(carpeta_sql):
         return None
     p_a = conciliacion.leer_resultado(carpeta_sql, "P-A").iloc[0]

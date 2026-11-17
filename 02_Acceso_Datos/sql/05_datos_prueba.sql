@@ -1,14 +1,4 @@
--- =====================================================================
 -- 05_datos_prueba.sql — datos de demostracion
---
--- Todo va dentro de una transaccion: o se cargan los datos completos, o
--- no se carga ninguno. Si una sentencia falla, el COMMIT no llega y
--- PostgreSQL deshace lo anterior, asi que la base no se queda a medias.
---
--- Esto importa al reejecutar el archivo sobre una base que ya tiene los
--- datos: el primer INSERT choca con modelos_nombre_uq, la transaccion se
--- deshace y no queda ningun modelo duplicado.
--- =====================================================================
 
 BEGIN;
 

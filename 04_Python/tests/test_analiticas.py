@@ -1,13 +1,3 @@
-"""
-Pruebas de los dos DataFrames principales, las variables derivadas, los
-importes por criterio, la conciliacion con SQL y el caso N (analiticas.py y conciliacion.py), y el
-caso A: un pedido Custom de 40 pares linea a linea.
-
-Datos de partida (los CSV validos de test_pipeline.py):
-  pedido 10  P-1  cliente 1  2026-10-01 10:00 (jueves)  normal  confirmado  lineas 100 y 101: 3 pares, 239.97 €
-  pedido 11  P-2  cliente 2  2026-11-02 12:30 (lunes)   custom  cancelado   linea 102:         2 pares, 239.80 €
-  fecha de corte del stock: 2026-11-09 19:00
-"""
 import pandas as pd
 
 import analiticas
@@ -19,7 +9,6 @@ from test_calidad import PruebaCalidad
 
 
 class PruebaAnalisis(PruebaCalidad):
-    """Base: construir los dos DataFrames a partir de la carpeta temporal."""
 
     def construir(self):
         resultado = calidad.evaluar(self.carpeta)
@@ -240,7 +229,6 @@ SQL_CASO_N = {
 
 
 class PruebasCasoN(PruebaAnalisis):
-    """Caso N: ingresos de un mes, matriz talla x modelo y clientes unicos, SQL frente a pandas."""
 
     def tablas(self):
         resultado = calidad.evaluar(self.carpeta)
@@ -287,7 +275,6 @@ class PruebasCasoN(PruebaAnalisis):
 
 
 class PruebasCasoA(PruebaAnalisis):
-    """Caso A: un pedido Custom de 40 pares en varias tallas, linea a linea y en los KPIs."""
 
     LINEAS = {"103": ("M1-40", 40, 10), "104": ("M1-41", 41, 10), "105": ("M1-42", 42, 12), "106": ("M1-43", 43, 8)}
 

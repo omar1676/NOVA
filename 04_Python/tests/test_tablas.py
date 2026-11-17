@@ -1,13 +1,3 @@
-"""
-Pruebas de los DataFrames analiticos de la fase 3 (analiticas.calcular_tablas).
-
-Datos de partida (los CSV validos de test_pipeline.py):
-  pedido 10  P-1  cliente 1  2026-10-01  normal  confirmado  pagado       lineas 100 (M1-40 x1) y 101 (M1-41 x2): 239.97 €
-  pedido 11  P-2  cliente 2  2026-11-02  custom  cancelado   reembolsado  linea 102 (M2-42 x2): 239.80 €
-  stock: M1-40 = 5, M1-41 = 0, M2-42 = 12 (corte 2026-11-09 19:00)
-Con anadir_otro_mes() se anaden dos ventas de noviembre: P-3 (cliente 1, M1-40 x1)
-y P-4 (cliente 2, M2-42 x2), para las pruebas que necesitan mas de un mes.
-"""
 import pandas as pd
 
 import analiticas
@@ -28,7 +18,6 @@ class PruebaTablas(PruebaAnalisis):
         self.anadir("lineas_pedido.csv", "103,12,M1-40,1,40,1,79.99,79.99\n104,13,M2-42,2,42,2,119.90,239.80\n")
 
     def vaciar_lineas(self):
-        """Sin lineas: los dos pedidos dicen tener pares y se rechazan (regla 12). No queda nada."""
         self.escribir("lineas_pedido.csv", "id_linea,id_pedido,sku,id_modelo,talla,cantidad,precio_unitario,importe_linea\n")
 
 
@@ -217,8 +206,6 @@ class PruebasOtrasTablas(PruebaTablas):
         self.assertEqual(len(lineas), 6)
 
     def test_el_recargo_custom_no_es_un_atipico(self):
-        # El mismo modelo: 6 lineas normales a 100 € y 5 Custom a 120 € (recargo del 20 %).
-        # Por modelo y tipo cada grupo es comparable y no sale ningun atipico.
         lineas = pd.DataFrame({"id_linea": [str(i) for i in range(11)], "nombre_modelo": ["M"] * 11,
                                "tipo_pedido": ["normal"] * 6 + ["custom"] * 5, "cantidad": [1] * 6 + [10] * 5,
                                "precio_unitario": [100.0] * 6 + [120.0] * 5})

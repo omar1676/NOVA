@@ -1,13 +1,3 @@
-"""
-Pruebas del ciclo de comprobacion y recalculo (actualizacion.py), del
-registro de eventos (registro.py) y del informe ejecutivo (informe.py).
-
-Siguen las pruebas de actualizacion de la rubrica (apartado 6.17): pedido
-nuevo (R1), cancelacion (R2), cambio de stock (R3), CSV defectuoso (R4) y sin
-cambios (R5). Cada prueba cambia los CSV de una carpeta temporal entre dos
-ciclos: el segundo ciclo tiene que RELEER el disco para verlo. El registro va
-a otra carpeta temporal (nunca a logs/ ni a la carpeta de entrada).
-"""
 import hashlib
 import os
 import tempfile
@@ -35,7 +25,6 @@ def valor(estado, codigo):
 
 
 class PruebaCiclo(PruebaCalidad):
-    """Base: la carpeta con los cinco CSV validos y un registro aparte."""
 
     def setUp(self):
         super().setUp()

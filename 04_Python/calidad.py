@@ -1,22 +1,3 @@
-"""
-Las doce reglas de calidad del apartado 6.2 de la rubrica.
-
-Cada regla mira una cosa y apunta una INCIDENCIA por cada registro que la
-incumple: regla, tabla, registro, fila, columna, valor original, gravedad,
-tratamiento y explicacion.
-
-Gravedad y tratamiento:
-  bloqueante   el conjunto no se puede usar: no se publica ninguna cifra hasta
-               que Acceso a Datos lo corrija y vuelva a exportar (apartado 6.14:
-               CSV que falta, esquema incorrecto o clave huerfana).
-  recuperable  la fila se RECHAZA: se aparta en filas_rechazadas.csv y no entra
-               en los calculos. El resto de los datos sigue adelante.
-  advertencia  la fila se queda en los calculos y la incidencia queda anotada.
-
-Nunca se corrige ni se inventa un valor: un nulo no se convierte en 0, un
-estado mal escrito no se arregla solo y no se borran duplicados sin saber que
-identifica una fila.
-"""
 from pathlib import Path
 
 import pandas as pd
@@ -57,25 +38,20 @@ COLUMNAS_INCIDENCIA = ["regla", "nombre_regla", "tabla", "registro", "fila", "co
                        "valor", "gravedad", "tratamiento", "detalle"]
 
 
-# ---------------------------------------------------------------------
 # Ayudas
-# ---------------------------------------------------------------------
 
 def incidencia(regla, tabla, gravedad, detalle, registro="", fila="", columna="", valor=""):
-    """Una incidencia: un diccionario con las columnas de incidencias.csv."""
     return {"regla": regla, "nombre_regla": REGLAS[regla], "tabla": tabla,
             "registro": registro, "fila": fila, "columna": columna, "valor": valor,
             "gravedad": gravedad, "tratamiento": TRATAMIENTO[gravedad], "detalle": detalle}
 
 
 def original(textos, nombre, indice, columna):
-    """El valor tal como venia en el CSV ("" si la celda estaba vacia)."""
     valor = textos[nombre].at[indice, columna]
     return "" if pd.isna(valor) else str(valor)
 
 
 def por_filas(regla, nombre, datos, textos, mascara, columna, gravedad, detalle):
-    """Una incidencia por cada fila de la tabla en la que la mascara es True."""
     lista = []
     # Un valor que no se pudo convertir da nulo en la comparacion: no cuenta aqui
     mascara = mascara.fillna(False).astype(bool)
@@ -89,25 +65,15 @@ def por_filas(regla, nombre, datos, textos, mascara, columna, gravedad, detalle)
 
 
 def vacio_y_no_convertible(datos, textos, nombre, columna):
-    """Dos mascaras: celda vacia, y valor que habia pero no se pudo convertir a su tipo."""
     texto = textos[nombre][columna]
     vacio = texto.isna()
     no_convertible = texto.notna() & datos[nombre][columna].isna()
     return vacio, no_convertible
 
 
-# ---------------------------------------------------------------------
 # Regla 01: se aplica al cargar los archivos
-# ---------------------------------------------------------------------
 
 def cargar(carpeta):
-    """
-    Lee los cinco CSV. Regla 01: un archivo que no existe, esta vacio, no es
-    UTF-8, esta mal formado o no tiene las columnas obligatorias es bloqueante.
-    Un archivo con solo la cabecera se puede leer: es una advertencia.
-
-    Devuelve (datos convertidos, textos originales, incidencias, avisos de lectura).
-    """
     carpeta = Path(carpeta)
     datos = {}
     textos = {}
@@ -129,16 +95,9 @@ def cargar(carpeta):
     return datos, textos, incidencias, avisos
 
 
-# ---------------------------------------------------------------------
 # Reglas 02 a 12: necesitan los cinco archivos cargados
-# ---------------------------------------------------------------------
 
 def regla_02_ids_duplicados(datos, textos):
-    """
-    Cada identificador tiene que ser unico. Si se repite, un cruce multiplica
-    filas y no se puede saber cual es la buena: bloqueante. Un identificador
-    vacio no identifica la fila: se rechaza.
-    """
     lista = []
     for nombre, columna in config.CLAVES_UNICAS:
         valores = datos[nombre][columna]
@@ -152,10 +111,6 @@ def regla_02_ids_duplicados(datos, textos):
 
 
 def regla_03_claves_huerfanas(datos, textos):
-    """
-    Cada clave que une dos tablas tiene que existir en la otra. Una clave
-    huerfana es una exportacion incompleta: bloqueante (apartado 6.14).
-    """
     lista = []
     for hijos, columna, padres, columna_padre in config.RELACIONES:
         valores = datos[hijos][columna]
@@ -166,7 +121,6 @@ def regla_03_claves_huerfanas(datos, textos):
 
 
 def regla_04_fechas(datos, textos):
-    """Una fecha vacia o imposible (30 de febrero, otro formato) no se puede situar en el tiempo."""
     lista = []
     for nombre, columna in [("pedidos", "fecha_pedido"), ("stock", "fecha_corte")]:
         vacio, imposible = vacio_y_no_convertible(datos, textos, nombre, columna)
@@ -177,7 +131,6 @@ def regla_04_fechas(datos, textos):
 
 
 def regla_05_cantidades(datos, textos):
-    """Las cantidades son pares: enteros, y en una linea mayores que 0."""
     lista = []
     for nombre, columna in [("lineas_pedido", "cantidad"), ("pedidos", "cantidad_total")]:
         vacio, malo = vacio_y_no_convertible(datos, textos, nombre, columna)
@@ -194,10 +147,6 @@ def regla_05_cantidades(datos, textos):
 
 
 def regla_06_precios(datos, textos):
-    """
-    Precios e importes: numeros con punto decimal y no negativos. El precio de
-    catalogo (precio_base) no se usa para calcular ventas: solo se avisa.
-    """
     lista = []
     columnas = [("lineas_pedido", "precio_unitario", RECUPERABLE),
                 ("lineas_pedido", "importe_linea", RECUPERABLE),
@@ -214,12 +163,6 @@ def regla_06_precios(datos, textos):
 
 
 def regla_07_estados(datos, textos):
-    """
-    Estados y tipos fuera del catalogo acordado (config.py). No se corrigen
-    solos aunque solo cambie una mayuscula. Sin estado_pedido o tipo_pedido no
-    se puede saber si un pedido es venta o si es Custom: se rechaza. El
-    estado_pago y el tipo de cliente no se usan en los calculos: solo se avisa.
-    """
     lista = []
     catalogos = [("pedidos", "estado_pedido", config.ESTADOS_PEDIDO, RECUPERABLE),
                  ("pedidos", "tipo_pedido", config.TIPOS_PEDIDO, RECUPERABLE),
@@ -233,12 +176,6 @@ def regla_07_estados(datos, textos):
 
 
 def regla_08_tallas(datos, textos):
-    """
-    El contrato pide que la talla sea valida para el modelo: la talla de una
-    linea tiene que ser la de su SKU en stock.csv. Ademas la base solo admite
-    tallas entre TALLA_MINIMA y TALLA_MAXIMA. Las lineas X-NOVA no tienen SKU:
-    solo se comprueba el rango.
-    """
     lista = []
     for nombre in ["lineas_pedido", "stock"]:
         vacio, malo = vacio_y_no_convertible(datos, textos, nombre, "talla")
@@ -249,8 +186,6 @@ def regla_08_tallas(datos, textos):
         lista += por_filas("08", nombre, datos, textos, fuera_de_rango, "talla", RECUPERABLE,
                            f"talla fuera del rango de la base ({config.TALLA_MINIMA}-{config.TALLA_MAXIMA})")
 
-    # Talla de cada SKU en stock.csv. Un SKU repetido ya lo apunta la regla 02;
-    # aqui se usa su primera fila, porque map necesita una sola talla por SKU
     lineas = datos["lineas_pedido"]
     stock = datos["stock"].drop_duplicates("sku")
     talla_del_sku = lineas["sku"].map(stock.set_index("sku")["talla"])
@@ -261,7 +196,6 @@ def regla_08_tallas(datos, textos):
 
 
 def regla_09_ausencia_cliente_modelo(datos, textos):
-    """Un pedido sin cliente o una linea sin modelo no se pueden analizar. Un cliente o modelo sin nombre, se avisa."""
     lista = []
     # columna[3:] quita el prefijo "id_" para el mensaje: id_cliente -> cliente
     for nombre, columna in [("pedidos", "id_cliente"), ("lineas_pedido", "id_modelo"), ("stock", "id_modelo")]:
@@ -274,12 +208,6 @@ def regla_09_ausencia_cliente_modelo(datos, textos):
 
 
 def regla_10_lineas_duplicadas(datos, textos):
-    """
-    Clave documentada: el contrato dice que cada talla va en una linea, asi que
-    en un pedido cada SKU aparece una sola vez (en X-NOVA, sin SKU: modelo y
-    talla). La base no lo impide. Las dos lineas tienen su propio id e importe y
-    el total del pedido las suma las dos, asi que no se borra ninguna: se avisa.
-    """
     lineas = datos["lineas_pedido"]
     repetida = lineas.duplicated(subset=["id_pedido", "sku", "id_modelo", "talla"], keep=False)
     return por_filas("10", "lineas_pedido", datos, textos, repetida, "sku", ADVERTENCIA,
@@ -287,12 +215,6 @@ def regla_10_lineas_duplicadas(datos, textos):
 
 
 def regla_11_stock(datos, textos):
-    """
-    Stock vacio, que no es entero o negativo: se rechaza. La rubrica habla de
-    duplicado por modelo-talla, pero aqui hay una fila por COLOR: la clave real
-    es modelo + color + talla (el SKU). Si dos SKU distintos tienen el mismo
-    modelo, color y talla, el stock se contaria dos veces: se rechazan los dos.
-    """
     lista = []
     vacio, malo = vacio_y_no_convertible(datos, textos, "stock", "stock_disponible")
     stock = datos["stock"]
@@ -308,7 +230,6 @@ def regla_11_stock(datos, textos):
 
 
 def huella_de_pedidos(lineas):
-    """Para cada pedido, sus articulos y cantidades ordenados: 'NOVA-4-40 x10 | NOVA-4-41 x10 ...'."""
     # Una linea sin SKU (X-NOVA) se identifica por su modelo y su talla
     sin_sku = "modelo " + lineas["id_modelo"].fillna("?") + " talla " + lineas["talla"].astype(str)
     articulo = lineas["sku"].fillna(sin_sku)
@@ -319,7 +240,6 @@ def huella_de_pedidos(lineas):
 
 
 def comprobar_totales_pedido(datos, textos):
-    """Compara los totales de cada cabecera con la suma de sus lineas."""
     lista = []
     pedidos = datos["pedidos"]
     lineas = datos["lineas_pedido"]
@@ -350,7 +270,6 @@ def comprobar_totales_pedido(datos, textos):
 
 
 def avisar_pedidos_repetidos(pedidos, lineas):
-    """Coincidir en cliente y articulos solo genera un aviso; no elimina pedidos."""
     lista = []
     huellas = huella_de_pedidos(lineas)
     con_huella = pedidos.copy()
@@ -370,7 +289,6 @@ def avisar_pedidos_repetidos(pedidos, lineas):
 
 
 def regla_12_coherencia(datos, textos):
-    """Comprueba fechas, importes, personalizacion y posibles pedidos repetidos."""
     lista = []
     pedidos = datos["pedidos"]
     lineas = datos["lineas_pedido"]
@@ -413,23 +331,9 @@ REGLAS_CON_DATOS = [regla_02_ids_duplicados, regla_03_claves_huerfanas, regla_04
                     regla_12_coherencia]
 
 
-# ---------------------------------------------------------------------
 # Separar filas validas y rechazadas, y resumen por tabla
-# ---------------------------------------------------------------------
 
 def separar(datos, incidencias):
-    """
-    Aparta las filas que tienen alguna incidencia que no es una advertencia.
-
-    Un pedido se analiza entero o no se analiza: si se rechaza una linea, se
-    rechaza su pedido con todas sus lineas, y si se rechaza un pedido, tambien
-    sus lineas. Asi nunca se cuenta un pedido a medias.
-
-    (Si hay una incidencia bloqueante no se publica nada, pero sus filas
-    tambien se apartan aqui para que el resumen diga cuantas son.)
-
-    Devuelve (validos: nombre -> DataFrame, rechazadas: DataFrame con el motivo).
-    """
     motivos = {nombre: {} for nombre in datos}   # nombre -> {indice de fila: motivo}
     de_fila = incidencias[(incidencias["gravedad"] != ADVERTENCIA) & (incidencias["fila"] != "")]
     # setdefault: si una fila tiene varias incidencias, se queda el motivo de la primera
@@ -461,7 +365,6 @@ def separar(datos, incidencias):
 
 
 def resumen_calidad(datos, validos, incidencias):
-    """Una fila por tabla: filas de entrada, validas, rechazadas, % de calidad e incidencias por gravedad."""
     filas = []
     for nombre, definicion in config.ARCHIVOS.items():
         de_la_tabla = incidencias[incidencias["tabla"] == nombre]
@@ -505,12 +408,6 @@ def resumen_calidad(datos, validos, incidencias):
 
 
 def evaluar(carpeta):
-    """
-    Aplica las doce reglas a los CSV de la carpeta.
-
-    Devuelve un diccionario con: datos, avisos, incidencias, validos,
-    rechazadas, resumen y bloqueado (True si no se puede publicar nada).
-    """
     datos, textos, lista, avisos = cargar(carpeta)
     cargados = len(datos) == len(config.ARCHIVOS)
     if cargados:
@@ -537,11 +434,6 @@ def evaluar(carpeta):
 
 
 def nulos_por_columna(datos):
-    """
-    Celdas vacias de cada columna (DataFrame 09, junto con resumen_calidad e
-    incidencias). Cuenta tambien los valores que no se pudieron convertir.
-    Que una columna opcional tenga vacios (telefono, personalizacion) es normal.
-    """
     filas = []
     for nombre, tabla in datos.items():
         for columna in tabla.columns:

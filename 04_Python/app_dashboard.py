@@ -1,22 +1,3 @@
-"""
-Dashboard de NOVA Sneakers (apartados 6.14 a 6.17). Desde la carpeta 04_Python:
-
-    .venv\\Scripts\\streamlit.exe run app_dashboard.py
-
-Este archivo solo ORQUESTA y MUESTRA. Las cifras salen de otros modulos (aqui
-solo se agrupan algunos datos para dibujarlos):
-- actualizacion.ciclo: comprobar los CSV, validarlos, recalcular todo y anotarlo;
-- filtros: las tablas y los KPIs del subconjunto filtrado (las mismas funciones de main.py);
-- visualizaciones: los graficos Matplotlib de main.py;
-- informe: las cinco conclusiones;
-- metadatos: lo que lleva cada descarga ademas de la tabla (fecha de corte,
-  funcion, reglas de negocio, filas de origen y filtros que se le aplican).
-
-Refresco cada 60 s: panel() es un st.fragment(run_every="60s"). Streamlit lo
-vuelve a ejecutar cada 60 segundos mientras la pagina esta abierta, y si han
-pasado 60 s desde la ultima comprobacion llama a actualizacion.ciclo, que
-RELEE los CSV del disco. No hay time.sleep ni bucles: lo programa Streamlit.
-"""
 import tempfile
 from datetime import datetime
 
@@ -34,9 +15,6 @@ import visualizaciones
 from analiticas import NO_CALCULABLE, es_no_calculable
 from informe import numero
 
-# Cada origen tiene su carpeta: nunca se mezclan. El primero es el de por defecto
-# (la exportacion de Acceso a Datos). Su tipo (PRUEBA o REAL) lo dice ORIGEN.txt.
-# El nombre visible sale en la direccion: ?origen=Sintéticos+limpios&pestana=Clientes
 ORIGENES = {
     "acc": ("Exportación ACC", config.CARPETA_ENTRADA),
     "sinteticos": ("Sintéticos limpios", config.CARPETA_SINTETICOS_LIMPIOS),
@@ -52,16 +30,9 @@ FORMATO_HORA = "%d/%m/%Y %H:%M:%S"
 MARGEN_SEGUNDOS = 5
 
 
-# ---------------------------------------------------------------------
 # Refresco
-# ---------------------------------------------------------------------
 
 def actualizar(nombre, operacion=None):
-    """
-    Lanza un ciclo de comprobacion y recalculo del origen si toca: la primera
-    vez, si se pide a mano o si han pasado 60 s desde la ultima comprobacion.
-    Cada origen guarda su propio estado. Devuelve True si ha hecho el ciclo.
-    """
     estados = st.session_state.setdefault("estados", {})
     anterior = estados.get(nombre)
     if operacion is None:
@@ -75,35 +46,20 @@ def actualizar(nombre, operacion=None):
     return True
 
 
-# ---------------------------------------------------------------------
 # Filtros (barra lateral)
-# ---------------------------------------------------------------------
 
 def restablecer_filtros(sufijo, primero, ultimo):
-    """
-    Vuelve al periodo completo y vacia los demas filtros. Va en el on_click del
-    boton porque Streamlit solo deja cambiar el valor de un filtro antes de dibujarlo.
-    """
     st.session_state[f"periodo_{sufijo}"] = (primero, ultimo)
     for nombre in ["modelos", "tallas", "tipos", "estados", "clientes"]:
         st.session_state[f"{nombre}_{sufijo}"] = []
 
 
 def lista_filtro(etiqueta, opciones, clave, format_func=str):
-    """Un filtro de varias opciones. Quita de lo elegido lo que ya no existe (tras una exportacion nueva)."""
     st.session_state[clave] = [valor for valor in st.session_state.get(clave, []) if valor in opciones]
     return st.multiselect(etiqueta, opciones, key=clave, placeholder="Todos", format_func=format_func)
 
 
 def filtro_periodo(sufijo, primero, ultimo):
-    """
-    El filtro de periodo, entre la primera y la ultima fecha de pedido. Se
-    conserva el elegido, salvo en dos casos en que vuelve al periodo completo:
-    - si era el completo (nadie lo ha restringido) y llega una exportacion con
-      fechas nuevas: si no, los pedidos nuevos quedarian fuera sin avisar;
-    - si alguna fecha guardada se sale del periodo de la exportacion.
-    rango_N guarda el periodo completo de la vez anterior, para saber si se habia restringido.
-    """
     clave = f"periodo_{sufijo}"
     guardado = st.session_state.get(clave)
     sin_restringir = guardado is None or tuple(guardado) == st.session_state.get(f"rango_{sufijo}")
@@ -120,10 +76,6 @@ def filtro_periodo(sufijo, primero, ultimo):
 
 
 def elegir_filtros(nombre, estado):
-    """
-    Los seis filtros de la barra lateral. Cada origen recuerda los suyos: sus
-    claves llevan el numero del origen (modelos_0, modelos_1...).
-    """
     st.subheader("Filtros")
     publicado = estado["publicado"]
     if publicado is None or len(publicado["validos"]["pedidos"]) == 0:
@@ -138,8 +90,6 @@ def elegir_filtros(nombre, estado):
     # Las opciones de los filtros de modelo y talla, ordenadas
     nombres_modelos = sorted(publicado["validos"]["modelos"]["nombre_modelo"])
     tallas = sorted(int(talla) for talla in lineas["talla"].dropna().unique())
-    # Clientes con algun pedido, por su id y su tipo: el nombre no hace falta para filtrar.
-    # Los id son texto: ordenar por longitud y despues por texto pone el 2 antes que el 10
     clientes = publicado["validos"]["clientes"]
     tipo_cliente = dict(zip(clientes["id_cliente"], clientes["tipo"]))
     ids_clientes = sorted(pedidos["id_cliente"].dropna().unique(), key=lambda valor: (len(valor), valor))
@@ -165,12 +115,9 @@ def elegir_filtros(nombre, estado):
     return elegidos
 
 
-# ---------------------------------------------------------------------
 # Piezas que se repiten: tarjetas, tablas, graficos y descargas
-# ---------------------------------------------------------------------
 
 def texto_kpi(fila):
-    """El valor de un KPI para una tarjeta, o N/D si no se puede calcular."""
     valor = fila["valor"]
     if fila["estado"] != "calculado" or valor is None:
         return "N/D"
@@ -192,7 +139,6 @@ def texto_kpi(fila):
 
 
 def tarjeta(columna, fila, etiqueta=None):
-    """Una tarjeta con un KPI de kpis.py; la ayuda dice su formula y su poblacion."""
     ayuda = f"{fila['formula']} ({fila['unidad']}). Población: {fila['poblacion']}."
     if fila["detalle"]:
         ayuda += f" {fila['detalle']}."
@@ -200,7 +146,6 @@ def tarjeta(columna, fila, etiqueta=None):
 
 
 def alcance(c, filtrado=True):
-    """Etiqueta que dice si lo que sigue usa los filtros o es global."""
     if not filtrado:
         st.badge("Global: no usa los filtros", icon=":material/public:", color="gray")
     elif filtros.hay_filtros(c["filtros"]):
@@ -210,8 +155,6 @@ def alcance(c, filtrado=True):
 
 
 def preparar(tabla):
-    """La tabla tal como se ensena y se descarga: indice como columna, nombres de columna como texto
-    (en la matriz de tallas son numeros) y sin datos personales."""
     if tabla.index.name is not None:
         tabla = tabla.reset_index()
     tabla = pipeline.sin_datos_personales(tabla)
@@ -220,7 +163,6 @@ def preparar(tabla):
 
 
 def tabla(datos, alto="auto"):
-    """Una tabla consultable (ordenable y con busqueda), con los euros formateados."""
     datos = preparar(datos)
     # Las columnas de euros se ensenan con 2 decimales y el euro (no porcentajes ni rankings)
     formatos = {}
@@ -237,10 +179,6 @@ def anotar_descarga(archivo, filas, origen, carpeta, version, texto_filtros):
 
 
 def descarga(datos, nombre, c):
-    """
-    Boton para descargar la MISMA tabla que se ve, en CSV UTF-8, con su origen, sus filtros y sus metadatos
-    (fecha de corte, funcion, reglas y filas de origen). Los filtros son solo los que se le aplican (metadatos.py).
-    """
     datos = preparar(datos)
     publicado = c["publicado"]
     datos_meta = metadatos.del_dashboard(nombre, len(datos), publicado["datos"], publicado["validos"], c["filtros"])
@@ -256,14 +194,12 @@ def descarga(datos, nombre, c):
 
 
 def carpeta_graficos():
-    """Una carpeta temporal por sesion para los PNG (se sobrescriben: no se acumulan)."""
     if "carpeta_graficos" not in st.session_state:
         st.session_state["carpeta_graficos"] = tempfile.mkdtemp(prefix="nova_graficos_")
     return st.session_state["carpeta_graficos"]
 
 
 def grafico(funcion, entrada, datos, c, **opciones):
-    """Un grafico de visualizaciones.py y, debajo, la tabla de datos que lo dibuja."""
     ruta = funcion(entrada, carpeta_graficos(), c["pie"], **opciones)
     st.image(str(ruta), width="stretch")
     with st.expander("Ver los datos del gráfico"):
@@ -278,9 +214,7 @@ def kpis_por_codigo(tabla_kpis):
     return {fila["codigo"]: fila for fila in tabla_kpis.to_dict("records")}
 
 
-# ---------------------------------------------------------------------
 # Pestanas
-# ---------------------------------------------------------------------
 
 def sin_cifras():
     st.error("No se publican cifras: los datos actuales no son válidos (o no se pueden leer). "
@@ -648,9 +582,7 @@ def pestana_prediccion(c):
         tabla(resultados["coeficientes_regresion"])
 
 
-# ---------------------------------------------------------------------
 # Cabecera y panel (se refresca cada 60 s)
-# ---------------------------------------------------------------------
 
 def cabecera(estado):
     st.title("NOVA Sneakers · Panel de datos")
@@ -691,11 +623,6 @@ def cabecera(estado):
 
 
 def publicacion_visible(estado):
-    """
-    Lo publicado que se puede ensenar. Si los datos actuales no son validos,
-    no se ensena ninguna cifra, salvo que se pida ver el ultimo resultado
-    valido, que entonces sale rotulado como DESACTUALIZADO.
-    """
     publicado = estado["publicado"]
     if publicado is None or not estado["desactualizado"]:
         return publicado
@@ -709,7 +636,6 @@ def publicacion_visible(estado):
 
 @st.fragment(run_every=f"{config.SEGUNDOS_REFRESCO}s")
 def panel(nombre, elegidos):
-    """Todo lo que se refresca solo: cabecera de estado y pestanas."""
     version = st.session_state["estados"][nombre]["version"]
     if actualizar(nombre) and st.session_state["estados"][nombre]["version"] != version:
         st.rerun()   # exportacion nueva: se redibuja toda la pagina, tambien las opciones de los filtros
@@ -717,8 +643,6 @@ def panel(nombre, elegidos):
     cabecera(estado)
     publicado = publicacion_visible(estado)
 
-    # c: lo que reciben las pestanas: el estado, lo publicado, los filtros (y su
-    # texto), el momento de los datos, el pie de los graficos y las tablas filtradas
     c = {"estado": estado, "publicado": publicado, "filtros": elegidos, "texto_filtros": filtros.describir(elegidos),
          "tablas": None}
     if publicado is not None:

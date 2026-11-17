@@ -1,58 +1,13 @@
--- =====================================================================
 -- 23_portal_trabajador.sql — lo que puede hacer en la base el portal del
--- trabajador (01_Interfaces/trabajador, rutas en servidor-admin/rutas-trabajador.js)
---
--- QUE HACE
---   1. Crea dos funciones SECURITY DEFINER, con search_path fijo. Son lo
---      UNICO que el portal puede cambiar en la base:
---        - avanzar_pedido_trabajador(usuario, pedido, estado): el boton
---          "Avanzar estado". Un pedido solo avanza un paso:
---          confirmado -> en_preparacion -> enviado -> entregado.
---        - ajustar_existencias_trabajador(usuario, sku, nave, cantidad): el
---          boton "Guardar" del inventario (cantidad entre 0 y 99999).
---      Las dos comprueban que el usuario existe, esta activo y tiene el rol
---      "trabajador". Usan el mismo mecanismo que iniciar_sesion (02) y que
---      marcar_pedido_en_reparto (22): la variable nova.id_usuario con el id
---      y su firma, solo durante el cambio. Asi los triggers de 08 apuntan en
---      log_eventos el CAMBIO_ESTADO o el CAMBIO_STOCK con ese trabajador.
---      Los cambios pasan por los triggers de siempre: avanzar un pedido ya
---      confirmado no toca el stock.
---
---   2. Crea portal_trabajador, un rol sin login. Puede:
---        - LEER solo las columnas que ensena el portal (pedidos, clientes,
---          inventario y configuraciones X-Nova). Nada de password_hash,
---          dni, email, telefono ni direccion_entrega, ni log_eventos;
---        - ejecutar las dos funciones de arriba.
---      No puede escribir en ninguna tabla por su cuenta. web_nova pasa a el
---      con SET LOCAL ROLE (sin heredar sus permisos), como a panel_lectura
---      (19) y a panel_reparto (22). Nadie mas puede llamar a las funciones.
---
--- QUE NO HACE
---   No cambia ninguna tabla, trigger ni funcion de los scripts 01-22, ni los
---   permisos de panel_lectura y panel_reparto. A web_nova solo le anade el
---   paso a portal_trabajador.
---   El rol no se llama nova_* porque 09 cuenta los roles con ese prefijo.
---
--- COMO SE EJECUTA
---   Con el usuario que instalo la base, DESPUES de 19 y 22:
---     psql -U postgres -d nova_sneakers -f 23_portal_trabajador.sql
---   Se puede repetir: vuelve a dejar las funciones y los permisos como dice
---   este script.
--- =====================================================================
 
 \set ON_ERROR_STOP on
 
-\echo '===== Portal del trabajador ====='
+\echo 'Portal del trabajador'
 
 -- Todo o nada: si algo falla, no queda nada a medias
 BEGIN;
 
--- ---------------------------------------------------------------------
 -- 1. Avanzar el estado de un pedido (un paso)
--- ---------------------------------------------------------------------
--- RETURNS TABLE crea variables con los nombres de sus columnas (id_pedido,
--- referencia, estado). Por eso dentro se escribe siempre p.id_pedido,
--- p.estado...: sin el alias, PostgreSQL no sabria si es la columna o la variable.
 CREATE OR REPLACE FUNCTION public.avanzar_pedido_trabajador(
     p_id_usuario integer,
     p_id_pedido integer,
@@ -83,7 +38,6 @@ BEGIN
     END IF;
 
     -- 2. El pedido existe. FOR UPDATE: si llegan dos clics a la vez, el
-    --    segundo espera al primero y ya ve el estado nuevo.
     SELECT p.estado
     INTO v_estado
     FROM public.pedidos p
@@ -110,7 +64,6 @@ BEGIN
     END IF;
 
     -- 4. Quien hace el cambio: el id y su firma, como iniciar_sesion (02).
-    --    Asi auditar_estado_pedido (08) apunta al trabajador.
     v_sesion_anterior := current_setting('nova.id_usuario', true);
     PERFORM set_config(
         'nova.id_usuario',
@@ -134,11 +87,7 @@ END;
 $function$
 ;
 
--- ---------------------------------------------------------------------
 -- 2. Cambiar la cantidad de unas existencias (SKU en una nave)
--- ---------------------------------------------------------------------
--- Igual que arriba: las columnas devueltas son tambien variables, asi que
--- las consultas usan el alias e.
 CREATE OR REPLACE FUNCTION public.ajustar_existencias_trabajador(
     p_id_usuario integer,
     p_id_producto_sku integer,
@@ -203,14 +152,10 @@ END;
 $function$
 ;
 
--- Al crear una funcion, PostgreSQL deja que cualquiera la ejecute (PUBLIC).
--- Se quita: solo portal_trabajador podra usarlas.
 REVOKE EXECUTE ON FUNCTION public.avanzar_pedido_trabajador(integer, integer, varchar) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.ajustar_existencias_trabajador(integer, integer, integer, integer) FROM PUBLIC;
 
--- ---------------------------------------------------------------------
 -- 3. El rol del portal
--- ---------------------------------------------------------------------
 SELECT NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'portal_trabajador') AS hay_que_crear_rol
 \gset
 
@@ -245,17 +190,13 @@ ON public.configuraciones_xnova TO portal_trabajador;
 GRANT EXECUTE ON FUNCTION public.avanzar_pedido_trabajador(integer, integer, varchar) TO portal_trabajador;
 GRANT EXECUTE ON FUNCTION public.ajustar_existencias_trabajador(integer, integer, integer, integer) TO portal_trabajador;
 
--- web_nova puede pasar a portal_trabajador solo con SET ROLE (no hereda nada),
--- como con panel_lectura (19) y panel_reparto (22)
 GRANT portal_trabajador TO web_nova WITH INHERIT FALSE, SET TRUE;
 
 COMMIT;
 
--- ---------------------------------------------------------------------
 -- Comprobaciones
--- ---------------------------------------------------------------------
 \echo ''
-\echo '--- Comprobacion: web_nova pasa a panel_lectura, panel_reparto y portal_trabajador, sin heredar'
+\echo 'Comprobacion: web_nova pasa a panel_lectura, panel_reparto y portal_trabajador, sin heredar'
 SELECT
     r.rolname AS rol,
     m.inherit_option AS hereda_permisos,
@@ -266,7 +207,7 @@ WHERE m.member = 'web_nova'::regrole
 ORDER BY r.rolname;
 
 \echo ''
-\echo '--- Comprobacion: quien puede usar las funciones del portal (solo portal_trabajador: t)'
+\echo 'Comprobacion: quien puede usar las funciones del portal (solo portal_trabajador: t)'
 SELECT
     f.funcion,
     has_function_privilege('portal_trabajador', f.funcion, 'EXECUTE') AS portal_trabajador,
@@ -281,7 +222,7 @@ FROM (VALUES
 ) AS f(funcion);
 
 \echo ''
-\echo '--- Comprobacion: portal_trabajador no escribe en ninguna tabla (se espera 0)'
+\echo 'Comprobacion: portal_trabajador no escribe en ninguna tabla (se espera 0)'
 SELECT count(*) AS tablas_en_las_que_escribe
 FROM pg_tables t
 WHERE t.schemaname = 'public'
@@ -289,7 +230,7 @@ WHERE t.schemaname = 'public'
        OR has_table_privilege('portal_trabajador', format('%I.%I', t.schemaname, t.tablename), 'DELETE, TRUNCATE'));
 
 \echo ''
-\echo '--- Comprobacion: portal_trabajador no ve datos sensibles ni la auditoria (se esperan seis f)'
+\echo 'Comprobacion: portal_trabajador no ve datos sensibles ni la auditoria (se esperan seis f)'
 SELECT
     has_column_privilege('portal_trabajador', 'public.usuarios', 'password_hash', 'SELECT') AS lee_hash,
     has_column_privilege('portal_trabajador', 'public.personal', 'dni', 'SELECT') AS lee_dni,
@@ -299,7 +240,7 @@ SELECT
     has_any_column_privilege('portal_trabajador', 'public.cuentas_cliente', 'SELECT') AS lee_cuentas_tienda;
 
 \echo ''
-\echo '--- Comprobacion: las funciones son SECURITY DEFINER y fijan el search_path (se esperan dos filas t, t)'
+\echo 'Comprobacion: las funciones son SECURITY DEFINER y fijan el search_path (se esperan dos filas t, t)'
 SELECT
     p.proname AS funcion,
     p.prosecdef AS security_definer,
@@ -310,4 +251,4 @@ WHERE p.oid IN ('public.avanzar_pedido_trabajador(integer, integer, character va
 ORDER BY p.proname;
 
 \echo ''
-\echo '===== FIN ====='
+\echo 'FIN'

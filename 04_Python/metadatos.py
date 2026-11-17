@@ -1,18 +1,3 @@
-"""
-Metadatos de cada DataFrame de resultados (apartado 6.15): la fecha de corte,
-las reglas de negocio, los filtros, las filas de origen y la funcion que lo
-ha generado.
-
-Cada CSV de outputs/ ya lleva en sus columnas el origen (REAL, PRUEBA o
-SINTETICO) y el momento de la ejecucion. Lo demas no cabe en cada fila sin
-repetirlo cientos de veces, asi que main.py lo guarda aparte, en
-metadatos_dataframes.csv: una fila por CSV, que se enlaza por el nombre del
-archivo y la columna ejecucion.
-
-El dashboard, en cambio, lo mete dentro de cada descarga (columnas
-fecha_corte, funcion, reglas_de_negocio y filas_origen), y en la columna
-filtros pone solo los que se le aplican a esa tabla (filtros_que_usa).
-"""
 import pandas as pd
 
 import config
@@ -31,7 +16,6 @@ DEMANDA = "demanda = pedidos no cancelados"
 VENTA = "venta = pedidos " + ", ".join(config.ESTADOS_CONFIRMADOS)
 SOLO_VALIDAS = "solo filas válidas (sin las rechazadas por las 12 reglas)"
 
-# nombre del DataFrame (y de su CSV) -> (funcion que lo genera, tablas de entrada, reglas de negocio, filtros)
 DATAFRAMES = {
     # Calidad: se calculan con las filas tal como llegan (leidas)
     "incidencias": ("calidad.evaluar", TODAS,
@@ -145,22 +129,16 @@ DE_FILAS_LEIDAS = ["incidencias", "resumen_calidad", "filas_rechazadas", "nulos_
 
 
 def contar(tablas):
-    """Filas de cada tabla de un diccionario de DataFrames."""
     return {nombre: len(tabla) for nombre, tabla in tablas.items()}
 
 
 def fecha_corte(datos):
-    """La fecha de corte de la exportacion (la de stock.csv) en texto."""
     if "stock" not in datos or datos["stock"]["fecha_corte"].isna().all():
         return "desconocida: no se ha podido leer stock.csv"
     return datos["stock"]["fecha_corte"].max().strftime(config.FORMATO_FECHA)
 
 
 def fila(nombre, filas_resultado, corte, entradas, clase, texto_filtros):
-    """
-    Los metadatos de un DataFrame. entradas: filas de cada tabla de la
-    exportacion (de contar); clase: "leídas" o "válidas".
-    """
     funcion, tablas, reglas, _ = DATAFRAMES[nombre]
     partes = []
     for tabla in tablas:
@@ -173,11 +151,6 @@ def fila(nombre, filas_resultado, corte, entradas, clase, texto_filtros):
 
 
 def tabla(guardados, datos, validos):
-    """
-    metadatos_dataframes.csv de main.py: una fila por cada CSV guardado, sin
-    filtros. guardados: lista de (archivo, filas); datos y validos: los de
-    calidad.evaluar.
-    """
     corte = fecha_corte(datos)
     leidas = contar(datos)
     validas = contar(validos)
@@ -194,7 +167,6 @@ def tabla(guardados, datos, validos):
 
 
 def filtros_que_usa(nombre, elegidos):
-    """Los filtros del dashboard que se aplican de verdad a un DataFrame."""
     alcance = DATAFRAMES[nombre][3]
     if alcance == TODOS:
         return elegidos
@@ -204,14 +176,12 @@ def filtros_que_usa(nombre, elegidos):
 
 
 def texto_filtros(nombre, elegidos):
-    """Los filtros de un DataFrame del dashboard en una linea (para la columna filtros de su descarga)."""
     if DATAFRAMES[nombre][3] == NINGUNO:
         return "ninguno (resultado global)"
     return filtros.describir(filtros_que_usa(nombre, elegidos))
 
 
 def del_dashboard(nombre, filas_resultado, datos, validos, elegidos):
-    """Los metadatos de un DataFrame del dashboard, con las filas de origen que dejan sus filtros."""
     usados = filtros_que_usa(nombre, elegidos)
     filtrados = filtros.filtrar_validos(validos, usados)
     if DATAFRAMES[nombre][3] == MODELO_Y_TALLA:

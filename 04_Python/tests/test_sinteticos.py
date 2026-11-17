@@ -1,10 +1,3 @@
-"""
-Pruebas del generador de datos sinteticos (generador_datos.py) y de su
-separacion de los datos de Acceso a Datos.
-
-Todo se genera en memoria o en carpetas temporales: nunca se toca entrada_acc/
-ni datos_sinteticos/.
-"""
 import contextlib
 import hashlib
 import io
@@ -95,7 +88,6 @@ class PruebasGenerador(unittest.TestCase):
 
 
 class PruebasDatosGuardados(unittest.TestCase):
-    """Los datos limpios y la copia con errores, guardados y pasados por las 12 reglas."""
 
     @classmethod
     def setUpClass(cls):
@@ -174,7 +166,6 @@ class PruebasSeparacion(unittest.TestCase):
 
 
 class PruebasCompatibilidad(unittest.TestCase):
-    """La misma ejecucion que con los datos de PRUEBA, sobre los sinteticos."""
 
     @classmethod
     def setUpClass(cls):

@@ -1,13 +1,3 @@
-#!/bin/bash
-# Monta la base nova_sneakers dentro del contenedor "db" de compose.yaml.
-#
-# PostgreSQL solo lo lanza la primera vez, cuando el volumen de datos esta
-# vacio. Despues los datos se quedan en el volumen y este script no se repite.
-#
-# Usa los scripts de 02_Acceso_Datos/sql (montados en /nova/sql, sin copiarlos)
-# en el mismo orden que el apartado "Reconstruir la base de datos" del README
-# principal. Las contrasenas vienen del archivo .env: se le pasan a psql por la
-# entrada, que es donde las piden los \prompt de los scripts 13, 14, 17, 19 y 20.
 set -e
 
 SQL=/nova/sql
@@ -49,7 +39,6 @@ for script in 06_consultas 09_pruebas 10_caso_custom 11_dml_ejemplos 12_consulta
 done
 
 # 4. Cuentas de demostracion (el 13 pide admin.demo, taller.demo, tienda.demo
-#    y otra vez admin.demo) y el pedido CUSTOM-40
 instalar 13_activar_usuarios "$CLAVE_DEMO" "$CLAVE_DEMO" "$CLAVE_DEMO" "$CLAVE_DEMO"
 instalar 14_caso_custom_persistente "$CLAVE_DEMO"
 

@@ -1,35 +1,3 @@
-"""
-Generador de datos SINTETICOS (apartado 5 de la rubrica).
-
-Crea un historico INVENTADO de 18 meses con las MISMAS columnas que los cinco
-CSV de Acceso a Datos, para poder practicar estadistica, segmentacion y
-prediccion con suficientes datos. No son datos reales: todo lo que sale de
-aqui lleva "Tipo: SINTETICO" en su ORIGEN.txt y nunca se guarda en entrada_acc/.
-
-Hipotesis de la simulacion (inventadas: NO describen la demanda real de NOVA):
-  - 40 clientes: 10 empresas (clubes) y 30 particulares. Unos compran mas que
-    otros (peso 1 / posicion^0,7).
-  - 12 modelos con distinta popularidad: el modelo 1 es el mas pedido
-    (peso 1 / posicion). Precios de catalogo entre 69,99 y 139,99 euros.
-  - 2 colores por modelo y tallas de la 38 a la 46; las centrales (41-43) se
-    piden mas (PESO_TALLAS).
-  - Mas pedidos en primavera y en septiembre-octubre (temporada deportiva) y
-    menos en agosto y enero (PESO_MES_DEL_ANIO), con un crecimiento del 2 % al mes.
-  - 15 % de pedidos Custom: casi siempre de clubes, un solo modelo y color en
-    2 a 5 tallas, de 5 a 20 pares por talla y un recargo del 20 % en el precio.
-  - Los pedidos normales tienen 1 a 3 lineas de 1 a 3 pares.
-  - Los precios suben un 5 % en enero de 2026 (el catalogo tiene el precio nuevo).
-  - El estado depende de la antiguedad del pedido; el 8 % se cancela. El pago
-    depende del estado (un pedido entregado esta pagado).
-
-Los datos limpios cumplen todas las reglas de calidad. Aparte se guarda una
-copia con errores introducidos a proposito (errores_introducidos.csv dice cuales).
-
-Con la misma semilla salen siempre exactamente los mismos datos.
-
-En Windows, desde la carpeta 04_Python:
-    .venv\\Scripts\\python.exe generador_datos.py
-"""
 import sys
 from pathlib import Path
 
@@ -61,18 +29,15 @@ PERSONALIZACIONES = ["Logo del club y dorsal", "Iniciales en el talón", "Colore
 
 
 def normalizar(pesos):
-    """Convierte unos pesos en probabilidades que suman 1."""
     pesos = np.array(pesos, dtype=float)
     return pesos / pesos.sum()
 
 
 def colores_del_modelo(id_modelo):
-    """Dos colores por modelo, siempre los mismos."""
     return [COLORES[(id_modelo - 1) % len(COLORES)], COLORES[(id_modelo + 2) % len(COLORES)]]
 
 
 def codigo_sku(id_modelo, color, talla):
-    """Por ejemplo S01-NEG-42: modelo 1, color negro, talla 42."""
     return f"S{id_modelo:02d}-{color[:3].upper()}-{talla}"
 
 
@@ -115,7 +80,6 @@ def generar_modelos(rng):
 
 
 def generar_stock(rng, modelos):
-    """Una fila por SKU (modelo + color + talla), con un stock entre 0 y 60 pares."""
     filas = []
     for id_modelo in modelos["id_modelo"]:
         for color in colores_del_modelo(id_modelo):
@@ -133,11 +97,6 @@ def generar_stock(rng, modelos):
 
 
 def generar_fechas(rng):
-    """
-    Fecha y hora de cada pedido. Primero se reparte el numero de pedidos entre
-    los 18 meses segun la estacionalidad y el crecimiento; despues, dentro de
-    cada mes, el dia y la hora son al azar.
-    """
     meses = pd.period_range(PRIMER_MES, periods=NUMERO_MESES, freq="M")
     pesos = []
     for numero, mes in enumerate(meses):
@@ -147,7 +106,6 @@ def generar_fechas(rng):
     fechas = []
     for mes, cuantos in zip(meses, pedidos_por_mes):
         for _ in range(cuantos):
-            # Siempre en este orden (dia, hora, minuto): con la misma semilla salen las mismas fechas
             dia = int(rng.integers(1, mes.days_in_month + 1))
             hora = int(rng.integers(9, 21))
             minuto = int(rng.integers(0, 60))
@@ -156,10 +114,6 @@ def generar_fechas(rng):
 
 
 def elegir_articulos(rng, custom, ids_modelos, peso_modelos):
-    """
-    Las lineas de un pedido, como (id_modelo, color, talla, cantidad).
-    Nunca hay dos lineas con el mismo SKU: el contrato dice una linea por talla.
-    """
     if custom:
         # Un club pide un modelo y un color en varias tallas distintas
         id_modelo = int(rng.choice(ids_modelos, p=peso_modelos))
@@ -188,7 +142,6 @@ def elegir_articulos(rng, custom, ids_modelos, peso_modelos):
 
 
 def elegir_estado(rng, fecha, corte):
-    """El 8 % se cancela; el resto avanza segun los dias que han pasado hasta el corte."""
     if rng.random() < PROPORCION_CANCELADOS:
         return "cancelado"
     dias = (corte - fecha).days
@@ -202,10 +155,6 @@ def elegir_estado(rng, fecha, corte):
 
 
 def elegir_estado_pago(rng, estado):
-    """
-    Entregado: pagado. Confirmado, en preparacion o enviado: pagado el 70 % de
-    las veces. Cancelado: reembolsado o pendiente, al 50 %. Pendiente: pendiente.
-    """
     if estado == "entregado":
         return "pagado"
     if estado in ("confirmado", "en_preparacion", "enviado"):
@@ -220,7 +169,6 @@ def elegir_estado_pago(rng, estado):
 
 
 def precio_en_fecha(precio_actual, fecha, custom):
-    """El catalogo tiene el precio de ahora; antes de la subida era ese precio / 1,05. Custom: +20 %."""
     precio = precio_actual
     if fecha < pd.Timestamp(MES_SUBIDA_PRECIOS + "-01"):
         precio = precio_actual / (1 + SUBIDA_PRECIOS)
@@ -286,7 +234,6 @@ def generar_pedidos(rng, clientes, modelos):
             cantidad_total += cantidad
             importe_total += importe
 
-        # Primero el pago y despues la personalizacion: es el orden de siempre de las llamadas al azar
         estado_pago = elegir_estado_pago(rng, estado)
         if custom:
             tipo_pedido = "custom"
@@ -310,7 +257,6 @@ def generar_pedidos(rng, clientes, modelos):
 
 
 def generar(semilla=config.SEMILLA):
-    """Los cinco conjuntos sinteticos, con las columnas en el orden del contrato."""
     rng = np.random.default_rng(semilla)
     clientes = generar_clientes()
     modelos = generar_modelos(rng)
@@ -324,12 +270,9 @@ def generar(semilla=config.SEMILLA):
     return ordenados
 
 
-# ---------------------------------------------------------------------
 # Copia con errores introducidos a proposito
-# ---------------------------------------------------------------------
 
 def como_texto(tabla):
-    """Todo a texto, como en el CSV (euros con 2 decimales), para poder meter valores erroneos."""
     texto = tabla.copy()
     for columna in texto.columns:
         if pd.api.types.is_float_dtype(texto[columna]):
@@ -340,13 +283,6 @@ def como_texto(tabla):
 
 
 def introducir_errores(datos):
-    """
-    Una copia de los datos con al menos un fallo de cada regla de la 02 a la 12.
-    La regla 01 (archivo vacio o sin columnas) no se puede mezclar aqui: si un
-    archivo no se puede leer, las demas reglas no se aplican. Se prueba aparte.
-
-    Devuelve (copia, DataFrame con cada error y lo que deberia detectar).
-    """
     copia = {nombre: como_texto(tabla) for nombre, tabla in datos.items()}
     pedidos = copia["pedidos"]
     lineas = copia["lineas_pedido"]
@@ -381,7 +317,6 @@ def introducir_errores(datos):
         registro = tabla.at[fila, columnas[0]]
         anotar(regla, nombre_tabla, registro, f"{columna}: '{anterior}' pasa a '{valor}'", se_espera)
 
-    # Un pedido entregado despues de la fila 70: las filas 10, 40, 50 y 60 ya se cambian para otros errores
     candidatos = (pedidos["estado_pedido"] == "entregado") & (pedidos.index > 70)
     entregado = pedidos.index[candidatos][0]
     # Una talla que no es la de su SKU: la siguiente, o la anterior si ya es la 46
@@ -409,16 +344,9 @@ def introducir_errores(datos):
     return copia, pd.DataFrame(errores)
 
 
-# ---------------------------------------------------------------------
 # Guardar
-# ---------------------------------------------------------------------
 
 def guardar(datos, carpeta, descripcion):
-    """
-    Escribe los cinco CSV como los exporta Acceso a Datos (UTF-8, coma, punto
-    decimal, cabecera) y un ORIGEN.txt con "Tipo: SINTETICO".
-    Se niega a escribir en entrada_acc/: alli solo van exportaciones de PostgreSQL.
-    """
     carpeta = Path(carpeta).resolve()
     entrada = config.CARPETA_ENTRADA.resolve()
     if carpeta == entrada or entrada in carpeta.parents:

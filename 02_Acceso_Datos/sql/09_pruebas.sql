@@ -1,4 +1,4 @@
-\echo '===== NOVA Sneakers: bateria de pruebas ====='
+\echo 'NOVA Sneakers: bateria de pruebas'
 \echo ''
 \echo 'Los identificadores se obtienen de la base, no se escriben a mano.'
 
@@ -17,9 +17,9 @@ SELECT :cliente_a AS cliente_a, :cliente_b AS cliente_b, :sku AS sku,
        :nave AS nave, :usuario AS usuario, :'ref_demo' AS pedido_demo;
 
 \echo ''
-\echo '===== COMPROBACIONES DE INSTALACION ====='
+\echo 'COMPROBACIONES DE INSTALACION'
 \echo ''
-\echo '--- P1 objetos instalados (esperado 14 tablas, 16 claves, 19 funciones, 10 disparadores, 4 roles)'
+\echo 'P1 objetos instalados (esperado 14 tablas, 16 claves, 19 funciones, 10 disparadores, 4 roles)'
 SELECT
     CASE WHEN tablas = 14 AND claves = 16 AND funciones = 19
               AND disparadores = 10 AND roles = 4
@@ -38,7 +38,7 @@ FROM (
 ) AS conteo;
 
 \echo ''
-\echo '--- P1b las funciones SECURITY DEFINER pertenecen al dueno de las tablas'
+\echo 'P1b las funciones SECURITY DEFINER pertenecen al dueno de las tablas'
 SELECT
     CASE WHEN count(*) = 0 THEN 'PASS' ELSE 'FAIL' END AS p1b,
     count(*) AS funciones_con_otro_dueno
@@ -50,7 +50,7 @@ WHERE f.pronamespace = 'public'::regnamespace
   );
 
 \echo ''
-\echo '--- P1c las funciones SECURITY DEFINER fijan su search_path'
+\echo 'P1c las funciones SECURITY DEFINER fijan su search_path'
 SELECT
     CASE WHEN count(*) = 0 THEN 'PASS' ELSE 'FAIL' END AS p1c,
     count(*) AS funciones_sin_search_path
@@ -60,14 +60,14 @@ WHERE f.pronamespace = 'public'::regnamespace
   AND f.proconfig IS NULL;
 
 \echo ''
-\echo '--- P1d lista de funciones SECURITY DEFINER'
+\echo 'P1d lista de funciones SECURITY DEFINER'
 SELECT f.proname AS funcion, pg_get_userbyid(f.proowner) AS dueno, f.proconfig AS configuracion
 FROM pg_proc f
 WHERE f.pronamespace = 'public'::regnamespace AND f.prosecdef
 ORDER BY f.proname;
 
 \echo ''
-\echo '--- P2 datos de demostracion: el catalogo instalado'
+\echo 'P2 datos de demostracion: el catalogo instalado'
 \echo '    (el catalogo no cambia aunque despues se anadan pedidos)'
 SELECT
     CASE WHEN modelos = 7 AND variantes = 12 AND sku = 60 AND naves = 1
@@ -86,15 +86,12 @@ FROM (
         (SELECT count(*) FROM public.personal) AS personal,
         (SELECT count(*) FROM public.usuarios) AS usuarios,
         (SELECT sum(cantidad) FROM public.existencias) AS stock_total,
-        -- Las 1200 unidades instaladas menos lo que se haya descontado
-        -- por pedidos confirmados. Asi la cuenta sigue cuadrando aunque
-        -- se confirmen pedidos despues de instalar.
         (SELECT coalesce(sum(l.cantidad), 0) FROM public.linea_pedido l
           WHERE l.stock_descontado = true) AS stock_descontado
 ) AS conteo;
 
 \echo ''
-\echo '--- P2a los 11 pedidos de demostracion y sus 14 lineas'
+\echo 'P2a los 11 pedidos de demostracion y sus 14 lineas'
 \echo '    (acotado a las referencias NOVA-%, para no contar pedidos anadidos luego)'
 SELECT
     CASE WHEN pedidos = 11 AND lineas = 14 AND importe = 5890.45
@@ -112,7 +109,7 @@ FROM (
 ) AS conteo;
 
 \echo ''
-\echo '--- P2b los pedidos de demostracion reparten el usuario asignado (9 con usuario, 2 sin usuario)'
+\echo 'P2b los pedidos de demostracion reparten el usuario asignado (9 con usuario, 2 sin usuario)'
 SELECT
     CASE WHEN con_usuario = 9 AND sin_usuario = 2 THEN 'PASS' ELSE 'FAIL' END AS p2b,
     con_usuario, sin_usuario
@@ -124,7 +121,7 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '--- P3 los disparadores calcularon bien los totales de TODOS los pedidos'
+\echo 'P3 los disparadores calcularon bien los totales de TODOS los pedidos'
 \echo '    (se cuentan los incoherentes: tienen que ser cero, haya 11 pedidos o 50)'
 SELECT
     CASE WHEN incoherentes = 0 THEN 'PASS' ELSE 'FAIL' END AS p3,
@@ -144,9 +141,9 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '===== COMPRAS Y CANCELACIONES ====='
+\echo 'COMPRAS Y CANCELACIONES'
 \echo ''
-\echo '--- P4 crear un pedido NO mueve el stock; confirmarlo si'
+\echo 'P4 crear un pedido NO mueve el stock; confirmarlo si'
 BEGIN;
 SELECT sum(cantidad) AS stock_antes FROM public.existencias
 \gset
@@ -186,7 +183,7 @@ FROM (
 ROLLBACK;
 
 \echo ''
-\echo '--- P4b editar una linea pendiente no descuenta stock, y al confirmar se'
+\echo 'P4b editar una linea pendiente no descuenta stock, y al confirmar se'
 \echo '    descuenta una sola vez la cantidad final (requisito 3.6 del enunciado)'
 BEGIN;
 SELECT sum(cantidad) AS stock_antes FROM public.existencias
@@ -213,7 +210,7 @@ FROM (
 ROLLBACK;
 
 \echo ''
-\echo '--- P4c confirmar dos veces no descuenta el stock por duplicado'
+\echo 'P4c confirmar dos veces no descuenta el stock por duplicado'
 BEGIN;
 SELECT sum(cantidad) AS stock_antes FROM public.existencias
 \gset
@@ -230,7 +227,7 @@ FROM public.existencias;
 ROLLBACK;
 
 \echo ''
-\echo '--- P5 pedido de tres lineas: el stock baja 6 al confirmar, no antes'
+\echo 'P5 pedido de tres lineas: el stock baja 6 al confirmar, no antes'
 BEGIN;
 SELECT sum(cantidad) AS stock_antes FROM public.existencias
 \gset
@@ -275,7 +272,7 @@ FROM (
 ROLLBACK;
 
 \echo ''
-\echo '--- P6 la cancelacion devuelve el stock, apaga la marca y conserva el importe'
+\echo 'P6 la cancelacion devuelve el stock, apaga la marca y conserva el importe'
 BEGIN;
 SELECT sum(cantidad) AS stock_antes FROM public.existencias
 \gset
@@ -302,7 +299,7 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '--- P6b cancelar dos veces no devuelve el stock por duplicado'
+\echo 'P6b cancelar dos veces no devuelve el stock por duplicado'
 UPDATE public.pedidos SET estado = 'cancelado' WHERE id_pedido = :id_pedido;
 SELECT
     CASE WHEN sum(cantidad) = :stock_antes THEN 'PASS' ELSE 'FAIL' END AS p6b,
@@ -311,7 +308,7 @@ FROM public.existencias;
 ROLLBACK;
 
 \echo ''
-\echo '--- P7 nova_admin confirma y cancela un pedido'
+\echo 'P7 nova_admin confirma y cancela un pedido'
 BEGIN;
 SELECT sum(cantidad) AS stock_antes FROM public.existencias
 \gset
@@ -340,7 +337,7 @@ FROM (
 ROLLBACK;
 
 \echo ''
-\echo '--- P8 nova_trabajador confirma y cancela un pedido'
+\echo 'P8 nova_trabajador confirma y cancela un pedido'
 BEGIN;
 SELECT sum(cantidad) AS stock_antes FROM public.existencias
 \gset
@@ -369,7 +366,7 @@ FROM (
 ROLLBACK;
 
 \echo ''
-\echo '--- P9 cancelar un pedido que nunca se confirmo no mueve el stock'
+\echo 'P9 cancelar un pedido que nunca se confirmo no mueve el stock'
 BEGIN;
 SELECT sum(cantidad) AS stock_antes FROM public.existencias
 \gset
@@ -388,7 +385,7 @@ FROM (
 ROLLBACK;
 
 \echo ''
-\echo '--- P9b confirmar un pedido sin existencias se rechaza entero, sin cambios'
+\echo 'P9b confirmar un pedido sin existencias se rechaza entero, sin cambios'
 \echo '    parciales ni stock negativo (prueba B del enunciado)'
 BEGIN;
 SELECT sum(cantidad) AS stock_antes FROM public.existencias
@@ -430,9 +427,9 @@ FROM (
 ROLLBACK;
 
 \echo ''
-\echo '===== AUDITORIA ====='
+\echo 'AUDITORIA'
 \echo ''
-\echo '--- P10 el alta, la confirmacion y la cancelacion dejan rastro en log_eventos'
+\echo 'P10 el alta, la confirmacion y la cancelacion dejan rastro en log_eventos'
 \echo '    (se mide la DIFERENCIA de eventos, no el total, para que la prueba'
 \echo '     siga valiendo si el registro ya tenia eventos de antes)'
 SELECT
@@ -462,7 +459,7 @@ ORDER BY id_evento;
 ROLLBACK;
 
 \echo ''
-\echo '--- P11 el registro guarda el OPERADOR autenticado, no el usuario del pedido'
+\echo 'P11 el registro guarda el OPERADOR autenticado, no el usuario del pedido'
 \echo '    (el pedido se asigna a tienda.demo y la operacion la ejecuta taller.demo)'
 BEGIN;
 SELECT gen_random_uuid()::text AS clave_p11
@@ -488,7 +485,7 @@ LIMIT 1;
 ROLLBACK;
 
 \echo ''
-\echo '--- P11b sin sesion iniciada, el registro queda sin operador'
+\echo 'P11b sin sesion iniciada, el registro queda sin operador'
 BEGIN;
 SELECT id_usuario AS duenyo_pedido FROM public.usuarios WHERE username = 'tienda.demo'
 \gset
@@ -506,7 +503,7 @@ LIMIT 1;
 ROLLBACK;
 
 \echo ''
-\echo '--- P11c la auditoria registra el alta del pedido y la baja logica al cancelar'
+\echo 'P11c la auditoria registra el alta del pedido y la baja logica al cancelar'
 \echo '    (tambien por diferencia antes/despues)'
 SELECT
     (SELECT count(*) FROM public.log_eventos WHERE accion = 'ALTA') AS altas_antes,
@@ -535,7 +532,7 @@ FROM (
 ROLLBACK;
 
 \echo ''
-\echo '--- P11d dar de baja un modelo queda registrado como baja logica'
+\echo 'P11d dar de baja un modelo queda registrado como baja logica'
 BEGIN;
 UPDATE public.modelos SET activo = false WHERE nombre = 'NOVA Aura';
 SELECT
@@ -547,9 +544,9 @@ WHERE tabla_afectada = 'modelos' AND accion = 'BAJA_LOGICA';
 ROLLBACK;
 
 \echo ''
-\echo '===== COMPRAS PERSONALIZADAS X-NOVA ====='
+\echo 'COMPRAS PERSONALIZADAS X-NOVA'
 \echo ''
-\echo '--- P12 compra X-NOVA (esperado importe 12000, sin SKU, sin nave, sin tocar el stock)'
+\echo 'P12 compra X-NOVA (esperado importe 12000, sin SKU, sin nave, sin tocar el stock)'
 BEGIN;
 SELECT sum(cantidad) AS stock_antes FROM public.existencias
 \gset
@@ -579,7 +576,7 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '--- P13 cancelar un X-NOVA no mueve el stock'
+\echo 'P13 cancelar un X-NOVA no mueve el stock'
 UPDATE public.pedidos SET estado = 'cancelado' WHERE id_pedido = :id_pedido;
 SELECT
     CASE WHEN stock = :stock_antes AND estado = 'cancelado'
@@ -593,7 +590,7 @@ FROM (
 ROLLBACK;
 
 \echo ''
-\echo '--- P14 la consulta 1 incluye las ventas X-NOVA y cuadra con las lineas'
+\echo 'P14 la consulta 1 incluye las ventas X-NOVA y cuadra con las lineas'
 BEGIN;
 INSERT INTO public.configuraciones_xnova (
     id_cliente, talla_referencia, color_principal, material, tipo_suela
@@ -630,9 +627,9 @@ FROM (
 ROLLBACK;
 
 \echo ''
-\echo '===== OPERACIONES QUE DEBEN SER RECHAZADAS ====='
+\echo 'OPERACIONES QUE DEBEN SER RECHAZADAS'
 \echo ''
-\echo '--- E1 cambiar la cantidad de una linea de un pedido ya confirmado'
+\echo 'E1 cambiar la cantidad de una linea de un pedido ya confirmado'
 BEGIN;
 SELECT public.realizar_compra('E1', :cliente_a, :sku, :nave, 2) AS id_pedido
 \gset
@@ -654,7 +651,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- E2 cambiar el precio de una linea de un pedido ya confirmado'
+\echo 'E2 cambiar el precio de una linea de un pedido ya confirmado'
 BEGIN;
 SELECT public.realizar_compra('E2', :cliente_a, :sku, :nave, 2) AS id_pedido
 \gset
@@ -676,7 +673,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- E3 borrar una linea cuyo stock ya se ha descontado'
+\echo 'E3 borrar una linea cuyo stock ya se ha descontado'
 BEGIN;
 SELECT public.realizar_compra('E3', :cliente_a, :sku, :nave, 2) AS id_pedido
 \gset
@@ -698,7 +695,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- E4 apagar a mano la marca de stock de un pedido confirmado'
+\echo 'E4 apagar a mano la marca de stock de un pedido confirmado'
 BEGIN;
 SELECT public.realizar_compra('E4', :cliente_a, :sku, :nave, 2) AS id_pedido
 \gset
@@ -720,7 +717,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- E4b encender a mano la marca de stock sin confirmar el pedido'
+\echo 'E4b encender a mano la marca de stock sin confirmar el pedido'
 BEGIN;
 SELECT public.realizar_compra('E4b', :cliente_a, :sku, :nave, 2) AS id_pedido
 \gset
@@ -741,7 +738,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- E5 anadir una linea a un pedido ya confirmado'
+\echo 'E5 anadir una linea a un pedido ya confirmado'
 BEGIN;
 SELECT public.realizar_compra('E5', :cliente_a, :sku, :nave, 1) AS id_pedido
 \gset
@@ -765,7 +762,7 @@ END
 $$;
 ROLLBACK;
 \echo ''
-\echo '--- E6 repetir una referencia de pedido que ya existe'
+\echo 'E6 repetir una referencia de pedido que ya existe'
 BEGIN;
 DO $$
 BEGIN
@@ -788,7 +785,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- E7 reactivar un pedido cancelado'
+\echo 'E7 reactivar un pedido cancelado'
 BEGIN;
 SELECT public.realizar_compra('E7', :cliente_a, :sku, :nave, 1) AS id_pedido
 \gset
@@ -809,7 +806,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- E8 comprar cantidad cero'
+\echo 'E8 comprar cantidad cero'
 BEGIN;
 DO $$
 BEGIN
@@ -831,7 +828,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- E9 anadir una linea a un pedido ya cancelado'
+\echo 'E9 anadir una linea a un pedido ya cancelado'
 BEGIN;
 SELECT public.realizar_compra('E9', :cliente_a, :sku, :nave, 1) AS id_pedido
 \gset
@@ -856,7 +853,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- E10 usar dos veces la misma configuracion X-NOVA'
+\echo 'E10 usar dos veces la misma configuracion X-NOVA'
 BEGIN;
 INSERT INTO public.configuraciones_xnova (
     id_cliente, talla_referencia, color_principal, material, tipo_suela
@@ -882,7 +879,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- E11 tras un error, ROLLBACK deja el stock intacto y sin pedidos nuevos'
+\echo 'E11 tras un error, ROLLBACK deja el stock intacto y sin pedidos nuevos'
 SELECT sum(cantidad) AS stock_antes FROM public.existencias
 \gset
 SELECT count(*) AS pedidos_antes FROM public.pedidos
@@ -919,12 +916,12 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '===== PERMISOS DE LOS TRES ROLES ====='
+\echo 'PERMISOS DE LOS TRES ROLES'
 \echo ''
 \echo 'Las pruebas que deben fallar no buscan identificadores: PostgreSQL comprueba'
 \echo 'el permiso sobre la tabla antes de mirar las filas.'
 \echo ''
-\echo '--- S1 nova_cliente ve el catalogo (permitido)'
+\echo 'S1 nova_cliente ve el catalogo (permitido)'
 BEGIN;
 SET ROLE nova_cliente;
 DO $$
@@ -946,7 +943,7 @@ RESET ROLE;
 ROLLBACK;
 
 \echo ''
-\echo '--- S2 nova_cliente NO ve los pedidos'
+\echo 'S2 nova_cliente NO ve los pedidos'
 BEGIN;
 SET ROLE nova_cliente;
 DO $$
@@ -968,7 +965,7 @@ RESET ROLE;
 ROLLBACK;
 
 \echo ''
-\echo '--- S3 nova_cliente compra llamando a la funcion (permitido)'
+\echo 'S3 nova_cliente compra llamando a la funcion (permitido)'
 BEGIN;
 SET ROLE nova_cliente;
 SELECT public.realizar_compra('S3', :cliente_a, :sku, :nave, 1) AS id_pedido
@@ -982,7 +979,7 @@ WHERE id_pedido = :id_pedido;
 ROLLBACK;
 
 \echo ''
-\echo '--- S4 nova_cliente NO tiene permiso para llamar a descontar_stock'
+\echo 'S4 nova_cliente NO tiene permiso para llamar a descontar_stock'
 SELECT
     CASE WHEN NOT has_function_privilege(
                    'nova_cliente',
@@ -995,7 +992,7 @@ SELECT
         'EXECUTE') AS puede_ejecutar;
 
 \echo ''
-\echo '--- S4b al intentarlo de verdad, nova_cliente recibe un error'
+\echo 'S4b al intentarlo de verdad, nova_cliente recibe un error'
 BEGIN;
 SET ROLE nova_cliente;
 SELECT public.descontar_stock(:sku, :nave, 1);
@@ -1003,7 +1000,7 @@ ROLLBACK;
 RESET ROLE;
 
 \echo ''
-\echo '--- S5 nova_admin NO puede insertar lineas de pedido a mano'
+\echo 'S5 nova_admin NO puede insertar lineas de pedido a mano'
 BEGIN;
 SET ROLE nova_admin;
 DO $$
@@ -1031,7 +1028,7 @@ RESET ROLE;
 ROLLBACK;
 
 \echo ''
-\echo '--- S6 nova_admin ve las configuraciones X-NOVA y la auditoria (permitido)'
+\echo 'S6 nova_admin ve las configuraciones X-NOVA y la auditoria (permitido)'
 BEGIN;
 SET ROLE nova_admin;
 DO $$
@@ -1051,7 +1048,7 @@ RESET ROLE;
 ROLLBACK;
 
 \echo ''
-\echo '--- S7 nova_trabajador cambia el estado de un pedido (permitido)'
+\echo 'S7 nova_trabajador cambia el estado de un pedido (permitido)'
 BEGIN;
 SET ROLE nova_trabajador;
 DO $$
@@ -1068,7 +1065,7 @@ RESET ROLE;
 ROLLBACK;
 
 \echo ''
-\echo '--- S8 nova_trabajador NO puede cambiar el importe de un pedido'
+\echo 'S8 nova_trabajador NO puede cambiar el importe de un pedido'
 BEGIN;
 SET ROLE nova_trabajador;
 DO $$
@@ -1089,7 +1086,7 @@ RESET ROLE;
 ROLLBACK;
 
 \echo ''
-\echo '--- S9 nova_trabajador NO puede comprar'
+\echo 'S9 nova_trabajador NO puede comprar'
 BEGIN;
 SET ROLE nova_trabajador;
 DO $$
@@ -1113,7 +1110,7 @@ RESET ROLE;
 ROLLBACK;
 
 \echo ''
-\echo '--- S10 nova_cliente NO puede cancelar un pedido'
+\echo 'S10 nova_cliente NO puede cancelar un pedido'
 BEGIN;
 SET ROLE nova_cliente;
 DO $$
@@ -1134,12 +1131,12 @@ RESET ROLE;
 ROLLBACK;
 
 \echo ''
-\echo '===== AUTENTICACION DE LA APLICACION ====='
+\echo 'AUTENTICACION DE LA APLICACION'
 \echo ''
 \echo 'Las contrasenas de prueba se generan al azar dentro de la transaccion y'
 \echo 'desaparecen con el ROLLBACK, asi que no hay ninguna clave en el archivo.'
 \echo ''
-\echo '--- A1 las cuentas de demostracion llegan sin contrasena utilizable'
+\echo 'A1 las cuentas de demostracion llegan sin contrasena utilizable'
 SELECT
     CASE WHEN count(*) = 3 THEN 'PASS' ELSE 'FAIL' END AS a1,
     count(*) AS cuentas_sin_contrasena
@@ -1147,7 +1144,7 @@ FROM public.usuarios
 WHERE password_hash = '!';
 
 \echo ''
-\echo '--- A2 no se puede entrar en una cuenta sin contrasena establecida'
+\echo 'A2 no se puede entrar en una cuenta sin contrasena establecida'
 BEGIN;
 DO $$
 BEGIN
@@ -1165,7 +1162,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- A3 con la contrasena correcta el login devuelve el id del usuario'
+\echo 'A3 con la contrasena correcta el login devuelve el id del usuario'
 BEGIN;
 SELECT gen_random_uuid()::text AS clave_a3
 \gset
@@ -1179,7 +1176,7 @@ WHERE username = 'admin.demo';
 ROLLBACK;
 
 \echo ''
-\echo '--- A4 con la contrasena incorrecta el login falla'
+\echo 'A4 con la contrasena incorrecta el login falla'
 BEGIN;
 SELECT gen_random_uuid()::text AS clave_a4
 \gset
@@ -1200,7 +1197,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- A5 un usuario que no existe da el mismo error, sin pistas'
+\echo 'A5 un usuario que no existe da el mismo error, sin pistas'
 BEGIN;
 DO $$
 BEGIN
@@ -1218,7 +1215,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- A6 la contrasena guardada no es el texto que se ha escrito'
+\echo 'A6 la contrasena guardada no es el texto que se ha escrito'
 BEGIN;
 SELECT gen_random_uuid()::text AS clave_a6
 \gset
@@ -1233,7 +1230,7 @@ WHERE username = 'admin.demo';
 ROLLBACK;
 
 \echo ''
-\echo '--- A7 dos usuarios con la misma contrasena tienen hashes distintos'
+\echo 'A7 dos usuarios con la misma contrasena tienen hashes distintos'
 BEGIN;
 SELECT gen_random_uuid()::text AS clave_a7
 \gset
@@ -1247,7 +1244,7 @@ WHERE username IN ('admin.demo', 'taller.demo');
 ROLLBACK;
 
 \echo ''
-\echo '--- A8 una contrasena demasiado corta se rechaza'
+\echo 'A8 una contrasena demasiado corta se rechaza'
 BEGIN;
 DO $$
 BEGIN
@@ -1265,7 +1262,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- A9 solo nova_admin puede cambiar contrasenas'
+\echo 'A9 solo nova_admin puede cambiar contrasenas'
 SELECT
     CASE WHEN admin_puede AND NOT trabajador_puede AND NOT cliente_puede
          THEN 'PASS' ELSE 'FAIL' END AS a9,
@@ -1281,7 +1278,7 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '--- A10 los tres roles pueden iniciar sesion'
+\echo 'A10 los tres roles pueden iniciar sesion'
 SELECT
     CASE WHEN admin_puede AND trabajador_puede AND cliente_puede
          THEN 'PASS' ELSE 'FAIL' END AS a10,
@@ -1297,7 +1294,7 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '--- A11 solo nova_admin ve la tabla usuarios, y nadie ve password_hash'
+\echo 'A11 solo nova_admin ve la tabla usuarios, y nadie ve password_hash'
 SELECT
     CASE WHEN admin_ve_usuario AND admin_edita_activo
               AND NOT admin_ve_hash
@@ -1315,7 +1312,7 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '--- A11b el hash de la contrasena es la clave de la firma de sesion,'
+\echo 'A11b el hash de la contrasena es la clave de la firma de sesion,'
 \echo '    asi que NINGUN rol de la aplicacion puede leerlo'
 SELECT
     CASE WHEN count(*) = 0 THEN 'PASS' ELSE 'FAIL' END AS a11b,
@@ -1325,7 +1322,7 @@ WHERE r.rolname LIKE 'nova\_%'
   AND has_column_privilege(r.rolname, 'public.usuarios', 'password_hash', 'SELECT');
 
 \echo ''
-\echo '--- A12 el usuario de sesion no sobrevive al final de la transaccion'
+\echo 'A12 el usuario de sesion no sobrevive al final de la transaccion'
 BEGIN;
 SELECT gen_random_uuid()::text AS clave_a12
 \gset
@@ -1340,7 +1337,7 @@ SELECT
     public.usuario_sesion() AS operador;
 
 \echo ''
-\echo '--- A13 el administrador puede gestionar usuarios, roles y personal'
+\echo 'A13 el administrador puede gestionar usuarios, roles y personal'
 SELECT
     CASE WHEN usuarios_crear AND usuarios_editar AND usuarios_password
               AND roles_crear AND personal_crear
@@ -1358,7 +1355,7 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '--- A13b el administrador crea un usuario y llega sin contrasena utilizable'
+\echo 'A13b el administrador crea un usuario y llega sin contrasena utilizable'
 BEGIN;
 SET ROLE nova_admin;
 SELECT public.crear_usuario('nuevo.demo', 'comercial') AS id_nuevo
@@ -1376,7 +1373,7 @@ FROM (
 ROLLBACK;
 
 \echo ''
-\echo '--- A13c el administrador NO puede escribir password_hash a mano'
+\echo 'A13c el administrador NO puede escribir password_hash a mano'
 BEGIN;
 SET ROLE nova_admin;
 DO $$
@@ -1397,13 +1394,13 @@ RESET ROLE;
 ROLLBACK;
 
 \echo ''
-\echo '===== FALSIFICACION DE LA IDENTIDAD DE SESION ====='
+\echo 'FALSIFICACION DE LA IDENTIDAD DE SESION'
 \echo ''
 \echo 'nova.id_usuario es un parametro que cualquier rol puede escribir con SET o'
 \echo 'set_config: PostgreSQL no deja revocar ese permiso. Por eso el valor va'
 \echo 'firmado y usuario_sesion() comprueba la firma antes de devolver nada.'
 \echo ''
-\echo '--- F1 poner el id a pelo no da sesion'
+\echo 'F1 poner el id a pelo no da sesion'
 BEGIN;
 SET ROLE nova_trabajador;
 SELECT set_config('nova.id_usuario', '1', true);
@@ -1414,7 +1411,7 @@ RESET ROLE;
 ROLLBACK;
 
 \echo ''
-\echo '--- F2 inventarse la firma tampoco'
+\echo 'F2 inventarse la firma tampoco'
 BEGIN;
 SET ROLE nova_trabajador;
 SELECT set_config('nova.id_usuario', '1:firmainventada', true);
@@ -1425,7 +1422,7 @@ RESET ROLE;
 ROLLBACK;
 
 \echo ''
-\echo '--- F3 una operacion con la identidad falsificada queda SIN operador,'
+\echo 'F3 una operacion con la identidad falsificada queda SIN operador,'
 \echo '    no con el operador falso'
 BEGIN;
 SELECT id_usuario AS id_admin FROM public.usuarios WHERE username = 'admin.demo'
@@ -1445,7 +1442,7 @@ LIMIT 1;
 ROLLBACK;
 
 \echo ''
-\echo '--- F4 reusar la firma de otro usuario no sirve'
+\echo 'F4 reusar la firma de otro usuario no sirve'
 BEGIN;
 SELECT gen_random_uuid()::text AS clave_f4
 \gset
@@ -1463,7 +1460,7 @@ SELECT
 ROLLBACK;
 
 \echo ''
-\echo '--- A14 el administrador puede desactivar un usuario y el resto se conserva'
+\echo 'A14 el administrador puede desactivar un usuario y el resto se conserva'
 BEGIN;
 SET ROLE nova_admin;
 UPDATE public.usuarios SET activo = false WHERE username = 'taller.demo';
@@ -1479,7 +1476,7 @@ FROM (
 ROLLBACK;
 
 \echo ''
-\echo '--- A15 un usuario desactivado no puede iniciar sesion'
+\echo 'A15 un usuario desactivado no puede iniciar sesion'
 BEGIN;
 SELECT gen_random_uuid()::text AS clave_a15
 \gset
@@ -1501,12 +1498,12 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '===== AUTORIZACION: IDENTIDAD NO ES PERMISO ====='
+\echo 'AUTORIZACION: IDENTIDAD NO ES PERMISO'
 \echo ''
 \echo 'Una identidad bien registrada no autoriza nada por si sola. Estas pruebas'
 \echo 'separan lo que protege PostgreSQL de lo que tiene que comprobar la aplicacion.'
 \echo ''
-\echo '--- G1 un usuario desactivado NO conserva su sesion anterior'
+\echo 'G1 un usuario desactivado NO conserva su sesion anterior'
 BEGIN;
 SELECT gen_random_uuid()::text AS clave_g1
 \gset
@@ -1522,7 +1519,7 @@ SELECT
 ROLLBACK;
 
 \echo ''
-\echo '--- G2 cambiar la contrasena invalida el testigo anterior'
+\echo 'G2 cambiar la contrasena invalida el testigo anterior'
 BEGIN;
 SELECT gen_random_uuid()::text AS clave_g2
 \gset
@@ -1540,7 +1537,7 @@ SELECT
 ROLLBACK;
 
 \echo ''
-\echo '--- G3 un usuario desactivado tampoco puede volver a entrar'
+\echo 'G3 un usuario desactivado tampoco puede volver a entrar'
 BEGIN;
 SELECT gen_random_uuid()::text AS clave_g3
 \gset
@@ -1562,7 +1559,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- G4 ningun rol puede crear objetos en public, asi que nadie puede'
+\echo 'G4 ningun rol puede crear objetos en public, asi que nadie puede'
 \echo '    ensombrecer hmac ni crypt para enganar a las funciones de sesion'
 SELECT
     CASE WHEN count(*) = 0 THEN 'PASS' ELSE 'FAIL' END AS g4,
@@ -1572,7 +1569,7 @@ WHERE r.rolname LIKE 'nova\_%'
   AND has_schema_privilege(r.rolname, 'public', 'CREATE');
 
 \echo ''
-\echo '--- G5 ninguna funcion SECURITY DEFINER devuelve texto que pueda'
+\echo 'G5 ninguna funcion SECURITY DEFINER devuelve texto que pueda'
 \echo '    arrastrar un hash: todas devuelven integer, void o trigger'
 SELECT
     CASE WHEN count(*) = 0 THEN 'PASS' ELSE 'FAIL' END AS g5,
@@ -1583,7 +1580,7 @@ WHERE p.pronamespace = 'public'::regnamespace
   AND pg_get_function_result(p.oid) NOT IN ('integer', 'void', 'trigger');
 
 \echo ''
-\echo '--- G6 LIMITE CONOCIDO: las operaciones se autorizan por el rol de'
+\echo 'G6 LIMITE CONOCIDO: las operaciones se autorizan por el rol de'
 \echo '    CONEXION, no por el rol funcional autenticado. Sin iniciar_sesion'
 \echo '    la operacion funciona y la auditoria queda sin operador.'
 BEGIN;
@@ -1602,7 +1599,7 @@ FROM (
 ROLLBACK;
 
 \echo ''
-\echo '--- G7 LIMITE CONOCIDO: no hay clave ajena entre usuarios y clientes,'
+\echo 'G7 LIMITE CONOCIDO: no hay clave ajena entre usuarios y clientes,'
 \echo '    asi que la base no puede saber de quien es un pedido'
 SELECT
     CASE WHEN count(*) = 0 THEN 'PASS' ELSE 'FAIL' END AS g7,
@@ -1614,7 +1611,7 @@ WHERE contype = 'f'
   AND confrelid = 'public.clientes'::regclass;
 
 \echo ''
-\echo '--- G8 cada rol funcional tiene su rol de PostgreSQL equivalente'
+\echo 'G8 cada rol funcional tiene su rol de PostgreSQL equivalente'
 SELECT
     CASE WHEN count(*) = 3 THEN 'PASS' ELSE 'FAIL' END AS g8,
     count(*) AS roles_funcionales_con_rol_de_base,
@@ -1631,7 +1628,7 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '--- G9 el perfil de nova_comercial: vende y sigue sus ventas, pero no'
+\echo 'G9 el perfil de nova_comercial: vende y sigue sus ventas, pero no'
 \echo '    gestiona usuarios ni toca importes ni existencias'
 SELECT
     CASE WHEN lee_clientes AND lee_pedidos AND puede_vender AND cambia_estado
@@ -1656,7 +1653,7 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '--- G10 nova_comercial vende, confirma y cancela, pero no gestiona usuarios'
+\echo 'G10 nova_comercial vende, confirma y cancela, pero no gestiona usuarios'
 BEGIN;
 SELECT sum(cantidad) AS stock_g10 FROM public.existencias
 \gset
@@ -1692,9 +1689,9 @@ RESET ROLE;
 ROLLBACK;
 
 \echo ''
-\echo '===== CICLO DE ESTADOS DEL PEDIDO ====='
+\echo 'CICLO DE ESTADOS DEL PEDIDO'
 \echo ''
-\echo '--- B1 el esquema admite pendiente, confirmado y cancelado'
+\echo 'B1 el esquema admite pendiente, confirmado y cancelado'
 SELECT
     CASE WHEN estados_admitidos = 6 THEN 'PASS' ELSE 'FAIL' END AS b1,
     estados_admitidos
@@ -1708,7 +1705,7 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '--- B2 recorrido pendiente, confirmado, cancelado con devolucion de stock'
+\echo 'B2 recorrido pendiente, confirmado, cancelado con devolucion de stock'
 BEGIN;
 SELECT sum(cantidad) AS stock_antes FROM public.existencias
 \gset
@@ -1740,7 +1737,7 @@ FROM (
 ROLLBACK;
 
 \echo ''
-\echo '--- B3 un pedido confirmado no se puede modificar en sus lineas'
+\echo 'B3 un pedido confirmado no se puede modificar en sus lineas'
 BEGIN;
 SELECT public.realizar_compra('B3', :cliente_a, :sku, :nave, 1) AS id_pedido
 \gset
@@ -1762,9 +1759,9 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '===== DATOS MINIMOS QUE PIDE EL ENUNCIADO ====='
+\echo 'DATOS MINIMOS QUE PIDE EL ENUNCIADO'
 \echo ''
-\echo '--- M1 al menos 5 clientes, 6 modelos, 10 pedidos y 3 personalizados'
+\echo 'M1 al menos 5 clientes, 6 modelos, 10 pedidos y 3 personalizados'
 SELECT
     CASE WHEN clientes >= 5 AND modelos >= 6 AND pedidos >= 10 AND personalizados >= 3
          THEN 'PASS' ELSE 'FAIL' END AS m1,
@@ -1778,7 +1775,7 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '--- M2 existe al menos un pedido con varias TALLAS distintas'
+\echo 'M2 existe al menos un pedido con varias TALLAS distintas'
 SELECT
     CASE WHEN count(*) >= 1 THEN 'PASS' ELSE 'FAIL' END AS m2,
     count(*) AS pedidos_con_varias_tallas
@@ -1791,7 +1788,7 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '--- M3 detalle del pedido de varias tallas'
+\echo 'M3 detalle del pedido de varias tallas'
 SELECT
     p.referencia,
     c.nombre AS cliente,
@@ -1808,7 +1805,7 @@ HAVING count(DISTINCT s.talla) > 1
 ORDER BY p.referencia;
 
 \echo ''
-\echo '--- M4 hay un usuario activo por cada rol funcional'
+\echo 'M4 hay un usuario activo por cada rol funcional'
 SELECT
     CASE WHEN count(*) = 3 THEN 'PASS' ELSE 'FAIL' END AS m4,
     count(*) AS roles_con_usuario_activo
@@ -1821,9 +1818,9 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '===== PRUEBA DE CONCURRENCIA ====='
+\echo 'PRUEBA DE CONCURRENCIA'
 \echo ''
 \echo 'No se puede ejecutar desde una sola sesion.'
 \echo 'El procedimiento con dos sesiones esta en el apartado 11 del README.'
 \echo ''
-\echo '===== FIN DE LA BATERIA ====='
+\echo 'FIN DE LA BATERIA'

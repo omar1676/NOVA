@@ -1,16 +1,3 @@
-"""
-Los dos DataFrames principales con sus variables derivadas (fase 2) y los
-DataFrames analiticos del apartado 6.15 (fase 3).
-
-Solo usan filas VALIDAS: calidad.evaluar ya ha apartado las rechazadas.
-
-Cada cruce (merge) declara su cardinalidad con validate= y comprueba con
-indicator=True que todas las filas encuentran pareja. Si un cruce
-multiplicara filas o perdiera claves, se para con un error: nunca se dan
-cifras con un JOIN silencioso.
-
-No usa Streamlit: main.py y el dashboard llaman a calcular_tablas.
-"""
 import numpy as np
 import pandas as pd
 
@@ -21,16 +8,6 @@ DIAS_SEMANA = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", 
 
 
 def cruzar(izquierda, derecha, clave, validate, nombre, exigir_pareja=True):
-    """
-    merge por la izquierda con validate= e indicator=True.
-
-    Para con ErrorDatos si:
-    - la cardinalidad no es la declarada (p. ej. un id repetido en la derecha
-      en un "many_to_one", que multiplicaria filas),
-    - el numero de filas cambia,
-    - alguna fila con clave no encuentra pareja (si exigir_pareja).
-    Una clave vacia no puede tener pareja (las lineas X-NOVA no tienen sku).
-    """
     try:
         cruce = izquierda.merge(derecha, how="left", on=clave, validate=validate, indicator=True)
     except pd.errors.MergeError as error:
@@ -45,7 +22,6 @@ def cruzar(izquierda, derecha, clave, validate, nombre, exigir_pareja=True):
 
 
 def anadir_calendario(tabla):
-    """Variables de calendario a partir de fecha_pedido (la misma funcion para lineas y pedidos)."""
     tabla = tabla.copy()
     fecha = tabla["fecha_pedido"]
     tabla["anio"] = fecha.dt.year
@@ -57,12 +33,6 @@ def anadir_calendario(tabla):
 
 
 def df_lineas_enriquecidas(validos, stock):
-    """
-    Una fila por linea de pedido valida, con los datos de su pedido, su
-    cliente, su modelo y el color de su SKU.
-
-    stock es stock.csv completo: de el solo se toma el color de cada SKU.
-    """
     lineas = validos["lineas_pedido"][["id_linea", "id_pedido", "sku", "id_modelo", "talla",
                                        "cantidad", "precio_unitario", "importe_linea"]]
     pedidos = validos["pedidos"][["id_pedido", "referencia", "id_cliente", "fecha_pedido",
@@ -94,16 +64,6 @@ def df_lineas_enriquecidas(validos, stock):
 
 
 def df_pedidos_unicos(validos, lineas_enriquecidas, fecha_corte):
-    """
-    Una fila por pedido valido, con su cliente y las metricas de sus lineas.
-
-    pares e importe se suman desde las lineas, como pide la rubrica. La
-    cabecera de Acceso a Datos trae cantidad_total e importe_total; la regla
-    12 ya ha comprobado que coinciden con las lineas.
-
-    fecha_corte es el momento de la exportacion: con ella se calcula la
-    antiguedad de cada pedido sin depender del dia en que se ejecute Python.
-    """
     # Metricas de las lineas: una fila por pedido
     por_pedido = lineas_enriquecidas.groupby("id_pedido").agg(
         num_lineas=("id_linea", "count"),
@@ -153,12 +113,6 @@ def df_pedidos_unicos(validos, lineas_enriquecidas, fecha_corte):
 
 
 def importes_por_criterio(pedidos_unicos):
-    """
-    Pedidos, pares e importe con tres criterios distintos (caso B).
-
-    Ninguno se llama "ingresos cobrados": si un pedido esta pagado lo dice
-    estado_pago, y aqui no se usa. El IVA esta pendiente de confirmar.
-    """
     criterios = [
         ("registrados", "todos los pedidos válidos, en cualquier estado",
          pd.Series(True, index=pedidos_unicos.index)),
@@ -182,10 +136,6 @@ def importes_por_criterio(pedidos_unicos):
 
 
 def comparar_pedidos(pedidos_unicos, lineas_enriquecidas, referencia_a, referencia_b):
-    """
-    Pone dos pedidos lado a lado para ver en que coinciden (caso A).
-    No decide nada: solo ensena los datos.
-    """
     pedido_a = pedidos_unicos[pedidos_unicos["referencia"] == referencia_a].iloc[0]
     pedido_b = pedidos_unicos[pedidos_unicos["referencia"] == referencia_b].iloc[0]
 
@@ -210,68 +160,45 @@ def comparar_pedidos(pedidos_unicos, lineas_enriquecidas, referencia_a, referenc
     return tabla
 
 
-# ---------------------------------------------------------------------
 # Fase 3: DataFrames analiticos (apartado 6.15)
-#
-# Cada tabla dice que pedidos usa (config.py):
-#   demanda = no cancelados, venta = confirmados en adelante.
-# Si una tabla no se puede calcular con los datos que hay, existe igual con
-# estado NO CALCULABLE y el motivo: nunca con ceros inventados.
-# ---------------------------------------------------------------------
 
 NO_CALCULABLE = "NO CALCULABLE"
 
 
 def no_calculable(motivo):
-    """Tabla que no se puede calcular: una fila que dice por que."""
     return pd.DataFrame({"estado": [NO_CALCULABLE], "motivo": [motivo]})
 
 
 def es_no_calculable(tabla):
-    """True si la tabla es la fila NO CALCULABLE de no_calculable (y no una tabla con datos)."""
     return "estado" in tabla.columns and len(tabla) == 1 and tabla["estado"].iloc[0] == NO_CALCULABLE
 
 
 def porcentaje(parte, total):
-    """parte / total en %, con un decimal. Sin total no hay porcentaje: nulo, no 0."""
     if not total:
         return None
     return round(100 * float(parte) / float(total), 1)
 
 
 def dividir(numerador, denominador, decimales=2):
-    """Division que devuelve nulo (no 0 ni un error) si el denominador es 0."""
     if not denominador:
         return None
     return round(float(numerador) / float(denominador), decimales)
 
 
 def de_demanda(tabla):
-    """Pedidos o lineas que no estan cancelados."""
     return tabla[~tabla["es_cancelado"]]
 
 
 def de_venta(pedidos_unicos):
-    """Pedidos confirmados en adelante."""
     return pedidos_unicos[pedidos_unicos["es_confirmado"]]
 
 
 def rellenar_meses(por_mes):
-    """
-    Una tabla o serie con un mes (Period) en el indice, con todos los meses
-    entre el primero y el ultimo: un mes que falta DENTRO del periodo queda
-    con 0. Antes del primero y despues del ultimo no se inventa ninguno.
-    """
     todos_los_meses = pd.period_range(por_mes.index.min(), por_mes.index.max(), freq="M")
     return por_mes.reindex(todos_los_meses, fill_value=0)
 
 
 def pedidos_por_estado(pedidos_unicos):
-    """
-    Pedidos, pares e importe de cada estado del catalogo. Un estado sin pedidos
-    sale con 0 (es un recuento, no un dato inventado). Los cancelados se ven
-    aqui aunque no cuenten como venta.
-    """
     tabla = pedidos_unicos.groupby("estado_pedido").agg(
         pedidos=("id_pedido", "count"), pares=("pares", "sum"), importe=("importe", "sum"))
     tabla = tabla.reindex(config.ESTADOS_PEDIDO, fill_value=0)
@@ -285,10 +212,6 @@ def pedidos_por_estado(pedidos_unicos):
 
 
 def pedidos_por_estado_pago(pedidos_unicos):
-    """
-    Pedidos e importe de cada estado de pago del catalogo (con 0 si no hay
-    ninguno). Es lo que Acceso a Datos marca: no es un cobro comprobado.
-    """
     tabla = pedidos_unicos.groupby("estado_pago").agg(pedidos=("id_pedido", "count"), importe=("importe", "sum"))
     tabla = tabla.reindex(config.ESTADOS_PAGO, fill_value=0)
     tabla.index.name = "estado_pago"
@@ -300,13 +223,6 @@ def pedidos_por_estado_pago(pedidos_unicos):
 
 
 def ventas_por_periodo(pedidos_unicos):
-    """
-    Venta por mes (DataFrame 02): pedidos, pares, importe y ticket medio, la
-    variacion respecto al mes anterior, la media de los 3 meses PREVIOS (sin el
-    propio mes) y la variacion interanual (solo si existe el mismo mes del ano
-    anterior). Un mes sin ventas DENTRO del periodo sale con 0; antes del
-    primero y despues del ultimo no se inventa ninguno.
-    """
     venta = de_venta(pedidos_unicos)
     if len(venta) == 0:
         return no_calculable("no hay pedidos de venta (confirmados en adelante)")
@@ -330,7 +246,6 @@ def ventas_por_periodo(pedidos_unicos):
 
 
 def matriz_modelo_mes(lineas_enriquecidas):
-    """Pares de demanda por modelo (filas) y mes (columnas) (apartado 6.9)."""
     demanda = de_demanda(lineas_enriquecidas)
     if len(demanda) == 0:
         return no_calculable("no hay líneas de demanda")
@@ -340,13 +255,6 @@ def matriz_modelo_mes(lineas_enriquecidas):
 
 
 def clasificar_abc(tabla, columna):
-    """
-    Anade a una tabla ORDENADA de mayor a menor por `columna` su peso, el
-    acumulado y la clase ABC. La clase depende de lo que se acumula ANTES de
-    cada fila: A si es menor que ABC_LIMITE_A (80 %), B si es menor que
-    ABC_LIMITE_B (95 %), C el resto. Asi el modelo que cruza el 80 % es A.
-    Las filas empatadas reciben la misma clase: la de la primera del empate.
-    """
     tabla = tabla.copy()
     total = tabla[columna].sum()
     acumulado = tabla[columna].cumsum()
@@ -357,7 +265,6 @@ def clasificar_abc(tabla, columna):
         return tabla
     anterior = 100 * (acumulado - tabla[columna]) / total
     anterior = anterior.groupby(tabla[columna]).transform("min")   # empates: misma clase
-    # Primero todos C; despues B los que no llegan a ABC_LIMITE_B y A los que no llegan a ABC_LIMITE_A
     tabla["clase_abc"] = "C"
     tabla.loc[anterior < config.ABC_LIMITE_B, "clase_abc"] = "B"
     tabla.loc[anterior < config.ABC_LIMITE_A, "clase_abc"] = "A"
@@ -365,14 +272,6 @@ def clasificar_abc(tabla, columna):
 
 
 def modelos_abc(lineas_enriquecidas, modelos):
-    """
-    Demanda por modelo y clasificacion ABC (DataFrame 03).
-
-    Variable de clasificacion: PARES DE DEMANDA (pedidos no cancelados), porque
-    sirve para decidir que fabricar. Tambien sale el importe y su ranking. Salen
-    todos los modelos del catalogo: uno sin demanda tiene 0 pares y clase C.
-    No es el ABC del valor del stock: eso necesitaria el coste del inventario.
-    """
     demanda = de_demanda(lineas_enriquecidas)
     por_modelo = demanda.groupby("id_modelo").agg(
         pares=("cantidad", "sum"), pedidos=("id_pedido", "nunique"), importe=("importe_linea", "sum")
@@ -392,7 +291,6 @@ def modelos_abc(lineas_enriquecidas, modelos):
 
 
 def ventas_por_talla(lineas_enriquecidas):
-    """Pares de demanda por talla, con su peso sobre el total."""
     demanda = de_demanda(lineas_enriquecidas)
     tabla = demanda.groupby("talla").agg(
         pares=("cantidad", "sum"), pedidos=("id_pedido", "nunique"), lineas=("id_linea", "count")
@@ -403,10 +301,6 @@ def ventas_por_talla(lineas_enriquecidas):
 
 
 def matriz_modelo_talla(lineas_enriquecidas):
-    """
-    Pares de demanda por modelo (filas) y talla (columnas) (DataFrame 04).
-    Una combinacion sin pedidos tiene 0 pares.
-    """
     demanda = de_demanda(lineas_enriquecidas)
     if len(demanda) == 0:
         return pd.DataFrame()
@@ -415,18 +309,12 @@ def matriz_modelo_talla(lineas_enriquecidas):
 
 
 def proporcion_tallas(matriz):
-    """Que parte de los pares de cada modelo es de cada talla: cada fila suma 1."""
     if len(matriz) == 0:
         return matriz
     return matriz.div(matriz.sum(axis=1), axis=0).round(4)
 
 
 def custom_vs_estandar(pedidos_unicos):
-    """
-    Pedido Custom frente a estandar (DataFrame 05). La tasa de cancelacion es de
-    PEDIDOS registrados; las cuotas son de la demanda (pedidos, pares y euros);
-    el importe y el ticket de venta, de los confirmados en adelante.
-    """
     demanda_total = de_demanda(pedidos_unicos)
     filas = []
     for tipo in config.TIPOS_PEDIDO:
@@ -452,13 +340,6 @@ def custom_vs_estandar(pedidos_unicos):
 
 
 def clientes_actividad(pedidos_unicos, clientes, fecha_corte):
-    """
-    Una fila por cliente, tambien los que no tienen pedidos (con 0): cuantos
-    pedidos, pares e importe, y cuando fue su ultimo pedido. Sirve para el
-    ranking de clientes; el RFM se calcula aparte (segmentacion.rfm, solo con
-    pedidos de venta). Solo lleva id y tipo de cliente: el nombre no hace
-    falta para analizar.
-    """
     registrados = pedidos_unicos.groupby("id_cliente").agg(
         pedidos_registrados=("id_pedido", "count"), pedidos_cancelados=("es_cancelado", "sum"))
     demanda = de_demanda(pedidos_unicos).groupby("id_cliente").agg(
@@ -483,25 +364,15 @@ def clientes_actividad(pedidos_unicos, clientes, fecha_corte):
 
 
 def cohortes(pedidos_unicos):
-    """
-    Cohortes de compra (DataFrame 07). Cada cliente entra en la cohorte del mes
-    de su primera compra (pedido de venta). Para cada cohorte y cada mes
-    despues, que parte de sus clientes vuelve a comprar (retencion).
-    Con ventas de menos de 2 meses no hay retencion que medir: NO CALCULABLE.
-    """
     venta = de_venta(pedidos_unicos).copy()
     venta["mes"] = venta["fecha_pedido"].dt.to_period("M")
     meses_distintos = venta["mes"].nunique()
     if meses_distintos < 2:
         return no_calculable(f"hacen falta ventas de al menos 2 meses distintos y hay {meses_distintos}")
     venta["cohorte"] = venta.groupby("id_cliente")["mes"].transform("min")
-    # Meses que han pasado desde el de la cohorte (0 = el mes de la primera compra).
-    # Cada mes se cuenta como anio * 12 + mes, asi la resta da meses enteros
     meses_compra = venta["mes"].dt.year * 12 + venta["mes"].dt.month
     meses_cohorte = venta["cohorte"].dt.year * 12 + venta["cohorte"].dt.month
     venta["meses_despues"] = meses_compra - meses_cohorte
-    # Clientes distintos de cada cohorte que compran en cada mes; al dividir
-    # entre los del mes 0 sale la parte que vuelve a comprar
     clientes = venta.pivot_table(index="cohorte", columns="meses_despues", values="id_cliente",
                                  aggfunc="nunique", fill_value=0)
     tabla = clientes.div(clientes[0], axis=0).round(3)
@@ -521,17 +392,6 @@ def cohortes(pedidos_unicos):
 
 def stock_variantes(stock, modelos, lineas_enriquecidas, pedidos_unicos, fecha_corte,
                     umbral=config.UMBRAL_STOCK_BAJO):
-    """
-    Stock por SKU (modelo + color + talla) con la demanda de los ultimos
-    DIAS_DEMANDA dias, la alerta de stock bajo y la cobertura (DataFrame 08).
-    El umbral de stock bajo es el de config.py salvo que se pase otro (el
-    dashboard deja cambiarlo).
-
-    El stock es UNA FOTO en la fecha de corte, no un historico. Nunca se suma
-    entre colores. Cobertura en semanas = stock / (pares demandados en 28 dias / 4).
-    Solo se calcula si el historial de pedidos cubre los 28 dias enteros; un
-    SKU sin demanda en ese periodo tiene cobertura N/D.
-    """
     tabla = stock[["sku", "id_modelo", "color", "talla", "stock_disponible"]]
     tabla = cruzar(tabla, modelos[["id_modelo", "nombre_modelo"]], "id_modelo", "many_to_one", "stock-modelos")
 
@@ -562,21 +422,11 @@ def stock_variantes(stock, modelos, lineas_enriquecidas, pedidos_unicos, fecha_c
 
 
 def stock_bajo(tabla_stock):
-    """Referencias por debajo del umbral, de menos a mas stock (el mismo orden que la consulta C8)."""
     bajo = tabla_stock[tabla_stock["alerta_stock_bajo"]]
     return bajo.sort_values(["stock_disponible", "nombre_modelo", "color", "talla"]).reset_index(drop=True)
 
 
 def anomalias_iqr(lineas_enriquecidas):
-    """
-    Atipicos con la regla del IQR dentro de grupos comparables (DataFrame 10):
-    - precio_unitario por modelo Y tipo de pedido: un Custom lleva un recargo,
-      asi que solo se compara con otros Custom del mismo modelo.
-    - cantidad por tipo de pedido: un pedido Custom de club pide muchos pares y es normal.
-    Limites: Q1 - 1,5 x IQR y Q3 + 1,5 x IQR. Un grupo con menos de
-    MINIMO_MUESTRA_IQR valores no se evalua. Las lineas atipicas NO se borran:
-    solo se senalan para revisarlas.
-    """
     filas = []
     for variable, columnas in [("precio_unitario", ["nombre_modelo", "tipo_pedido"]), ("cantidad", ["tipo_pedido"])]:
         for valores_grupo, parte in lineas_enriquecidas.groupby(columnas):
@@ -606,12 +456,6 @@ def anomalias_iqr(lineas_enriquecidas):
 
 
 def precio_y_margen(tabla_abc, modelos):
-    """
-    Precio medio ponderado por par de cada modelo (importe / pares de demanda)
-    frente a su precio de catalogo (DataFrame 11). El margen necesita el coste
-    unitario y Acceso a Datos no lo exporta: NO CALCULABLE. Nunca se calcula
-    un "margen" con el precio de venta.
-    """
     tabla = cruzar(tabla_abc[["id_modelo", "nombre_modelo", "pares", "importe"]],
                    modelos[["id_modelo", "precio_base"]], "id_modelo", "one_to_one", "abc-precios")
     tabla["precio_medio_ponderado"] = (tabla["importe"] / tabla["pares"]).where(tabla["pares"] > 0).round(2)
@@ -621,11 +465,6 @@ def precio_y_margen(tabla_abc, modelos):
 
 
 def calcular_tablas(datos, validos):
-    """
-    Todas las tablas de analisis a partir de la misma version de los datos
-    (calidad.evaluar ya ha apartado las filas rechazadas). La consola (main.py)
-    y el dashboard usan esta funcion: una sola formula por tabla.
-    """
     corte = datos["stock"]["fecha_corte"].max()
     lineas = df_lineas_enriquecidas(validos, datos["stock"])
     pedidos = df_pedidos_unicos(validos, lineas, corte)

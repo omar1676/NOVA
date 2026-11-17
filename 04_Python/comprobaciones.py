@@ -1,14 +1,3 @@
-"""
-Comprobaciones iniciales de la fase 1: que los cinco CSV se han leido bien
-y que tienen sentido juntos.
-
-OJO: NO son las doce reglas de calidad del apartado 6.2 de la rubrica.
-Esas reglas (con gravedad, tratamiento, incidencias.csv...) son de la fase 2.
-Aqui solo se mira si los datos estan bien preparados para empezar.
-
-Cada comprobacion devuelve un diccionario:
-    {"comprobacion": ..., "resultado": "OK" | "AVISO" | "ERROR", "detalle": ...}
-"""
 import config
 
 
@@ -17,14 +6,12 @@ def resultado(nombre, estado, detalle):
 
 
 def comprobar_conversiones(avisos):
-    """Todos los valores se han podido convertir a su tipo."""
     if not avisos:
         return resultado("Tipos de datos", "OK", "todos los valores se han convertido a su tipo")
     return resultado("Tipos de datos", "AVISO", f"{len(avisos)} valores no se han podido convertir (ver avisos)")
 
 
 def comprobar_columnas(datos):
-    """Las columnas son las que exporta 16_exportar_csv_dashboard.sql, en el mismo orden."""
     diferencias = []
     for nombre, definicion in config.ARCHIVOS.items():
         esperadas = list(definicion["tipos"])
@@ -46,11 +33,6 @@ def comprobar_columnas(datos):
 
 
 def comprobar_codificacion(datos):
-    """
-    Si un archivo no fuera UTF-8, leer_csv ya habria parado. Aqui se buscan
-    restos de una conversion mal hecha antes de exportar: el caracter de
-    sustitucion (�) o "Ã" (lo que sale al leer "ñ" o "é" con otra codificacion).
-    """
     sospechosos = []
     for nombre, tabla in datos.items():
         for columna in tabla.columns:
@@ -65,7 +47,6 @@ def comprobar_codificacion(datos):
 
 
 def comprobar_claves_unicas(datos):
-    """Cada identificador aparece una sola vez en su tabla."""
     repetidas = []
     for nombre, columna in config.CLAVES_UNICAS:
         valores = datos[nombre][columna]
@@ -78,13 +59,11 @@ def comprobar_claves_unicas(datos):
 
 
 def sin_pareja(hijos, columna, padres, columna_padre):
-    """Valores de hijos[columna] que no existen en padres[columna_padre] (los vacios no cuentan)."""
     valores = hijos[columna].dropna()
     return valores[~valores.isin(padres[columna_padre])].unique()
 
 
 def comprobar_relaciones(datos):
-    """Las claves que unen las tablas apuntan a algo que existe."""
     huerfanas = []
     for hijos, columna, padres, columna_padre in config.RELACIONES:
         perdidas = sin_pareja(datos[hijos], columna, datos[padres], columna_padre)
@@ -96,7 +75,6 @@ def comprobar_relaciones(datos):
 
 
 def comprobar_pedidos_con_lineas(datos):
-    """Un pedido sin lineas no deberia existir: ACC crea el pedido con su primera linea."""
     sin_lineas = sin_pareja(datos["pedidos"], "id_pedido", datos["lineas_pedido"], "id_pedido")
     if len(sin_lineas) > 0:
         return resultado("Pedidos con líneas", "AVISO", f"pedidos sin líneas: {', '.join(map(str, sin_lineas))}")
@@ -104,12 +82,6 @@ def comprobar_pedidos_con_lineas(datos):
 
 
 def comprobar_importes_y_cantidades(datos):
-    """
-    Las cantidades y los importes se han leido como numeros y cuadran:
-    - cantidades mayores que 0 y stock no negativo
-    - importe_linea = cantidad x precio_unitario
-    - cantidad_total e importe_total del pedido = suma de sus lineas
-    """
     lineas = datos["lineas_pedido"]
     pedidos = datos["pedidos"]
     problemas = []
@@ -121,8 +93,6 @@ def comprobar_importes_y_cantidades(datos):
     if (datos["stock"]["stock_disponible"] < 0).any():
         problemas.append("hay stock negativo")
 
-    # Los euros se comparan redondeados a centimos. Un valor que no se pudo
-    # convertir da nulo; ya salio en los avisos, asi que aqui no cuenta (fillna).
     calculado = (lineas["cantidad"] * lineas["precio_unitario"]).round(2)
     diferencia = (calculado - lineas["importe_linea"]).abs()
     distinto = (diferencia > config.TOLERANCIA_EUROS).fillna(False)
@@ -149,7 +119,6 @@ def comprobar_importes_y_cantidades(datos):
 
 
 def comprobar_periodo(datos):
-    """Cuantos meses distintos cubren los pedidos. No es un error: avisa para el analisis temporal."""
     fechas = datos["pedidos"]["fecha_pedido"].dropna()
     if len(fechas) == 0:
         return resultado("Periodo de los pedidos", "AVISO", "no hay ninguna fecha de pedido válida")
@@ -162,7 +131,6 @@ def comprobar_periodo(datos):
 
 
 def comprobar_todo(datos, avisos):
-    """Lanza todas las comprobaciones iniciales, en orden."""
     return [
         comprobar_conversiones(avisos),
         comprobar_columnas(datos),

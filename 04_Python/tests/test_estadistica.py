@@ -1,6 +1,3 @@
-"""
-Pruebas de la estadistica descriptiva, las tres hipotesis y el bootstrap (estadistica.py).
-"""
 import tempfile
 import unittest
 from pathlib import Path
@@ -17,7 +14,6 @@ from test_tablas import PruebaTablas
 
 
 def tablas_sinteticas():
-    """Las tablas de analisis de los datos sinteticos (se calculan una sola vez)."""
     if not hasattr(tablas_sinteticas, "cache"):
         with tempfile.TemporaryDirectory() as temporal:
             carpeta = generador_datos.guardar(generador_datos.generar(config.SEMILLA), Path(temporal), "test")

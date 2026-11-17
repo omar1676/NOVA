@@ -1,53 +1,8 @@
--- =====================================================================
 -- 18_datos_so024.sql — datos del ejemplo SO024 del enunciado (ensayo opcional)
---
--- QUE HACE
---   Deja en la base lo que necesita el pedido SO024 del enunciado
---   (Club Halcones, Runner X, 40 pares, tallas 38 a 46):
---     1. El cliente Club Halcones.
---     2. El modelo Runner X, con un color.
---     3. Sus nueve SKU, de la talla 38 a la 46, con el mismo formato que
---        el resto del catalogo (05_datos_prueba.sql): NOVA-<variante>-<talla>.
---     4. Sus existencias en la nave NOVA Central.
---   NO crea el pedido: SO024 se da de alta con realizar_compra y
---   anadir_linea_pedido y despues se confirma, como CUSTOM-40 en el 14.
---   No es CUSTOM-40: ese pedido (10 y 14) es el caso Custom de Acceso a
---   Datos y usa NOVA Velocity en lugar de Runner X. SO024 es el EJEMPLO
---   del enunciado intermodular; el caso de Odoo documentado es S00005.
---
---   No cambia ninguna tabla ni ningun trigger: solo hace INSERT, y en
---   estas cinco tablas no hay ningun trigger de INSERT.
---
--- DATOS QUE HAY QUE PASAR AL EJECUTARLO
---   El precio, el color y el stock inicial no estan escritos aqui: no
---   hay datos acordados para SO024 y no se inventan. Se pasan al
---   ejecutar; si falta alguno, el script se para sin insertar nada.
---   Es un ensayo opcional: la entrega no lo usa
---   (solo para ensayar el ejemplo del enunciado).
---     precio = precio_base de Runner X, en euros y con punto (119.90).
---     color  = el color de su unica variante.
---     stock  = pares de cada talla. Tiene que llegar, como minimo, a los
---              pares que pida SO024 en su talla mas pedida; si no, la
---              confirmacion fallara con "Stock insuficiente".
---
--- SE PUEDE EJECUTAR LAS VECES QUE SE QUIERA
---   Cada INSERT lleva ON CONFLICT DO NOTHING: si la fila ya existe, no
---   hace nada. Asi no se duplica nada y, si SO024 ya ha gastado stock,
---   no se vuelve a rellenar.
---
--- CUANDO SE EJECUTA
---   Con el usuario que instalo la base, al final: despues de 14 y de
---   exportar CUSTOM-40 con 15 y 16. Luego se crea SO024 y se
---   exporta con 15 -v referencia=SO024. Antes de las pruebas (09) no,
---   porque 09 cuenta los datos de 05 (P2 y S1).
---
--- COMO SE EJECUTA
---   psql -U postgres -d nova_sneakers -v precio=___ -v color=___ -v stock=___ -f 18_datos_so024.sql
--- =====================================================================
 
 \set ON_ERROR_STOP on
 
-\echo '===== Datos del caso comun SO024 (sin crear el pedido) ====='
+\echo 'Datos del caso comun SO024 (sin crear el pedido)'
 
 -- Si falta un dato por acordar, se para aqui sin tocar la base.
 \if :{?precio}
@@ -112,7 +67,6 @@ WHERE m.nombre = 'Runner X'
 ON CONFLICT DO NOTHING;
 
 -- 6. Comprobacion: Runner X tiene las nueve tallas y todas con stock.
---    Si no, se deshace todo.
 DO $$
 DECLARE
     v_tallas    integer;
@@ -148,7 +102,7 @@ $$;
 COMMIT;
 
 \echo ''
-\echo '--- Lo que hay ahora en la base para el caso SO024'
+\echo 'Lo que hay ahora en la base para el caso SO024'
 SELECT nombre, tipo, email
 FROM public.clientes
 WHERE email = 'club.halcones@example.com';

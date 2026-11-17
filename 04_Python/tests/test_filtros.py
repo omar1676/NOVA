@@ -1,13 +1,3 @@
-"""
-Pruebas de los filtros combinables (filtros.py), de las tablas de inventario
-con umbral, de la descarga CSV del dashboard (pipeline.csv_descarga) y de los
-metadatos de cada DataFrame (metadatos.py).
-
-Usan los datos sinteticos (900 pedidos), generados en una carpeta temporal.
-Cada resultado filtrado se compara con lo que sale de filtrar a mano las
-lineas validas: asi se comprueba que los filtros cambian de verdad los
-calculos y que no duplican pedidos ni importes.
-"""
 import importlib
 import io
 import tempfile
@@ -27,7 +17,6 @@ import pipeline
 
 
 def sinteticos():
-    """calidad.evaluar de los datos sinteticos (se calcula una sola vez)."""
     if not hasattr(sinteticos, "cache"):
         with tempfile.TemporaryDirectory() as temporal:
             carpeta = generador_datos.guardar(generador_datos.generar(config.SEMILLA), Path(temporal), "test")

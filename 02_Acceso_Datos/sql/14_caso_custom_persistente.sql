@@ -1,63 +1,8 @@
--- =====================================================================
 -- 14_caso_custom_persistente.sql
---
--- Deja el pedido CUSTOM-40 guardado de verdad en la base de
--- demostracion: 40 pares, 10 de cada talla 40, 41, 42 y 43.
---
--- POR QUE EXISTE ESTE ARCHIVO
---   10_caso_custom.sql prueba el caso dentro de BEGIN ... ROLLBACK, asi
---   que al terminar no queda nada en la base. Eso esta bien para probar,
---   pero la exportacion de fabricacion no puede leer datos que
---   desaparecen. Este archivo guarda el pedido una sola vez.
---
--- SE PUEDE EJECUTAR LAS VECES QUE SE QUIERA
---   Si CUSTOM-40 ya existe y esta bien, lo dice y no toca nada: no
---   duplica el pedido, no duplica lineas y no vuelve a descontar stock.
---   Si existe pero esta mal (cancelado, con otras cantidades o con otras
---   tallas), se detiene con un error que explica lo que ha encontrado.
---   No intenta arreglarlo por su cuenta.
---
--- NO BORRA NI MODIFICA NINGUN OTRO PEDIDO
---   Solo anade CUSTOM-40. Los pedidos NOVA-0001 a NOVA-0011 se quedan
---   como estaban.
---
--- QUE PERMISOS HACEN FALTA
---   Hay que lanzarlo como postgres o con el rol nova_admin: crea el
---   pedido, lo marca como Custom, lee log_eventos para comprobar la
---   auditoria y usuarios para el resumen. Comprobado rol por rol (13/11):
---   nova_comercial falla al leer log_eventos, nova_trabajador al llamar a
---   realizar_compra y nova_cliente al leer pedidos ("permission denied").
---
--- QUE HAY QUE HABER EJECUTADO ANTES
---   1. La instalacion completa, incluido 05_datos_prueba.sql.
---   2. 13_activar_usuarios.sql, porque este script inicia sesion como
---      tienda.demo y las cuentas se instalan sin contrasena utilizable.
---
--- LA CONTRASENA NO SE GUARDA EN NINGUN SITIO
---   Se pide por teclado con \prompt, igual que en 13_activar_usuarios.sql,
---   y se borra con \unset al terminar. No se escribe en el repositorio ni
---   se cambia ninguna contrasena de demostracion.
---
--- CUANDO SE EJECUTA: AL FINAL, DESPUES DE LAS PRUEBAS
---   Este archivo anade un pedido, asi que la base deja de tener 11
---   pedidos y 14 lineas. El orden correcto es:
---     1. instalacion:  esquema, 04, 02, 03, 05, 07, 08
---     2. pruebas:      06, 09, 10, 11, 12
---     3. contrasenas:  13
---     4. este archivo: 14   -> deja CUSTOM-40 confirmado
---     5. exportacion:  15   -> escribe el CSV
---
---   El 13 va DESPUES de las pruebas, no antes: las comprobaciones A1 y A2
---   verifican que las cuentas llegan sin contrasena utilizable, y si el 13
---   ya se ha ejecutado esas dos dan FAIL con razon.
---
--- COMO SE EJECUTA
---   psql -U postgres -d nova_sneakers -f 14_caso_custom_persistente.sql
--- =====================================================================
 
 \set ON_ERROR_STOP on
 
-\echo '===== Caso Custom: dejar CUSTOM-40 guardado en la base ====='
+\echo 'Caso Custom: dejar CUSTOM-40 guardado en la base'
 \echo ''
 \echo 'Se necesita la contrasena de tienda.demo para que el pedido y su'
 \echo 'auditoria queden a nombre de un operador identificado.'
@@ -65,14 +10,6 @@
 
 \prompt 'Contrasena de tienda.demo: ' clave_tienda
 
--- ---------------------------------------------------------------------
--- Todo va en una sola transaccion, y la sesion se abre DENTRO de ella.
---
--- iniciar_sesion guarda el operador con set_config(..., true), y ese
--- "true" significa que el valor solo vale hasta el final de la
--- transaccion. Por eso hay que iniciar sesion aqui, despues del BEGIN:
--- si se hiciera antes, los triggers de auditoria no verian al operador.
--- ---------------------------------------------------------------------
 BEGIN;
 
 SELECT public.iniciar_sesion('tienda.demo', :'clave_tienda') AS operador;
@@ -89,8 +26,6 @@ DECLARE
     v_estado  varchar(25);
     v_operador integer;
 BEGIN
-    -- La sesion tiene que estar viva aqui dentro, o la auditoria se
-    -- quedaria sin operador.
     v_operador := public.usuario_sesion();
 
     IF v_operador IS NULL THEN
@@ -98,9 +33,7 @@ BEGIN
             'No hay operador en la sesion. Hay que iniciar sesion dentro de esta misma transaccion';
     END IF;
 
-    -- -----------------------------------------------------------------
     -- 1. Si el pedido ya esta, se comprueba y no se vuelve a crear.
-    -- -----------------------------------------------------------------
     SELECT id_pedido, estado
       INTO v_pedido, v_estado
       FROM public.pedidos
@@ -138,10 +71,7 @@ BEGIN
         RETURN;
     END IF;
 
-    -- -----------------------------------------------------------------
     -- 2. Localizar cliente y nave por sus claves naturales.
-    --    Ningun identificador escrito a mano.
-    -- -----------------------------------------------------------------
     SELECT id_cliente INTO v_cliente
       FROM public.clientes
      WHERE email = 'club.atletico@example.com';
@@ -157,10 +87,7 @@ BEGIN
         RAISE EXCEPTION 'No hay ninguna nave registrada';
     END IF;
 
-    -- -----------------------------------------------------------------
     -- 3. Crear el pedido con la talla 40 y anadir las otras tres.
-    --    10 pares de cada talla: 40 pares en total.
-    -- -----------------------------------------------------------------
     FOR v_talla IN 40..43 LOOP
         SELECT s.id_producto_sku INTO v_sku
           FROM public.producto_sku s
@@ -188,11 +115,7 @@ BEGIN
         END IF;
     END LOOP;
 
-    -- -----------------------------------------------------------------
     -- 4. Confirmarlo. El trigger descuenta el stock una sola vez y
-    --    marca stock_descontado en cada linea. Si no hubiera
-    --    existencias, la excepcion deshace todo y no queda nada.
-    -- -----------------------------------------------------------------
     UPDATE public.pedidos
        SET estado = 'confirmado'
      WHERE id_pedido = v_pedido;
@@ -203,13 +126,6 @@ BEGIN
 END
 $$;
 
--- ---------------------------------------------------------------------
--- Comprobaciones, dentro de la misma transaccion.
---
--- Cada una lanza un error si no se cumple, en lugar de imprimir FAIL y
--- seguir: asi psql termina con un codigo de salida distinto de cero y
--- quien llame al script se entera de que algo ha ido mal.
--- ---------------------------------------------------------------------
 DO $$
 DECLARE
     v_pedido     integer;   -- el id del pedido CUSTOM-40
@@ -304,11 +220,6 @@ BEGIN
     END IF;
     RAISE NOTICE 'PASS C8: los 11 pedidos de demostracion siguen intactos';
 
-    -- La auditoria de ESTE pedido: el alta y el cambio de estado.
-    --
-    -- Solo las filas de la tabla pedidos con id_registro = este pedido.
-    -- Los cambios de stock (tabla existencias) no se cuentan: su
-    -- id_registro es el de la existencia, no el del pedido.
     SELECT count(*), count(*) FILTER (WHERE id_usuario IS NULL)
       INTO v_eventos, v_sin_operador
       FROM public.log_eventos
@@ -335,7 +246,7 @@ COMMIT;
 \unset clave_tienda
 
 \echo ''
-\echo '--- Resumen del pedido guardado'
+\echo 'Resumen del pedido guardado'
 SELECT
     p.referencia,
     p.estado,

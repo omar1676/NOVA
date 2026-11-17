@@ -1,10 +1,10 @@
-\echo '===== EJEMPLOS DML: INSERT, UPDATE, DELETE y casos rechazados ====='
+\echo 'EJEMPLOS DML: INSERT, UPDATE, DELETE y casos rechazados'
 \echo ''
 \echo 'Todo va dentro de transacciones que terminan en ROLLBACK, asi que los'
 \echo 'datos de prueba no se alteran y el archivo se puede repetir.'
 \echo ''
 
-\echo '--- D1 INSERT: un cliente nuevo'
+\echo 'D1 INSERT: un cliente nuevo'
 BEGIN;
 INSERT INTO public.clientes (nombre, tipo, email, telefono, direccion_entrega)
 VALUES ('Tienda Deportes Sur', 'empresa', 'deportes.sur@example.com',
@@ -17,7 +17,7 @@ WHERE email = 'deportes.sur@example.com';
 ROLLBACK;
 
 \echo ''
-\echo '--- D2 INSERT: un modelo con su variante, su SKU y sus existencias'
+\echo 'D2 INSERT: un modelo con su variante, su SKU y sus existencias'
 BEGIN;
 INSERT INTO public.modelos (nombre, descripcion, precio_base, activo)
 VALUES ('NOVA Trail', 'Modelo de montana', 134.90, true);
@@ -58,7 +58,7 @@ FROM (
 ROLLBACK;
 
 \echo ''
-\echo '--- D3 UPDATE: subir el precio base de un modelo'
+\echo 'D3 UPDATE: subir el precio base de un modelo'
 BEGIN;
 SELECT precio_base AS precio_antes FROM public.modelos WHERE nombre = 'NOVA Origin'
 \gset
@@ -73,7 +73,7 @@ WHERE nombre = 'NOVA Origin';
 ROLLBACK;
 
 \echo ''
-\echo '--- D4 UPDATE: avanzar el estado de un pedido'
+\echo 'D4 UPDATE: avanzar el estado de un pedido'
 BEGIN;
 SELECT referencia AS ref FROM public.pedidos WHERE estado = 'pendiente' ORDER BY id_pedido LIMIT 1
 \gset
@@ -87,7 +87,7 @@ WHERE referencia = :'ref';
 ROLLBACK;
 
 \echo ''
-\echo '--- D5 DELETE: borrar una linea de un pedido pendiente sin stock descontado'
+\echo 'D5 DELETE: borrar una linea de un pedido pendiente sin stock descontado'
 BEGIN;
 SELECT l.id_linea AS linea
 FROM public.linea_pedido l
@@ -107,7 +107,7 @@ WHERE id_linea = :linea;
 ROLLBACK;
 
 \echo ''
-\echo '--- D6 DELETE: borrar un cliente que no tiene pedidos'
+\echo 'D6 DELETE: borrar un cliente que no tiene pedidos'
 BEGIN;
 INSERT INTO public.clientes (nombre, email)
 VALUES ('Cliente Temporal', 'temporal@example.com');
@@ -120,10 +120,10 @@ WHERE email = 'temporal@example.com';
 ROLLBACK;
 
 \echo ''
-\echo '===== CASOS RECHAZADOS POR LAS RESTRICCIONES ====='
+\echo 'CASOS RECHAZADOS POR LAS RESTRICCIONES'
 
 \echo ''
-\echo '--- R1 CHECK: una linea con cantidad cero'
+\echo 'R1 CHECK: una linea con cantidad cero'
 BEGIN;
 DO $$
 BEGIN
@@ -145,7 +145,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- R2 UNIQUE: dos clientes con el mismo correo'
+\echo 'R2 UNIQUE: dos clientes con el mismo correo'
 BEGIN;
 DO $$
 BEGIN
@@ -164,7 +164,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- R3 FOREIGN KEY: un pedido de un cliente que no existe'
+\echo 'R3 FOREIGN KEY: un pedido de un cliente que no existe'
 BEGIN;
 DO $$
 BEGIN
@@ -183,7 +183,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- R4 NOT NULL: un modelo sin nombre'
+\echo 'R4 NOT NULL: un modelo sin nombre'
 BEGIN;
 DO $$
 BEGIN
@@ -201,7 +201,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- R5 CHECK: un estado de pedido que no esta permitido'
+\echo 'R5 CHECK: un estado de pedido que no esta permitido'
 BEGIN;
 DO $$
 BEGIN
@@ -220,7 +220,7 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '--- R6 CHECK: una linea que es a la vez de catalogo y X-NOVA'
+\echo 'R6 CHECK: una linea que es a la vez de catalogo y X-NOVA'
 BEGIN;
 DO $$
 BEGIN
@@ -244,4 +244,4 @@ $$;
 ROLLBACK;
 
 \echo ''
-\echo '===== FIN DE LOS EJEMPLOS DML ====='
+\echo 'FIN DE LOS EJEMPLOS DML'

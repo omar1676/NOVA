@@ -1,24 +1,3 @@
-"""
-Comprobacion periodica de la exportacion y recalculo (apartados 6.14 y 6.17).
-
-No usa Streamlit: el dashboard llama a ciclo() cada 60 segundos, y las
-pruebas lo llaman igual. Cada ciclo hace los cinco pasos de la rubrica:
-
-1. Comprueba que archivos hay, su tamano, su fecha y su huella (un hash del
-   CONTENIDO: si se vuelve a exportar lo mismo, no cuenta como cambio).
-2. Lee los CSV del disco y los valida con las 12 reglas de calidad.
-3. Si son validos, recalcula TODO a partir de esa misma version de los datos:
-   tablas, KPIs, segmentacion, prediccion, conciliacion e informe.
-4. Publica un resultado completo, o ninguno: con errores no hay cifras nuevas
-   y el ultimo resultado valido se conserva marcado como desactualizado.
-5. Anota el ciclo en el registro de eventos.
-
-Se recalcula siempre, aunque los CSV no hayan cambiado: asi se comprueba
-cada minuto que siguen siendo validos. Si no han cambiado, las cifras salen
-iguales y el estado es SIN CAMBIOS. Python nunca escribe en la carpeta de
-entrada: los datos nuevos de PostgreSQL solo llegan cuando Acceso a Datos
-vuelve a exportar los CSV.
-"""
 import hashlib
 import time
 from datetime import datetime
@@ -45,7 +24,6 @@ ERROR_CARGA = "ERROR DE CARGA"        # falta un archivo o no se puede leer
 
 
 def inspeccionar_archivos(carpeta):
-    """Una fila por archivo de la exportacion: si existe, su tamano, su fecha y su huella."""
     carpeta = Path(carpeta)
     # Los cinco CSV y, al final, ORIGEN.txt
     nombres = []
@@ -66,16 +44,11 @@ def inspeccionar_archivos(carpeta):
 
 
 def version_datos(archivos):
-    """
-    La version de la exportacion: una huella de las huellas de todos los
-    archivos. Cambia si cambia el contenido de cualquiera, no solo su fecha.
-    """
     texto = "|".join(archivos["archivo"] + ":" + archivos["huella"])
     return hashlib.sha256(texto.encode("utf-8")).hexdigest()[:8]
 
 
 def avisos_archivos(archivos, ahora):
-    """Avisos sobre la exportacion: archivos que faltan, vacios, antiguos o de distintos momentos."""
     avisos = []
     csv = archivos[archivos["archivo"] != config.ARCHIVO_ORIGEN]
     for nombre in csv.loc[~csv["existe"], "archivo"]:
@@ -99,7 +72,6 @@ def avisos_archivos(archivos, ahora):
 
 
 def estado_conciliacion(carpeta, tablas, tabla_kpis):
-    """Texto con el resultado de la conciliacion con SQL y la tabla de cifras comparadas (o None)."""
     carpeta_sql = Path(carpeta) / config.CARPETA_SQL
     if pipeline.tipo_origen(carpeta) == "SINTETICO":
         return "NO APLICA: los datos sintéticos no salen de PostgreSQL", None
@@ -121,11 +93,6 @@ def estado_conciliacion(carpeta, tablas, tabla_kpis):
 
 
 def calcular_publicacion(carpeta, resultado, version, momento):
-    """
-    Todo lo que publica el dashboard, calculado de una vez con la misma
-    version de los datos (resultado es el de calidad.evaluar, sin bloqueo).
-    Son las mismas funciones que usa main.py.
-    """
     datos = resultado["datos"]
     validos = resultado["validos"]
     corte = datos["stock"]["fecha_corte"].max()
@@ -157,13 +124,6 @@ def calcular_publicacion(carpeta, resultado, version, momento):
 
 
 def ciclo(carpeta, anterior=None, operacion="comprobación automática", archivo_registro=None):
-    """
-    Un ciclo completo de comprobacion y recalculo de una carpeta de entrada.
-
-    anterior es lo que devolvio el ciclo anterior de ESTA carpeta (o None): de
-    el solo se toma el ultimo resultado valido. Devuelve un diccionario con
-    el estado, los mensajes, la calidad y el resultado publicado.
-    """
     inicio = time.perf_counter()
     ahora = datetime.now().replace(microsecond=0)
     carpeta = Path(carpeta)
@@ -205,8 +165,6 @@ def ciclo(carpeta, anterior=None, operacion="comprobación automática", archivo
                 estado["mensaje"] = "Datos leídos, validados y publicados."
             estado["publicado"] = nuevo
     except Exception as error:
-        # Cualquier fallo inesperado: se avisa y se anota, pero no se publica
-        # nada a medias (se conserva el ultimo resultado valido)
         estado["estado"] = ERROR_CARGA
         estado["mensaje"] = f"Error al procesar la exportación: {error}"
 
@@ -220,7 +178,6 @@ def ciclo(carpeta, anterior=None, operacion="comprobación automática", archivo
 
 
 def carpeta_relativa(carpeta):
-    """La carpeta vista desde 04_Python (no la ruta completa del ordenador)."""
     try:
         return Path(carpeta).resolve().relative_to(config.CARPETA_PROYECTO).as_posix()
     except ValueError:
@@ -228,7 +185,6 @@ def carpeta_relativa(carpeta):
 
 
 def anotar_ciclo(estado, operacion, archivo_registro=None):
-    """Una fila en el registro de eventos con el resultado del ciclo."""
     resultado = estado["calidad"]
     if resultado is None:
         # El ciclo ha fallado antes de evaluar la calidad: no hay filas ni incidencias

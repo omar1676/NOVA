@@ -1,24 +1,3 @@
-"""
-Conciliacion con tres consultas SQL de Acceso a Datos (caso E de la rubrica).
-
-Las tres consultas son las del panel de indicadores de
-02_Acceso_Datos/sql/12_consultas_panel.sql, sin cambiar nada:
-  P-A  pedidos, pares e importe de los pedidos no cancelados
-  P-B  pedidos, pares e importe por estado
-  P-C  pares y pedidos por modelo, sin cancelados
-
-Caso N de la rubrica: tres contrastes mas, con las consultas N-1, N-2 y N-3
-del mismo archivo:
-  N-1  ingresos de un mes: pedidos, pares e importe de venta de ese mes
-  N-2  matriz talla x modelo: pares de los pedidos no cancelados
-  N-3  clientes unicos: con algun pedido, con demanda y con venta
-
-Acceso a Datos las ejecuta con psql y deja el resultado en CSV en
-entrada_acc/conciliacion_sql/ (los pasos estan en conciliacion_sql.md).
-Python no se conecta a PostgreSQL: lee esos CSV y los compara con lo que
-calcula con pandas. Si faltan, la conciliacion queda PENDIENTE: nunca
-se da por buena sin haberla hecho.
-"""
 from pathlib import Path
 
 import pandas as pd
@@ -76,14 +55,12 @@ COLUMNAS_TEXTO = ["estado", "modelo", "anio_mes"]
 
 
 def definicion(consulta):
-    """Lo que dice CONSULTAS (o CONSULTAS_CASO_N) de una consulta."""
     if consulta in CONSULTAS:
         return CONSULTAS[consulta]
     return CONSULTAS_CASO_N[consulta]
 
 
 def faltan_resultados(carpeta_sql, consultas=CONSULTAS):
-    """Lista de los CSV de resultados SQL que no estan (por defecto, los de P-A, P-B y P-C)."""
     carpeta_sql = Path(carpeta_sql)
     faltan = []
     for consulta in consultas.values():
@@ -93,7 +70,6 @@ def faltan_resultados(carpeta_sql, consultas=CONSULTAS):
 
 
 def leer_resultado(carpeta_sql, consulta):
-    """Lee el CSV que ha dejado psql para una consulta. Las cifras se convierten a numero."""
     tabla = pd.read_csv(Path(carpeta_sql) / definicion(consulta)["archivo"], encoding="utf-8", dtype=str)
     for columna in tabla.columns:
         if columna not in COLUMNAS_TEXTO:
@@ -102,7 +78,6 @@ def leer_resultado(carpeta_sql, consulta):
 
 
 def comparar(consulta, indicador, clave, valor_sql, valor_python, euros=False):
-    """Una fila de la conciliacion. Los euros se dan por iguales con medio centimo de diferencia."""
     if pd.isna(valor_sql):
         resultado = "falta en SQL"
         diferencia = None
@@ -127,10 +102,6 @@ def comparar(consulta, indicador, clave, valor_sql, valor_python, euros=False):
 
 
 def comparar_por_grupos(consulta, sql, python, clave, indicadores):
-    """
-    Cruza el resultado SQL y el de Python por su clave (estado o modelo) con
-    un merge "outer": asi sale tambien un grupo que solo esta en uno de los dos.
-    """
     cruce = sql.merge(python, on=clave, how="outer", suffixes=("_sql", "_python"), validate="one_to_one")
     filas = []
     for _, fila in cruce.sort_values(clave).iterrows():
@@ -141,10 +112,6 @@ def comparar_por_grupos(consulta, sql, python, clave, indicadores):
 
 
 def conciliar(carpeta_sql, pedidos_unicos, lineas_enriquecidas):
-    """
-    Compara las tres consultas con pandas. Devuelve un DataFrame con una fila
-    por cifra comparada, o None si faltan los resultados SQL (pendiente).
-    """
     if faltan_resultados(carpeta_sql):
         return None
     filas = []
@@ -174,11 +141,6 @@ def conciliar(carpeta_sql, pedidos_unicos, lineas_enriquecidas):
 
 
 def contrastar_caso_n(carpeta_sql, tablas):
-    """
-    Caso N: ingresos de un mes, matriz talla x modelo y clientes unicos, SQL
-    frente a pandas. tablas son las de analiticas.calcular_tablas. Devuelve
-    un DataFrame como el de conciliar, o None si faltan N-1, N-2 o N-3.
-    """
     if faltan_resultados(carpeta_sql, CONSULTAS_CASO_N):
         return None
     filas = []
@@ -188,7 +150,6 @@ def contrastar_caso_n(carpeta_sql, tablas):
     mes = sql["anio_mes"]
     meses = tablas["ventas_por_periodo"]
     del_mes = pd.DataFrame()
-    # Sin ninguna venta, ventas_por_periodo es NO CALCULABLE: del_mes se queda vacio y el mes cuenta con 0
     if not es_no_calculable(meses):
         del_mes = meses[meses["anio_mes"] == mes]
     for indicador, euros in [("pedidos", False), ("pares", False), ("importe", True)]:

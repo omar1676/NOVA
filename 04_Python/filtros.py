@@ -1,26 +1,3 @@
-"""
-Filtros combinables del dashboard (apartados 6.12 y 6.16). main.py no filtra:
-sus CSV son siempre de todos los datos validos.
-
-Seis filtros: periodo, modelo, talla, tipo de pedido, estado del pedido y
-cliente (su id_cliente). Un filtro vacio (None o lista vacia) no restringe nada.
-
-Como se aplican:
-- El periodo, el tipo, el estado y el cliente son datos del PEDIDO: se quedan
-  los pedidos que los cumplen, con todas sus lineas. El periodo incluye el dia
-  final entero.
-- El modelo y la talla son datos de la LINEA: se quedan solo las lineas que
-  los cumplen. Un pedido con lineas de varios modelos aporta solo las del
-  modelo elegido (sus pares y su importe) y cuenta UNA vez si tiene al menos
-  una. Un pedido sin ninguna linea que cumpla desaparece.
-- Las condiciones se combinan con Y (todas a la vez).
-
-Despues se recalculan TODAS las tablas y los KPIs con las mismas funciones de
-analiticas.py y kpis.py: no hay una segunda formula para ninguna cifra.
-
-No se aplican a RFM, KMeans ni la prediccion (son siempre del conjunto
-completo, ver dashboard.md) ni al stock salvo modelo y talla (ver tablas_inventario).
-"""
 import pandas as pd
 
 import analiticas
@@ -31,7 +8,6 @@ SIN_FILTROS = {"desde": None, "hasta": None, "modelos": [], "tallas": [], "tipos
 
 
 def hay_filtros(filtros):
-    """True si algun filtro restringe algo."""
     for clave in SIN_FILTROS:
         if filtros.get(clave):
             return True
@@ -39,7 +15,6 @@ def hay_filtros(filtros):
 
 
 def describir(filtros):
-    """Los filtros en una linea de texto, para el pie de graficos, las descargas y el registro."""
     partes = []
     if filtros.get("desde") or filtros.get("hasta"):
         desde = filtros.get("desde") or "inicio"
@@ -56,15 +31,10 @@ def describir(filtros):
 
 
 def ids_de_modelos(modelos, nombres):
-    """Los id_modelo de los modelos elegidos por su nombre."""
     return modelos.loc[modelos["nombre_modelo"].isin(nombres), "id_modelo"]
 
 
 def filtrar_validos(validos, filtros):
-    """
-    Los datos validos (los de calidad.evaluar) reducidos a los pedidos y lineas
-    que cumplen los filtros. Clientes, modelos y stock no cambian.
-    """
     pedidos = validos["pedidos"]
     lineas = validos["lineas_pedido"]
 
@@ -100,7 +70,6 @@ def filtrar_validos(validos, filtros):
 
 
 def filtrar_stock(validos, filtros):
-    """El stock de los modelos y tallas elegidos (el periodo, el tipo, el estado y el cliente no lo cambian)."""
     stock = validos["stock"]
     if filtros.get("modelos"):
         stock = stock[stock["id_modelo"].isin(ids_de_modelos(validos["modelos"], filtros["modelos"]))]
@@ -110,10 +79,6 @@ def filtrar_stock(validos, filtros):
 
 
 def calcular_filtrado(datos, validos, filtros):
-    """
-    Todas las tablas de analiticas.calcular_tablas y los 20 KPIs del
-    subconjunto filtrado (sin filtros, son exactamente los de main.py).
-    """
     tablas = analiticas.calcular_tablas(datos, filtrar_validos(validos, filtros))
     tablas["kpis"] = kpis.calcular_kpis(tablas["pedidos_unicos"], tablas["modelos_abc"], tablas["ventas_por_talla"],
                                         tablas["stock_variantes"], tablas["ventas_por_periodo"])
@@ -121,15 +86,6 @@ def calcular_filtrado(datos, validos, filtros):
 
 
 def tablas_inventario(validos, tablas_completas, corte, filtros, umbral=config.UMBRAL_STOCK_BAJO):
-    """
-    Stock por SKU y alertas con un umbral elegido, aplicando SOLO los filtros
-    de modelo y talla. El stock es una foto en la fecha de corte (el periodo no
-    lo cambia) y la demanda es siempre la de los 28 dias anteriores al corte,
-    de todos los pedidos no cancelados de esos modelos y tallas.
-
-    tablas_completas son las tablas sin filtrar (analiticas.calcular_tablas) y
-    corte, la fecha de corte de la exportacion.
-    """
     stock = filtrar_stock(validos, filtros)
     lineas = tablas_completas["lineas_enriquecidas"]
     if filtros.get("modelos"):

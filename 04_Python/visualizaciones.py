@@ -1,14 +1,3 @@
-"""
-Graficos de NOVA (apartado 6.6): figuras PNG hechas con Matplotlib.
-
-Cada grafico responde a una pregunta de negocio y se dibuja a partir de un
-DataFrame de analiticas.py: nunca con cifras escritas a mano. Lleva titulo
-(la pregunta), subtitulo (que datos usa), ejes con unidades, leyenda cuando
-hace falta y un pie con el origen, la fecha de corte, el momento del calculo
-y los filtros. Si no hay datos, el grafico lo dice en vez de fallar.
-
-No usa Streamlit: el dashboard (app_dashboard.py) usa estas mismas funciones.
-"""
 from pathlib import Path
 
 import matplotlib
@@ -161,8 +150,6 @@ def grafico_evolucion(pedidos, carpeta, pie):
         ax.set_ylim(0, por_dia.max() * 1.25)
         ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
         if len(por_dia) == 1:
-            # Con un solo dia, el eje enseña solo ese dia (y tres a cada lado):
-            # si no, Matplotlib dibujaria varios anos que no tienen datos
             dia = por_dia.index[0]
             ax.set_xlim(dia - pd.Timedelta(days=3), dia + pd.Timedelta(days=3))
             ax.xaxis.set_major_locator(mdates.DayLocator())
@@ -304,12 +291,10 @@ def grafico_pares_frente_a_importe(pedidos, carpeta, pie):
 
 
 # Fase 5: va aparte de los 10 anteriores (en graficos_prediccion/) porque es
-# un resultado predictivo, no una descripcion de los datos
 GRAFICO_PREDICCION = ("11_real_frente_a_prediccion.png", "dispersión", "¿Acierta la predicción de demanda?")
 
 
 def grafico_real_frente_a_prediccion(predicciones, carpeta, pie):
-    """Pares reales (eje x) frente a pares predichos (eje y) por los dos metodos, en los meses de evaluacion."""
     carpeta = Path(carpeta)
     carpeta.mkdir(parents=True, exist_ok=True)
     if es_no_calculable(predicciones):
@@ -338,10 +323,6 @@ def grafico_real_frente_a_prediccion(predicciones, carpeta, pie):
 
 
 def generar_todos(tablas, carpeta, pie):
-    """
-    Dibuja los 10 graficos en la carpeta y devuelve la lista de rutas.
-    `tablas` es un diccionario con los DataFrames de analiticas.py.
-    """
     carpeta = Path(carpeta)
     carpeta.mkdir(parents=True, exist_ok=True)
     return [

@@ -13,7 +13,6 @@ GROUP BY COALESCE(m.nombre, 'X-NOVA')
 ORDER BY importe_total DESC;
 
 
--- Consulta 2. Ranking de clientes: pedidos e importe sin cancelados, incluidos los que no han comprado.
 SELECT
     c.nombre,
     c.email,
@@ -28,10 +27,6 @@ ORDER BY importe_acumulado DESC;
 
 
 
--- Consulta 3 (HAVING). Pregunta: que referencias se quedaran con menos de
--- 10 pares cuando se sirvan los pedidos pendientes? Son las que hay que
--- reponer antes de confirmarlos, porque el stock baja al confirmar. HAVING
--- filtra despues de sumar las existencias de todas las naves.
 SELECT
     m.nombre AS modelo,
     v.color,

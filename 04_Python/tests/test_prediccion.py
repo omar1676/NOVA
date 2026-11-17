@@ -1,10 +1,3 @@
-"""
-Pruebas de la prediccion de demanda (prediccion.py) y de la fase 5 en main.py.
-
-Las series se escriben a mano: 18 meses (2025-05 a 2026-10), como los datos
-sinteticos, con la fecha de corte 2026-11-01. Los tres meses de evaluacion son
-agosto, septiembre y octubre de 2026.
-"""
 import contextlib
 import io
 import unittest
@@ -27,10 +20,6 @@ EVALUACION = ["2026-08", "2026-09", "2026-10"]
 
 
 def lineas(series, primer_mes="2025-05"):
-    """
-    Lineas de demanda como las de lineas_enriquecidas: una por modelo y mes,
-    el dia 15, con los pares de la serie (los meses con 0 pares no tienen linea).
-    """
     meses = pd.period_range(primer_mes, periods=len(next(iter(series.values()))), freq="M")
     filas = []
     for modelo, valores in series.items():
@@ -42,14 +31,12 @@ def lineas(series, primer_mes="2025-05"):
 
 
 def series_aleatorias():
-    """Cuatro modelos con demandas distintas (siempre las mismas: semilla fija)."""
     rng = np.random.default_rng(7)
     return {"A": rng.integers(20, 80, 18), "B": rng.integers(0, 30, 18),
             "C": rng.integers(50, 150, 18), "D": rng.integers(0, 10, 18)}
 
 
 def cambiar_meses(series, meses, factor):
-    """Copia de las series con los meses indicados multiplicados por factor."""
     posiciones = [list(MESES.astype(str)).index(mes) for mes in meses]
     nuevas = {}
     for modelo, valores in series.items():

@@ -1,4 +1,4 @@
-\echo '===== ACTIVAR LAS CUENTAS DE DEMOSTRACION ====='
+\echo 'ACTIVAR LAS CUENTAS DE DEMOSTRACION'
 \echo ''
 \echo 'Las tres cuentas se instalan con password_hash = ! , que no es un hash y'
 \echo 'no deja entrar a nadie. Este script pide las contrasenas por teclado y las'
@@ -26,7 +26,7 @@ SELECT public.establecer_password('tienda.demo', :'clave_tienda') AS tienda_demo
 \unset clave_tienda
 
 \echo ''
-\echo '--- comprobacion: las tres cuentas tienen ya un hash bcrypt'
+\echo 'comprobacion: las tres cuentas tienen ya un hash bcrypt'
 SELECT
     u.username,
     r.nombre AS rol,
@@ -37,7 +37,7 @@ JOIN public.roles r ON r.id_rol = u.id_rol
 ORDER BY u.id_usuario;
 
 \echo ''
-\echo '--- comprobacion: el login funciona'
+\echo 'comprobacion: el login funciona'
 \echo '    (si esto falla, la contrasena escrita y la tecleada no coinciden)'
 \prompt 'Repite la contrasena de admin.demo para probar el login: ' clave_prueba
 SELECT
@@ -47,4 +47,4 @@ SELECT
 \unset clave_prueba
 
 \echo ''
-\echo '===== FIN ====='
+\echo 'FIN'

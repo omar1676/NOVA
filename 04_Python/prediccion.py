@@ -1,31 +1,3 @@
-"""
-Prediccion de la demanda mensual de cada modelo (apartado 6.10).
-
-Lo que se predice: los pares de demanda de un modelo en un mes (pedidos no
-cancelados, el mismo criterio que la matriz modelo x mes de la fase 3).
-
-Variables de entrada, todas conocidas ANTES de que empiece el mes que se predice:
-  pares_mes_anterior     pares del modelo en el mes anterior (t-1)
-  media_3_meses_previos  media de los meses t-1, t-2 y t-3
-  mes_seno, mes_coseno   el mes del ano (1 a 12) como un punto de un circulo:
-                         asi diciembre y enero quedan cerca, como en el calendario
-  modelo_...             el modelo en columnas de 0 y 1 (one-hot): el numero de
-                         un modelo es una etiqueta, no una cantidad
-Los pares del propio mes, y los de los meses siguientes, nunca son una entrada.
-
-Separacion por fecha, nunca al azar:
-  historial      los 3 primeros meses: no tienen 3 meses previos, solo dan datos
-  entrenamiento  los meses siguientes, hasta el anterior a la evaluacion
-  evaluacion     los ultimos 3 meses (config.MESES_EVALUACION)
-
-Dos metodos:
-  A. baseline: el mes que viene se piden los mismos pares que este mes
-  B. LinearRegression de scikit-learn, entrenada SOLO con los meses de entrenamiento
-
-Evaluacion a un mes vista: para predecir septiembre ya se conoce agosto (ha
-terminado), igual que lo sabria NOVA el 1 de septiembre. Los dos metodos usan
-la misma informacion, y la regresion no se vuelve a entrenar con agosto.
-"""
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
@@ -37,13 +9,6 @@ VARIABLES = ["pares_mes_anterior", "media_3_meses_previos", "mes_seno", "mes_cos
 
 
 def demanda_mensual(lineas_enriquecidas, fecha_corte):
-    """
-    Pares de demanda de cada modelo en cada mes: una fila por modelo y mes.
-    - Solo meses completos antes de la fecha de corte: un mes a medias
-      pareceria una caida de la demanda.
-    - Un modelo sin pedidos en un mes del periodo tiene 0 pares (es un recuento).
-      Antes del primer mes con pedidos y despues del ultimo no se inventa ninguno.
-    """
     demanda = de_demanda(lineas_enriquecidas)
     demanda = demanda[demanda["fecha_pedido"] < fecha_corte]
     demanda = demanda.assign(mes=demanda["fecha_pedido"].dt.to_period("M"))
@@ -61,10 +26,6 @@ def demanda_mensual(lineas_enriquecidas, fecha_corte):
 
 
 def anadir_variables(demanda):
-    """
-    Las variables de entrada de cada fila. shift(1) es "el mes anterior del
-    mismo modelo": todas salen de meses anteriores, nunca del propio mes.
-    """
     tabla = demanda.sort_values(["nombre_modelo", "mes"]).reset_index(drop=True)
     pares_del_modelo = tabla.groupby("nombre_modelo")["pares"]
     hace_1_mes = pares_del_modelo.shift(1)
@@ -75,20 +36,14 @@ def anadir_variables(demanda):
     tabla["numero_mes"] = tabla["mes"].dt.month
     tabla["mes_seno"] = np.sin(2 * np.pi * tabla["numero_mes"] / 12)
     tabla["mes_coseno"] = np.cos(2 * np.pi * tabla["numero_mes"] / 12)
-    # drop_first: con una columna por modelo, una siempre se deduce de las demas
-    # y la regresion lineal no tendria una solucion unica. El primer modelo queda
-    # como referencia (su efecto va en la constante).
     columnas_modelo = pd.get_dummies(tabla["nombre_modelo"], prefix="modelo", drop_first=True, dtype=int)
     return pd.concat([tabla, columnas_modelo], axis=1)
 
 
 def separar_por_fecha(tabla):
-    """Cada fila a su conjunto, segun su mes. Los ultimos meses son la evaluacion."""
     meses = sorted(tabla["mes"].unique())
     evaluacion = meses[-config.MESES_EVALUACION:]
     tabla = tabla.copy()
-    # Por defecto, entrenamiento; sin 3 meses previos, historial; y los ultimos meses,
-    # evaluacion (se asigna la ultima para que mande sobre las otras dos)
     tabla["conjunto"] = "entrenamiento"
     tabla.loc[tabla["media_3_meses_previos"].isna(), "conjunto"] = "historial"
     tabla.loc[tabla["mes"].isin(evaluacion), "conjunto"] = "evaluacion"
@@ -96,21 +51,18 @@ def separar_por_fecha(tabla):
 
 
 def mae(real, prediccion):
-    """Error absoluto medio: cuantos pares se equivoca de media, sin mirar si se pasa o se queda corto."""
     real = np.asarray(real, dtype=float)
     prediccion = np.asarray(prediccion, dtype=float)
     return float(np.mean(np.abs(real - prediccion)))
 
 
 def rmse(real, prediccion):
-    """Raiz del error cuadratico medio: como el MAE, pero un error grande pesa mucho mas que varios pequenos."""
     real = np.asarray(real, dtype=float)
     prediccion = np.asarray(prediccion, dtype=float)
     return float(np.sqrt(np.mean((real - prediccion) ** 2)))
 
 
 def periodo(meses):
-    """'2025-08 a 2026-07' (o '-' si no hay meses)."""
     meses = sorted(meses)
     if meses:
         return f"{meses[0]} a {meses[-1]}"
@@ -118,7 +70,6 @@ def periodo(meses):
 
 
 def mejora(mae_regresion, rmse_regresion, mae_baseline, rmse_baseline):
-    """Si la regresion mejora la referencia, dicho en palabras (los dos errores, menos es mejor)."""
     mejor_mae = mae_regresion < mae_baseline
     mejor_rmse = rmse_regresion < rmse_baseline
     if mejor_mae and mejor_rmse:
@@ -131,10 +82,6 @@ def mejora(mae_regresion, rmse_regresion, mae_baseline, rmse_baseline):
 
 
 def calcular_metricas(predicciones, entrenamiento, evaluacion):
-    """
-    MAE y RMSE de los dos metodos en los meses de evaluacion, si la regresion
-    mejora al baseline y con que meses se ha entrenado y evaluado.
-    """
     real = predicciones["pares_reales"]
     mae_baseline = mae(real, predicciones["baseline"])
     rmse_baseline = rmse(real, predicciones["baseline"])
@@ -156,12 +103,6 @@ def calcular_metricas(predicciones, entrenamiento, evaluacion):
 
 
 def predecir_demanda(lineas_enriquecidas, fecha_corte):
-    """
-    Construye la demanda mensual, entrena la regresion y compara los dos
-    metodos en los meses de evaluacion. Devuelve un diccionario de tablas.
-    Con menos de config.MINIMO_MESES_PREDICCION meses, todo es NO CALCULABLE
-    salvo la propia demanda mensual (que es descriptiva).
-    """
     demanda = demanda_mensual(lineas_enriquecidas, fecha_corte)
     meses = demanda["mes"].nunique()
     if meses < config.MINIMO_MESES_PREDICCION:
@@ -219,7 +160,6 @@ def predecir_demanda(lineas_enriquecidas, fecha_corte):
 
 
 def errores_por_modelo(predicciones):
-    """MAE y RMSE de cada metodo para cada modelo de zapatilla, y cual se equivoca menos (por MAE)."""
     filas = []
     for nombre, grupo in predicciones.groupby("nombre_modelo"):
         real = grupo["pares_reales"]

@@ -1,9 +1,3 @@
-"""
-Pruebas de los KPIs (kpis.py) y de su coherencia con las consultas SQL.
-
-Con los CSV validos de test_pipeline.py:
-  P-1 confirmado y pagado, 3 pares, 239.97 €;  P-2 cancelado y reembolsado, 2 pares, 239.80 €.
-"""
 import pandas as pd
 
 import config

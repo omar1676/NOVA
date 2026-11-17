@@ -1,10 +1,3 @@
-"""
-Pruebas de los graficos (visualizaciones.py) y de la ejecucion completa (main.ejecutar).
-
-Los graficos se guardan en una carpeta temporal. Se comprueba que salen los
-10 PNG, que son imagenes validas, que no fallan sin datos y que, si los datos
-estan bloqueados por calidad, no se publica ninguna cifra ni ningun grafico.
-"""
 import contextlib
 import io
 

@@ -1,10 +1,3 @@
-"""
-Pruebas de la segmentacion de clientes: RFM y KMeans (segmentacion.py).
-
-Las pruebas de RFM usan pedidos escritos a mano, con resultados que se pueden
-calcular de cabeza. Las de KMeans usan los datos sinteticos (40 clientes):
-con los 6 clientes de la exportacion de PRUEBA (entrada_acc) no se puede agrupar.
-"""
 import unittest
 
 import numpy as np
@@ -22,7 +15,6 @@ CORTE = pd.Timestamp("2026-11-01 00:00:00")
 
 
 def pedidos(filas):
-    """Pedidos como los de pedidos_unicos: (id_pedido, id_cliente, fecha, estado, importe)."""
     tabla = pd.DataFrame(filas, columns=["id_pedido", "id_cliente", "fecha_pedido", "estado_pedido", "importe"])
     tabla["fecha_pedido"] = pd.to_datetime(tabla["fecha_pedido"])
     tabla["es_confirmado"] = tabla["estado_pedido"].isin(config.ESTADOS_CONFIRMADOS)
@@ -35,10 +27,6 @@ def clientes(cuantos):
 
 
 def compradores(cuantos):
-    """
-    El cliente i hace i pedidos entregados de 100*i euros; el ultimo, 5*i dias
-    antes del corte. Asi: frequency = i, monetary = 100*i*i y recency = 5*i.
-    """
     filas = []
     for cliente in range(1, cuantos + 1):
         for vez in range(cliente):
@@ -48,7 +36,6 @@ def compradores(cuantos):
 
 
 def rfm_sintetico():
-    """RFM de los 40 clientes sinteticos (las tablas se calculan una sola vez)."""
     tablas = tablas_sinteticas()
     lista = tablas["clientes_actividad"][["id_cliente", "tipo_cliente"]].rename(columns={"tipo_cliente": "tipo"})
     return segmentacion.rfm(tablas["pedidos_unicos"], lista, pd.Timestamp(generador_datos.FECHA_CORTE))

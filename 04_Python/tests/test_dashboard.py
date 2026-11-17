@@ -1,13 +1,3 @@
-"""
-Pruebas del dashboard (app_dashboard.py) con AppTest de Streamlit: se ejecuta
-la aplicacion de verdad (sin navegador) y se leen sus tarjetas, avisos y
-pestanas.
-
-Las tres carpetas de origen y el registro de eventos son temporales: durante
-estas pruebas se cambian en config (AppTest ejecuta la app en este mismo
-proceso) y al terminar se dejan como estaban. Nunca se tocan entrada_acc/,
-datos_sinteticos/ ni logs/.
-"""
 import io
 import tempfile
 import unittest
@@ -34,7 +24,6 @@ CAMBIADOS = ["CARPETA_ENTRADA", "CARPETA_SINTETICOS_LIMPIOS", "CARPETA_SINTETICO
 
 
 class PruebaApp(unittest.TestCase):
-    """Base: tres origenes temporales (prueba, sinteticos y sinteticos con errores)."""
 
     @classmethod
     def setUpClass(cls):
@@ -83,7 +72,6 @@ class PruebaApp(unittest.TestCase):
         return " ".join(str(elemento.value) for elemento in elementos)
 
     def pasar_un_minuto(self, app, origen="acc"):
-        """Como si hubieran pasado los 60 s desde la ultima comprobacion."""
         estados = app.session_state["estados"]
         estados[origen]["comprobado"] -= timedelta(seconds=config.SEGUNDOS_REFRESCO + 1)
         app.session_state["estados"] = estados
@@ -265,7 +253,6 @@ class PruebasFiltros(PruebaApp):
         self.assertEqual([boton.label for boton in app.sidebar.button].count("Restablecer filtros"), 1)
 
     def pares_abc(self, app):
-        """Pares por modelo de la tabla ABC de la pestana Productos."""
         for tabla in app.dataframe:
             datos = tabla.value
             if "clase_abc" in datos.columns:
@@ -273,10 +260,6 @@ class PruebasFiltros(PruebaApp):
         self.fail("no está la tabla ABC")
 
     def test_filtrado_cruzado_R6(self):
-        """
-        R6: mismo periodo, modelo y talla en varias vistas (Direccion, Productos y Clientes). Las tarjetas, las
-        tablas de los graficos, los CSV descargados y su suma dicen lo mismo, y todo es del mismo snapshot.
-        """
         app = self.abrir("sinteticos")
         app.sidebar.date_input(key="periodo_1").set_value((date(2026, 1, 1), date(2026, 6, 30)))
         app.sidebar.multiselect(key="modelos_1").set_value(["SINT Runner"])
@@ -337,7 +320,6 @@ class PruebasFiltros(PruebaApp):
         self.assertEqual(int(clientes["pares_demanda"].sum()), pares)
         self.assertAlmostEqual(float(clientes["importe_venta"].sum()), importe, places=2)
         self.assertEqual(int(clientes["pedidos_registrados"].sum()), pedidos)
-        # 4. Todas las descargas son del mismo snapshot; las filtradas llevan los mismos filtros y RFM dice que es global
         juntas = pd.concat(descargas.values())
         self.assertEqual(juntas["ejecucion"].nunique(), 1)
         self.assertEqual(juntas["fecha_corte"].nunique(), 1)
@@ -346,7 +328,6 @@ class PruebasFiltros(PruebaApp):
         self.assertEqual(set(descargas["rfm_clientes_sintetico.csv"]["filtros"]), {"ninguno (resultado global)"})
 
     def tablas_de_graficos(self, app):
-        """Las tablas que hay debajo de los graficos de la pestana abierta, reconocidas por sus columnas."""
         encontradas = {}
         for tabla in app.dataframe:
             datos = tabla.value

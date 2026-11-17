@@ -1,36 +1,8 @@
--- =====================================================================
 -- 17_usuario_java.sql — la cuenta de conexion con los roles de la base
---
--- QUE HACE
---   1. Crea el usuario de PostgreSQL java_nova, la cuenta con la que se
---      entra con los roles de la base (LOGIN). La contrasena se pide por
---      teclado y no se guarda en el repositorio.
---
---   2. Le concede los tres roles de la aplicacion, pero es NOINHERIT: por
---      si solo no tiene ninguno de sus permisos. Despues del login, la
---      conexion hace SET ROLE al rol que corresponde al usuario:
---         administrador -> nova_admin
---         comercial     -> nova_comercial
---         trabajador    -> nova_trabajador
---      A partir de ahi la conexion solo puede hacer lo que permite ese rol.
---
---   3. Le da lo justo para el login, que pasa ANTES del SET ROLE:
---      comprobar la contrasena con iniciar_sesion y leer el rol del usuario
---      (sin la columna password_hash).
---
---   4. Deja que el comercial marque un pedido como Custom (columnas
---      personalizado y personalizacion). Antes solo podia el administrador,
---      y el comercial tambien registra pedidos Custom.
---
--- COMO SE EJECUTA
---   Con el usuario que instalo la base, despues de 07_seguridad.sql:
---     psql -U postgres -d nova_sneakers -f 17_usuario_java.sql
---   Se puede repetir: si java_nova ya existe, solo le cambia la contrasena.
--- =====================================================================
 
 \set ON_ERROR_STOP on
 
-\echo '===== Usuario de conexion java_nova ====='
+\echo 'Usuario de conexion java_nova'
 \echo ''
 \prompt 'Contrasena para java_nova: ' clave_java
 
@@ -57,7 +29,7 @@ GRANT SELECT ON public.roles TO java_nova;
 GRANT UPDATE (personalizado, personalizacion) ON public.pedidos TO nova_comercial;
 
 \echo ''
-\echo '--- Comprobacion: java_nova no hereda permisos y puede hacer SET ROLE'
+\echo 'Comprobacion: java_nova no hereda permisos y puede hacer SET ROLE'
 SELECT
     r.rolname AS rol,
     m.inherit_option AS hereda_permisos,
@@ -68,11 +40,11 @@ WHERE m.member = 'java_nova'::regrole
 ORDER BY r.rolname;
 
 \echo ''
-\echo '--- Comprobacion: sin SET ROLE, java_nova no lee pedidos ni hashes'
+\echo 'Comprobacion: sin SET ROLE, java_nova no lee pedidos ni hashes'
 \echo '    (se esperan dos f)'
 SELECT
     has_table_privilege('java_nova', 'public.pedidos', 'SELECT') AS lee_pedidos_sin_set_role,
     has_column_privilege('java_nova', 'public.usuarios', 'password_hash', 'SELECT') AS lee_password_hash;
 
 \echo ''
-\echo '===== FIN ====='
+\echo 'FIN'

@@ -1,23 +1,3 @@
-"""
-Estadistica descriptiva, tres hipotesis y bootstrap (apartados 6.6 y 6.7).
-
-Las mismas funciones sirven para los datos de PRUEBA y para los SINTETICOS;
-main.py escribe el origen en cada resultado.
-
-OJO con los datos sinteticos: los inventa generador_datos.py con unas reglas
-concretas. Si una hipotesis "se confirma" con ellos, lo unico que se comprueba
-es que el metodo funciona y que el generador hace lo que se le pidio. No dice
-nada de los clientes reales de NOVA.
-
-Las tres hipotesis se escribieron ANTES de calcular ningun resultado:
-  H1  Los pedidos Custom dejan mas importe por pedido que los estandar.
-  H2  Las tallas centrales (41, 42 y 43) reunen mas de la mitad de los pares.
-  H3  La demanda crece: los ultimos 6 meses tienen mas pares que los 6 anteriores.
-
-Bootstrap: se sacan BOOTSTRAP_REMUESTREOS muestras nuevas del mismo tamano,
-con reemplazo, y se calcula el estadistico en cada una. El intervalo al 95 %
-va del percentil 2,5 al 97,5 de esos resultados. Semilla fija: config.SEMILLA.
-"""
 import numpy as np
 import pandas as pd
 
@@ -44,19 +24,9 @@ def aviso(tipo_origen):
     return AVISO_ORIGEN.get(tipo_origen, " Origen desconocido: no se sabe de qué base salen los datos.")
 
 
-# ---------------------------------------------------------------------
 # Estadistica descriptiva (apartado 6.6)
-# ---------------------------------------------------------------------
 
 def describir(valores, variable, grupo, unidad, con_moda):
-    """
-    Estadisticos de una variable, con pandas y NumPy.
-
-    La moda solo se da en variables con pocos valores distintos (pares,
-    precios de catalogo); en un importe casi nunca se repite el mismo valor.
-    Si la media se separa mas de un 20 % de la mediana, unos pocos valores
-    extremos la arrastran: entonces la mediana resume mejor el caso tipico.
-    """
     valores = pd.Series(valores, dtype=float).dropna()
     fila = {"variable": variable, "grupo": grupo, "unidad": unidad, "n": len(valores)}
     if len(valores) == 0:
@@ -109,10 +79,6 @@ def describir(valores, variable, grupo, unidad, con_moda):
 
 
 def descriptivos(tablas):
-    """
-    Importe por pedido, pares por pedido y precio unitario de la demanda
-    (pedidos no cancelados), para todos los pedidos y por tipo de pedido.
-    """
     pedidos = de_demanda(tablas["pedidos_unicos"])
     lineas = de_demanda(tablas["lineas_enriquecidas"])
     filas = []
@@ -130,24 +96,19 @@ def descriptivos(tablas):
     return tabla.sort_values("variable", kind="stable").reset_index(drop=True)
 
 
-# ---------------------------------------------------------------------
 # Bootstrap
-# ---------------------------------------------------------------------
 
 def remuestrear(rng, valores):
-    """Una muestra nueva del mismo tamano, sacada CON reemplazo: un valor puede salir varias veces."""
     return rng.choice(valores, size=len(valores), replace=True)
 
 
 def intervalo(resultados):
-    """Del percentil 2,5 al 97,5 de los resultados del bootstrap: intervalo al 95 %."""
     cola = (100 - config.NIVEL_CONFIANZA) / 2
     inferior, superior = np.percentile(resultados, [cola, 100 - cola])
     return round(float(inferior), 2), round(float(superior), 2)
 
 
 def bootstrap_media(valores, semilla=config.SEMILLA, remuestreos=config.BOOTSTRAP_REMUESTREOS):
-    """Intervalo al 95 % de la media."""
     valores = np.asarray(valores, dtype=float)
     rng = np.random.default_rng(semilla)
     medias = []
@@ -157,7 +118,6 @@ def bootstrap_media(valores, semilla=config.SEMILLA, remuestreos=config.BOOTSTRA
 
 
 def bootstrap_ticket_medio(pedidos_unicos, tipo_origen):
-    """Ticket medio (importe medio de los pedidos de venta) con su intervalo bootstrap al 95 %."""
     importes = de_venta(pedidos_unicos)["importe"].astype(float).to_numpy()
     estimacion = None
     if len(importes) > 0:
@@ -182,16 +142,9 @@ def bootstrap_ticket_medio(pedidos_unicos, tipo_origen):
     return pd.DataFrame([fila])
 
 
-# ---------------------------------------------------------------------
 # Las tres hipotesis (apartado 6.7)
-# ---------------------------------------------------------------------
 
 def veredicto(inferior, superior, referencia):
-    """
-    Si todo el intervalo queda por encima de la referencia, los datos apoyan
-    la hipotesis; si queda todo por debajo, la contradicen. Si la referencia
-    cae dentro del intervalo, no se puede decir: evidencia insuficiente.
-    """
     if inferior > referencia:
         return "los datos la apoyan"
     if superior < referencia:
@@ -200,7 +153,6 @@ def veredicto(inferior, superior, referencia):
 
 
 def aviso_muestra(*tamanos):
-    """Texto de aviso si algun grupo tiene menos de MUESTRA_PEQUENA valores."""
     if min(tamanos) < config.MUESTRA_PEQUENA:
         return (f" Muestra pequeña (menos de {config.MUESTRA_PEQUENA} valores en algún grupo): "
                 "el intervalo es poco fiable y el resultado, muy provisional.")
@@ -238,7 +190,6 @@ def hipotesis_custom(pedidos_unicos, tipo_origen):
     rng = np.random.default_rng(config.SEMILLA)
     diferencias = []
     for _ in range(config.BOOTSTRAP_REMUESTREOS):
-        # Siempre primero la muestra Custom y despues la estandar: con la misma semilla salen las mismas
         muestra_custom = remuestrear(rng, custom)
         muestra_normal = remuestrear(rng, normal)
         diferencias.append(np.median(muestra_custom) - np.median(muestra_normal))
@@ -341,7 +292,6 @@ def hipotesis_crecimiento(pedidos_unicos, tipo_origen):
 
 
 def contrastar_hipotesis(tablas, tipo_origen):
-    """Las tres hipotesis, una fila cada una."""
     filas = [
         hipotesis_custom(tablas["pedidos_unicos"], tipo_origen),
         hipotesis_tallas(tablas["lineas_enriquecidas"], tipo_origen),

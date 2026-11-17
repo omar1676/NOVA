@@ -1,25 +1,3 @@
-"""
-Informe ejecutivo: cinco conclusiones para produccion y comercial (apartado 6.11).
-
-Cada conclusion sale de una tabla ya calculada (no hay cifras escritas a mano)
-y separa la evidencia (que pasa), la interpretacion (por que podria pasar), la
-decision (que hacer) y la limitacion. Dice siempre de donde procede: datos de
-prueba de ACC, datos sinteticos o una prediccion. Si una tabla no se puede
-calcular, la conclusion lo dice en vez de inventar una cifra.
-
-Ademas, cada una lleva el impacto esperado (que parte de la demanda, del
-importe o del stock toca la decision, con su cifra), la tabla y el grafico que
-la sustentan y su prioridad. Criterio de prioridad (1 = la primera):
-  1. la urgencia:
-       alta   si no se actua, se puede dejar sin servir demanda que ya existe
-              (modelos que concentran los pares, referencias que se agotan);
-       media  sirve para planificar el proximo mes (capacidad, clientes);
-       baja   todavia no se puede decidir con datos (NO CALCULABLE) o la
-              decision es no cambiar nada;
-  2. con la misma urgencia, el orden del informe (el numero).
-
-Se calculan con el conjunto completo, sin filtros.
-"""
 import pandas as pd
 
 import config
@@ -50,7 +28,6 @@ LIMITE_ORIGEN = {
 
 
 def numero(valor, decimales=0):
-    """Numero al estilo espanol: 1.234,5"""
     texto = f"{float(valor):,.{decimales}f}"   # formato ingles: 1,234.5
     texto = texto.replace(",", "_")             # 1_234.5 (los miles, aparte un momento)
     texto = texto.replace(".", ",")             # 1_234,5 (coma decimal)
@@ -59,10 +36,6 @@ def numero(valor, decimales=0):
 
 def conclusion(numero_, titulo, procede_de, evidencia, interpretacion, decision, limitacion, calculable=True,
                urgencia="baja", impacto="Ninguno todavía: no hay datos para decidir."):
-    """
-    Una conclusion del informe. numero_ lleva "_" para no tapar la funcion numero().
-    Sin datos (calculable=False), la urgencia es baja y no hay impacto que esperar.
-    """
     return {"numero": numero_, "titulo": titulo, "procede_de": procede_de, "calculable": calculable,
             "evidencia": evidencia, "interpretacion": interpretacion, "decision": decision,
             "limitacion": limitacion.strip(), "urgencia": urgencia, "impacto_esperado": impacto,
@@ -224,12 +197,6 @@ def prediccion_frente_a_baseline(metricas, procede_de, limite):
 
 
 def conclusiones(tablas, resumen_rfm, metricas_prediccion, tipo):
-    """
-    Las cinco conclusiones en un DataFrame. tablas son las de
-    analiticas.calcular_tablas (sin filtros), resumen_rfm el de
-    segmentacion.resumen_segmentos y metricas_prediccion la tabla de
-    prediccion.predecir_demanda. tipo es PRUEBA, SINTETICO o REAL.
-    """
     procede_de = PROCEDENCIA.get(tipo, "Origen desconocido")
     limite = LIMITE_ORIGEN.get(tipo, "No se sabe de qué base salen los datos.")
     tabla = pd.DataFrame([
@@ -239,8 +206,6 @@ def conclusiones(tablas, resumen_rfm, metricas_prediccion, tipo):
         riesgo_stock(tablas["stock_variantes"], procede_de, limite),
         prediccion_frente_a_baseline(metricas_prediccion, procede_de, limite),
     ])
-    # Prioridad 1 a 5: urgencia x 10 + numero, de menor a mayor. Asi la 4 con urgencia
-    # alta (1 x 10 + 4 = 14) va antes que la 2 con urgencia media (2 x 10 + 2 = 22)
     clave = tabla["urgencia"].map(URGENCIAS) * 10 + tabla["numero"]
     tabla["prioridad"] = clave.rank(method="first").astype(int)
     # Primero la conclusion (de numero a limitacion) y despues como se prioriza y en que se apoya

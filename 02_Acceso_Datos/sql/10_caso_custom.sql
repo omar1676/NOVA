@@ -1,4 +1,4 @@
-\echo '===== CASO CUSTOM: club deportivo, 40 pares en varias tallas ====='
+\echo 'CASO CUSTOM: club deportivo, 40 pares en varias tallas'
 \echo ''
 \echo 'Correspondencia documentada: el modelo Runner X del enunciado se'
 \echo 'representa con NOVA Velocity, que es el modelo de running del catalogo.'
@@ -9,7 +9,7 @@
 
 BEGIN;
 
-\echo '--- Paso 1: identificar al cliente'
+\echo 'Paso 1: identificar al cliente'
 SELECT id_cliente AS cliente, nombre, tipo, email
 FROM public.clientes
 WHERE email = 'club.atletico@example.com'
@@ -19,14 +19,14 @@ FROM public.clientes
 WHERE id_cliente = :cliente;
 
 \echo ''
-\echo '--- Paso 2: identificar al operador que atiende el pedido'
+\echo 'Paso 2: identificar al operador que atiende el pedido'
 SELECT gen_random_uuid()::text AS clave
 \gset
 SELECT public.establecer_password('tienda.demo', :'clave');
 SELECT public.iniciar_sesion('tienda.demo', :'clave') AS operador_autenticado;
 
 \echo ''
-\echo '--- Paso 3: registrar el modelo y las cuatro tallas'
+\echo 'Paso 3: registrar el modelo y las cuatro tallas'
 SELECT id_producto_sku AS sku40 FROM public.producto_sku s
 JOIN public.variantes v ON v.id_variante = s.id_variante
 JOIN public.modelos m ON m.id_modelo = v.id_modelo
@@ -54,7 +54,7 @@ SELECT sum(cantidad) AS stock_antes FROM public.existencias
 SELECT :stock_antes AS stock_total_antes;
 
 \echo ''
-\echo '--- Paso 4: crear el pedido Custom con 10 pares de la talla 40'
+\echo 'Paso 4: crear el pedido Custom con 10 pares de la talla 40'
 SELECT public.realizar_compra('CUSTOM-40-TEST', :cliente, :sku40, :nave, 10) AS pedido
 \gset
 UPDATE public.pedidos
@@ -63,13 +63,13 @@ SET personalizado = true,
 WHERE id_pedido = :pedido;
 
 \echo ''
-\echo '--- Paso 5: anadir las tallas 41, 42 y 43, 10 pares de cada una'
+\echo 'Paso 5: anadir las tallas 41, 42 y 43, 10 pares de cada una'
 SELECT public.anadir_linea_pedido(:pedido, :sku41, :nave, 10);
 SELECT public.anadir_linea_pedido(:pedido, :sku42, :nave, 10);
 SELECT public.anadir_linea_pedido(:pedido, :sku43, :nave, 10);
 
 \echo ''
-\echo '--- Paso 6: el pedido suma exactamente 40 pares y su importe esta calculado'
+\echo 'Paso 6: el pedido suma exactamente 40 pares y su importe esta calculado'
 SELECT
     CASE WHEN p.cantidad_total = 40 AND tallas = 4 AND p.importe_total = 40 * precio
          THEN 'PASS' ELSE 'FAIL' END AS paso6,
@@ -84,7 +84,7 @@ CROSS JOIN (
 WHERE p.referencia = 'CUSTOM-40-TEST';
 
 \echo ''
-\echo '--- Paso 7: el pedido sigue pendiente y el stock NO se ha movido'
+\echo 'Paso 7: el pedido sigue pendiente y el stock NO se ha movido'
 SELECT
     CASE WHEN estado = 'pendiente' AND stock = :stock_antes AND marcas = 0
          THEN 'PASS' ELSE 'FAIL' END AS paso7,
@@ -98,7 +98,7 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '--- Paso 7b: detalle por talla'
+\echo 'Paso 7b: detalle por talla'
 SELECT s.talla, l.cantidad AS pares, l.precio_unitario, l.subtotal, l.stock_descontado
 FROM public.linea_pedido l
 JOIN public.producto_sku s ON s.id_producto_sku = l.id_producto_sku
@@ -106,12 +106,12 @@ WHERE l.id_pedido = :pedido
 ORDER BY s.talla;
 
 \echo ''
-\echo '--- Paso 8: confirmar el pedido'
+\echo 'Paso 8: confirmar el pedido'
 UPDATE public.pedidos SET estado = 'confirmado' WHERE id_pedido = :pedido;
 SELECT referencia, estado, estado_pago FROM public.pedidos WHERE id_pedido = :pedido;
 
 \echo ''
-\echo '--- Paso 9: al confirmar, las existencias bajan en 40 pares de una sola vez'
+\echo 'Paso 9: al confirmar, las existencias bajan en 40 pares de una sola vez'
 SELECT
     CASE WHEN stock = :stock_antes - 40 AND marcas = 4
          THEN 'PASS' ELSE 'FAIL' END AS paso9,
@@ -126,7 +126,7 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '--- Paso 9b: detalle de existencias por talla tras confirmar'
+\echo 'Paso 9b: detalle de existencias por talla tras confirmar'
 SELECT s.talla, e.cantidad AS stock_restante, l.cantidad AS pares_del_pedido
 FROM public.linea_pedido l
 JOIN public.producto_sku s ON s.id_producto_sku = l.id_producto_sku
@@ -136,13 +136,13 @@ WHERE l.id_pedido = :pedido
 ORDER BY s.talla;
 
 \echo ''
-\echo '--- Paso 10: la auditoria ha registrado el alta, el stock y la confirmacion'
+\echo 'Paso 10: la auditoria ha registrado el alta, el stock y la confirmacion'
 SELECT id_usuario AS operador, tabla_afectada, accion, detalle
 FROM public.log_eventos
 ORDER BY id_evento;
 
 \echo ''
-\echo '--- Paso 11: cancelar y comprobar la devolucion completa'
+\echo 'Paso 11: cancelar y comprobar la devolucion completa'
 UPDATE public.pedidos SET estado = 'cancelado' WHERE id_pedido = :pedido;
 SELECT
     CASE WHEN stock = :stock_antes AND marcas_activas = 0 AND importe > 0
@@ -158,7 +158,7 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '--- Paso 12: rechazar la confirmacion de otro pedido sin stock suficiente'
+\echo 'Paso 12: rechazar la confirmacion de otro pedido sin stock suficiente'
 SELECT public.realizar_compra('CUSTOM-SIN-STOCK',
     (SELECT id_cliente FROM public.clientes WHERE email = 'club.atletico@example.com'),
     (SELECT s.id_producto_sku
@@ -193,7 +193,7 @@ FROM (
 ) AS t;
 
 \echo ''
-\echo '--- Consulta de fabricacion para PSP (solo este pedido)'
+\echo 'Consulta de fabricacion para PSP (solo este pedido)'
 SELECT
     p.referencia,
     c.nombre AS cliente,
@@ -211,7 +211,7 @@ WHERE p.referencia = 'CUSTOM-40-TEST'
 ORDER BY s.talla;
 
 \echo ''
-\echo '--- La exportacion CSV no se hace aqui'
+\echo 'La exportacion CSV no se hace aqui'
 \echo '    Este archivo prueba el caso dentro de BEGIN ... ROLLBACK, asi que'
 \echo '    CUSTOM-40-TEST desaparece al terminar y no se puede exportar de aqui.'
 \echo '    Para dejarlo guardado:  14_caso_custom_persistente.sql'
@@ -220,4 +220,4 @@ ORDER BY s.talla;
 ROLLBACK;
 
 \echo ''
-\echo '===== FIN DEL CASO CUSTOM ====='
+\echo 'FIN DEL CASO CUSTOM'

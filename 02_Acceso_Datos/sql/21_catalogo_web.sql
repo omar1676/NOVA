@@ -1,50 +1,11 @@
--- =====================================================================
 -- 21_catalogo_web.sql — los 100 modelos de la web, a la venta
---
--- QUE HACE
---   Da de alta en PostgreSQL los 100 modelos de la web
---   (01_Interfaces/cliente/js/modelos.js), con:
---     - el MISMO nombre comercial que en la web (NOVA Street Vortex...): es
---       lo que une la web con la base. Si se cambia aqui, hay que cambiarlo
---       tambien en modelos.js;
---     - el precio, la descripcion y las tallas de su coleccion (los de
---       datosColeccion en modelos.js). Son PROVISIONALES hasta acordarlos
---       con Odoo;
---     - una variante por modelo, con el color que se ve en su foto;
---     - un SKU por talla, con el formato del resto del catalogo
---       (NOVA-<variante>-<talla>, como 05_datos_prueba.sql);
---     - existencias en la nave NOVA Central: 5 pares por talla en los 12
---       modelos que ya se vendian (los dos primeros de cada coleccion; las
---       pruebas de la tienda cuentan con esos 5) y 20 en los otros 88 (asi
---       no salen en el panel como "stock bajo", que es menos de 10).
---   En total: 100 modelos, 100 variantes, 880 SKU y 16010 pares. En una
---   base recien instalada la nave pasa de 1200 a 17210 pares; si ya se ha
---   confirmado algun pedido, como CUSTOM-40, seran menos. La capacidad de
---   la nave (2000, de 05_datos_prueba.sql) solo se informa, no se
---   comprueba: queda pendiente de acordar.
---
---   No toca los 7 modelos de 05_datos_prueba.sql (NOVA Origin...) ni Runner X.
---
--- COMO SE EJECUTA
---   Despues de la bateria 09_pruebas.sql (09 comprueba que hay 7 modelos,
---   12 variantes y 60 SKU) y del 20:
---     psql -U postgres -d nova_sneakers -f 21_catalogo_web.sql
---   Se puede repetir: lo que ya existe no se duplica, y las existencias no
---   se vuelven a poner (si ya hubo ventas, se respetan).
---   En una base montada con una version anterior de este script (12
---   modelos llamados "NOVA Street 01", "NOVA Luxe 02"...), el paso 0 les
---   pone el nombre nuevo (conservan sus SKU, su stock y sus pedidos) y los
---   pasos 1 a 4 anaden los otros 88.
--- =====================================================================
 
 \set ON_ERROR_STOP on
 
-\echo '===== Catalogo de la tienda web: 100 modelos ====='
+\echo 'Catalogo de la tienda web: 100 modelos'
 
 BEGIN;
 
--- Lo comun a cada coleccion: lo mismo que datosColeccion en modelos.js.
--- Las tablas temporales desaparecen solas al terminar (ON COMMIT DROP).
 CREATE TEMP TABLE colecciones_web (
     coleccion varchar(10),
     precio numeric(8,2),
@@ -62,9 +23,6 @@ VALUES
 ('Mujer',   99.90, 'Detalles cuidados y horma pensada para mujer',                          35, 42),
 ('Unisex',  94.90, 'Diseno neutro y tallaje amplio, para cualquier persona',                36, 46);
 
--- Los 100 modelos, uno por fila y en el orden de las fotos (01, 02...).
--- La coleccion es la segunda palabra del nombre. pares = existencias de
--- cada talla. nombre_antiguo: solo en los 12 que ya se vendian.
 CREATE TEMP TABLE catalogo_web (
     nombre varchar(40),
     color varchar(30),
@@ -182,7 +140,6 @@ VALUES
 ('NOVA Unisex Toledo',    'Naranja y verde',        20, NULL);
 
 -- 0. Si la base tiene los nombres antiguos, se cambian por los nuevos. Solo
---    si el nombre nuevo no existe ya (modelos_nombre_uq no deja repetirlo).
 UPDATE public.modelos m
 SET nombre = c.nombre
 FROM catalogo_web c
@@ -223,11 +180,9 @@ JOIN public.producto_sku s ON s.id_variante = v.id_variante
 JOIN public.nave n ON n.nombre = 'NOVA Central'
 ON CONFLICT (id_producto_sku, id_nave) DO NOTHING;
 
--- ---------------------------------------------------------------------
 -- Comprobacion (dentro de la transaccion, mientras existe catalogo_web)
--- ---------------------------------------------------------------------
 \echo ''
-\echo '--- Comprobacion: 100 modelos, 100 variantes, 880 SKU y 16010 pares (con las ventas descontadas)'
+\echo 'Comprobacion: 100 modelos, 100 variantes, 880 SKU y 16010 pares (con las ventas descontadas)'
 SELECT
     CASE WHEN count(DISTINCT m.id_modelo) = 100 AND count(DISTINCT v.id_variante) = 100
               AND count(DISTINCT s.id_producto_sku) = 880
@@ -245,7 +200,7 @@ LEFT JOIN public.existencias e ON e.id_producto_sku = s.id_producto_sku;
 COMMIT;
 
 \echo ''
-\echo '--- El catalogo de la tienda, por coleccion'
+\echo 'El catalogo de la tienda, por coleccion'
 SELECT split_part(m.nombre, ' ', 2) AS coleccion,
        count(DISTINCT m.id_modelo) AS modelos,
        min(m.precio_base) AS precio,
@@ -261,4 +216,4 @@ GROUP BY 1
 ORDER BY 1;
 
 \echo ''
-\echo '===== FIN ====='
+\echo 'FIN'
