@@ -16,6 +16,7 @@ import metadatos
 import pipeline
 
 
+# Calidad y tablas de los datos sinteticos; se calculan una sola vez (cache)
 def sinteticos():
     if not hasattr(sinteticos, "cache"):
         with tempfile.TemporaryDirectory() as temporal:
@@ -26,20 +27,24 @@ def sinteticos():
     return sinteticos.cache
 
 
+# Filtros vacios con los cambios que se pidan
 def con_filtros(**cambios):
     return {**filtros.SIN_FILTROS, **cambios}
 
 
+# Tablas y KPIs de los sinteticos con esos filtros
 def calcular(**cambios):
     resultado = sinteticos()
     return filtros.calcular_filtrado(resultado["datos"], resultado["validos"], con_filtros(**cambios))
 
 
+# Valor de un KPI
 def valor(tablas, codigo):
     tabla = tablas["kpis"]
     return tabla.loc[tabla["codigo"] == codigo, "valor"].iloc[0]
 
 
+# Filtros de pedidos y lineas
 class PruebasFiltros(unittest.TestCase):
 
     @classmethod
@@ -47,6 +52,7 @@ class PruebasFiltros(unittest.TestCase):
         cls.resultado = sinteticos()
         cls.lineas = cls.resultado["tablas"]["lineas_enriquecidas"]   # todas las lineas validas, sin filtrar
 
+    # Sin filtros, las tablas y los KPIs son los de todos los datos
     def test_sin_filtros_no_restringe_nada(self):
         tablas = calcular()
         completas = self.resultado["tablas"]
@@ -58,6 +64,7 @@ class PruebasFiltros(unittest.TestCase):
         self.assertFalse(filtros.hay_filtros(filtros.SIN_FILTROS))
         self.assertEqual(filtros.describir(filtros.SIN_FILTROS), "ninguno")
 
+    # El periodo incluye todos los pedidos del dia final
     def test_periodo_incluye_el_dia_final(self):
         dia = "2026-10-20"
         tablas = calcular(desde=dia, hasta=dia)
@@ -66,6 +73,7 @@ class PruebasFiltros(unittest.TestCase):
         self.assertGreater(len(del_dia), 0)
         self.assertEqual(sorted(tablas["pedidos_unicos"]["id_pedido"]), sorted(del_dia["id_pedido"]))
 
+    # Tipo y estado filtran pedidos enteros
     def test_tipo_y_estado_son_del_pedido(self):
         tablas = calcular(tipos=["custom"], estados=["entregado"])
         pedidos = tablas["pedidos_unicos"]
@@ -75,6 +83,7 @@ class PruebasFiltros(unittest.TestCase):
         esperados = validos[(validos["tipo_pedido"] == "custom") & (validos["estado_pedido"] == "entregado")]
         self.assertEqual(len(pedidos), len(esperados))
 
+    # Con filtro de modelo, cada pedido aporta solo las lineas de ese modelo
     def test_modelo_solo_aporta_sus_lineas(self):
         tablas = calcular(modelos=["SINT Runner"])
         lineas = tablas["lineas_enriquecidas"]
@@ -90,12 +99,14 @@ class PruebasFiltros(unittest.TestCase):
         multimodelo = self.resultado["tablas"]["pedidos_unicos"]
         self.assertTrue(multimodelo.loc[multimodelo["id_pedido"].isin(pedidos.index), "pedido_multimodelo"].any())
 
+    # La talla filtra lineas, no pedidos enteros
     def test_talla_es_de_la_linea(self):
         tablas = calcular(tallas=[42])
         self.assertEqual(set(tablas["lineas_enriquecidas"]["talla"]), {42})
         self.assertEqual(int(valor(tablas, "K04")),
                          int(analiticas.de_demanda(self.lineas[self.lineas["talla"] == 42])["cantidad"].sum()))
 
+    # Cuatro filtros a la vez: las mismas lineas que filtrando a mano con pandas
     def test_cuatro_filtros_combinados(self):
         tablas = calcular(desde="2026-01-01", hasta="2026-06-30", modelos=["SINT Runner", "SINT Court"],
                           tipos=["normal"], estados=["entregado", "enviado"])
@@ -113,6 +124,7 @@ class PruebasFiltros(unittest.TestCase):
         self.assertEqual(texto, "periodo 2026-01-01 a 2026-06-30 · modelo: SINT Runner · tipo: normal · "
                                 "estado: entregado")
 
+    # Filtrar modelo a modelo no duplica pedidos ni importes
     def test_sin_duplicar_pedidos_ni_importes(self):
         # Filtrando modelo a modelo, los pares y los euros suman lo mismo que sin filtrar
         completas = calcular()
@@ -125,6 +137,7 @@ class PruebasFiltros(unittest.TestCase):
         self.assertEqual(pares, valor(completas, "K04"))
         self.assertAlmostEqual(importe, valor(completas, "K06"), delta=0.01 * len(self.resultado["validos"]["modelos"]))
 
+    # Los KPIs filtrados cuadran entre ellos y con las tablas
     def test_kpis_filtrados_coherentes(self):
         tablas = calcular(tipos=["custom"], desde="2025-09-01", hasta="2026-03-31")
         pedidos = tablas["pedidos_unicos"]
@@ -138,6 +151,7 @@ class PruebasFiltros(unittest.TestCase):
         normal = tablas["custom_vs_estandar"].set_index("tipo_pedido").loc["normal"]
         self.assertEqual(normal["pedidos_registrados"], 0)
 
+    # El cliente filtra pedidos enteros; combinado con modelo y tipo, solo esas lineas
     def test_cliente_es_del_pedido(self):
         pedidos = self.resultado["validos"]["pedidos"]
         cliente = pedidos["id_cliente"].value_counts().index[0]          # el que mas pedidos tiene
@@ -156,6 +170,7 @@ class PruebasFiltros(unittest.TestCase):
         self.assertEqual(filtros.describir(con_filtros(clientes=[cliente], tipos=["normal"])),
                          f"tipo: normal · cliente: {cliente}")
 
+    # Un filtro sin pedidos: 0 pedidos, sin ticket medio y ventas NO CALCULABLE
     def test_filtro_sin_resultados(self):
         tablas = calcular(desde="2030-01-01", hasta="2030-12-31")
         self.assertEqual(len(tablas["pedidos_unicos"]), 0)
@@ -164,16 +179,19 @@ class PruebasFiltros(unittest.TestCase):
         self.assertEqual(tablas["ventas_por_periodo"]["estado"].iloc[0], analiticas.NO_CALCULABLE)
 
 
+# Filtros de la pestana Inventario
 class PruebasInventario(unittest.TestCase):
 
     def setUp(self):
         self.resultado = sinteticos()
         self.corte = self.resultado["datos"]["stock"]["fecha_corte"].max()
 
+    # Tablas de inventario con un umbral y unos filtros
     def inventario(self, umbral=config.UMBRAL_STOCK_BAJO, **cambios):
         return filtros.tablas_inventario(self.resultado["validos"], self.resultado["tablas"], self.corte,
                                          con_filtros(**cambios), umbral)
 
+    # El stock solo usa los filtros de modelo y talla
     def test_solo_modelo_y_talla(self):
         stock, _ = self.inventario(modelos=["SINT Runner"], tallas=[42])
         self.assertEqual(set(stock["nombre_modelo"]), {"SINT Runner"})
@@ -186,6 +204,7 @@ class PruebasInventario(unittest.TestCase):
         self.assertEqual(stock.set_index("sku")["demanda_28d"].to_dict(),
                          completo.loc[stock["sku"], "demanda_28d"].to_dict())
 
+    # El umbral de stock bajo cambia cuantos SKU salen en la alerta
     def test_umbral_configurable(self):
         stock, bajo = self.inventario(umbral=10)
         self.assertEqual(len(bajo), int((stock["stock_disponible"] < 10).sum()))
@@ -195,8 +214,10 @@ class PruebasInventario(unittest.TestCase):
         self.assertEqual(len(ninguno), 0)
 
 
+# CSV de descarga y sus metadatos
 class PruebasDescargaCsv(unittest.TestCase):
 
+    # UTF-8, con origen, ejecucion y filtros, y sin datos personales
     def test_csv_utf8_con_cabecera_origen_y_filtros(self):
         tabla = sinteticos()["tablas"]["pedidos_unicos"].head(20)
         datos = pipeline.csv_descarga(tabla, "SINTÉTICO (prueba)", "2026-11-09 12:00:00", "tipo: custom")
@@ -211,6 +232,7 @@ class PruebasDescargaCsv(unittest.TestCase):
         self.assertEqual(leida["id_pedido"].tolist(), tabla["id_pedido"].tolist())
         self.assertEqual(leida["importe"].astype(float).tolist(), tabla["importe"].tolist())
 
+    # La descarga lleva fecha de corte, funcion, reglas y filas de origen
     def test_descarga_con_sus_metadatos(self):
         resultado = sinteticos()
         elegidos = con_filtros(modelos=["SINT Runner"], tallas=[42], tipos=["custom"])
@@ -230,6 +252,7 @@ class PruebasDescargaCsv(unittest.TestCase):
         self.assertIn(f"lineas_pedido: {len(filtrados['lineas_pedido'])} válidas", leida["filas_origen"].iloc[0])
         self.assertIn(f"pedidos: {len(filtrados['pedidos'])} válidas", leida["filas_origen"].iloc[0])
 
+    # El stock solo apunta modelo y talla; un resultado global, ningun filtro
     def test_el_stock_solo_lleva_los_filtros_de_modelo_y_talla(self):
         resultado = sinteticos()
         elegidos = con_filtros(modelos=["SINT Runner"], tallas=[42], tipos=["custom"], desde="2026-01-01",
@@ -241,6 +264,7 @@ class PruebasDescargaCsv(unittest.TestCase):
         global_ = metadatos.del_dashboard("predicciones", 1, resultado["datos"], resultado["validos"], elegidos)
         self.assertEqual(global_["filtros"], "ninguno (resultado global)")
 
+    # Cada DataFrame de metadatos.py apunta a una funcion y unas tablas que existen
     def test_cada_dataframe_dice_una_funcion_que_existe(self):
         for nombre, (funcion, tablas, reglas, alcance) in metadatos.DATAFRAMES.items():
             with self.subTest(dataframe=nombre):
@@ -250,11 +274,13 @@ class PruebasDescargaCsv(unittest.TestCase):
                 self.assertGreater(len(reglas), 10)
                 self.assertIn(alcance, [metadatos.TODOS, metadatos.MODELO_Y_TALLA, metadatos.NINGUNO])
 
+    # Se quitan nombre, correo y telefono
     def test_sin_datos_personales(self):
         tabla = pd.DataFrame({"id_cliente": ["1"], "nombre": ["Ana"], "correo": ["a@b.es"], "telefono": ["600"],
                               "importe": [10.0]})
         self.assertEqual(list(pipeline.sin_datos_personales(tabla).columns), ["id_cliente", "importe"])
 
+    # Pedidos por estado de pago: estan todos los estados y cuadran con los pedidos
     def test_estado_de_pagos(self):
         tablas = sinteticos()["tablas"]
         pagos = tablas["pedidos_por_estado_pago"].set_index("estado_pago")

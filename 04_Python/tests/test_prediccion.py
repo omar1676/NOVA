@@ -14,11 +14,13 @@ from analiticas import NO_CALCULABLE
 from test_estadistica import tablas_sinteticas
 from test_tablas import PruebaTablas
 
+# 18 meses de mayo de 2025 a octubre de 2026; los tres ultimos son la evaluacion
 MESES = pd.period_range("2025-05", "2026-10", freq="M")
 CORTE = pd.Timestamp("2026-11-01 00:00:00")
 EVALUACION = ["2026-08", "2026-09", "2026-10"]
 
 
+# Lineas inventadas: una por modelo y mes con los pares de cada serie
 def lineas(series, primer_mes="2025-05"):
     meses = pd.period_range(primer_mes, periods=len(next(iter(series.values()))), freq="M")
     filas = []
@@ -30,12 +32,14 @@ def lineas(series, primer_mes="2025-05"):
     return pd.DataFrame(filas)
 
 
+# Cuatro modelos con 18 meses de pares al azar (semilla fija)
 def series_aleatorias():
     rng = np.random.default_rng(7)
     return {"A": rng.integers(20, 80, 18), "B": rng.integers(0, 30, 18),
             "C": rng.integers(50, 150, 18), "D": rng.integers(0, 10, 18)}
 
 
+# Multiplica los pares de esos meses, para ver si algo depende de ellos
 def cambiar_meses(series, meses, factor):
     posiciones = [list(MESES.astype(str)).index(mes) for mes in meses]
     nuevas = {}
@@ -46,8 +50,10 @@ def cambiar_meses(series, meses, factor):
     return nuevas
 
 
+# Demanda mensual por modelo
 class PruebasDemandaMensual(unittest.TestCase):
 
+    # Un mes sin pedidos sale con 0 y lo cancelado no cuenta
     def test_ceros_y_cancelados(self):
         tabla = lineas({"A": [5, 0, 7], "B": [1, 2, 3]})
         cancelada = {"nombre_modelo": "A", "cantidad": 100, "es_cancelado": True,
@@ -58,6 +64,7 @@ class PruebasDemandaMensual(unittest.TestCase):
         self.assertEqual(modelo_a["pares"].tolist(), [5, 0, 7])        # junio: 0 (el cancelado no cuenta)
         self.assertEqual(len(demanda), 6)                              # 2 modelos x 3 meses
 
+    # Solo meses completos y anteriores a la fecha de corte
     def test_sin_meses_futuros_ni_incompletos(self):
         tabla = lineas({"A": [5, 6, 7]}, primer_mes="2026-09")          # septiembre, octubre y noviembre
         # Corte el 9 de noviembre: noviembre no ha terminado y no entra
@@ -68,6 +75,7 @@ class PruebasDemandaMensual(unittest.TestCase):
         self.assertEqual(demanda["mes"].astype(str).tolist(), ["2026-09"])
 
 
+# Variables de entrada de la regresion
 class PruebasVariables(unittest.TestCase):
 
     def setUp(self):
@@ -75,6 +83,7 @@ class PruebasVariables(unittest.TestCase):
                                                     primer_mes="2026-01"), CORTE)
         self.tabla = prediccion.anadir_variables(demanda)
 
+    # Las variables salen solo de meses anteriores del mismo modelo
     def test_solo_meses_anteriores_del_mismo_modelo(self):
         modelo_b = self.tabla[self.tabla["nombre_modelo"] == "B"]
         # El primer mes de B no hereda el ultimo de A
@@ -85,6 +94,7 @@ class PruebasVariables(unittest.TestCase):
         self.assertEqual(abril["media_3_meses_previos"].iloc[0], 20.0)
         self.assertEqual(abril["pares_mes_anterior"].iloc[0], 30)
 
+    # Mes con seno y coseno, y modelo en one-hot
     def test_mes_del_ano_y_modelo_codificados(self):
         enero = self.tabla[self.tabla["mes"].astype(str) == "2026-01"].iloc[0]
         self.assertAlmostEqual(enero["mes_seno"], np.sin(2 * np.pi / 12))
@@ -94,12 +104,14 @@ class PruebasVariables(unittest.TestCase):
         self.assertEqual(sorted(self.tabla["modelo_B"].unique()), [0, 1])
 
 
+# Separacion por fecha: sin fuga de datos de la evaluacion al entrenamiento
 class PruebasSeparacionTemporal(unittest.TestCase):
 
     def setUp(self):
         self.series = series_aleatorias()
         self.resultado = prediccion.predecir_demanda(lineas(self.series), CORTE)
 
+    # 3 meses de historial, 12 de entrenamiento y 3 de evaluacion
     def test_periodos_exactos(self):
         demanda = self.resultado["demanda_mensual_modelo"]
         por_conjunto = demanda.groupby("conjunto")["anio_mes"].unique()
@@ -112,11 +124,13 @@ class PruebasSeparacionTemporal(unittest.TestCase):
         self.assertEqual(metricas["periodo_evaluacion"].iloc[0], "2026-08 a 2026-10")
         self.assertEqual(metricas["filas_entrenamiento"].iloc[0], 12 * 4)   # 12 meses x 4 modelos
 
+    # Los meses de evaluacion no se usan para entrenar
     def test_agosto_septiembre_octubre_no_entrenan(self):
         # 1. Se espia que filas recibe fit: ninguna es de los meses de evaluacion
         filas_de_entrenamiento = []
         fit_original = LinearRegression.fit
 
+        # Hace de fit y apunta las filas con las que se entrena
         def fit_que_anota(modelo, X, y):
             filas_de_entrenamiento.append(X.index)
             return fit_original(modelo, X, y)
@@ -138,6 +152,7 @@ class PruebasSeparacionTemporal(unittest.TestCase):
             self.assertEqual(agosto["regresion"].tolist(),
                              self.resultado["predicciones"].query("anio_mes == '2026-08'")["regresion"].tolist())
 
+    # Los pares del mes que se predice no son una entrada
     def test_el_mes_objetivo_no_es_una_entrada(self):
         # Octubre es el ultimo mes: si cambian sus pares, ninguna prediccion cambia
         cambiadas = cambiar_meses(self.series, ["2026-10"], factor=50)
@@ -146,6 +161,7 @@ class PruebasSeparacionTemporal(unittest.TestCase):
         pd.testing.assert_frame_equal(otro["predicciones"][columnas], self.resultado["predicciones"][columnas])
         self.assertFalse(otro["predicciones"]["pares_reales"].equals(self.resultado["predicciones"]["pares_reales"]))
 
+    # Las entradas de octubre solo usan julio, agosto y septiembre
     def test_entradas_de_octubre_solo_del_pasado(self):
         demanda = self.resultado["demanda_mensual_modelo"]
         for modelo, valores in self.series.items():
@@ -154,8 +170,10 @@ class PruebasSeparacionTemporal(unittest.TestCase):
             self.assertAlmostEqual(octubre["media_3_meses_previos"], round(np.mean(valores[14:17]), 2))
 
 
+# Baseline, regresion y sus metricas
 class PruebasMetodos(unittest.TestCase):
 
+    # El baseline repite los pares del mes anterior
     def test_baseline_es_el_mes_anterior(self):
         series = series_aleatorias()
         predicciones = prediccion.predecir_demanda(lineas(series), CORTE)["predicciones"]
@@ -164,6 +182,7 @@ class PruebasMetodos(unittest.TestCase):
             self.assertEqual(del_modelo["baseline"].tolist(), list(valores[14:17]))   # julio, agosto, septiembre
             self.assertEqual(del_modelo["pares_reales"].tolist(), list(valores[15:18]))
 
+    # MAE y RMSE calculados a mano y con sklearn
     def test_mae_y_rmse_con_valores_conocidos(self):
         real, prediccion_ = [10, 20, 30], [12, 18, 34]                   # errores 2, 2 y 4
         self.assertAlmostEqual(prediccion.mae(real, prediccion_), 8 / 3)
@@ -172,6 +191,7 @@ class PruebasMetodos(unittest.TestCase):
         self.assertAlmostEqual(prediccion.rmse(real, prediccion_), np.sqrt(mean_squared_error(real, prediccion_)))
         self.assertEqual(prediccion.mae([5, 5], [5, 5]), 0.0)
 
+    # Las metricas salen de la tabla de predicciones; nunca pares negativos
     def test_metricas_salen_de_las_predicciones(self):
         resultado = prediccion.predecir_demanda(lineas(series_aleatorias()), CORTE)
         predicciones = resultado["predicciones"]
@@ -184,12 +204,14 @@ class PruebasMetodos(unittest.TestCase):
         self.assertEqual(metricas.loc["baseline", "filas_evaluacion"], 3 * 4)
         self.assertTrue((predicciones["regresion"] >= 0).all())          # nunca pares negativos
 
+    # Solo es mejora si bajan el MAE y el RMSE; empatar no cuenta
     def test_comparacion_de_metodos(self):
         self.assertTrue(prediccion.mejora(1, 2, 3, 4).startswith("sí"))
         self.assertTrue(prediccion.mejora(5, 6, 3, 4).startswith("no"))
         self.assertTrue(prediccion.mejora(3, 4, 3, 4).startswith("no"))   # empatar no es mejorar
         self.assertEqual(prediccion.mejora(2, 5, 3, 4), "solo en una métrica: MAE sí, RMSE no")
 
+    # Con una tendencia clara, la regresion mejora al baseline
     def test_mejora_cuando_hay_un_patron(self):
         # Demanda que sube 5 pares cada mes: el mes anterior siempre se queda corto
         series = {"A": [10 + 5 * mes for mes in range(18)], "B": [40 + 5 * mes for mes in range(18)]}
@@ -198,6 +220,7 @@ class PruebasMetodos(unittest.TestCase):
         self.assertLess(metricas.loc["regresion", "mae"], 0.5)
         self.assertTrue(metricas.loc["regresion", "mejora_al_baseline"].startswith("sí"))
 
+    # Con demanda constante no mejora, y lo dice
     def test_si_no_mejora_lo_dice(self):
         # Demanda constante: el baseline acierta siempre y la regresion no puede mejorarlo
         series = {"A": [30] * 18, "B": [12] * 18}
@@ -205,6 +228,7 @@ class PruebasMetodos(unittest.TestCase):
         self.assertEqual(metricas.loc["baseline", "mae"], 0.0)
         self.assertTrue(metricas.loc["regresion", "mejora_al_baseline"].startswith("no"))
 
+    # Una fila por modelo con su MAE y sus pares reales
     def test_errores_por_modelo(self):
         resultado = prediccion.predecir_demanda(lineas(series_aleatorias()), CORTE)
         tabla = resultado["errores_por_modelo"].set_index("nombre_modelo")
@@ -215,8 +239,10 @@ class PruebasMetodos(unittest.TestCase):
         self.assertEqual(tabla.loc["A", "pares_reales_evaluacion"], del_a["pares_reales"].sum())
 
 
+# Datos insuficientes para predecir
 class PruebasDatosInsuficientes(unittest.TestCase):
 
+    # Con 11 meses no se predice, pero la demanda si se describe
     def test_once_meses_no_calculable(self):
         resultado = prediccion.predecir_demanda(lineas({"A": list(range(1, 12))}, primer_mes="2025-12"), CORTE)
         for nombre in ["predicciones", "metricas_prediccion", "errores_por_modelo", "coeficientes_regresion"]:
@@ -224,6 +250,7 @@ class PruebasDatosInsuficientes(unittest.TestCase):
         self.assertIn("11 meses", resultado["predicciones"]["motivo"].iloc[0])
         self.assertEqual(len(resultado["demanda_mensual_modelo"]), 11)   # la demanda si se describe
 
+    # Sin ningun mes completo, todo NO CALCULABLE
     def test_sin_ningun_mes_completo(self):
         # Como la exportacion de PRUEBA de entrada_acc: pedidos solo del mes de la fecha de corte
         tabla = lineas({"A": [3]}, primer_mes="2026-11")
@@ -231,6 +258,7 @@ class PruebasDatosInsuficientes(unittest.TestCase):
         self.assertEqual(resultado["demanda_mensual_modelo"]["estado"].iloc[0], NO_CALCULABLE)
         self.assertEqual(resultado["predicciones"]["estado"].iloc[0], NO_CALCULABLE)
 
+    # Con los 18 meses de los sinteticos si se calcula
     def test_con_los_sinteticos_si_se_calcula(self):
         tablas = tablas_sinteticas()
         resultado = prediccion.predecir_demanda(tablas["lineas_enriquecidas"], CORTE)
@@ -244,17 +272,21 @@ class PruebasDatosInsuficientes(unittest.TestCase):
         self.assertEqual(demanda["pares"].sum(), tablas["matriz_modelo_mes"].drop(columns="nombre_modelo").to_numpy().sum())
 
 
+# La fase 5 dentro de main.py
 class PruebasFase5EnMain(PruebaTablas):
 
+    # Ejecuta main.py sin escribir nada en la consola
     def ejecutar(self):
         salida = self.carpeta / "salida"
         with contextlib.redirect_stdout(io.StringIO()):
             codigo = main.ejecutar(self.carpeta, salida)
         return codigo, salida
 
+    # Lee un CSV de la salida como texto
     def leer(self, salida, archivo):
         return pd.read_csv(salida / archivo, encoding="utf-8", dtype=str, keep_default_na=False)
 
+    # Con pocos datos, KMeans y la prediccion se guardan como NO CALCULABLE
     def test_pocos_datos_no_calculable(self):
         codigo, salida = self.ejecutar()
         self.assertEqual(codigo, 0)
@@ -265,6 +297,7 @@ class PruebasFase5EnMain(PruebaTablas):
                 self.assertEqual(self.leer(salida, archivo)["estado"].iloc[0], NO_CALCULABLE)
         self.assertTrue((salida / "graficos_prediccion" / "11_real_frente_a_prediccion.png").exists())
 
+    # Con datos bloqueados no se guarda nada de la fase 5
     def test_datos_bloqueados_no_publican_la_fase_5(self):
         self.anadir("lineas_pedido.csv", "103,99,M1-40,1,40,1,79.99,79.99\n")   # linea huerfana: bloqueante
         codigo, salida = self.ejecutar()

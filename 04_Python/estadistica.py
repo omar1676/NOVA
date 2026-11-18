@@ -4,8 +4,10 @@ import pandas as pd
 import config
 from analiticas import de_demanda, de_venta, rellenar_meses
 
+# Tallas centrales de la hipotesis H2
 TALLAS_CENTRALES = [41, 42, 43]
 
+# Columnas de las tablas de descriptivos y de hipotesis
 COLUMNAS_DESCRIPTIVOS = ["variable", "grupo", "unidad", "n", "media", "mediana", "moda", "desviacion_tipica",
                          "minimo", "p10", "p25", "p75", "p90", "maximo", "rango_intercuartilico",
                          "coef_variacion", "mejor_resumen", "motivo"]
@@ -13,6 +15,7 @@ COLUMNAS_HIPOTESIS = ["codigo", "hipotesis", "pregunta", "variable", "metodo", "
                       "ic_inferior", "ic_superior", "unidad", "resultado", "interpretacion",
                       "limitaciones", "no_se_puede_afirmar"]
 
+# Aviso que se anade a las conclusiones segun de donde salen los datos
 AVISO_ORIGEN = {
     "SINTETICO": " Datos SINTÉTICOS: describe la simulación de generador_datos.py, no a los clientes de NOVA.",
     "PRUEBA": " Datos de PRUEBA de un solo día: no son ventas reales.",
@@ -26,6 +29,7 @@ def aviso(tipo_origen):
 
 # Estadistica descriptiva (apartado 6.6)
 
+# Media, mediana, moda, dispersion y percentiles de una variable
 def describir(valores, variable, grupo, unidad, con_moda):
     valores = pd.Series(valores, dtype=float).dropna()
     fila = {"variable": variable, "grupo": grupo, "unidad": unidad, "n": len(valores)}
@@ -64,6 +68,7 @@ def describir(valores, variable, grupo, unidad, con_moda):
         separacion = (media - mediana) / mediana
     else:
         separacion = 0
+    # Si se separan mas de un 20 %, la mediana resume mejor que la media
     if abs(separacion) > 0.20:
         if separacion > 0:
             lado = "por encima"
@@ -78,6 +83,7 @@ def describir(valores, variable, grupo, unidad, con_moda):
     return fila
 
 
+# Importe, pares y precio de los pedidos no cancelados: todos, normales y custom
 def descriptivos(tablas):
     pedidos = de_demanda(tablas["pedidos_unicos"])
     lineas = de_demanda(tablas["lineas_enriquecidas"])
@@ -98,16 +104,19 @@ def descriptivos(tablas):
 
 # Bootstrap
 
+# Muestra nueva del mismo tamano, sacada con reemplazo
 def remuestrear(rng, valores):
     return rng.choice(valores, size=len(valores), replace=True)
 
 
+# Intervalo de confianza: percentiles 2,5 y 97,5 si el nivel es del 95 %
 def intervalo(resultados):
     cola = (100 - config.NIVEL_CONFIANZA) / 2
     inferior, superior = np.percentile(resultados, [cola, 100 - cola])
     return round(float(inferior), 2), round(float(superior), 2)
 
 
+# Intervalo bootstrap de la media
 def bootstrap_media(valores, semilla=config.SEMILLA, remuestreos=config.BOOTSTRAP_REMUESTREOS):
     valores = np.asarray(valores, dtype=float)
     rng = np.random.default_rng(semilla)
@@ -117,6 +126,7 @@ def bootstrap_media(valores, semilla=config.SEMILLA, remuestreos=config.BOOTSTRA
     return intervalo(medias)
 
 
+# Intervalo del ticket medio de venta; con menos de 5 pedidos es NO CALCULABLE
 def bootstrap_ticket_medio(pedidos_unicos, tipo_origen):
     importes = de_venta(pedidos_unicos)["importe"].astype(float).to_numpy()
     estimacion = None
@@ -144,6 +154,7 @@ def bootstrap_ticket_medio(pedidos_unicos, tipo_origen):
 
 # Las tres hipotesis (apartado 6.7)
 
+# Si el intervalo queda a un lado de la referencia hay respuesta; si la incluye, no
 def veredicto(inferior, superior, referencia):
     if inferior > referencia:
         return "los datos la apoyan"
@@ -152,6 +163,7 @@ def veredicto(inferior, superior, referencia):
     return f"evidencia insuficiente: el intervalo incluye {referencia}"
 
 
+# Aviso si algun grupo tiene menos de 30 valores
 def aviso_muestra(*tamanos):
     if min(tamanos) < config.MUESTRA_PEQUENA:
         return (f" Muestra pequeña (menos de {config.MUESTRA_PEQUENA} valores en algún grupo): "
@@ -159,12 +171,14 @@ def aviso_muestra(*tamanos):
     return ""
 
 
+# Hipotesis que no se puede contrastar por falta de datos
 def insuficiente(fila, motivo, tipo_origen):
     fila["resultado"] = f"evidencia insuficiente: {motivo}"
     fila["interpretacion"] = "No se puede contrastar con estos datos." + aviso(tipo_origen)
     return fila
 
 
+# H1: importe por pedido, Custom frente a estandar (diferencia de medianas)
 def hipotesis_custom(pedidos_unicos, tipo_origen):
     demanda = de_demanda(pedidos_unicos)
     custom = demanda.loc[demanda["tipo_pedido"] == "custom", "importe"].astype(float).to_numpy()
@@ -187,6 +201,7 @@ def hipotesis_custom(pedidos_unicos, tipo_origen):
         return insuficiente(fila, f"hacen falta al menos {config.MINIMO_MUESTRA_HIPOTESIS} pedidos de cada tipo",
                             tipo_origen)
     estimacion = np.median(custom) - np.median(normal)
+    # Bootstrap: cada grupo se remuestrea por separado
     rng = np.random.default_rng(config.SEMILLA)
     diferencias = []
     for _ in range(config.BOOTSTRAP_REMUESTREOS):
@@ -205,6 +220,7 @@ def hipotesis_custom(pedidos_unicos, tipo_origen):
     return fila
 
 
+# H2: parte de los pares en las tallas 41 a 43, frente al 50 %
 def hipotesis_tallas(lineas_enriquecidas, tipo_origen):
     demanda = de_demanda(lineas_enriquecidas)
     cantidades = demanda["cantidad"].astype(float).to_numpy()
@@ -225,6 +241,7 @@ def hipotesis_tallas(lineas_enriquecidas, tipo_origen):
     if len(cantidades) < config.MINIMO_MUESTRA_HIPOTESIS or cantidades.sum() == 0:
         return insuficiente(fila, f"hacen falta al menos {config.MINIMO_MUESTRA_HIPOTESIS} líneas", tipo_origen)
     estimacion = 100 * cantidades[centrales].sum() / cantidades.sum()
+    # Bootstrap: se remuestrean lineas enteras (cantidad y si es talla central)
     rng = np.random.default_rng(config.SEMILLA)
     proporciones = []
     for _ in range(config.BOOTSTRAP_REMUESTREOS):
@@ -242,6 +259,7 @@ def hipotesis_tallas(lineas_enriquecidas, tipo_origen):
     return fila
 
 
+# H3: pares al mes de los ultimos 6 meses frente a los 6 anteriores
 def hipotesis_crecimiento(pedidos_unicos, tipo_origen):
     demanda = de_demanda(pedidos_unicos)
     fila = {
@@ -266,6 +284,7 @@ def hipotesis_crecimiento(pedidos_unicos, tipo_origen):
     fila["n"] = f"{len(por_mes)} meses"
     if len(por_mes) < 12:
         return insuficiente(fila, f"hacen falta 12 meses seguidos y hay {len(por_mes)}", tipo_origen)
+    # Los 12 ultimos meses, partidos en dos grupos de 6
     ultimos = por_mes.iloc[-6:].to_numpy(dtype=float)
     anteriores = por_mes.iloc[-12:-6].to_numpy(dtype=float)
     fila["n"] = (f"6 meses ({por_mes.index[-6]} a {por_mes.index[-1]}) frente a 6 meses "
@@ -291,6 +310,7 @@ def hipotesis_crecimiento(pedidos_unicos, tipo_origen):
     return fila
 
 
+# Las tres hipotesis en una tabla
 def contrastar_hipotesis(tablas, tipo_origen):
     filas = [
         hipotesis_custom(tablas["pedidos_unicos"], tipo_origen),

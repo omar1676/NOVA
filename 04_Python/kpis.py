@@ -4,21 +4,25 @@ import config
 import conciliacion
 from analiticas import NO_CALCULABLE, de_demanda, de_venta, dividir, es_no_calculable, porcentaje
 
+# Columnas de la tabla de KPIs
 COLUMNAS = ["codigo", "nombre", "valor", "unidad", "detalle", "formula", "poblacion", "tabla_origen", "estado"]
 
 
+# Una fila de la tabla de KPIs
 def kpi(codigo, nombre, valor, unidad, formula, poblacion, origen, detalle=""):
     estado = "calculado" if valor is not None else "sin datos"
     return {"codigo": codigo, "nombre": nombre, "valor": valor, "unidad": unidad, "detalle": detalle,
             "formula": formula, "poblacion": poblacion, "tabla_origen": origen, "estado": estado}
 
 
+# KPI que no se puede calcular con los datos que hay; el motivo va en el detalle
 def kpi_no_calculable(codigo, nombre, unidad, formula, poblacion, origen, motivo):
     fila = kpi(codigo, nombre, None, unidad, formula, poblacion, origen, motivo)
     fila["estado"] = NO_CALCULABLE
     return fila
 
 
+# Modelo o talla con mas pares de demanda; si hay empate salen todos
 def mas_solicitado(codigo, nombre, tabla, etiqueta, origen):
     formula = f"máximo de pares de demanda por {etiqueta}"
     if len(tabla) == 0 or tabla["pares"].max() == 0:
@@ -30,6 +34,7 @@ def mas_solicitado(codigo, nombre, tabla, etiqueta, origen):
     return kpi(codigo, nombre, maximo, "pares", formula, "demanda", origen, detalle)
 
 
+# Los 20 KPIs. Demanda: pedidos no cancelados; venta: confirmados en adelante
 def calcular_kpis(pedidos, tabla_abc, tabla_tallas, tabla_stock, tabla_meses):
     demanda = de_demanda(pedidos)
     venta = de_venta(pedidos)
@@ -37,6 +42,7 @@ def calcular_kpis(pedidos, tabla_abc, tabla_tallas, tabla_stock, tabla_meses):
     pares_venta = int(venta["pares"].sum())
     importe_venta = round(float(venta["importe"].sum()), 2)
     origen = "df_pedidos_unicos"
+    # K01-K14: pedidos, pares, importes y medias
     lista = [
         kpi("K01", "Pedidos registrados", len(pedidos), "pedidos",
             "nº de pedidos (una fila por pedido)", "todos", origen),
@@ -72,6 +78,7 @@ def calcular_kpis(pedidos, tabla_abc, tabla_tallas, tabla_stock, tabla_meses):
         mas_solicitado("K14", "Talla más solicitada", tabla_tallas, "talla", "ventas_por_talla"),
     ]
 
+    # K15: el 20 % de los modelos, redondeado y como minimo 1
     modelos = len(tabla_abc)
     if modelos > 0:
         cuantos = max(1, int(modelos * config.PARETO_PORCENTAJE / 100 + 0.5))
@@ -85,6 +92,7 @@ def calcular_kpis(pedidos, tabla_abc, tabla_tallas, tabla_stock, tabla_meses):
         f"pares de los {config.PARETO_PORCENTAJE} % de modelos con más pares / pares totales x 100",
         "demanda", "modelos_abc", f"{cuantos} de {modelos} modelos del catálogo"))
 
+    # K16-K17: stock
     lista.append(kpi("K16", "Stock total", int(tabla_stock["stock_disponible"].sum()), "pares",
                      "suma de stock_disponible de todos los SKU", "stock", "stock_variantes",
                      "foto en la fecha de corte de stock.csv; no es un histórico"))
@@ -92,7 +100,7 @@ def calcular_kpis(pedidos, tabla_abc, tabla_tallas, tabla_stock, tabla_meses):
                      f"nº de SKU con stock_disponible < {config.UMBRAL_STOCK_BAJO}", "stock", "stock_variantes",
                      f"umbral {config.UMBRAL_STOCK_BAJO} pares, como la consulta C8 de Acceso a Datos"))
 
-    # Los que dependen de datos que no hay
+    # K18-K20: dependen de datos que pueden faltar (coste, meses, historial)
     lista.append(kpi_no_calculable(
         "K18", "Margen", "€", "importe - coste", "venta", "precio_y_margen",
         "Acceso a Datos no exporta el coste unitario: no se calcula con el precio de venta"))
@@ -102,6 +110,7 @@ def calcular_kpis(pedidos, tabla_abc, tabla_tallas, tabla_stock, tabla_meses):
     return pd.DataFrame(lista, columns=COLUMNAS, dtype=object)
 
 
+# K19: importe del ultimo mes frente al anterior (hacen falta 2 meses con ventas)
 def variacion_mensual(tabla_meses):
     formula = "(importe del último mes / importe del mes anterior - 1) x 100"
     if es_no_calculable(tabla_meses):
@@ -120,6 +129,7 @@ def variacion_mensual(tabla_meses):
                "ventas_por_periodo", f"{ultimo['anio_mes']} frente al mes anterior")
 
 
+# K20: semanas que dura el stock con la demanda de los ultimos 28 dias
 def cobertura_total(tabla_stock):
     formula = f"stock total / (pares de demanda de los últimos {config.DIAS_DEMANDA} días / 4)"
     if len(tabla_stock) == 0 or str(tabla_stock["estado_cobertura"].iloc[0]).startswith(NO_CALCULABLE):
@@ -137,6 +147,7 @@ def cobertura_total(tabla_stock):
                "semanas", formula, "demanda", "stock_variantes", "orientativa: el stock es una foto")
 
 
+# Compara K01-K07 con las consultas P-A y P-B de Acceso a Datos
 def coherencia_con_sql(tabla_kpis, carpeta_sql):
     if conciliacion.faltan_resultados(carpeta_sql):
         return None

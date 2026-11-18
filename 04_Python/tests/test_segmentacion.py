@@ -14,6 +14,7 @@ from test_estadistica import tablas_sinteticas
 CORTE = pd.Timestamp("2026-11-01 00:00:00")
 
 
+# Tabla de pedidos minima a partir de tuplas (id, cliente, fecha, estado, importe)
 def pedidos(filas):
     tabla = pd.DataFrame(filas, columns=["id_pedido", "id_cliente", "fecha_pedido", "estado_pedido", "importe"])
     tabla["fecha_pedido"] = pd.to_datetime(tabla["fecha_pedido"])
@@ -21,11 +22,13 @@ def pedidos(filas):
     return tabla
 
 
+# Clientes particulares con id del 1 al numero pedido
 def clientes(cuantos):
     return pd.DataFrame({"id_cliente": [str(numero) for numero in range(1, cuantos + 1)],
                          "tipo": ["particular"] * cuantos})
 
 
+# El cliente N hace N compras de 100 x N euros; la ultima, hace 5 x N dias
 def compradores(cuantos):
     filas = []
     for cliente in range(1, cuantos + 1):
@@ -35,14 +38,17 @@ def compradores(cuantos):
     return pedidos(filas)
 
 
+# RFM de los datos sinteticos
 def rfm_sintetico():
     tablas = tablas_sinteticas()
     lista = tablas["clientes_actividad"][["id_cliente", "tipo_cliente"]].rename(columns={"tipo_cliente": "tipo"})
     return segmentacion.rfm(tablas["pedidos_unicos"], lista, pd.Timestamp(generador_datos.FECHA_CORTE))
 
 
+# Calculo de R, F y M
 class PruebasRecencyFrequencyMonetary(unittest.TestCase):
 
+    # R: dias desde la ultima compra valida hasta la fecha de corte
     def test_recency_desde_la_fecha_de_corte(self):
         tabla = pedidos([
             ("1", "1", "2026-09-01 10:00:00", "entregado", 100.0),
@@ -54,6 +60,7 @@ class PruebasRecencyFrequencyMonetary(unittest.TestCase):
         self.assertEqual(fila["recency_dias"], 10)
         self.assertEqual(fila["ultima_compra"], pd.Timestamp("2026-10-22"))
 
+    # Un pedido posterior al corte no cuenta
     def test_pedidos_posteriores_al_corte_no_cuentan(self):
         tabla = pedidos([
             ("1", "1", "2026-10-01 00:00:00", "entregado", 100.0),
@@ -62,6 +69,7 @@ class PruebasRecencyFrequencyMonetary(unittest.TestCase):
         fila = segmentacion.rfm(tabla, clientes(1), CORTE).iloc[0]
         self.assertEqual((fila["frequency"], fila["monetary"], fila["recency_dias"]), (1, 100.0, 31))
 
+    # F cuenta pedidos de venta y M suma su importe
     def test_frequency_cuenta_pedidos_y_monetary_suma_importes(self):
         tabla = pedidos([
             ("1", "1", "2026-08-01 00:00:00", "entregado", 100.0),
@@ -75,6 +83,7 @@ class PruebasRecencyFrequencyMonetary(unittest.TestCase):
         self.assertEqual(tabla_rfm.loc["1", "monetary"], 350.5)
         self.assertEqual(tabla_rfm.loc["2", "frequency"], 1)
 
+    # Clientes sin compras: F y M a 0, R vacia y segmento propio
     def test_clientes_sin_compras_validas(self):
         tabla = pedidos([("1", "2", "2026-10-01 00:00:00", "cancelado", 100.0)])   # el 2 solo cancelo
         tabla_rfm = segmentacion.rfm(tabla, clientes(3), CORTE)
@@ -85,8 +94,10 @@ class PruebasRecencyFrequencyMonetary(unittest.TestCase):
         self.assertEqual(set(tabla_rfm["segmento"]), {segmentacion.SIN_COMPRAS})
 
 
+# Puntuaciones y segmentos RFM
 class PruebasSegmentos(unittest.TestCase):
 
+    # Quintiles: con 15 clientes, 3 en cada puntuacion
     def test_puntuaciones_por_quintiles(self):
         tabla_rfm = segmentacion.rfm(compradores(15), clientes(15), CORTE).set_index("id_cliente")
         # 15 clientes: 3 en cada puntuacion de 1 a 5
@@ -96,6 +107,7 @@ class PruebasSegmentos(unittest.TestCase):
         self.assertEqual(tabla_rfm.loc["1", ["r_score", "f_score", "m_score"]].tolist(), [5, 1, 1])
         self.assertEqual(tabla_rfm.loc["15", ["r_score", "f_score", "m_score"]].tolist(), [1, 5, 5])
 
+    # Cada combinacion de R, F y M cae en su segmento
     def test_reglas_de_los_segmentos(self):
         casos = [
             ((5, 5, 5, 10), "Mejores clientes"),
@@ -112,6 +124,7 @@ class PruebasSegmentos(unittest.TestCase):
                 fila = {"r_score": r, "f_score": f, "m_score": m, "frequency": frequency}
                 self.assertEqual(segmentacion.segmento(fila), esperado)
 
+    # Al menos cuatro segmentos con compras, cada uno con su significado
     def test_al_menos_cuatro_segmentos_con_significado(self):
         con_compras = [nombre for nombre in segmentacion.SEGMENTOS if nombre != segmentacion.SIN_COMPRAS]
         self.assertGreaterEqual(len(con_compras), 4)
@@ -119,6 +132,7 @@ class PruebasSegmentos(unittest.TestCase):
         for nombre, significado in segmentacion.SEGMENTOS.items():
             self.assertGreater(len(significado), 20, nombre)
 
+    # El resumen cuenta a todos los clientes, tambien a los que no compran
     def test_resumen_cuenta_a_todos_los_clientes(self):
         tabla_rfm = segmentacion.rfm(compradores(15), clientes(18), CORTE)   # 3 sin compras
         resumen = segmentacion.resumen_segmentos(tabla_rfm).set_index("segmento")
@@ -127,6 +141,7 @@ class PruebasSegmentos(unittest.TestCase):
         self.assertEqual(resumen["monetary_total"].sum(), round(tabla_rfm["monetary"].sum(), 2))
         self.assertAlmostEqual(resumen["porcentaje_importe"].sum(), 100.0, delta=0.2)
 
+    # Desordenar los pedidos y los clientes no cambia el resultado
     def test_reproducible_aunque_cambie_el_orden(self):
         tablas = tablas_sinteticas()
         lista = tablas["clientes_actividad"][["id_cliente", "tipo_cliente"]].rename(columns={"tipo_cliente": "tipo"})
@@ -136,6 +151,7 @@ class PruebasSegmentos(unittest.TestCase):
         segunda = segmentacion.rfm(desordenados, lista.sample(frac=1, random_state=2), corte)
         pd.testing.assert_frame_equal(primera, segunda)
 
+    # Con un solo cliente con compras no se segmenta
     def test_pocos_clientes_no_calculable(self):
         # Como la exportacion de PRUEBA de entrada_acc: 6 clientes y solo el 6 con una compra
         tabla = pedidos([("1", "6", "2026-10-30 00:00:00", "confirmado", 4796.0)])
@@ -145,6 +161,7 @@ class PruebasSegmentos(unittest.TestCase):
         self.assertEqual((tabla_rfm["segmento"] == segmentacion.SIN_COMPRAS).sum(), 5)
 
 
+# KMeans con los datos sinteticos
 class PruebasKMeans(unittest.TestCase):
 
     @classmethod
@@ -152,6 +169,7 @@ class PruebasKMeans(unittest.TestCase):
         cls.rfm = rfm_sintetico()
         cls.seleccion, cls.clusters, cls.con_cluster = segmentacion.kmeans_clientes(cls.rfm)
 
+    # Tres variables con media 0 y desviacion 1; un nulo da error
     def test_variables_estandarizadas_y_sin_nulos(self):
         datos = segmentacion.variables_kmeans(self.rfm[self.rfm["frequency"] > 0])
         self.assertEqual(datos.shape[1], 3)
@@ -162,28 +180,33 @@ class PruebasKMeans(unittest.TestCase):
         with self.assertRaises(ValueError):
             segmentacion.variables_kmeans(con_nulo)
 
+    # Se prueban k = 2 a 5, cada uno con su silhouette
     def test_prueba_k_de_2_a_5_con_silhouette(self):
         self.assertEqual(self.seleccion["k"].tolist(), [2, 3, 4, 5])
         self.assertTrue(self.seleccion["silhouette"].between(-1, 1).all())
 
+    # El silhouette es el que da sklearn
     def test_silhouette_calculado_con_sklearn(self):
         datos = segmentacion.variables_kmeans(self.rfm[self.rfm["frequency"] > 0])
         for _, fila in self.seleccion.iterrows():
             modelo = KMeans(n_clusters=int(fila["k"]), random_state=config.SEMILLA, n_init=10).fit(datos)
             self.assertEqual(fila["silhouette"], round(float(silhouette_score(datos, modelo.labels_)), 3))
 
+    # Se elige un solo k: el de mayor silhouette
     def test_se_elige_el_k_con_mayor_silhouette(self):
         self.assertEqual(self.seleccion["elegido"].sum(), 1)
         elegido = self.seleccion[self.seleccion["elegido"]].iloc[0]
         self.assertEqual(elegido["silhouette"], self.seleccion["silhouette"].max())
         self.assertEqual(len(self.clusters), elegido["k"])
 
+    # Dos ejecuciones dan los mismos grupos (semilla fija)
     def test_reproducible(self):
         seleccion, clusters, con_cluster = segmentacion.kmeans_clientes(self.rfm)
         pd.testing.assert_frame_equal(seleccion, self.seleccion)
         pd.testing.assert_frame_equal(clusters, self.clusters)
         pd.testing.assert_series_equal(con_cluster["cluster"], self.con_cluster["cluster"])
 
+    # Todos los compradores tienen grupo, y los grupos van de mas a menos importe
     def test_clusters_describen_a_todos_los_compradores(self):
         compradores_sinteticos = (self.rfm["frequency"] > 0).sum()
         self.assertEqual(self.clusters["clientes"].sum(), compradores_sinteticos)
@@ -194,6 +217,7 @@ class PruebasKMeans(unittest.TestCase):
         self.assertTrue((self.clusters["nombre"].str.len() > 10).all())
         self.assertAlmostEqual(self.clusters["porcentaje_clientes"].sum(), 100.0, delta=0.2)
 
+    # Cruce RFM x KMeans: una columna por grupo y los totales cuadran
     def test_comparacion_con_rfm(self):
         comparacion = segmentacion.comparar_rfm_kmeans(self.con_cluster)
         columnas = [f"cluster_{numero}" for numero in self.clusters["cluster"]]
@@ -202,6 +226,7 @@ class PruebasKMeans(unittest.TestCase):
         segmentos = self.rfm[self.rfm["frequency"] > 0]["segmento"].value_counts()
         self.assertEqual(comparacion.set_index("segmento")["total"].to_dict(), segmentos.to_dict())
 
+    # Con pocos clientes no se fuerzan grupos: NO CALCULABLE
     def test_no_se_fuerza_con_pocos_clientes(self):
         # Los 6 clientes de la exportacion de PRUEBA, con una sola compra: no hay grupos
         tabla = pedidos([("1", "6", "2026-10-30 00:00:00", "confirmado", 4796.0)])

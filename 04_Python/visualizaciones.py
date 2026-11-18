@@ -11,6 +11,7 @@ from matplotlib.patches import Patch   # noqa: E402
 import config   # noqa: E402
 from analiticas import de_demanda, es_no_calculable, rellenar_meses   # noqa: E402
 
+# Colores de los graficos
 AZUL = "#1f5fa8"
 GRIS = "#9e9e9e"
 NARANJA = "#e07b00"
@@ -33,6 +34,7 @@ GRAFICOS = [
 ]
 
 
+# Figura con la pregunta como titulo y un subtitulo
 def nueva_figura(pregunta, subtitulo):
     fig, ax = plt.subplots(figsize=(10, 6))
     fig.suptitle(pregunta, fontsize=13, fontweight="bold", x=0.02, ha="left")
@@ -40,6 +42,7 @@ def nueva_figura(pregunta, subtitulo):
     return fig, ax
 
 
+# Anade el pie (origen, corte, filtros...) y guarda el PNG
 def guardar(fig, carpeta, archivo, pie):
     fig.text(0.02, 0.012, pie, fontsize=7.5, color="#555555", ha="left", va="bottom")
     fig.tight_layout(rect=(0, 0.04, 1, 0.97))
@@ -49,12 +52,14 @@ def guardar(fig, carpeta, archivo, pie):
     return ruta
 
 
+# Mensaje en el centro cuando no hay nada que dibujar
 def sin_datos(ax, mensaje="Sin datos para este gráfico"):
     ax.text(0.5, 0.5, mensaje, ha="center", va="center", fontsize=12, transform=ax.transAxes)
     ax.set_xticks([])
     ax.set_yticks([])
 
 
+# Grafico 01: pedidos por estado; en azul los que cuentan como venta
 def grafico_pedidos_por_estado(tabla, carpeta, pie):
     fig, ax = nueva_figura("¿En qué estado están los pedidos?",
                            "Pedidos registrados en cada estado del catálogo (también los que tienen 0)")
@@ -71,6 +76,7 @@ def grafico_pedidos_por_estado(tabla, carpeta, pie):
     return guardar(fig, carpeta, GRAFICOS[0][0], pie)
 
 
+# Grafico 02: Pareto de modelos con su clase ABC
 def grafico_pareto_modelos(tabla_abc, carpeta, pie):
     fig, ax = nueva_figura("¿Qué modelos concentran la demanda? (Pareto y clasificación ABC)",
                            "Pares de demanda por modelo (pedidos no cancelados) y % acumulado. "
@@ -84,6 +90,7 @@ def grafico_pareto_modelos(tabla_abc, carpeta, pie):
         ax.set_xlabel("Modelo")
         ax.set_ylabel("Pares (nº)")
         ax.tick_params(axis="x", rotation=20)
+        # Eje de la derecha: % acumulado y limites de las clases A y B
         acumulado = ax.twinx()
         acumulado.plot(tabla_abc["nombre_modelo"], tabla_abc["acumulado_pct"].astype(float),
                        color="black", marker="o", label="% acumulado")
@@ -102,6 +109,7 @@ def grafico_pareto_modelos(tabla_abc, carpeta, pie):
     return guardar(fig, carpeta, GRAFICOS[1][0], pie)
 
 
+# Grafico 03: pares de demanda por talla
 def grafico_pares_por_talla(tabla_tallas, carpeta, pie):
     fig, ax = nueva_figura("¿Qué tallas se piden más?", "Pares de demanda por talla (pedidos no cancelados)")
     if len(tabla_tallas) == 0:
@@ -117,6 +125,7 @@ def grafico_pares_por_talla(tabla_tallas, carpeta, pie):
     return guardar(fig, carpeta, GRAFICOS[2][0], pie)
 
 
+# Grafico 04: demanda por mes (o por dia si solo hay un mes)
 def grafico_evolucion(pedidos, carpeta, pie):
     demanda = de_demanda(pedidos)
     meses = demanda["fecha_pedido"].dt.to_period("M")
@@ -136,6 +145,7 @@ def grafico_evolucion(pedidos, carpeta, pie):
         ax.tick_params(axis="x", rotation=45)
         return guardar(fig, carpeta, GRAFICOS[3][0], pie)
 
+    # Un solo mes: por dia
     fig, ax = nueva_figura("¿Cómo evoluciona la demanda en el tiempo?",
                            "Pares de demanda por día del pedido (pedidos no cancelados)")
     if len(demanda) == 0:
@@ -149,6 +159,7 @@ def grafico_evolucion(pedidos, carpeta, pie):
         ax.set_ylabel("Pares (nº)")
         ax.set_ylim(0, por_dia.max() * 1.25)
         ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
+        # Un solo dia: se centra el punto y se avisa de que no hay evolucion
         if len(por_dia) == 1:
             dia = por_dia.index[0]
             ax.set_xlim(dia - pd.Timedelta(days=3), dia + pd.Timedelta(days=3))
@@ -160,6 +171,7 @@ def grafico_evolucion(pedidos, carpeta, pie):
     return guardar(fig, carpeta, GRAFICOS[3][0], pie)
 
 
+# Grafico 05: mapa de calor de pares por modelo y talla
 def grafico_matriz_modelo_talla(matriz, carpeta, pie):
     fig, ax = nueva_figura("¿Qué tallas se piden de cada modelo?",
                            "Pares de demanda por modelo y talla (pedidos no cancelados)")
@@ -170,6 +182,7 @@ def grafico_matriz_modelo_talla(matriz, carpeta, pie):
         imagen = ax.imshow(valores, cmap="Blues", aspect="auto")
         ax.set_xticks(range(len(matriz.columns)), [str(talla) for talla in matriz.columns])
         ax.set_yticks(range(len(matriz.index)), matriz.index)
+        # El numero de cada celda, en blanco si el fondo es oscuro
         for fila in range(valores.shape[0]):
             for columna in range(valores.shape[1]):
                 valor = valores[fila, columna]
@@ -181,6 +194,7 @@ def grafico_matriz_modelo_talla(matriz, carpeta, pie):
     return guardar(fig, carpeta, GRAFICOS[4][0], pie)
 
 
+# Grafico 06: parte de los pedidos, pares e importe que es Custom y que es normal
 def grafico_custom_vs_estandar(tabla, carpeta, pie):
     fig, ax = nueva_figura("¿Cuánto pesan los pedidos Custom?",
                            "Parte de la demanda (pedidos no cancelados) de cada tipo: en pedidos, en pares y en euros")
@@ -203,6 +217,7 @@ def grafico_custom_vs_estandar(tabla, carpeta, pie):
     return guardar(fig, carpeta, GRAFICOS[5][0], pie)
 
 
+# Grafico 07: ranking de clientes por importe (con su id, sin el nombre)
 def grafico_clientes_por_importe(tabla_clientes, carpeta, pie):
     cuantos = min(MAXIMO_CLIENTES, len(tabla_clientes))
     fig, ax = nueva_figura("¿Qué clientes concentran el importe?",
@@ -224,6 +239,7 @@ def grafico_clientes_por_importe(tabla_clientes, carpeta, pie):
     return guardar(fig, carpeta, GRAFICOS[6][0], pie)
 
 
+# Grafico 08: histograma del stock por SKU con el umbral de stock bajo
 def grafico_stock(tabla_stock, carpeta, pie, umbral=config.UMBRAL_STOCK_BAJO):
     fig, ax = nueva_figura("¿Cuántas referencias tienen poco stock?",
                            "Stock de cada SKU (modelo + color + talla) en la fecha de corte: es una foto, no un histórico")
@@ -244,6 +260,7 @@ def grafico_stock(tabla_stock, carpeta, pie, umbral=config.UMBRAL_STOCK_BAJO):
     return guardar(fig, carpeta, GRAFICOS[7][0], pie)
 
 
+# Grafico 09: diagrama de caja del importe por tipo de pedido, con cada pedido como punto
 def grafico_importe_por_tipo(pedidos, carpeta, pie):
     fig, ax = nueva_figura("¿Cuánto vale un pedido según su tipo?",
                            "Importe de cada pedido no cancelado según su tipo; cada punto es un pedido (escala logarítmica)")
@@ -271,6 +288,7 @@ def grafico_importe_por_tipo(pedidos, carpeta, pie):
     return guardar(fig, carpeta, GRAFICOS[8][0], pie)
 
 
+# Grafico 10: pares frente a importe de cada pedido, para ver pedidos raros
 def grafico_pares_frente_a_importe(pedidos, carpeta, pie):
     fig, ax = nueva_figura("¿El importe crece con los pares? ¿Hay pedidos raros?",
                            "Cada punto es un pedido no cancelado; si es más grande, junta varios pedidos iguales. "
@@ -279,6 +297,7 @@ def grafico_pares_frente_a_importe(pedidos, carpeta, pie):
     if len(demanda) == 0:
         sin_datos(ax)
     else:
+        # Los pedidos iguales se juntan en un punto mas grande
         puntos = demanda.groupby(["tipo_pedido", "pares", "importe"]).size().reset_index(name="pedidos")
         for tipo, parte in puntos.groupby("tipo_pedido"):
             ax.scatter(parte["pares"], parte["importe"], s=60 * parte["pedidos"], alpha=0.7,
@@ -290,10 +309,11 @@ def grafico_pares_frente_a_importe(pedidos, carpeta, pie):
     return guardar(fig, carpeta, GRAFICOS[9][0], pie)
 
 
-# Fase 5: va aparte de los 10 anteriores (en graficos_prediccion/) porque es
+# Fase 5: va aparte (en graficos_prediccion/) porque es una prediccion, no una descripcion de los datos
 GRAFICO_PREDICCION = ("11_real_frente_a_prediccion.png", "dispersión", "¿Acierta la predicción de demanda?")
 
 
+# Grafico 11: pares reales frente a predichos, con el baseline y la regresion
 def grafico_real_frente_a_prediccion(predicciones, carpeta, pie):
     carpeta = Path(carpeta)
     carpeta.mkdir(parents=True, exist_ok=True)
@@ -322,6 +342,7 @@ def grafico_real_frente_a_prediccion(predicciones, carpeta, pie):
     return guardar(fig, carpeta, GRAFICO_PREDICCION[0], pie)
 
 
+# Genera los 10 graficos de analisis en la carpeta
 def generar_todos(tablas, carpeta, pie):
     carpeta = Path(carpeta)
     carpeta.mkdir(parents=True, exist_ok=True)

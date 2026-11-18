@@ -16,37 +16,44 @@ import pipeline
 REGLAS_02_A_12 = [f"{numero:02d}" for numero in range(2, 13)]
 
 
+# Generador de datos sinteticos
 class PruebasGenerador(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         cls.datos = generador_datos.generar(config.SEMILLA)
 
+    # Misma semilla, mismos datos
     def test_misma_semilla_mismos_datos(self):
         otra_vez = generador_datos.generar(config.SEMILLA)
         for nombre, tabla in self.datos.items():
             pd.testing.assert_frame_equal(tabla, otra_vez[nombre])
 
+    # Otra semilla, otros datos
     def test_otra_semilla_otros_datos(self):
         otra = generador_datos.generar(config.SEMILLA + 1)
         self.assertFalse(self.datos["pedidos"].equals(otra["pedidos"]))
 
+    # Clientes, modelos, pedidos y lineas minimos que pide la rubrica
     def test_minimos_de_la_rubrica(self):
         self.assertEqual(len(self.datos["clientes"]), 40)
         self.assertEqual(len(self.datos["modelos"]), 12)
         self.assertGreaterEqual(len(self.datos["pedidos"]), 800)
         self.assertGreaterEqual(len(self.datos["lineas_pedido"]), 1600)
 
+    # 18 meses seguidos, todos antes de la fecha de corte
     def test_dieciocho_meses_seguidos(self):
         fechas = pd.to_datetime(self.datos["pedidos"]["fecha_pedido"])
         meses = sorted(fechas.dt.to_period("M").unique())
         self.assertEqual(meses, list(pd.period_range("2025-05", "2026-10", freq="M")))
         self.assertTrue((fechas < pd.Timestamp(generador_datos.FECHA_CORTE)).all())
 
+    # Las mismas columnas, y en el mismo orden, que el contrato
     def test_columnas_del_contrato(self):
         for nombre, tabla in self.datos.items():
             self.assertEqual(list(tabla.columns), list(config.ARCHIVOS[nombre]["tipos"]))
 
+    # Importes de linea y totales de cada pedido cuadran
     def test_pedidos_y_lineas_cuadran(self):
         lineas = self.datos["lineas_pedido"]
         pedidos = self.datos["pedidos"].set_index("id_pedido")
@@ -57,6 +64,7 @@ class PruebasGenerador(unittest.TestCase):
         self.assertTrue((suma["pares"] == pedidos["cantidad_total"]).all())
         self.assertTrue(((suma["importe"] - pedidos["importe_total"]).abs() < 0.005).all())
 
+    # Todas las claves ajenas tienen pareja
     def test_sin_claves_huerfanas(self):
         datos = self.datos
         self.assertTrue(datos["pedidos"]["id_cliente"].isin(datos["clientes"]["id_cliente"]).all())
@@ -65,6 +73,7 @@ class PruebasGenerador(unittest.TestCase):
         self.assertTrue(datos["lineas_pedido"]["sku"].isin(datos["stock"]["sku"]).all())
         self.assertTrue(datos["stock"]["id_modelo"].isin(datos["modelos"]["id_modelo"]).all())
 
+    # Reembolso solo si esta cancelado y personalizacion solo en los Custom
     def test_reglas_de_negocio(self):
         pedidos = self.datos["pedidos"]
         reembolsados = pedidos[pedidos["estado_pago"] == "reembolsado"]
@@ -74,6 +83,7 @@ class PruebasGenerador(unittest.TestCase):
         self.assertTrue((pedidos.loc[~custom, "personalizacion"] == "").all())
         self.assertTrue((self.datos["lineas_pedido"]["cantidad"] > 0).all())
 
+    # Datos variados: estados, modelos y tallas con distinto peso, y estacionalidad
     def test_variedad_que_no_es_uniforme(self):
         pedidos = self.datos["pedidos"]
         lineas = self.datos["lineas_pedido"]
@@ -87,8 +97,10 @@ class PruebasGenerador(unittest.TestCase):
         self.assertGreater(por_mes.max(), 1.5 * por_mes.min())     # hay estacionalidad
 
 
+# Datos guardados: limpios y copia con errores
 class PruebasDatosGuardados(unittest.TestCase):
 
+    # Guarda las dos carpetas en una temporal y evalua su calidad
     @classmethod
     def setUpClass(cls):
         cls.temporal = tempfile.TemporaryDirectory()
@@ -104,11 +116,13 @@ class PruebasDatosGuardados(unittest.TestCase):
     def tearDownClass(cls):
         cls.temporal.cleanup()
 
+    # Los limpios no tienen ninguna incidencia
     def test_limpios_sin_ninguna_incidencia(self):
         self.assertEqual(len(self.resultado_limpios["incidencias"]), 0)
         self.assertFalse(self.resultado_limpios["bloqueado"])
         self.assertEqual(self.resultado_limpios["resumen"]["porcentaje_calidad"].tolist(), [100.0] * 5)
 
+    # En la copia con errores salta cada regla de la 02 a la 12
     def test_con_errores_se_detecta_cada_regla(self):
         detectadas = set(self.resultado_errores["incidencias"]["regla"])
         for regla in REGLAS_02_A_12:
@@ -116,14 +130,17 @@ class PruebasDatosGuardados(unittest.TestCase):
                 self.assertIn(regla, detectadas)
         self.assertTrue(self.resultado_errores["bloqueado"])
 
+    # Cada error introducido dice que regla toca y que se espera
     def test_cada_error_esta_documentado(self):
         self.assertEqual(sorted(set(self.errores["regla"])), REGLAS_02_A_12)
         self.assertTrue(self.errores["se_espera"].str.len().gt(0).all())
 
+    # ORIGEN.txt dice SINTETICO
     def test_origen_sintetico(self):
         self.assertEqual(pipeline.tipo_origen(self.limpios), "SINTETICO")
         self.assertIn("SINTÉTICO", pipeline.etiqueta_origen(self.con_errores))
 
+    # Mismo formato de CSV que el exportador de Acceso a Datos
     def test_mismo_formato_que_acceso_a_datos(self):
         texto = (self.limpios / "pedidos.csv").read_bytes()
         self.assertFalse(texto.startswith(b"\xef\xbb\xbf"))          # UTF-8 sin BOM
@@ -133,8 +150,10 @@ class PruebasDatosGuardados(unittest.TestCase):
         self.assertRegex(primera["fecha_pedido"], r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$")
 
 
+# Los sinteticos nunca se mezclan con la exportacion de Acceso a Datos
 class PruebasSeparacion(unittest.TestCase):
 
+    # Guardar en entrada_acc/ da error y no cambia ningun archivo
     def test_nunca_se_guarda_en_entrada_acc(self):
         huella = {ruta.name: hashlib.sha256(ruta.read_bytes()).hexdigest()
                   for ruta in config.CARPETA_ENTRADA.glob("*.*")}
@@ -148,6 +167,7 @@ class PruebasSeparacion(unittest.TestCase):
                    for ruta in config.CARPETA_ENTRADA.glob("*.*")}
         self.assertEqual(huella, despues)
 
+    # Cada modo de main.py tiene su carpeta de entrada y de salida
     def test_cada_modo_tiene_sus_carpetas(self):
         entradas = [Path(entrada).resolve() for entrada, _ in main.MODOS.values()]
         salidas = [Path(salida).resolve() for _, salida in main.MODOS.values()]
@@ -157,6 +177,7 @@ class PruebasSeparacion(unittest.TestCase):
         for entrada in entradas[1:]:
             self.assertNotIn(real, entrada.parents)                 # lo sintetico no esta dentro de entrada_acc
 
+    # Referencias y modelos sinteticos empiezan por SINT
     def test_identificadores_que_no_se_confunden(self):
         sinteticos = generador_datos.generar(config.SEMILLA)
         self.assertTrue(sinteticos["pedidos"]["referencia"].str.startswith("SINT-").all())
@@ -165,8 +186,10 @@ class PruebasSeparacion(unittest.TestCase):
         self.assertFalse(de_prueba["referencia"].str.startswith("SINT").any())
 
 
+# main.py con los sinteticos funciona igual que con la exportacion
 class PruebasCompatibilidad(unittest.TestCase):
 
+    # Ejecuta main.py una vez con los sinteticos y guarda lo que escribe en consola
     @classmethod
     def setUpClass(cls):
         cls.temporal = tempfile.TemporaryDirectory()
@@ -181,19 +204,23 @@ class PruebasCompatibilidad(unittest.TestCase):
     def tearDownClass(cls):
         cls.temporal.cleanup()
 
+    # Lee un CSV de la salida como texto
     def leer(self, archivo):
         return pd.read_csv(self.salida / archivo, encoding="utf-8", dtype=str, keep_default_na=False)
 
+    # Termina en CORRECTO; la conciliacion SQL no aplica
     def test_ejecucion_correcta(self):
         self.assertEqual(self.codigo, 0)
         self.assertEqual(self.leer("estado_ejecucion.csv")["estado"].iloc[0], "CORRECTO")
         self.assertIn("NO APLICA", self.consola)                    # no hay SQL con que conciliar
 
+    # Cada CSV de salida dice que su origen es SINTETICO
     def test_todo_etiquetado_como_sintetico(self):
         for archivo in ["kpis.csv", "pedidos_unicos.csv", "hipotesis.csv", "incidencias.csv"]:
             with self.subTest(archivo=archivo):
                 self.assertTrue(self.leer(archivo)["origen"].str.startswith("SINTÉTICO").all())
 
+    # Tablas, KPIs y graficos se calculan con los 18 meses
     def test_tablas_kpis_y_graficos(self):
         self.assertEqual(len(self.leer("pedidos_unicos.csv")), 900)   # el cruce no multiplica pedidos
         kpis = self.leer("kpis.csv").set_index("codigo")
@@ -204,6 +231,7 @@ class PruebasCompatibilidad(unittest.TestCase):
         self.assertEqual(len(list((self.salida / "graficos").glob("*.png"))), 10)
         self.assertEqual(len(self.leer("hipotesis.csv")), 3)
 
+    # La fase 5 se publica entera y etiquetada como sintetica
     def test_fase_5_publicada_y_etiquetada(self):
         # Con 40 clientes y 18 meses, la segmentacion y la prediccion se calculan
         for archivo in ["rfm_clientes.csv", "rfm_segmentos.csv", "kmeans_seleccion_k.csv", "kmeans_clusters.csv",

@@ -15,6 +15,7 @@ SUSTENTO = {
     5: "metricas_prediccion.csv y predicciones.csv · gráfico 11_real_frente_a_prediccion.png (pestaña Predicción)",
 }
 
+# De donde salen los datos y su limitacion, segun ORIGEN.txt
 PROCEDENCIA = {
     "PRUEBA": "Datos de prueba (exportación de ACC)",
     "SINTETICO": "Datos sintéticos",
@@ -27,6 +28,7 @@ LIMITE_ORIGEN = {
 }
 
 
+# Numero en formato espanol: punto de miles y coma decimal
 def numero(valor, decimales=0):
     texto = f"{float(valor):,.{decimales}f}"   # formato ingles: 1,234.5
     texto = texto.replace(",", "_")             # 1_234.5 (los miles, aparte un momento)
@@ -34,6 +36,7 @@ def numero(valor, decimales=0):
     return texto.replace("_", ".")              # 1.234,5 (punto de miles)
 
 
+# Una conclusion del informe ejecutivo
 def conclusion(numero_, titulo, procede_de, evidencia, interpretacion, decision, limitacion, calculable=True,
                urgencia="baja", impacto="Ninguno todavía: no hay datos para decidir."):
     return {"numero": numero_, "titulo": titulo, "procede_de": procede_de, "calculable": calculable,
@@ -42,6 +45,7 @@ def conclusion(numero_, titulo, procede_de, evidencia, interpretacion, decision,
             "sustento": SUSTENTO[numero_]}
 
 
+# Conclusion 1: la demanda se concentra en los modelos de clase A
 def concentracion_modelos(abc, procede_de, limite):
     if es_no_calculable(abc) or abc["pares"].sum() == 0:
         return conclusion(1, "La demanda se concentra en pocos modelos", procede_de,
@@ -67,6 +71,7 @@ def concentracion_modelos(abc, procede_de, limite):
                 f"({numero(clase_a['pares'].sum())} pares).")
 
 
+# Conclusion 2: peso de los pedidos Custom en pedidos, pares e importe
 def peso_custom(tabla, procede_de, limite):
     custom = tabla[tabla["tipo_pedido"] == "custom"].iloc[0]
     normal = tabla[tabla["tipo_pedido"] == "normal"].iloc[0]
@@ -94,6 +99,7 @@ def peso_custom(tabla, procede_de, limite):
                 f"{numero(custom['cuota_importe_pct'], 1)} % del importe de la demanda, que son de pedidos Custom.")
 
 
+# Conclusion 3: segmentos RFM (mejores clientes y clientes en riesgo)
 def clientes_rfm(resumen, procede_de, limite):
     # El mismo minimo que segmentacion.puntuar: con menos clientes con compras no hay segmentos
     con_compras = int(resumen.loc[resumen["segmento"] != SIN_COMPRAS, "clientes"].sum())
@@ -122,6 +128,7 @@ def clientes_rfm(resumen, procede_de, limite):
                 f"y recuperar parte del {numero(riesgo['porcentaje_importe'], 1)} % que suman los clientes en riesgo.")
 
 
+# Conclusion 4: SKU con stock bajo y pedidos recientes
 def riesgo_stock(stock, procede_de, limite):
     titulo = "Riesgo de quedarse sin stock"
     if len(stock) == 0:
@@ -155,6 +162,7 @@ def riesgo_stock(stock, procede_de, limite):
         f"{limite}", urgencia=urgencia, impacto=impacto)
 
 
+# Conclusion 5: si la regresion mejora o no al baseline
 def prediccion_frente_a_baseline(metricas, procede_de, limite):
     procedencia = f"Predicción · {procede_de}"   # es una prediccion hecha con esos datos
     if es_no_calculable(metricas):
@@ -196,6 +204,7 @@ def prediccion_frente_a_baseline(metricas, procede_de, limite):
         f"meses. {limite}", urgencia=urgencia, impacto=impacto)
 
 
+# Las cinco conclusiones del informe ejecutivo, con su prioridad
 def conclusiones(tablas, resumen_rfm, metricas_prediccion, tipo):
     procede_de = PROCEDENCIA.get(tipo, "Origen desconocido")
     limite = LIMITE_ORIGEN.get(tipo, "No se sabe de qué base salen los datos.")
@@ -206,6 +215,7 @@ def conclusiones(tablas, resumen_rfm, metricas_prediccion, tipo):
         riesgo_stock(tablas["stock_variantes"], procede_de, limite),
         prediccion_frente_a_baseline(metricas_prediccion, procede_de, limite),
     ])
+    # Prioridad: primero la urgencia y, con la misma urgencia, el numero de la conclusion
     clave = tabla["urgencia"].map(URGENCIAS) * 10 + tabla["numero"]
     tabla["prioridad"] = clave.rank(method="first").astype(int)
     # Primero la conclusion (de numero a limitacion) y despues como se prioriza y en que se apoya

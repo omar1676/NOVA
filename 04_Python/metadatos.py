@@ -12,10 +12,12 @@ NINGUNO = "ninguno"                   # resultados globales (calidad, RFM, predi
 TODAS = ["clientes", "modelos", "pedidos", "lineas_pedido", "stock"]
 PEDIDOS = ["pedidos", "lineas_pedido"]
 
+# Criterios que se repiten en las reglas de negocio
 DEMANDA = "demanda = pedidos no cancelados"
 VENTA = "venta = pedidos " + ", ".join(config.ESTADOS_CONFIRMADOS)
 SOLO_VALIDAS = "solo filas válidas (sin las rechazadas por las 12 reglas)"
 
+# Cada DataFrame: (funcion, tablas de entrada, reglas de negocio, filtros que usa)
 DATAFRAMES = {
     # Calidad: se calculan con las filas tal como llegan (leidas)
     "incidencias": ("calidad.evaluar", TODAS,
@@ -128,16 +130,19 @@ DATAFRAMES = {
 DE_FILAS_LEIDAS = ["incidencias", "resumen_calidad", "filas_rechazadas", "nulos_por_columna", "estado_ejecucion"]
 
 
+# Numero de filas de cada tabla
 def contar(tablas):
     return {nombre: len(tabla) for nombre, tabla in tablas.items()}
 
 
+# Fecha de corte de stock.csv, como texto
 def fecha_corte(datos):
     if "stock" not in datos or datos["stock"]["fecha_corte"].isna().all():
         return "desconocida: no se ha podido leer stock.csv"
     return datos["stock"]["fecha_corte"].max().strftime(config.FORMATO_FECHA)
 
 
+# Metadatos de un DataFrame: funcion, fecha de corte, reglas, filtros y filas de origen
 def fila(nombre, filas_resultado, corte, entradas, clase, texto_filtros):
     funcion, tablas, reglas, _ = DATAFRAMES[nombre]
     partes = []
@@ -150,6 +155,7 @@ def fila(nombre, filas_resultado, corte, entradas, clase, texto_filtros):
             "filtros": texto_filtros, "filas_origen": "; ".join(partes), "filas_resultado": filas_resultado}
 
 
+# Tabla de metadatos de todos los CSV guardados, sin filtros
 def tabla(guardados, datos, validos):
     corte = fecha_corte(datos)
     leidas = contar(datos)
@@ -166,6 +172,7 @@ def tabla(guardados, datos, validos):
     return resultado
 
 
+# Filtros del dashboard que se aplican a un DataFrame, segun su alcance
 def filtros_que_usa(nombre, elegidos):
     alcance = DATAFRAMES[nombre][3]
     if alcance == TODOS:
@@ -175,12 +182,14 @@ def filtros_que_usa(nombre, elegidos):
     return dict(filtros.SIN_FILTROS)
 
 
+# Texto de los filtros que se han aplicado a un DataFrame
 def texto_filtros(nombre, elegidos):
     if DATAFRAMES[nombre][3] == NINGUNO:
         return "ninguno (resultado global)"
     return filtros.describir(filtros_que_usa(nombre, elegidos))
 
 
+# Metadatos de un DataFrame descargado desde el dashboard, con sus filtros
 def del_dashboard(nombre, filas_resultado, datos, validos, elegidos):
     usados = filtros_que_usa(nombre, elegidos)
     filtrados = filtros.filtrar_validos(validos, usados)

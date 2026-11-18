@@ -7,6 +7,7 @@ from sklearn.preprocessing import StandardScaler
 import config
 from analiticas import NO_CALCULABLE, cruzar, de_venta, no_calculable
 
+# Segmento de los clientes sin ningun pedido de venta
 SIN_COMPRAS = "Sin compras válidas"
 
 # Que significa cada segmento y para que sirve (en el orden en que se aplican las reglas)
@@ -20,6 +21,7 @@ SEGMENTOS = {
 }
 
 
+# RFM de cada cliente con sus pedidos de venta hasta la fecha de corte
 def rfm(pedidos_unicos, clientes, fecha_corte):
     venta = de_venta(pedidos_unicos)
     venta = venta[venta["fecha_pedido"] <= fecha_corte]   # nunca pedidos posteriores al corte
@@ -39,6 +41,7 @@ def rfm(pedidos_unicos, clientes, fecha_corte):
     return puntuar(tabla)
 
 
+# Puntuacion de 1 a 5 por quintiles
 def quintil(valores, de_mayor_a_menor):
     if de_mayor_a_menor:
         etiquetas = [5, 4, 3, 2, 1]
@@ -49,10 +52,12 @@ def quintil(valores, de_mayor_a_menor):
     return pd.qcut(posiciones, 5, labels=etiquetas).astype(int)
 
 
+# Puntuaciones R, F y M de 1 a 5 y segmento de cada cliente
 def puntuar(tabla):
     con_compras = tabla["frequency"] > 0
     for columna in ["r_score", "f_score", "m_score"]:
         tabla[columna] = pd.Series(pd.NA, index=tabla.index, dtype="Int64")   # entero que admite vacio
+    # Con muy pocos clientes con compras no se reparten quintiles
     if con_compras.sum() < config.MINIMO_CLIENTES_RFM:
         tabla["segmento"] = np.where(con_compras, f"{NO_CALCULABLE}: menos de {config.MINIMO_CLIENTES_RFM} "
                                      "clientes con compras", SIN_COMPRAS)
@@ -66,6 +71,7 @@ def puntuar(tabla):
     return tabla
 
 
+# Reglas de los segmentos, en el mismo orden que SEGMENTOS
 def segmento(fila):
     if fila["frequency"] == 0:
         return SIN_COMPRAS
@@ -81,6 +87,7 @@ def segmento(fila):
     return "Ocasionales"
 
 
+# Una fila por segmento: clientes, medias de R y F, importe y para que sirve
 def resumen_segmentos(tabla_rfm):
     segmentos = dict(SEGMENTOS)
     # Si RFM no se ha podido calcular, sale tambien esa fila
@@ -120,6 +127,7 @@ def resumen_segmentos(tabla_rfm):
 
 # KMeans
 
+# R, F y M estandarizados; F y M con logaritmo para quitar peso a los clientes muy grandes
 def variables_kmeans(compradores):
     variables = pd.DataFrame({
         "recency_dias": compradores["recency_dias"].astype(float),
@@ -132,6 +140,7 @@ def variables_kmeans(compradores):
     return StandardScaler().fit_transform(variables)
 
 
+# KMeans de los clientes con compras: prueba varios k y se queda el de mayor silhouette
 def kmeans_clientes(tabla_rfm):
     compradores = tabla_rfm[tabla_rfm["frequency"] > 0].copy()
     tabla = tabla_rfm.copy()
@@ -141,6 +150,7 @@ def kmeans_clientes(tabla_rfm):
                   f"{len(compradores)}: los grupos no significarian nada")
         return no_calculable(motivo), no_calculable(motivo), tabla
 
+    # Silhouette e inercia de cada k
     datos = variables_kmeans(compradores)
     filas = []
     for k in config.KMEANS_K:
@@ -156,6 +166,7 @@ def kmeans_clientes(tabla_rfm):
     mejor_k = int(ordenada["k"].iloc[0])
     seleccion["elegido"] = seleccion["k"] == mejor_k
 
+    # Modelo final con el k elegido
     modelo = KMeans(n_clusters=mejor_k, random_state=config.SEMILLA, n_init=10).fit(datos)
     compradores["cluster"] = modelo.labels_
     # Los numeros de KMeans no significan nada: se renumeran de mas a menos importe medio
@@ -169,6 +180,7 @@ def kmeans_clientes(tabla_rfm):
     return seleccion, describir_clusters(compradores), tabla
 
 
+# Nombre de cada grupo: sus medias comparadas con las medianas de todos los compradores
 def describir_clusters(compradores):
     mediana_r = compradores["recency_dias"].median()
     mediana_f = compradores["frequency"].median()
@@ -210,6 +222,7 @@ def describir_clusters(compradores):
     return pd.DataFrame(filas)
 
 
+# Clientes de cada segmento RFM en cada grupo de KMeans
 def comparar_rfm_kmeans(tabla_con_cluster):
     compradores = tabla_con_cluster[tabla_con_cluster["cluster"].notna()]
     if len(compradores) == 0:
@@ -220,6 +233,7 @@ def comparar_rfm_kmeans(tabla_con_cluster):
     return tabla.reset_index()
 
 
+# RFM y KMeans de una vez
 def segmentar_clientes(pedidos_unicos, clientes, fecha_corte):
     tabla_rfm = rfm(pedidos_unicos, clientes, fecha_corte)
     resumen = resumen_segmentos(tabla_rfm)

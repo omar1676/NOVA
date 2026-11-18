@@ -15,15 +15,18 @@ from analiticas import NO_CALCULABLE
 from test_calidad import PruebaCalidad
 from test_pipeline import VALIDOS
 
+# Un pedido nuevo (P-3) y sus dos lineas, para la prueba R1
 PEDIDO_NUEVO = "12,P-3,1,2026-11-05 10:00:00,normal,confirmado,pagado,,3,239.97\n"
 LINEAS_NUEVAS = "103,12,M1-40,1,40,1,79.99,79.99\n104,12,M1-41,1,41,2,79.99,159.98\n"
 
 
+# Valor de un KPI en lo publicado por un ciclo
 def valor(estado, codigo):
     tabla = estado["publicado"]["kpis"]
     return tabla.loc[tabla["codigo"] == codigo, "valor"].iloc[0]
 
 
+# Base: la carpeta de prueba y un registro de eventos en otra carpeta temporal
 class PruebaCiclo(PruebaCalidad):
 
     def setUp(self):
@@ -39,8 +42,10 @@ class PruebaCiclo(PruebaCalidad):
         return actualizacion.ciclo(self.carpeta, anterior, operacion, self.archivo_registro)
 
 
+# Ciclo de 60 s: pruebas R1 a R5 y casos de error
 class PruebasCiclo(PruebaCiclo):
 
+    # El primer ciclo publica: 2 pedidos y 12 filas validas
     def test_primer_ciclo_publica(self):
         estado = self.ciclo()
         self.assertEqual(estado["estado"], actualizacion.CORRECTO)
@@ -50,6 +55,7 @@ class PruebasCiclo(PruebaCiclo):
         self.assertEqual(len(estado["version"]), 8)
         self.assertEqual(estado["publicado"]["actualizado"], estado["comprobado"])
 
+    # R5: sin tocar nada sale SIN CAMBIOS, aunque se vuelve a calcular todo
     def test_sin_cambios_R5(self):
         primero = self.ciclo()
         time.sleep(1.1)
@@ -60,12 +66,14 @@ class PruebasCiclo(PruebaCiclo):
         self.assertIsNot(segundo["publicado"], primero["publicado"])               # se ha vuelto a calcular
         pd.testing.assert_frame_equal(segundo["publicado"]["kpis"], primero["publicado"]["kpis"])
 
+    # Mismo contenido con otra fecha: la version sale del contenido, no de la fecha
     def test_reexportar_lo_mismo_no_es_un_cambio(self):
         primero = self.ciclo()
         self.escribir("pedidos.csv", VALIDOS["pedidos.csv"])               # mismo contenido, fecha nueva
         os.utime(self.carpeta / "pedidos.csv", (time.time() + 5, time.time() + 5))
         self.assertEqual(self.ciclo(primero)["estado"], actualizacion.SIN_CAMBIOS)
 
+    # R1: un pedido nuevo se suma una sola vez a los KPIs
     def test_pedido_nuevo_R1(self):
         primero = self.ciclo()
         self.anadir("pedidos.csv", PEDIDO_NUEVO)
@@ -78,6 +86,7 @@ class PruebasCiclo(PruebaCiclo):
         self.assertAlmostEqual(valor(segundo, "K07"), valor(primero, "K07") + 239.97, places=2)
         self.assertEqual(len(segundo["publicado"]["tablas"]["pedidos_unicos"]), 3)
 
+    # R2: cancelar un pedido baja la venta, pero sigue como pedido registrado
     def test_cancelacion_R2(self):
         primero = self.ciclo()
         self.cambiar("pedidos.csv", "normal,confirmado,pagado", "normal,cancelado,reembolsado")
@@ -87,6 +96,7 @@ class PruebasCiclo(PruebaCiclo):
         self.assertEqual(valor(segundo, "K01"), valor(primero, "K01"))  # el pedido sigue en la actividad
         self.assertEqual(valor(segundo, "K03"), 2)
 
+    # Sin ventas, la conclusion de RFM sale NO CALCULABLE
     def test_sin_ninguna_venta(self):
         # Cancelado el unico pedido confirmado, no queda ningun cliente con compras
         self.cambiar("pedidos.csv", "normal,confirmado,pagado", "normal,cancelado,reembolsado")
@@ -95,6 +105,7 @@ class PruebasCiclo(PruebaCiclo):
         conclusiones = estado["publicado"]["informe"].set_index("numero")
         self.assertTrue(conclusiones.loc[3, "evidencia"].startswith(f"{NO_CALCULABLE}: 0 cliente(s)"))
 
+    # R3: un cambio de stock cambia K16 y K17
     def test_cambio_de_stock_R3(self):
         primero = self.ciclo()
         self.assertEqual(valor(primero, "K17"), 2)                      # M1-40 (5) y M1-41 (0)
@@ -103,6 +114,7 @@ class PruebasCiclo(PruebaCiclo):
         self.assertEqual(valor(segundo, "K17"), 1)
         self.assertEqual(valor(segundo, "K16"), valor(primero, "K16") + 45)
 
+    # R4: si falta un CSV se conserva lo ultimo valido, y se recupera al volver el archivo
     def test_csv_ausente_R4_y_recuperacion(self):
         primero = self.ciclo()
         (self.carpeta / "pedidos.csv").unlink()
@@ -119,6 +131,7 @@ class PruebasCiclo(PruebaCiclo):
         self.assertFalse(tercero["desactualizado"])
         self.assertIn(tercero["estado"], [actualizacion.CORRECTO, actualizacion.SIN_CAMBIOS])
 
+    # CSV sin la columna clave: error de carga y lo anterior queda desactualizado
     def test_csv_corrupto(self):
         primero = self.ciclo()
         self.escribir("pedidos.csv", VALIDOS["pedidos.csv"].replace("id_pedido,", "", 1))   # sin columna clave
@@ -127,12 +140,14 @@ class PruebasCiclo(PruebaCiclo):
         self.assertTrue(segundo["desactualizado"])
         self.assertIn("bloqueantes", segundo["mensaje"])
 
+    # Una linea de un pedido que no existe bloquea: no se publica nada
     def test_clave_huerfana_no_publica(self):
         self.anadir("lineas_pedido.csv", "103,99,M1-40,1,40,1,79.99,79.99\n")
         estado = self.ciclo()
         self.assertEqual(estado["estado"], actualizacion.DATOS_INVALIDOS)
         self.assertIsNone(estado["publicado"])                          # ninguna cifra
 
+    # Un CSV de hace dos dias da los dos avisos: exportacion antigua y minutos de diferencia
     def test_avisos_de_exportacion_antigua_o_incompleta(self):
         hace_dos_dias = time.time() - 2 * 24 * 3600
         os.utime(self.carpeta / "pedidos.csv", (hace_dos_dias, hace_dos_dias))
@@ -140,6 +155,7 @@ class PruebasCiclo(PruebaCiclo):
         self.assertIn("Exportación antigua", avisos)
         self.assertIn("minutos de diferencia", avisos)
 
+    # El ciclo no cambia ningun archivo de la carpeta de entrada
     def test_no_escribe_en_la_entrada(self):
         def huellas():
             return {ruta.name: hashlib.sha256(ruta.read_bytes()).hexdigest() for ruta in self.carpeta.iterdir()}
@@ -148,6 +164,7 @@ class PruebasCiclo(PruebaCiclo):
         self.ciclo(estado)
         self.assertEqual(huellas(), antes)
 
+    # Con tan pocos datos, KMeans, la prediccion y sus conclusiones son NO CALCULABLE
     def test_datos_insuficientes(self):
         publicado = self.ciclo()["publicado"]
         self.assertEqual(publicado["segmentacion"]["kmeans_clusters"]["estado"].iloc[0], NO_CALCULABLE)
@@ -159,8 +176,10 @@ class PruebasCiclo(PruebaCiclo):
                         .startswith(NO_CALCULABLE))
 
 
+# Cambio de origen de los datos
 class PruebasOrigenes(PruebaCiclo):
 
+    # Pasar de la prueba a los sinteticos no hereda nada de la otra carpeta
     def test_cambio_de_origen_no_mezcla(self):
         prueba = self.ciclo()
         with tempfile.TemporaryDirectory() as temporal:
@@ -172,6 +191,7 @@ class PruebasOrigenes(PruebaCiclo):
         self.assertEqual(valor(prueba, "K01"), 2)
         self.assertNotEqual(otro["version"], prueba["version"])
 
+    # Los sinteticos con errores tienen bloqueantes: no se publica nada
     def test_sinteticos_con_errores_bloquean(self):
         with tempfile.TemporaryDirectory() as temporal:
             con_errores, _ = generador_datos.introducir_errores(generador_datos.generar(config.SEMILLA))
@@ -182,8 +202,10 @@ class PruebasOrigenes(PruebaCiclo):
         self.assertGreater((estado["calidad"]["incidencias"]["gravedad"] == "bloqueante").sum(), 0)
 
 
+# Registro de eventos
 class PruebasRegistro(PruebaCiclo):
 
+    # Tres ciclos: tres filas en un solo CSV, sin rutas ni datos de clientes
     def test_una_fila_por_ciclo_en_un_solo_archivo(self):
         estado = self.ciclo(operacion="carga inicial del origen")
         estado = self.ciclo(estado, operacion="comprobación automática (60 s)")
@@ -204,13 +226,16 @@ class PruebasRegistro(PruebaCiclo):
         self.assertNotIn(str(Path.home()), texto)
         self.assertNotIn("Nuria", texto)
 
+    # Un salto de linea en el detalle pasa a ser un espacio
     def test_detalle_en_una_linea(self):
         registro.anotar(self.archivo_registro, operacion="prueba", detalle="linea uno\nlinea dos")
         self.assertEqual(registro.leer(self.archivo_registro)["detalle"].iloc[0], "linea uno linea dos")
 
 
+# Informe ejecutivo
 class PruebasInforme(PruebaCiclo):
 
+    # Con los sinteticos: cinco conclusiones calculables, con su procedencia
     def test_cinco_conclusiones_con_procedencia(self):
         with tempfile.TemporaryDirectory() as temporal:
             sinteticos = generador_datos.guardar(generador_datos.generar(config.SEMILLA), Path(temporal), "test")
@@ -228,6 +253,7 @@ class PruebasInforme(PruebaCiclo):
         metricas = publicado["prediccion"]["metricas_prediccion"].set_index("metodo")
         self.assertIn(f"MAE {informe.numero(metricas.loc['baseline', 'mae'], 2)}", conclusiones["evidencia"][4])
 
+    # Prioridad, impacto esperado y tabla que sustenta cada conclusion
     def test_prioridad_impacto_y_sustento(self):
         with tempfile.TemporaryDirectory() as temporal:
             sinteticos = generador_datos.guardar(generador_datos.generar(config.SEMILLA), Path(temporal), "test")
@@ -252,6 +278,7 @@ class PruebasInforme(PruebaCiclo):
             self.assertGreater(len(fila["impacto_esperado"]), 20)
             self.assertIn(".csv", fila["sustento"])                     # la tabla que la sustenta
 
+    # Una conclusion sin datos tiene urgencia baja
     def test_sin_datos_la_urgencia_es_baja(self):
         self.escribir(config.ARCHIVO_ORIGEN, "Tipo: PRUEBA\nbase de prueba\n")
         conclusiones = self.ciclo()["publicado"]["informe"].set_index("numero")
@@ -260,6 +287,7 @@ class PruebasInforme(PruebaCiclo):
         self.assertEqual(set(sin_datos["urgencia"]), {"baja"})
         self.assertTrue(sin_datos["impacto_esperado"].str.startswith("Ninguno todavía").all())
 
+    # Con datos de PRUEBA, las conclusiones lo dicen y no hablan de datos reales
     def test_datos_de_prueba_se_dicen_de_prueba(self):
         self.escribir(config.ARCHIVO_ORIGEN, "Tipo: PRUEBA\nbase de prueba\n")
         conclusiones = self.ciclo()["publicado"]["informe"]
@@ -267,6 +295,7 @@ class PruebasInforme(PruebaCiclo):
         self.assertTrue(conclusiones["limitacion"].str.contains("no son ventas reales").all())
         self.assertFalse(conclusiones["procede_de"].str.contains("reales").any())
 
+    # Numeros con punto de miles y coma decimal
     def test_formato_espanol(self):
         self.assertEqual(informe.numero(1234.5, 1), "1.234,5")
         self.assertEqual(informe.numero(831377.51, 2), "831.377,51")

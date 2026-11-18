@@ -9,15 +9,19 @@ import visualizaciones
 from test_analiticas import SQL_CORRECTOS
 from test_tablas import PruebaTablas
 
+# Primeros bytes de cualquier archivo PNG
 FIRMA_PNG = b"\x89PNG\r\n\x1a\n"
 
 
+# Los 10 graficos de analisis
 class PruebasGraficos(PruebaTablas):
 
+    # Genera los graficos en una carpeta temporal
     def generar(self):
         salida = self.carpeta / "graficos"
         return visualizaciones.generar_todos(self.tablas(), salida, "pie de prueba"), salida
 
+    # Salen los 10 PNG y no estan vacios
     def test_salen_los_diez_png(self):
         rutas, salida = self.generar()
         self.assertEqual(len(rutas), 10)
@@ -27,6 +31,7 @@ class PruebasGraficos(PruebaTablas):
                 self.assertTrue(ruta.read_bytes().startswith(FIRMA_PNG))
                 self.assertGreater(ruta.stat().st_size, 10000)
 
+    # Cada grafico responde una pregunta distinta y estan todos los tipos pedidos
     def test_cada_grafico_es_de_un_tipo_distinto_o_responde_otra_pregunta(self):
         preguntas = [g[2] for g in visualizaciones.GRAFICOS]
         self.assertEqual(len(set(preguntas)), len(preguntas))
@@ -35,6 +40,7 @@ class PruebasGraficos(PruebaTablas):
                      "dispersión", "comparativa por segmento"]:
             self.assertIn(tipo, tipos)
 
+    # Sin lineas tambien salen los 10 PNG
     def test_sin_datos_no_falla(self):
         self.vaciar_lineas()
         rutas, _ = self.generar()
@@ -43,23 +49,28 @@ class PruebasGraficos(PruebaTablas):
             self.assertTrue(ruta.read_bytes().startswith(FIRMA_PNG))
 
 
+# main.py de principio a fin con los CSV de prueba
 class PruebasEjecucionCompleta(PruebaTablas):
 
+    # Ejecuta main.py sin escribir nada en la consola
     def ejecutar(self):
         salida = self.carpeta / "salida"
         with contextlib.redirect_stdout(io.StringIO()):
             codigo = main.ejecutar(self.carpeta, salida)
         return codigo, salida
 
+    # Escribe los resultados SQL (con los cambios que se pidan)
     def escribir_sql(self, cambios=None):
         carpeta_sql = self.carpeta / config.CARPETA_SQL
         carpeta_sql.mkdir(exist_ok=True)
         for archivo, texto in {**SQL_CORRECTOS, **(cambios or {})}.items():
             (carpeta_sql / archivo).write_text(texto, encoding="utf-8")
 
+    # Lee un CSV de la salida como texto
     def leer(self, salida, archivo):
         return pd.read_csv(salida / archivo, encoding="utf-8", dtype=str, keep_default_na=False)
 
+    # Con SQL que cuadra: CORRECTO, 20 KPIs, 10 graficos y sin nombres de clientes
     def test_ejecucion_correcta(self):
         self.escribir_sql()
         codigo, salida = self.ejecutar()
@@ -74,6 +85,7 @@ class PruebasEjecucionCompleta(PruebaTablas):
         self.assertNotIn("nombre_cliente", self.leer(salida, "pedidos_unicos.csv").columns)
         self.assertEqual(self.leer(salida, "kpis.csv")["origen"].iloc[0], "DESCONOCIDO (no hay línea 'Tipo:' en ORIGEN.txt)")
 
+    # Con bloqueantes solo se guardan las incidencias y el estado
     def test_datos_bloqueados_no_publican_nada(self):
         self.anadir("lineas_pedido.csv", "103,99,M1-40,1,40,1,79.99,79.99\n")   # linea huerfana
         codigo, salida = self.ejecutar()
@@ -84,6 +96,7 @@ class PruebasEjecucionCompleta(PruebaTablas):
         self.assertFalse((salida / "modelos_abc.csv").exists())
         self.assertFalse((salida / "graficos").exists())
 
+    # metadatos_dataframes.csv describe cada CSV guardado
     def test_metadatos_de_cada_dataframe(self):
         self.escribir_sql()
         _, salida = self.ejecutar()
@@ -103,6 +116,7 @@ class PruebasEjecucionCompleta(PruebaTablas):
         # Se enlaza con cada CSV por su ejecucion
         self.assertEqual(set(tabla["ejecucion"]), set(self.leer(salida, "kpis.csv")["ejecucion"]))
 
+    # Con datos bloqueados, los metadatos solo describen los CSV de calidad
     def test_metadatos_tambien_con_datos_bloqueados(self):
         self.anadir("lineas_pedido.csv", "103,99,M1-40,1,40,1,79.99,79.99\n")   # linea huerfana
         _, salida = self.ejecutar()
@@ -111,6 +125,7 @@ class PruebasEjecucionCompleta(PruebaTablas):
                                                     "resumen_calidad.csv"])
         self.assertTrue(tabla["filas_origen"].str.contains("lineas_pedido: 4 leídas").all())
 
+    # Si una cifra no cuadra con SQL, el estado es NO CUADRA CON SQL
     def test_si_no_cuadra_con_sql_lo_dice(self):
         self.escribir_sql({"P-A.csv": "pedidos,pares_solicitados,importe_ventas\n1,3,240.00\n"})
         codigo, salida = self.ejecutar()
