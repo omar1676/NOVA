@@ -134,6 +134,9 @@ py -3.13 -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
+Con otra versión de Python 3.12 o superior, se cambia `-3.13` por la que se tenga
+(por ejemplo `py -3.12`). Para ver las que hay instaladas: `py --list`.
+
 El entorno `.venv/` es de cada uno y Git lo ignora (`.gitignore` de esta carpeta).
 Los comandos de abajo usan `.venv\Scripts\python.exe` directamente, así no hace
 falta activar el entorno.
