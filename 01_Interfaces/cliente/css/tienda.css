@@ -1,3 +1,6 @@
+/* tienda.css: estilos de la tienda online (barra de cuenta, compra, carrito, pedido y Mis pedidos) */
+
+/* [hidden] siempre oculta, aunque la clase del elemento ponga display: flex o grid */
 .barra-tienda [hidden],
 .ficha__info [hidden],
 .acceso [hidden],
@@ -5,10 +8,12 @@
   display: none !important;
 }
 
+/* Portada: ocupa la pantalla menos las barras de arriba */
 .escaparate {
   min-height: calc(100vh - 112px);
 }
 
+/* Barra superior de la tienda: saludo, cuenta y carrito */
 .barra-tienda {
   display: flex;
   justify-content: flex-end;
@@ -48,6 +53,7 @@
   color: var(--brillo);
 }
 
+/* Estado de cada tarjeta del catalogo: disponible, agotado o no disponible */
 .catalogo__datos .catalogo__estado {
   order: 4;
   width: 100%;
@@ -66,6 +72,7 @@
   color: #e4ddd9;
 }
 
+/* Ficha del producto: aviso y bloque de compra */
 .ficha__aviso {
   margin: 0 0 16px;
   padding: 10px 12px;
@@ -102,6 +109,7 @@
   text-transform: none;
 }
 
+/* Muestras de color y tallas: un radio invisible encima de cada opcion */
 .compra__colores {
   display: flex;
   flex-wrap: wrap;
@@ -139,6 +147,7 @@
   outline-offset: 7px;
 }
 
+/* Cuadricula de tallas (las agotadas salen tachadas) */
 .compra__tallas {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
@@ -182,10 +191,12 @@
   text-decoration: line-through;
 }
 
+/* Falta elegir talla: borde de error en las que se pueden elegir */
 .compra__grupo.compra__grupo--error .compra__talla input:not(:disabled) + b {
   border-color: #f2a38d;
 }
 
+/* Aviso de stock con un punto de color (quedan, pocos o agotado) */
 .ficha__info .compra__stock {
   display: flex;
   align-items: baseline;
@@ -212,6 +223,7 @@
   background: #f2a38d;
 }
 
+/* Cantidad: botones - y + con el campo en medio */
 .compra__cantidad {
   display: flex;
   align-items: center;
@@ -267,6 +279,7 @@
   box-shadow: inset 0 0 0 2px #f2a38d;
 }
 
+/* Boton de anadir al carrito y mensajes de la ficha */
 .ficha__info .compra__boton {
   justify-content: center;
   margin-top: 16px;
@@ -313,6 +326,7 @@
   color: #f6b3a1;
 }
 
+/* Acceso y registro, y botones con aspecto de enlace */
 .acceso__pie {
   margin: 16px 0 0;
   font-size: 0.78rem;
@@ -343,6 +357,7 @@
   color: white;
 }
 
+/* Dialogos de la tienda (registro, carrito, pedido y Mis pedidos) */
 dialog.tienda {
   width: min(760px, 94vw);
 }
@@ -382,6 +397,7 @@ dialog.tienda {
 .boton--secundario:hover {
   background: #ffffff14;
 }
+/* Listas sin vinetas y avisos del carrito */
 .carrito__lista,
 .carrito__avisos,
 .pedidos__lista,
@@ -396,6 +412,7 @@ dialog.tienda {
   font-size: 0.78rem;
 }
 
+/* Linea del carrito: foto, datos, cantidad, subtotal y quitar */
 .carrito__linea {
   display: grid;
   grid-template-columns: 72px 1fr auto auto auto;
@@ -439,6 +456,7 @@ dialog.tienda {
 .carrito__linea .enlace-boton {
   grid-area: quitar;
 }
+/* Pie del carrito con el total estimado */
 .carrito__pie {
   margin-top: 18px;
 }
@@ -454,6 +472,7 @@ dialog.tienda {
   font-size: 1.3rem;
 }
 
+/* Pedido (checkout): pasos, datos de entrega, tabla y pago simulado */
 .checkout__pasos {
   display: flex;
   flex-wrap: wrap;
@@ -540,6 +559,7 @@ dialog.tienda {
   font-size: 1.5rem;
   font-weight: bold;
 }
+/* Texto solo para lectores de pantalla: no se ve, pero se lee */
 .solo-lector {
   position: absolute;
   width: 1px;
@@ -549,6 +569,7 @@ dialog.tienda {
   white-space: nowrap;
 }
 
+/* Mis pedidos: cabecera, estado con su color y lineas del detalle */
 .pedido {
   padding: 12px 0;
   border-bottom: 1px solid #ffffff1f;
@@ -585,6 +606,7 @@ dialog.tienda {
   font-size: 0.78rem;
 }
 
+/* Pantallas de hasta 760 px (moviles y tablets) */
 @media (max-width: 760px) {
   .barra-tienda {
     gap: 16px;
@@ -616,6 +638,7 @@ dialog.tienda {
     justify-self: start;
   }
 }
+/* Moviles muy estrechos */
 @media (max-width: 370px) {
   .barra-tienda {
     gap: 12px;

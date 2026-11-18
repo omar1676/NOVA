@@ -1,28 +1,16 @@
-// tienda.js — la tienda online de NOVA Sneakers.
-//
-// Qué hace este archivo:
-//   1. Pide al servidor el catálogo real: precio, colores, tallas y stock de
-//      PostgreSQL. Con eso marca qué modelos de la web se pueden comprar.
-//   2. En la ficha: elegir color, talla y cantidad, y añadir al carrito.
-//   3. El carrito se guarda en el navegador (localStorage) con SOLO el SKU y
-//      la cantidad. El precio se vuelve a leer siempre del servidor.
-//   4. La cuenta: registro, inicio de sesión (el diálogo de Álvaro) y salir.
-//   5. El pedido en tres pasos: entrega -> pago simulado -> resultado.
-//   6. Mis pedidos: el historial del cliente.
-//
-// Lo que manda lo deciden el servidor (servidor-admin/tienda.js) y
-// PostgreSQL: el precio y el total del pedido, el stock y de quién es cada
-// pedido. El total del carrito que se calcula aquí es solo una estimación
-// para enseñarla.
-//
-// Usa funciones y variables de inicio.js (formatoPrecio, mostrarCatalogo,
-// mostrarDatosCompra, dialogo, modeloSeleccionado y las del diálogo de
-// acceso) y la lista "modelos" de modelos.js.
+// tienda.js — la tienda online: catálogo real, ficha, carrito, cuenta, pedido y «Mis pedidos».
+// Precio, total, stock y dueño de cada pedido los deciden el servidor (servidor-admin/tienda.js) y
+// PostgreSQL: el total del carrito que se calcula aquí es solo una estimación para enseñarla.
 
+// Viene de inicio.js: formatoPrecio, mostrarCatalogo, mostrarDatosCompra, dialogo, modeloSeleccionado
+// y el diálogo de acceso de Álvaro. La lista "modelos" viene de modelos.js.
+
+// Configuración
 const API_TIENDA = "/api/tienda";
 const CLAVE_CARRITO = "nova_carrito"; // nombre en localStorage
 const MAXIMO_POR_TALLA = 10;
 const MAXIMO_PRODUCTOS = 20;
+// Cómo se enseña cada estado del pedido en «Mis pedidos»
 const NOMBRES_ESTADO = {
   pendiente: "Pendiente de pago",
   confirmado: "Confirmado",
@@ -32,6 +20,7 @@ const NOMBRES_ESTADO = {
   cancelado: "Cancelado",
 };
 
+// Estado de la página
 let catalogoTienda = null; // nombre del modelo -> datos de la base (null = sin servidor)
 let productosTienda = new Map(); // sku -> { modelo, color, precio, talla, stock }
 let clienteActual = null; // { nombre, email, telefono, direccion } o null
@@ -74,6 +63,7 @@ async function pedirTienda(ruta, metodo = "GET", cuerpo) {
   return datos;
 }
 
+// Enseña un mensaje de error en ese elemento
 function mostrarErrorEn(elemento, mensaje) {
   elemento.textContent = mensaje;
   elemento.hidden = false;
@@ -82,6 +72,8 @@ function mostrarErrorEn(elemento, mensaje) {
 // ---------------------------------------------------------------------
 // 1. Catálogo real
 // ---------------------------------------------------------------------
+
+// Pide el catálogo (precio, colores, tallas y stock de PostgreSQL) y vuelve a pintar la web con él
 async function cargarCatalogoTienda() {
   try {
     const datos = await pedirTienda("/catalogo");
@@ -127,6 +119,8 @@ function datosEnTienda(modelo) {
 // ---------------------------------------------------------------------
 // 2. La ficha: color, talla, cantidad y "Añadir al carrito"
 // ---------------------------------------------------------------------
+
+// Elementos de la ficha
 const bloqueCompra = document.querySelector("#compra");
 const avisoCompra = document.querySelector("#compra-aviso");
 const opcionesColor = document.querySelector("#compra-colores");
@@ -239,9 +233,8 @@ function crearMuestra(color, indice, marcada) {
   return etiqueta;
 }
 
-// Una talla: un radio transparente sobre su número (un botón de la cuadrícula).
-// Su valor es el SKU. Si está agotada, va desactivada y el lector de pantalla
-// lo dice.
+// Una talla: un radio transparente sobre su número; su valor es el SKU.
+// Si está agotada, va desactivada y el lector de pantalla lo dice.
 function crearTalla(talla) {
   const agotada = talla.stock === 0;
   const etiqueta = document.createElement("label");
@@ -258,11 +251,13 @@ function crearTalla(talla) {
   return etiqueta;
 }
 
+// El color marcado (o el primero, si no hay ninguno)
 function varianteElegida() {
   const marcada = opcionesColor.querySelector("input:checked");
   return modeloEnFicha.variantes[Number(marcada ? marcada.value : 0)];
 }
 
+// Pinta el precio y las tallas del color elegido y vuelve a poner la cantidad en 1
 function pintarTallas() {
   const variante = varianteElegida();
   document.querySelector("#detalle-precio").textContent = formatoPrecio(variante.precio);
@@ -278,6 +273,7 @@ function pintarTallas() {
   actualizarBotonesCantidad();
 }
 
+// El SKU de la talla marcada, o null
 function tallaElegida() {
   const marcada = opcionesTalla.querySelector("input:checked");
   return marcada ? Number(marcada.value) : null;
@@ -313,6 +309,7 @@ function revisarTallaElegida() {
   actualizarBotonesCantidad();
 }
 
+// Al cambiar de color o de talla
 opcionesColor.addEventListener("change", () => {
   limpiarAvisos();
   pintarTallas();
@@ -335,6 +332,7 @@ function actualizarBotonesCantidad() {
   );
 }
 
+// Suma o resta un par con los botones − y +
 function cambiarCantidad(paso) {
   if (campoCantidad.disabled) return;
   const valor = Number(campoCantidad.value);
@@ -344,6 +342,7 @@ function cambiarCantidad(paso) {
   actualizarBotonesCantidad();
 }
 
+// Botones − y + y el campo de cantidad
 botonMenos.addEventListener("click", () => cambiarCantidad(-1));
 botonMas.addEventListener("click", () => cambiarCantidad(1));
 campoCantidad.addEventListener("input", () => {
@@ -363,12 +362,14 @@ function errorEnCantidad(texto) {
   campoCantidad.setAttribute("aria-invalid", "true");
 }
 
+// El mensaje de debajo del botón; si todo ha ido bien, enseña también el botón del carrito
 function avisarEnFicha(texto, esError = false) {
   mensajeAnadir.textContent = texto;
   mensajeAnadir.classList.toggle("compra__mensaje--error", esError);
   botonVerCarrito.hidden = !texto || esError;
 }
 
+// Borra los errores y mensajes de la ficha
 function limpiarAvisos() {
   errorTalla.textContent = "";
   grupoTalla.classList.remove("compra__grupo--error");
@@ -377,6 +378,7 @@ function limpiarAvisos() {
   avisarEnFicha("");
 }
 
+// «Añadir al carrito»: comprueba la talla y la cantidad y lo guarda en el carrito
 botonAnadir.addEventListener("click", () => {
   limpiarAvisos();
   const sku = tallaElegida();
@@ -424,7 +426,10 @@ botonVerCarrito.addEventListener("click", () => abrirCarrito());
 
 // ---------------------------------------------------------------------
 // 3. El carrito (localStorage)
+// Solo se guardan el SKU y la cantidad: el precio se lee siempre del servidor.
 // ---------------------------------------------------------------------
+
+// Elementos del carrito
 const dialogoCarrito = document.querySelector("#carrito");
 const listaCarrito = document.querySelector("#carrito-lista");
 const avisosDelCarrito = document.querySelector("#carrito-avisos");
@@ -450,6 +455,7 @@ function leerCarrito() {
   }
 }
 
+// Guarda el carrito en localStorage
 function guardarCarrito() {
   try {
     localStorage.setItem(CLAVE_CARRITO, JSON.stringify(carrito));
@@ -458,10 +464,12 @@ function guardarCarrito() {
   }
 }
 
+// Pares de ese SKU que ya hay en el carrito
 function cantidadEnCarrito(sku) {
   return carrito.find((l) => l.sku === sku)?.cantidad ?? 0;
 }
 
+// Total de pares del carrito
 function paresEnCarrito() {
   return carrito.reduce((suma, linea) => suma + linea.cantidad, 0);
 }
@@ -479,6 +487,7 @@ function totalEstimado() {
   );
 }
 
+// El número de pares que se ve junto al carrito en la barra
 function pintarContador() {
   contadorCarrito.textContent = `(${paresEnCarrito()})`;
 }
@@ -514,6 +523,7 @@ function revisarCarrito() {
   if (dialogoCarrito.open) pintarCarrito();
 }
 
+// Pinta los avisos, las líneas y el total estimado del carrito
 function pintarCarrito() {
   avisosDelCarrito.replaceChildren(
     ...avisosCarrito.map((texto) => {
@@ -587,6 +597,7 @@ function pintarCarrito() {
   totalCarrito.textContent = formatoPrecio(totalEstimado());
 }
 
+// Abre el diálogo del carrito, ya pintado
 function abrirCarrito() {
   pintarCarrito();
   if (!dialogoCarrito.open) dialogoCarrito.showModal();
@@ -624,6 +635,7 @@ listaCarrito.addEventListener("click", (evento) => {
   (listaCarrito.querySelector("input") || dialogoCarrito.querySelector(".cerrar"))?.focus();
 });
 
+// Vaciar el carrito
 document.querySelector("#carrito-vaciar").addEventListener("click", () => {
   carrito = [];
   guardarCarrito();
@@ -634,6 +646,7 @@ document.querySelector("#carrito-vaciar").addEventListener("click", () => {
 
 document.querySelector("#abrir-carrito").addEventListener("click", abrirCarrito);
 
+// Tramitar el pedido: sin sesión, primero hay que entrar (y después se sigue)
 botonTramitar.addEventListener("click", () => {
   if (!clienteActual) {
     despuesDeEntrar = abrirCheckout;
@@ -647,6 +660,8 @@ botonTramitar.addEventListener("click", () => {
 // ---------------------------------------------------------------------
 // 4. La cuenta: sesión, registro, inicio de sesión y salir
 // ---------------------------------------------------------------------
+
+// Elementos de la cuenta
 const saludoCuenta = document.querySelector("#barra-saludo");
 const enlaceAcceso = document.querySelector("#abrir-acceso");
 const botonMisPedidos = document.querySelector("#abrir-pedidos");
@@ -655,6 +670,7 @@ const dialogoRegistro = document.querySelector("#registro");
 const formularioRegistro = document.querySelector("#formulario-registro");
 const errorRegistro = document.querySelector("#registro-error");
 
+// Pregunta al servidor si hay un cliente dentro
 async function cargarSesion() {
   try {
     clienteActual = (await pedirTienda("/sesion")).cliente;
@@ -664,6 +680,7 @@ async function cargarSesion() {
   pintarCuenta();
 }
 
+// La barra de arriba: saludo y botones según haya sesión o no
 function pintarCuenta() {
   const dentro = Boolean(clienteActual);
   saludoCuenta.hidden = !dentro;
@@ -708,6 +725,7 @@ async function iniciarSesionCliente(email, contrasena) {
   }
 }
 
+// Registro: comprueba los campos, crea la cuenta y ya entra con sesión
 formularioRegistro.addEventListener("submit", async (evento) => {
   evento.preventDefault();
   errorRegistro.hidden = true;
@@ -772,6 +790,7 @@ for (const dialogoCuenta of [dialogoAcceso, dialogoRegistro]) {
   });
 }
 
+// Cerrar sesión
 botonSalir.addEventListener("click", async () => {
   try {
     await pedirTienda("/logout", "POST");
@@ -786,6 +805,8 @@ botonSalir.addEventListener("click", async () => {
 // ---------------------------------------------------------------------
 // 5. El pedido: entrega -> pago simulado -> resultado
 // ---------------------------------------------------------------------
+
+// Elementos del pedido
 const dialogoCheckout = document.querySelector("#checkout");
 const formularioEntrega = document.querySelector("#paso-entrega");
 const errorEntrega = document.querySelector("#entrega-error");
@@ -796,6 +817,7 @@ const botonesPago = ["#pago-aceptar", "#pago-rechazar", "#pago-cancelar"].map((i
   document.querySelector(id),
 );
 
+// Enseña uno de los tres pasos y lo marca como actual en la lista de pasos
 function mostrarPaso(paso) {
   for (const nombre of ["entrega", "pago", "resultado"]) {
     document.querySelector(`#paso-${nombre}`).hidden = nombre !== paso;
@@ -806,6 +828,7 @@ function mostrarPaso(paso) {
   });
 }
 
+// Abre el pedido en el paso 1 (entrega) con los datos del cliente
 function abrirCheckout() {
   revisarCarrito();
   if (carrito.length === 0 || !catalogoTienda) {
@@ -871,6 +894,7 @@ formularioEntrega.addEventListener("submit", async (evento) => {
   }
 });
 
+// Paso 2: la tabla del pedido con los precios y el total que ha dado el servidor
 function pintarPedidoPendiente(pedido) {
   document.querySelector("#pago-referencia").textContent = pedido.referencia;
   const cuerpo = document.querySelector("#pago-lineas");
@@ -936,9 +960,11 @@ async function pagar(resultado) {
   }
 }
 
+// Botones del pago simulado
 document.querySelector("#pago-aceptar").addEventListener("click", () => pagar("aceptado"));
 document.querySelector("#pago-rechazar").addEventListener("click", () => pagar("rechazado"));
 
+// Cancelar el pedido antes de pagar
 document.querySelector("#pago-cancelar").addEventListener("click", async () => {
   botonesPago.forEach((boton) => (boton.disabled = true));
   try {
@@ -955,6 +981,7 @@ document.querySelector("#pago-cancelar").addEventListener("click", async () => {
   }
 });
 
+// Paso 3: el resultado de la compra
 function mostrarResultado(titulo, texto) {
   const elementoTitulo = document.querySelector("#resultado-titulo");
   elementoTitulo.textContent = titulo;
@@ -963,6 +990,7 @@ function mostrarResultado(titulo, texto) {
   elementoTitulo.focus();
 }
 
+// Botones del resultado: seguir en la tienda o ver «Mis pedidos»
 document.querySelector("#resultado-seguir").addEventListener("click", () => dialogoCheckout.close());
 document.querySelector("#resultado-pedidos").addEventListener("click", () => {
   dialogoCheckout.close();
@@ -983,10 +1011,13 @@ dialogoCheckout.addEventListener("close", () => {
 // ---------------------------------------------------------------------
 // 6. Mis pedidos
 // ---------------------------------------------------------------------
+
+// Elementos de «Mis pedidos»
 const dialogoPedidos = document.querySelector("#pedidos");
 const listaPedidos = document.querySelector("#pedidos-lista");
 const estadoPedidos = document.querySelector("#pedidos-estado");
 
+// Abre «Mis pedidos» y carga el historial (sin sesión, primero hay que entrar)
 async function abrirMisPedidos() {
   if (!clienteActual) {
     despuesDeEntrar = abrirMisPedidos;
@@ -1015,6 +1046,7 @@ async function abrirMisPedidos() {
   }
 }
 
+// Una fila del historial, con su botón «Ver detalle»
 function crearFilaPedido(pedido) {
   const item = document.createElement("li");
   item.className = "pedido";
@@ -1045,6 +1077,7 @@ function crearFilaPedido(pedido) {
   return item;
 }
 
+// Abre o cierra el detalle; las líneas se piden al servidor solo la primera vez
 async function verDetallePedido(id, boton, detalle) {
   const abrir = detalle.hidden;
   detalle.hidden = !abrir;
@@ -1082,8 +1115,8 @@ async function verDetallePedido(id, boton, detalle) {
 botonMisPedidos.addEventListener("click", abrirMisPedidos);
 
 // ---------------------------------------------------------------------
-// Cerrar los diálogos de la tienda: la × y, salvo en el pedido, el fondo
-// (en el pedido no, para no cancelarlo sin querer)
+// Cerrar los diálogos de la tienda: con la × y, salvo en el pedido, pulsando
+// el fondo (en el pedido no, para no cancelarlo sin querer)
 // ---------------------------------------------------------------------
 for (const dialogoTienda of [dialogoRegistro, dialogoCarrito, dialogoCheckout, dialogoPedidos]) {
   dialogoTienda

@@ -1,7 +1,6 @@
-// Consultas del panel, basadas en los scripts 12 y 08_auditoria.sql.
-// bd.consultarSoloLectura usa READ ONLY y el rol panel_lectura del script 19.
-// Los triggers mantienen importes y stock; aqui solo se consultan y se agregan.
-// Los filtros se pasan como parametros ($1, $2...); vacio significa no filtrar.
+// consultas.js — consultas del panel, basadas en los scripts 12 y 08_auditoria.sql. Se ejecutan con
+// bd.consultarSoloLectura (READ ONLY y rol panel_lectura del script 19). Importes y stock los mantienen
+// los triggers: aqui solo se leen. Los filtros van como parametros ($1, $2...); vacio = sin filtro.
 
 // Stock bajo: MENOS de 10 unidades, como la consulta C8.
 const UMBRAL_STOCK_BAJO = 10;
@@ -67,6 +66,7 @@ async function dashboard(cliente) {
     FROM public.pedidos
     WHERE fecha_pedido::date = current_date`);
 
+  // Los 5 ultimos pedidos
   const ultimos = await cliente.query(`
     SELECT p.referencia,
            c.nombre AS cliente,
@@ -101,6 +101,8 @@ async function dashboard(cliente) {
 // 2. Pedidos (C5: estado y texto; un filtro vacio no excluye nada)
 //    El id lo usa el boton "Marcar en reparto" (POST /api/admin/pedidos/:id/reparto).
 // ---------------------------------------------------------------------
+
+// Columnas de un pedido: las usan la lista y el pedido suelto
 const COLUMNAS_PEDIDO = `
     p.id_pedido AS id,
     p.referencia,
@@ -109,6 +111,7 @@ const COLUMNAS_PEDIDO = `
     p.estado,
     p.importe_total AS total`;
 
+// Lista de pedidos, del mas reciente al mas antiguo
 async function pedidos(cliente, estado, texto) {
   const resultado = await cliente.query(`
     SELECT ${COLUMNAS_PEDIDO}
@@ -274,6 +277,7 @@ async function auditoria(cliente, accion, texto) {
 // 8. Estadisticas. Mismo criterio que P-A: los cancelados no son ventas.
 // ---------------------------------------------------------------------
 async function estadisticas(cliente) {
+  // Resumen del mes actual: ingresos, pedidos, ticket medio y pares
   const mes = await cliente.query(`
     SELECT to_char(current_date, 'MM/YYYY') AS mes,
            COALESCE(sum(importe_total), 0) AS ingresos,
@@ -284,6 +288,7 @@ async function estadisticas(cliente) {
     WHERE estado <> 'cancelado'
       AND date_trunc('month', fecha_pedido) = date_trunc('month', current_date)`);
 
+  // Ingresos de cada mes
   const ingresosPorMes = await cliente.query(`
     SELECT to_char(date_trunc('month', fecha_pedido), 'MM/YYYY') AS mes,
            sum(importe_total) AS total

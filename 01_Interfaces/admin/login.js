@@ -1,13 +1,13 @@
-// login.js — pagina de acceso del personal (la misma para todos los paneles).
-// Envia el usuario y la contrasena a /api/login. Si son correctos, el servidor
-// responde con una cookie de sesion (HttpOnly) y dice a que panel ir segun el
-// rol: el administrador, al panel de administracion; el trabajador, a su
-// portal. Lo decide el servidor: aqui solo se sigue su respuesta.
+// login.js — pagina de acceso del personal (la misma para todos los paneles). Envia usuario y
+// contrasena a /api/login; si son correctos, el servidor crea la sesion (cookie HttpOnly) y dice a que
+// panel ir segun el rol (administrador o trabajador). Lo decide el servidor: aqui solo se sigue.
 
+// Elementos de la pagina
 const formulario = document.getElementById("adm-login");
 const aviso = document.getElementById("adm-login-aviso");
 const campoContrasena = document.getElementById("adm-contrasena");
 
+// Login del personal: al enviar el formulario se llama a la API con fetch (sin recargar)
 formulario.addEventListener("submit", async function (evento) {
   evento.preventDefault();
   aviso.textContent = "";
@@ -32,7 +32,7 @@ formulario.addEventListener("submit", async function (evento) {
       return;
     }
 
-    window.location.href = cuerpo.destino;
+    window.location.href = cuerpo.destino; // el panel de su rol
   } catch (error) {
     aviso.textContent = "No se puede conectar con el servidor.";
   }

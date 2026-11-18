@@ -1,22 +1,6 @@
-// Pruebas automaticas de la tienda web (node --test, sin librerias extra).
-//
-// OJO: estas pruebas REGISTRAN CLIENTES Y CREAN PEDIDOS DE VERDAD, y gastan
-// stock. Solo se pueden lanzar contra una base DESECHABLE, montada con todos
-// los scripts (tambien el 20 y el 21). Por eso no van en "npm test" y piden
-// una variable que lo confirme. En PowerShell, desde servidor-admin:
-//   $env:PRUEBA_TIENDA_BASE_DESECHABLE = "si"
-//   npm run test:tienda
-// Si ademas se dan PRUEBA_ADMIN_USUARIO y PRUEBA_ADMIN_CLAVE (como en
-// api.test.js), se comprueba que las compras salen en el panel.
-//
-// Cada prueba usa tallas que todavia tienen sus 5 pares, asi que se puede
-// repetir varias veces sobre la misma base antes de tener que montarla otra vez.
-//
-// El recibo por correo NUNCA va a Resend de verdad: las pruebas arrancan un
-// Resend simulado en este ordenador y ponen RESEND_URL apuntando a el, con
-// una clave inventada (aunque el .env tenga la de verdad).
-// Tampoco va a Ethereal: las pruebas de CORREO_PROVEEDOR=ethereal usan un
-// transporte de Nodemailer que guarda los mensajes en memoria (sin red).
+// Pruebas de la tienda web (npm run test:tienda, aparte de npm test). OJO: registran clientes, crean
+// pedidos y gastan stock: solo con una base DESECHABLE (scripts 20 y 21) y PRUEBA_TIENDA_BASE_DESECHABLE=si.
+// El recibo nunca sale a la red: Resend y Ethereal se simulan en este ordenador (ver mas abajo).
 
 const BLOQUEO_PRUEBA_MS = 1500; // el bloqueo por intentos dura 1,5 s en las pruebas
 process.env.BLOQUEO_LOGIN_MS = String(BLOQUEO_PRUEBA_MS);
@@ -31,6 +15,8 @@ const app = require('../servidor');
 const bd = require('../bd');
 const correo = require('../correo');
 
+// Motivo para saltar las pruebas (false = se ejecutan). Con PRUEBA_ADMIN_* (como en api.test.js)
+// tambien se comprueba que las compras salen en el panel.
 const saltar = process.env.PRUEBA_TIENDA_BASE_DESECHABLE !== 'si'
   && 'crean clientes y pedidos: solo con una base desechable (PRUEBA_TIENDA_BASE_DESECHABLE=si)';
 const ADMIN = process.env.PRUEBA_ADMIN_USUARIO;
@@ -47,6 +33,7 @@ let base;
 // ---------------------------------------------------------------------
 // Resend simulado: guarda cada correo que le llega y responde segun
 // modoResend: 'bien' (200), 'error' (500) o 'cuelga' (no responde nunca).
+// Las pruebas usan una clave inventada, aunque el .env tenga la de verdad.
 // ---------------------------------------------------------------------
 const CLAVE_RESEND = 're_prueba_' + crypto.randomBytes(8).toString('hex'); // inventada
 const REMITENTE = 'NOVA Sneakers <onboarding@resend.dev>';
@@ -81,6 +68,7 @@ for (const nivel of ['log', 'error']) {
   };
 }
 
+// Antes de las pruebas: arranca el servidor y el Resend simulado, y apunta RESEND_URL a este
 test.before(async () => {
   servidor = app.listen(0, '127.0.0.1');
   await once(servidor, 'listening');
@@ -93,6 +81,7 @@ test.before(async () => {
   delete process.env.CORREO_PROVEEDOR; // Resend, el de siempre, aunque el .env diga otra cosa
 });
 
+// Al terminar: para los dos servidores y cierra las conexiones con PostgreSQL
 test.after(async () => {
   servidor.close();
   resendSimulado.closeAllConnections();
@@ -132,6 +121,7 @@ function navegador() {
   return nav;
 }
 
+// Registra un cliente nuevo y devuelve su "navegador", ya con la sesion abierta
 let contador = 0;
 async function clienteNuevo() {
   const nav = navegador();
@@ -144,12 +134,13 @@ async function clienteNuevo() {
   return nav;
 }
 
+// Paso 1 del checkout, con una clave de compra nueva
 function crearPedido(nav, lineas, extra = {}) {
   return nav.pedir('POST', '/api/tienda/pedidos', { clave: crypto.randomUUID(), lineas, direccion: DIRECCION, ...extra });
 }
 
-/// Tallas que todavia tienen sus 5 pares (y no se han usado en esta ejecucion).
-// Son las de los 12 modelos que ya se vendian; los otros 88 empiezan con 20.
+// Tallas que todavia tienen sus 5 pares (y no se han usado en esta ejecucion), asi las pruebas se pueden
+// repetir sobre la misma base. Son las de los 12 modelos que ya se vendian; los otros 88 empiezan con 20.
 let catalogo;
 const usadas = new Set();
 async function tallaLibre() {
@@ -171,6 +162,7 @@ async function tallaLibre() {
 function leer(sql, parametros) {
   return bd.consultarSoloLectura(async (c) => (await c.query(sql, parametros)).rows);
 }
+// Stock de un SKU en la base
 async function stockDe(sku) {
   const filas = await leer('SELECT cantidad FROM public.existencias WHERE id_producto_sku = $1', [sku]);
   return filas[0].cantidad;
@@ -670,6 +662,7 @@ test('tienda_nova (rol tienda_web) no puede marcar pedidos en reparto ni pasar a
 // ---------------------------------------------------------------------
 // Recibo por correo (con el Resend simulado de arriba)
 // ---------------------------------------------------------------------
+// Ayudas: esperar unos milisegundos y escribir un importe como en el recibo
 const espera = (ms) => new Promise((resolver) => setTimeout(resolver, ms));
 const euros = (valor) => Number(valor).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
 
@@ -692,6 +685,7 @@ async function lineaEnConsola(texto, ms = 3000) {
   return consola.find((linea) => linea.includes(texto));
 }
 
+// Crea un pedido y lo paga (pago aceptado)
 async function comprarYPagar(cliente, lineas, extra) {
   const pedido = (await crearPedido(cliente, lineas, extra)).datos;
   const pago = await cliente.pedir('POST', `/api/tienda/pedidos/${pedido.id}/pago`, { resultado: 'aceptado' });
@@ -842,10 +836,8 @@ test('recibo: la clave de Resend no sale nunca en la consola', { skip: saltar },
 });
 
 // ---------------------------------------------------------------------
-// Recibo de prueba con Ethereal (CORREO_PROVEEDOR=ethereal), SIN RED.
-// En lugar de la cuenta de Ethereal, correo.js usa este transporte de
-// Nodemailer: Nodemailer monta el mensaje de verdad, el transporte lo guarda
-// en memoria y responde como Ethereal ("250 Accepted [STATUS=new MSGID=...]").
+// Recibo de prueba con Ethereal (CORREO_PROVEEDOR=ethereal), SIN RED: correo.js usa este transporte,
+// que deja a Nodemailer montar el mensaje de verdad, lo guarda en memoria y responde como Ethereal.
 // modoEthereal: 'bien', 'error' (falla) o 'cuelga' (no responde nunca).
 // ---------------------------------------------------------------------
 const mensajesEthereal = []; // [{ id, datos: { from, to, subject, html, text }, sobre, crudo }]
@@ -891,6 +883,7 @@ async function conEthereal(trabajo, otras = {}) {
   }
 }
 
+// Los mensajes que ha guardado el Ethereal simulado para ese email (espera un poco, como correosPara)
 async function mensajesPara(email, cuantos = 1, ms = 3000) {
   const limite = Date.now() + ms;
   while (mensajesEthereal.filter((m) => m.datos.to === email).length < cuantos && Date.now() < limite) {
@@ -899,6 +892,7 @@ async function mensajesPara(email, cuantos = 1, ms = 3000) {
   return mensajesEthereal.filter((m) => m.datos.to === email);
 }
 
+// El detalle de un pedido, tal como lo ve el cliente
 const detallePedido = async (cliente, id) => (await cliente.pedir('GET', `/api/tienda/pedidos/${id}`)).datos;
 
 test('CORREO_PROVEEDOR: sin indicar o "resend" -> Resend como siempre; "ethereal" solo fuera de produccion', async () => {

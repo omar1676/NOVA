@@ -1,34 +1,16 @@
-// correo.js — el recibo por correo de las compras de la tienda.
-//
-// Cuando el pago simulado se acepta y el pedido ya esta confirmado en
-// PostgreSQL, tienda.js llama a enviarRecibo. Hay dos proveedores:
-//   - Resend (el de siempre): un POST a su API con la clave en la cabecera
-//     Authorization y el correo en JSON, con el fetch que ya trae Node.
-//   - Ethereal, SOLO PARA DESARROLLO: un buzon falso de Nodemailer. El correo
-//     no llega a nadie; se ve en una pagina de ethereal.email (vista previa).
-//
-// Configuracion, en .env (no se sube a Git):
-//   CORREO_PROVEEDOR  opcional: resend (si no se indica) o ethereal.
-//                     ethereal no se admite con NODE_ENV=production.
-//   RESEND_API_KEY    la clave de Resend. Sin ella no se envia nada por Resend.
-//   RESEND_FROM       el remitente, por ejemplo: NOVA Sneakers <onboarding@resend.dev>
-//   RESEND_URL        opcional. Por defecto https://api.resend.com/emails; las
-//                     pruebas la cambian por un Resend simulado en este ordenador.
-// Ethereal no necesita nada: la cuenta temporal se crea sola en el primer envio.
-//
-// El correo nunca hace fallar la compra: si falta la clave, si el proveedor
-// falla o si tarda demasiado (5 s Resend, 10 s Ethereal), el pedido sigue
-// confirmado y solo se escribe una linea en la consola. Las claves no se
-// escriben nunca en la consola ni en ningun archivo.
+// correo.js — recibo por correo de las compras (tienda.js lo pide con el pedido ya confirmado).
+// Proveedor: Resend (por defecto) o Ethereal (SOLO DESARROLLO). Se configura en .env (ver .env.example).
+// El correo nunca hace fallar la compra: si falla o tarda, solo se apunta en la consola (sin las claves).
 
 const nodemailer = require('nodemailer');
 
-const URL_RESEND = 'https://api.resend.com/emails';
-const TIEMPO_MAXIMO_MS = 5000;
+const URL_RESEND = 'https://api.resend.com/emails'; // las pruebas la cambian con RESEND_URL
+const TIEMPO_MAXIMO_MS = 5000; // si Resend tarda mas, se corta
 const TIEMPO_MAXIMO_ETHEREAL_MS = 10000; // crear la cuenta y mandar el correo
 const REMITENTE_ETHEREAL = 'NOVA Sneakers <recibos@example.com>'; // inventado: Ethereal no entrega nada
 const AVISO = 'Pago simulado: NOVA Sneakers es un proyecto académico y no se ha cobrado nada.';
 
+// Un importe en euros, con formato espanol (1.234,50 €)
 function euros(valor) {
   return Number(valor).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
 }
@@ -50,6 +32,7 @@ function escaparHtml(texto) {
 function crearRecibo(cliente, pedido) {
   const asunto = `Recibo de tu pedido ${pedido.referencia} · NOVA Sneakers`;
 
+  // Version de texto plano
   const texto = [
     `Hola, ${cliente.nombre}:`,
     '',
@@ -64,6 +47,7 @@ function crearRecibo(cliente, pedido) {
     AVISO
   ].join('\n');
 
+  // Version HTML. Los estilos van en linea porque muchos programas de correo ignoran el CSS aparte.
   const celda = 'padding:8px;border-bottom:1px solid #e4e4e7;';
   const filas = pedido.lineas.map((l) => `
         <tr>
@@ -131,6 +115,7 @@ function proveedor() {
   return 'desconocido';
 }
 
+// Por que no se envian recibos cuando el proveedor no vale
 const MOTIVOS = {
   'ethereal-prohibido': 'CORREO_PROVEEDOR=ethereal no se admite con NODE_ENV=production',
   desconocido: 'CORREO_PROVEEDOR no es valido (tiene que ser resend o ethereal)'
@@ -162,6 +147,9 @@ async function enviarRecibo(cliente, pedido) {
 // ---------------------------------------------------------------------
 // Resend
 // ---------------------------------------------------------------------
+
+// Un POST a la API de Resend con la clave en Authorization y el correo en JSON (fetch de Node).
+// Necesita RESEND_API_KEY y RESEND_FROM en .env.
 async function enviarConResend(cliente, pedido) {
   const clave = process.env.RESEND_API_KEY;
   const remitente = process.env.RESEND_FROM;
@@ -202,8 +190,8 @@ async function enviarConResend(cliente, pedido) {
 }
 
 // ---------------------------------------------------------------------
-// Ethereal (solo desarrollo). Todo se guarda en memoria: al reiniciar el
-// servidor se crea otra cuenta y se olvidan las vistas previas.
+// Ethereal (solo desarrollo): un buzon falso de Nodemailer; el recibo se ve en ethereal.email.
+// No necesita claves. Todo va en memoria: al reiniciar se crea otra cuenta y se olvidan las vistas previas.
 // ---------------------------------------------------------------------
 let transporteEthereal = null;   // la promesa del transporte SMTP
 let secretosEthereal = [];       // usuario y contrasena, solo para taparlos en los errores
@@ -250,6 +238,7 @@ function conLimite(promesa, ms) {
   return Promise.race([promesa, limite]).finally(() => clearTimeout(reloj));
 }
 
+// Cambia el usuario y la contrasena de Ethereal por *** antes de escribir un error
 function taparSecretos(texto) {
   let limpio = String(texto);
   for (const secreto of secretosEthereal) {

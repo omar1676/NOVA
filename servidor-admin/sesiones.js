@@ -1,7 +1,6 @@
-// Sesiones en memoria: token aleatorio en una cookie HttpOnly, sin contrasena.
-// Personal y clientes tienen cookies y almacenes separados; no comparten tokens.
-// sesion_nova usa /; sesion_tienda solo se envia a /api/tienda.
-// Reiniciar el servidor cierra todas las sesiones.
+// sesiones.js — sesiones en memoria: un token aleatorio en una cookie HttpOnly, sin contrasena.
+// Personal (sesion_nova, ruta /) y clientes (sesion_tienda, solo /api/tienda) tienen almacenes
+// separados y no comparten tokens. Reiniciar el servidor cierra todas las sesiones.
 
 const crypto = require('node:crypto');
 
@@ -55,6 +54,7 @@ function crearAlmacen(nombreCookie, rutaCookie) {
     return sesion;
   }
 
+  // Logout: borra la sesion y la cookie
   function cerrarSesion(req, res) {
     const token = leerToken(req);
     if (token) sesiones.delete(token);
@@ -64,6 +64,7 @@ function crearAlmacen(nombreCookie, rutaCookie) {
   return { crearSesion, leerSesion, cerrarSesion };
 }
 
+// Los dos almacenes: el del personal y el de la tienda
 const panel = crearAlmacen('sesion_nova', '/');
 const tienda = crearAlmacen('sesion_tienda', '/api/tienda');
 
