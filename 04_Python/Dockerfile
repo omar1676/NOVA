@@ -8,7 +8,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Sin permisos de administrador dentro del contenedor
-RUN useradd --create-home nova
+RUN useradd --create-home nova && mkdir -p /app/logs && chown nova:nova /app/logs
 COPY --chown=nova:nova . .
 USER nova
 

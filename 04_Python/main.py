@@ -276,6 +276,11 @@ def ejecutar(carpeta, salida, con_graficos=True):
     pd.set_option("display.width", 200)
     pd.set_option("display.max_colwidth", 90)
     ejecucion = empezar(carpeta, salida)
+    # Si la ejecucion se corta, este estado se queda y avisa de que las cifras no valen
+    pipeline.guardar_salida(pd.DataFrame([{"estado": "EN CURSO", "detalle": "si no cambia, la ejecución se ha "
+                                          "cortado y las cifras de esta carpeta no valen"}]),
+                            "estado_ejecucion.csv", ejecucion["salida"], ejecucion["carpeta"],
+                            ejecucion["origen"], ejecucion["momento"])
 
     resultado = paso_calidad(ejecucion)                                   # 1
     if resultado["bloqueado"]:
