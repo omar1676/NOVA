@@ -1,20 +1,32 @@
 # Aspecto del dashboard (solo tema nativo de Streamlit, sin CSS propio).
-# Colores de la web de NOVA: tinta oscura y cobre, sobre fondo claro para leer bien las cifras.
+# Blanco y negro: fondo blanco, texto y botones en negro y el resto en grises.
 [theme]
 base = "light"
-primaryColor = "#9b6343"
+primaryColor = "#111111"
 backgroundColor = "#ffffff"
-secondaryBackgroundColor = "#f4f0ea"
-textColor = "#201e1d"
-borderColor = "#e5dfdc"
+secondaryBackgroundColor = "#f2f2f2"
+textColor = "#111111"
+borderColor = "#d9d9d9"
 headingFont = "serif"
+linkColor = "#111111"
+# Los avisos y las etiquetas (rojo, verde, azul...) tambien en grises: se distinguen por el icono y el texto
+redColor = "#111111"
+orangeColor = "#111111"
+yellowColor = "#111111"
+greenColor = "#111111"
+blueColor = "#111111"
+violetColor = "#111111"
+grayColor = "#555555"
+# Graficos de Streamlit (lineas, puntos y barras) en tonos de gris
+chartCategoricalColors = ["#111111", "#8c8c8c", "#4d4d4d", "#bfbfbf", "#262626", "#a6a6a6", "#666666", "#d9d9d9"]
+chartSequentialColors = ["#f2f2f2", "#d9d9d9", "#bfbfbf", "#a6a6a6", "#8c8c8c", "#737373", "#595959", "#404040", "#262626", "#111111"]
 
 # Variante oscura: solo se usa cuando el dashboard se ve dentro del panel de
 # administracion (pagina «Analisis de datos», que lo abre con embed_options=dark_theme).
-# Fondos y textos del panel de Alvaro; el cobre de la marca para los botones,
-# porque con el texto blanco de los botones sigue cumpliendo el contraste AA.
+# Fondos y textos del panel de Alvaro; los botones en gris oscuro, porque con su
+# texto blanco siguen cumpliendo el contraste AA.
 [theme.dark]
-primaryColor = "#9b6343"
+primaryColor = "#52525b"
 backgroundColor = "#18181b"
 secondaryBackgroundColor = "#0f0f10"
 textColor = "#e7e7ea"

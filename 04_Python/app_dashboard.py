@@ -25,12 +25,12 @@ ORIGENES = {
     "sinteticos": ("Sintéticos limpios", config.CARPETA_SINTETICOS_LIMPIOS),
     "sinteticos-errores": ("Sintéticos con errores", config.CARPETA_SINTETICOS_ERRORES),
 }
-# Pestanas del panel y color de la etiqueta de cada origen
+# Pestanas del panel y color de las etiquetas (gris: el panel va en blanco y negro)
 PESTANAS = ["Dirección", "Productos", "Clientes", "Inventario", "Calidad", "Predicción"]
-COLOR_ORIGEN = {"REAL": "green", "PRUEBA": "orange", "SINTETICO": "violet"}
-# Cada color de zapatilla se pinta con su color (el blanco, gris claro para que se vea)
-COLOR_PRODUCTO = {"Negro": "#222222", "Blanco": "#d9d9d9", "Gris": "#8c8c8c", "Rojo": "#c62828", "Azul": "#1f5fa8",
-                  "Verde": "#2e7d32", "Beige": "#d8c3a5", "Crema": "#efe3c8", "Rosa": "#e991b0"}
+COLOR_ETIQUETA = "gray"
+# Cada color de zapatilla, con un tono de gris distinto (la leyenda dice cual es cual)
+COLOR_PRODUCTO = {"Negro": "#111111", "Blanco": "#e6e6e6", "Gris": "#8c8c8c", "Rojo": "#3a3a3a", "Azul": "#595959",
+                  "Verde": "#737373", "Beige": "#a6a6a6", "Crema": "#cccccc", "Rosa": "#bfbfbf"}
 # Formato de fecha y hora en pantalla
 FORMATO_HORA = "%d/%m/%Y %H:%M:%S"
 # El temporizador de Streamlit no es exacto: se da por cumplido el minuto 5 s antes
@@ -171,7 +171,7 @@ def alcance(c, filtrado=True):
     if not filtrado:
         st.badge("Global: no usa los filtros", icon=":material/public:", color="gray")
     elif filtros.hay_filtros(c["filtros"]):
-        st.badge(f"Filtrado: {c['texto_filtros']}", icon=":material/filter_alt:", color="blue")
+        st.badge(f"Filtrado: {c['texto_filtros']}", icon=":material/filter_alt:", color=COLOR_ETIQUETA)
     else:
         st.badge("Todos los datos (sin filtros)", icon=":material/filter_alt_off:", color="gray")
 
@@ -315,7 +315,7 @@ def pestana_direccion(c):
 
     st.subheader("Conclusiones para dirección")
     alcance(c, filtrado=False)
-    st.caption("Cada conclusión dice de dónde sale. Ninguna simulación es un resultado comercial real. Van por "
+    st.caption("Cada conclusión dice de dónde sale. Van por "
                "prioridad: primero la urgencia (alta: si no se actúa, se deja sin servir demanda que ya existe; "
                "media: sirve para planificar el próximo mes; baja: no hay datos para decidir o no hace falta cambiar "
                "nada) y, con la misma urgencia, el número.")
@@ -324,10 +324,10 @@ def pestana_direccion(c):
         with st.container(border=True):
             st.markdown(f"**Prioridad {conclusion['prioridad']} · {conclusion['numero']}. {conclusion['titulo']}**")
             if conclusion["procede_de"].startswith("Predicción"):
-                color = "blue"
+                icono = ":material/insights:"
             else:
-                color = COLOR_ORIGEN.get(c["publicado"]["tipo"], "gray")
-            st.badge(conclusion["procede_de"], color=color)
+                icono = ":material/database:"
+            st.badge(conclusion["procede_de"], icon=icono, color=COLOR_ETIQUETA)
             st.markdown(f"**Evidencia.** {conclusion['evidencia']}  \n"
                         f"**Interpretación.** {conclusion['interpretacion']}  \n"
                         f"**Decisión.** {conclusion['decision']}  \n"
@@ -596,8 +596,8 @@ def pestana_prediccion(c):
     resultados = publicado["prediccion"]
     metricas = resultados["metricas_prediccion"]
     if publicado["tipo"] == "SINTETICO":
-        st.warning("LABORATORIO · DATOS SINTÉTICOS. Demuestra el método de predicción y su evaluación; no es una "
-                   "previsión de la demanda real de NOVA.", icon=":material/science:")
+        st.badge("Laboratorio · datos sintéticos", icon=":material/science:",
+                 color=COLOR_ETIQUETA)
     alcance(c, filtrado=False)
     st.caption("La predicción usa siempre la serie completa de cada modelo: con meses filtrados, el entrenamiento y "
                "la evaluación por fecha dejarían de tener sentido.")
@@ -637,16 +637,16 @@ def pestana_prediccion(c):
 
 # Cabecera y panel (se refresca cada 60 s)
 
+# Devuelve el origen sin la explicacion entre parentesis (por ejemplo «ACC · PRUEBA» o «SINTÉTICO»)
+# Es lo que se ensena en la etiqueta de la cabecera y en el pie de los graficos
+def origen_corto(estado):
+    return estado["origen"].split(" (")[0]
+
+
 # Dibuja la cabecera: origen, estado, horas y avisos
 def cabecera(estado):
     st.title("NOVA Sneakers · Panel de datos")
-    st.badge(estado["origen"], icon=":material/database:", color=COLOR_ORIGEN.get(estado["tipo"], "red"))
-    if estado["tipo"] == "SINTETICO":
-        st.warning("Datos SINTÉTICOS generados por Python: no son ventas ni clientes reales de NOVA.",
-                   icon=":material/science:")
-    elif estado["tipo"] == "PRUEBA":
-        st.info("Exportación de PRUEBA de PostgreSQL: sirve para comprobar el sistema; no son ventas reales.",
-                icon=":material/info:")
+    st.badge(origen_corto(estado), icon=":material/database:", color=COLOR_ETIQUETA)
     publicado = estado["publicado"]
     # Los textos de la ultima publicacion valida (o lo que se ensena si todavia no hay ninguna)
     if publicado:
@@ -706,7 +706,7 @@ def panel(nombre, elegidos):
          "tablas": None}
     if publicado is not None:
         c["ejecucion"] = f"{publicado['actualizado']:%Y-%m-%d %H:%M:%S} (versión {publicado['version']})" + (" · DESACTUALIZADO" if estado["desactualizado"] else "")
-        c["pie"] = (f"Origen: {estado['origen']} · Corte: {publicado['corte']:%Y-%m-%d %H:%M} · Datos: {c['ejecucion']}"
+        c["pie"] = (f"Origen: {origen_corto(estado)} · Corte: {publicado['corte']:%Y-%m-%d %H:%M} · Datos: {c['ejecucion']}"
                     f" · Filtros: {c['texto_filtros']} · IVA {config.IVA}")
 
     pestanas = st.tabs(PESTANAS, key="pestana", bind="query-params")

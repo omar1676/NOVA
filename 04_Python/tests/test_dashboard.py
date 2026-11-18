@@ -92,13 +92,13 @@ class PruebaApp(unittest.TestCase):
 # Arranque del dashboard
 class PruebasArranque(PruebaApp):
 
-    # Arranca con la exportacion ACC y avisa de que es de PRUEBA
+    # Arranca con la exportacion ACC y la etiqueta de la cabecera dice que es de PRUEBA
     def test_arranca_con_la_exportacion_de_acceso_a_datos(self):
         app = self.abrir()
         self.assertEqual(app.sidebar.selectbox(key="origen").value, "acc")
         self.assertIn("NOVA Sneakers", app.title[0].value)
-        self.assertIn("PRUEBA", self.textos(app.info))               # se dice que son datos de prueba
-        self.assertNotIn("SINTÉTICOS", self.textos(app.warning))
+        self.assertIn("ACC · PRUEBA", self.textos(app.markdown))      # la etiqueta dice que son datos de prueba
+        self.assertNotIn("SINTÉTICO", self.textos(app.markdown))
         tarjetas = self.tarjetas(app)
         self.assertEqual(tarjetas["Estado"], "Correcto")
         self.assertEqual(tarjetas["Pedidos registrados"], "2")
@@ -179,7 +179,7 @@ class PruebasCalidadYOrigen(PruebaApp):
         self.assertEqual(self.tarjetas(app)["Pedidos registrados"], "2")
         app.sidebar.selectbox(key="origen").set_value("sinteticos").run()
         self.assertEqual(self.tarjetas(app)["Pedidos registrados"], "900")
-        self.assertIn("SINTÉTICOS", self.textos(app.warning))        # siempre se ve el origen
+        self.assertIn("SINTÉTICO", self.textos(app.markdown))        # siempre se ve el origen en la etiqueta
         app.sidebar.selectbox(key="origen").set_value("acc").run()
         self.assertEqual(self.tarjetas(app)["Pedidos registrados"], "2")
         self.assertEqual(set(app.session_state["estados"]), {"acc", "sinteticos"})   # cada uno, el suyo

@@ -11,11 +11,11 @@ from matplotlib.patches import Patch
 import config
 from analiticas import de_demanda, es_no_calculable, rellenar_meses
 
-# Colores de los graficos
-AZUL = "#1f5fa8"
-GRIS = "#9e9e9e"
-NARANJA = "#e07b00"
-COLOR_CLASE = {"A": "#2e7d32", "B": "#f9a825", "C": GRIS}
+# Colores de los graficos: blanco y negro (negro, gris oscuro y gris claro)
+AZUL = "#1a1a1a"
+GRIS = "#b3b3b3"
+NARANJA = "#666666"
+COLOR_CLASE = {"A": "#1a1a1a", "B": "#666666", "C": GRIS}
 COLOR_TIPO = {"normal": AZUL, "custom": NARANJA}
 MAXIMO_CLIENTES = 15   # en el ranking de clientes; con mas barras no se lee
 
@@ -181,7 +181,7 @@ def grafico_matriz_modelo_talla(matriz, carpeta, pie):
         sin_datos(ax)
     else:
         valores = matriz.to_numpy(dtype=float)
-        imagen = ax.imshow(valores, cmap="Blues", aspect="auto")
+        imagen = ax.imshow(valores, cmap="Greys", aspect="auto")
         ax.set_xticks(range(len(matriz.columns)), [str(talla) for talla in matriz.columns])
         ax.set_yticks(range(len(matriz.index)), matriz.index)
         # El numero de cada celda, en blanco si el fondo es oscuro
