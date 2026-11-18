@@ -1,8 +1,10 @@
 # KPIs, DataFrames y gráficos (fase 3)
 
 `main.py` calcula 20 KPIs (17 calculables y 3 «NO CALCULABLE» con su motivo), 17
-DataFrames analíticos y 10 gráficos PNG. Todo sale de los mismos DataFrames de
-`analiticas.py` y queda en `outputs/real/`.
+DataFrames de análisis (las dos vistas base y 15 tablas, todas de
+`analiticas.calcular_tablas`) y 10 gráficos PNG. Todo sale de los mismos
+DataFrames de `analiticas.py` (en `modulos/`, como todos los módulos) y queda en
+`outputs/real/`.
 
 **Los datos son de una base de PRUEBA**, no de la base del equipo. Son 12 pedidos
 de un solo día, de 6 clientes. Las cifras de abajo sirven para comprobar que los
@@ -60,6 +62,7 @@ pares) y K05 (40) cuentan pedidos distintos.
 | base | `df_lineas_enriquecidas` (no se guarda) | una fila por línea, con pedido, cliente y modelo | 18 |
 | 01 | `pedidos_unicos.csv` | una fila por pedido (sin el nombre del cliente) | 12 |
 | — | `pedidos_por_estado.csv` | pedidos, pares e importe de los 6 estados del catálogo | 6 |
+| — | `pedidos_por_estado_pago.csv` | pedidos e importe de los 3 estados de pago del catálogo (también los que tienen 0) | 3 |
 | 02 | `ventas_por_periodo.csv` | venta por mes: ticket, variación, media de 3 meses previos e interanual | 1 |
 | 03 | `modelos_abc.csv` | demanda por modelo (pedidos no cancelados): pares, pedidos, importe, rankings y clase ABC | 7 |
 | — | `ventas_por_talla.csv` | pares de demanda por talla y su peso | 5 |
@@ -75,9 +78,11 @@ pares) y K05 (40) cuentan pedidos distintos.
 | 12 | `conciliacion_sql.csv` | conciliación con P-A, P-B y P-C | 21 cifras, todas coinciden |
 | caso N | `contraste_sql_caso_n.csv` | ingresos de un mes (N-1), matriz talla × modelo (N-2) y clientes únicos (N-3) frente a SQL | 17 cifras, todas coinciden |
 
-Hay 14 tablas analíticas además de las dos vistas base, y ninguna está hecha para
-llegar a un número:
+Además de las dos vistas base hay 15 tablas analíticas (14 si no se cuenta
+`stock_bajo`), y ninguna está hecha para llegar a un número:
 - `pedidos_por_estado` y `ventas_por_talla` las pide el enunciado.
+- `pedidos_por_estado_pago` separa lo pagado de lo confirmado; la enseña la pestaña
+  Dirección.
 - `matriz_modelo_mes` la pide el apartado 6.9.
 - `stock_bajo` es solo una vista filtrada de `stock_variantes` y no se cuenta aparte.
 

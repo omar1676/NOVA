@@ -10,7 +10,7 @@ Proyecto intermodular de 2.º DAM (Omar, Álvaro y Berme): una marca de zapatill
 | Interfaces (web) | Hecha y probada en Edge. Falta la prueba de usabilidad **con personas** |
 | Acceso a Datos (PostgreSQL) | Hecha y probada. Persisten límites de evidencia/manuales; no hay prueba de S00005 en este módulo |
 | PSP | Hecha y probada (27/27). CUSTOM-40 probado; SO024 solo como ensayo **PROVISIONAL**, sin prueba de S00005 |
-| Python | Hecho y probado (265 pruebas). Los CSV son de una base de **PRUEBA**: falta la exportación **REAL** |
+| Python | Hecho y probado (278 pruebas). Los CSV son de una base de **PRUEBA**: falta la exportación **REAL** |
 | Odoo | S00005 documentado en el PDF de Berme; sin integración entre sistemas verificada. Ver `05_Odoo/README.md` |
 
 ## Estructura: una carpeta por asignatura
@@ -40,6 +40,7 @@ Dentro de cada asignatura: `evidencias/` guarda los resultados y las capturas de
 | Memoria del proyecto (Interfaces, PSP y Odoo) | la memoria del proyecto (`Memoria_NOVA_Sneakers.pdf`) |
 | Memoria de Acceso a Datos | `02_Acceso_Datos/memoria/MEMORIA_ACCESO_DATOS.md` |
 | Documentación de PSP | `03_PSP/memoria/DOCUMENTACION_PSP.md` |
+| Memoria de Python | `04_Python/memoria/Memoria_Python_NOVA_Sneakers.pdf` |
 | Informe técnico de Python | `04_Python/memoria/INFORME_TECNICO_PYTHON.md` |
 | Estrategia de pruebas y usabilidad de Interfaces | `01_Interfaces/memoria/` |
 | Instalación paso a paso y guion de la demostración | `manuales/` |
@@ -100,7 +101,7 @@ Ninguna rúbrica pide Docker. Es otra forma de poner en marcha, con un solo coma
 **Límites:**
 - Los puertos solo se abren en este ordenador (`127.0.0.1`).
 - Las contraseñas del `.env` se usan solo la primera vez que se monta la base. Para cambiarlas: `docker compose down -v`.
-- El dashboard lee los CSV de `04_Python/entrada_acc` que van dentro de la imagen (datos de PRUEBA), no la base de Docker.
+- El dashboard lee los CSV de `04_Python/entrada_acc` (datos de PRUEBA), no la base de Docker. La carpeta se monta en el contenedor en solo lectura: una exportación nueva se ve en el siguiente refresco de 60 s sin reconstruir la imagen. El registro de eventos del dashboard se guarda en el volumen `logs_dashboard`.
 - El conector de Odoo sigue desactivado.
 
 ## Reconstruir la base de datos
@@ -182,7 +183,7 @@ Todas sobre una base de **prueba**, nunca la del equipo: las de la tienda y el p
 | SQL | Scripts 09 a 16, en el orden de arriba | 123 PASS, 0 FAIL y 1 ERROR previsto (la S4b: PostgreSQL deniega `descontar_stock` al cliente a propósito) | 123 / 0 / 1 |
 | SQL de la tienda, del reparto y del portal | `psql -U postgres -d <copia de la base 01–23> -At -f <script>` con los tres scripts de la regresión del 13/11 | 55, 37 y 50 PASS | 55 / 0, 37 / 0 y 50 / 0 |
 | PSP | En `03_PSP`, tras compilar: `java -cp clases PruebasPsp` | 27 de 27 | 27 / 27 |
-| Python | En `04_Python`: `.venv\Scripts\python.exe -m unittest discover -s tests -v` | 265 pruebas OK | 265 OK; las 93 salidas de `main.py`, iguales a la referencia salvo los cambios hechos a propósito |
+| Python | En `04_Python`: `.venv\Scripts\python.exe -m unittest discover -s tests -v` | 278 pruebas OK | 265 OK (las 12 de `test_regresiones.py` y la de la descarga de incidencias se añadieron el 18/11); las 93 salidas de `main.py`, iguales a la referencia salvo los cambios hechos a propósito |
 | Panel | En `servidor-admin`: `npm test` (con las variables `PRUEBA_*` de su README) | 23 de 23 con `PRUEBA_TIENDA_BASE_DESECHABLE=si` (sin ella, 22 y 1 saltada) | 23 / 23 |
 | Tienda | En `servidor-admin`: `npm run test:tienda`, solo con `PRUEBA_TIENDA_BASE_DESECHABLE=si` | 39 de 39 | 39 / 39 |
 | Login único y portal | En `servidor-admin`: `npm run test:portal`, con `PRUEBA_TIENDA_BASE_DESECHABLE=si` y `PRUEBA_SUPERUSUARIO` | 24 de 24 | 24 / 24 |

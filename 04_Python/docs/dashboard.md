@@ -22,6 +22,12 @@ Probado con Python 3.13.5 y Streamlit 1.67.0 (la versión de `requirements.txt`)
 `st.fragment(run_every=...)` existe en Streamlit desde la versión 1.37. No hay
 dependencias nuevas.
 
+**Con Docker** (`docker compose up -d --build` desde la raíz del repositorio): el
+servicio `dashboard` de `compose.yaml` lee `04_Python/entrada_acc` montada en solo
+lectura, así que una exportación nueva se ve en el siguiente ciclo de 60 s sin
+reconstruir la imagen, y escribe el registro de eventos en el volumen
+`logs_dashboard`. Detalle en la sección «Con Docker» de `../README.md`.
+
 ## Arquitectura: la interfaz no calcula
 
 ```
@@ -40,8 +46,8 @@ app_dashboard.py   solo orquesta y muestra (Streamlit)
 
 Todas las cifras salen de las mismas funciones que usa `main.py`: no hay una
 segunda fórmula para ningún KPI. `actualizacion.py`, `filtros.py`, `informe.py`
-y `registro.py` no importan Streamlit, así que se prueban desde consola y con
-`unittest`.
+y `registro.py` (como todos los módulos, en `modulos/`) no importan Streamlit, así
+que se prueban desde consola y con `unittest`.
 
 ## Origen de los datos
 
@@ -250,8 +256,9 @@ Cada archivo:
 
 ## Registro de eventos
 
-Es un solo archivo, `logs/registro_eventos.csv`. Git lo ignora y se le añade una
-fila por operación; no se crea un archivo por refresco.
+Es un solo archivo, `logs/registro_eventos.csv` (con Docker, en el volumen
+`logs_dashboard`). Git lo ignora y se le añade una fila por operación; no se crea
+un archivo por refresco.
 
 - **Columnas:** fecha y hora, origen, carpeta (relativa), operación, resultado,
   filas procesadas, filas válidas, incidencias, bloqueantes, versión de los datos,
@@ -260,7 +267,8 @@ fila por operación; no se crea un archivo por refresco.
   - carga inicial del origen;
   - comprobación automática (60 s);
   - actualización manual;
-  - descarga de un CSV.
+  - descarga de un CSV (las diez descargas, también `incidencias.csv` de la pestaña
+    Calidad: todos los botones llaman a `anotar_descarga`).
 - **Lo que nunca lleva:**
   - contraseñas (Python no maneja credenciales);
   - la ruta completa del ordenador (los mensajes de error se dejan con la ruta

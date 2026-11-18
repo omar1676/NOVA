@@ -1,6 +1,6 @@
 # Estadística (fase 4)
 
-`estadistica.py` calcula:
+`estadistica.py` (en `modulos/`) calcula:
 - estadísticos descriptivos de tres variables;
 - tres hipótesis de negocio;
 - un intervalo de confianza bootstrap del ticket medio.
@@ -77,8 +77,12 @@ comportamiento estable.
 
 ## Las tres hipótesis
 
-Se escribieron **antes de calcular ningún resultado** (están así en la cabecera de
-`estadistica.py`) y no se han cambiado después de verlos.
+Se escribieron **antes de calcular ningún resultado** y no se han cambiado después
+de verlos. Hasta el 17/11 estaban escritas en la cabecera de `estadistica.py`; el
+commit `a4249ea` («Fix compatibility», 17/11) quitó esa cabecera, como los demás
+docstrings del código. Ahora el enunciado de cada una está en su función
+(`hipotesis_custom`, `hipotesis_tallas` y `hipotesis_crecimiento`) y sale en la
+columna `hipotesis` de `hipotesis.csv`.
 
 | | H1 | H2 | H3 |
 |---|---|---|---|
