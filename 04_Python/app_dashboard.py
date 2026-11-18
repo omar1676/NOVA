@@ -1,8 +1,12 @@
 import tempfile
 from datetime import datetime
+import sys
+from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+
+sys.path.insert(0, str(Path(__file__).resolve().parent / "modulos"))   # los modulos estan en modulos/
 
 import actualizacion
 import config
@@ -96,7 +100,7 @@ def elegir_filtros(nombre, estado):
     primero = pedidos["fecha_pedido"].min().date()
     ultimo = pedidos["fecha_pedido"].max().date()
     periodo = filtro_periodo(sufijo, primero, ultimo)
-    # Las opciones de los filtros de modelo y talla, ordenadas
+    # Las opciones de los filtros de modelo, talla y cliente, ordenadas
     nombres_modelos = sorted(publicado["validos"]["modelos"]["nombre_modelo"])
     tallas = sorted(int(talla) for talla in lineas["talla"].dropna().unique())
     clientes = publicado["validos"]["clientes"]
@@ -166,7 +170,7 @@ def alcance(c, filtrado=True):
         st.badge("Todos los datos (sin filtros)", icon=":material/filter_alt_off:", color="gray")
 
 
-# Deja la tabla lista para ensenar: sin indice, sin datos personales y con columnas de texto
+# Deja la tabla lista para ensenar: sin indice, sin datos personales y con los nombres de columna como texto
 def preparar(tabla):
     if tabla.index.name is not None:
         tabla = tabla.reset_index()
@@ -180,13 +184,13 @@ def tabla(datos, alto="auto"):
     datos = preparar(datos)
     # Las columnas de euros se ensenan con 2 decimales y el euro (no porcentajes ni rankings)
     formatos = {}
-    for columna in datos.columns:   # preparar ya las ha dejado como texto
+    for columna in datos.columns:   # preparar ya ha pasado a texto los nombres de columna
         if ("importe" in columna or "ticket" in columna or "monetary" in columna) and not columna.endswith("_pct") and not columna.startswith(("porcentaje", "ranking")):
             formatos[columna] = st.column_config.NumberColumn(format="%.2f €")
     st.dataframe(datos, hide_index=True, column_config=formatos, height=alto)
 
 
-# Apunta cada descarga en el registro de eventos
+# Apunta cada descarga del dashboard en el registro de eventos
 def anotar_descarga(archivo, filas, origen, carpeta, version, texto_filtros):
     registro.anotar(config.ARCHIVO_REGISTRO, origen=origen, carpeta=carpeta, operacion=f"descarga de {archivo}",
                     resultado="correcto", filas_procesadas=filas, version_datos=version,
@@ -537,11 +541,15 @@ def pestana_calidad(c):
         # Descarga de las incidencias: cuentan las filas leidas y no usan filtros
         datos_meta = metadatos.fila("incidencias", len(incidencias), metadatos.fecha_corte(resultado["datos"]),
                                     metadatos.contar(resultado["datos"]), "leídas", "ninguno")
+        archivo = f"incidencias_{estado['tipo'].lower()}.csv"
         st.download_button("Descargar incidencias.csv",
                            pipeline.csv_descarga(incidencias, estado["origen"],
                                                  f"{estado['comprobado']:%Y-%m-%d %H:%M:%S}", "ninguno", datos_meta),
-                           file_name=f"incidencias_{estado['tipo'].lower()}.csv", mime="text/csv",
-                           key="descarga_incidencias", icon=":material/download:")
+                           file_name=archivo, mime="text/csv", key="descarga_incidencias", icon=":material/download:",
+                           # Al pulsarlo se anota en el registro, como las demas descargas
+                           on_click=anotar_descarga,
+                           args=(archivo, len(incidencias), estado["origen"],
+                                 actualizacion.carpeta_relativa(estado["carpeta"]), estado["version"], "ninguno"))
     if len(resultado["rechazadas"]) > 0:
         st.subheader("Filas rechazadas")
         tabla(resultado["rechazadas"])

@@ -1,7 +1,7 @@
 from pathlib import Path
 
-# Las rutas son relativas a esta carpeta, asi funciona en cualquier ordenador
-CARPETA_PROYECTO = Path(__file__).resolve().parent
+# Las rutas son relativas a la carpeta del proyecto (04_Python), asi funciona en cualquier ordenador
+CARPETA_PROYECTO = Path(__file__).resolve().parent.parent   # carpeta 04_Python (config.py esta en modulos/)
 CARPETA_ENTRADA = CARPETA_PROYECTO / "entrada_acc"
 
 # Carpeta donde se guardan los resultados
@@ -185,7 +185,7 @@ MINIMO_MESES_PREDICCION = 12
 # Cada cuantos segundos el dashboard vuelve a leer, validar y recalcular todo
 SEGUNDOS_REFRESCO = 60
 
-# Registro de eventos: una fila por cada comprobacion de los datos
+# Registro de eventos: una fila por cada ciclo de comprobacion y por cada descarga del dashboard
 CARPETA_LOGS = CARPETA_PROYECTO / "logs"
 ARCHIVO_REGISTRO = CARPETA_LOGS / "registro_eventos.csv"
 

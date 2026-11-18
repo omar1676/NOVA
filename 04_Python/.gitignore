@@ -5,6 +5,6 @@
 __pycache__/
 *.pyc
 
-# Resultados y registros que se generan al ejecutar (fases siguientes)
+# Resultados y registros que se generan al ejecutar
 outputs/
 logs/

@@ -4,6 +4,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parent / "modulos"))   # los modulos estan en modulos/
+
 import config
 
 # Parametros de la simulacion: datos inventados, no son de NOVA

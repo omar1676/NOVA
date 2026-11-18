@@ -42,7 +42,7 @@ def calcular_kpis(pedidos, tabla_abc, tabla_tallas, tabla_stock, tabla_meses):
     pares_venta = int(venta["pares"].sum())
     importe_venta = round(float(venta["importe"].sum()), 2)
     origen = "df_pedidos_unicos"
-    # K01-K14: pedidos, pares, importes y medias
+    # K01-K14: pedidos, pares, importes, medias, % Custom y modelo/talla mas solicitados
     lista = [
         kpi("K01", "Pedidos registrados", len(pedidos), "pedidos",
             "nº de pedidos (una fila por pedido)", "todos", origen),

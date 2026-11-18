@@ -19,7 +19,7 @@ COLOR_CLASE = {"A": "#2e7d32", "B": "#f9a825", "C": GRIS}
 COLOR_TIPO = {"normal": AZUL, "custom": NARANJA}
 MAXIMO_CLIENTES = 15   # en el ranking de clientes; con mas barras no se lee
 
-# Lo que responde cada grafico (para la consola y la documentacion)
+# Lo que responde cada grafico (para la consola y las pruebas)
 GRAFICOS = [
     ("01_pedidos_por_estado.png", "barras", "¿En qué estado están los pedidos?"),
     ("02_pareto_modelos.png", "Pareto", "¿Qué modelos concentran la demanda? (ABC)"),

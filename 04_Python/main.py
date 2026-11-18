@@ -5,6 +5,8 @@ from pathlib import Path
 
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parent / "modulos"))   # los modulos estan en modulos/
+
 import analiticas
 import calidad
 import comprobaciones
@@ -294,7 +296,7 @@ def paso_grafico_prediccion(ejecucion, predicciones, pie):
     print(f"  Gráfico: {ruta}")
 
 
-# Ejecuta todos los pasos; devuelve 0 si todo cuadra y 1 si no
+# Ejecuta todos los pasos; devuelve 0 si todo va bien y 1 si hay bloqueantes o alguna cifra no cuadra con SQL
 def ejecutar(carpeta, salida, con_graficos=True):
     pd.set_option("display.width", 200)
     pd.set_option("display.max_colwidth", 90)

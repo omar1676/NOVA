@@ -3,8 +3,11 @@ import io
 import os
 from pathlib import Path
 from unittest import mock
+import sys
 
 import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "modulos"))   # los modulos estan en ../modulos
 
 import actualizacion
 import analiticas

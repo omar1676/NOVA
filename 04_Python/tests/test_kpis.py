@@ -1,4 +1,9 @@
+import sys
+from pathlib import Path
+
 import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "modulos"))   # los modulos estan en ../modulos
 
 import config
 import kpis
@@ -103,7 +108,7 @@ class PruebasKpis(PruebaKpis):
         self.anadir_otro_mes()
         tabla = self.calcular()
         self.assertEqual(self.valor(tabla, "K19"), 33.3)
-        self.assertEqual(self.valor(tabla, "K20"), 22.7)   # 17 pares / (3 pares en 28 dias / 4)
+        self.assertEqual(self.valor(tabla, "K20"), 22.7)   # 17 pares de stock / (3 pares pedidos en 28 dias / 4)
 
     # Sin pedidos no se divide entre cero: "sin datos" o NO CALCULABLE
     def test_sin_pedidos_no_divide_entre_cero(self):
