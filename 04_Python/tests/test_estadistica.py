@@ -36,10 +36,10 @@ class PruebasDescriptivos(unittest.TestCase):
         self.assertEqual((fila["minimo"], fila["p25"], fila["p75"], fila["maximo"]), (1.0, 2.0, 4.0, 100.0))
         self.assertEqual(fila["rango_intercuartilico"], 2.0)
         self.assertEqual(fila["desviacion_tipica"], round(np.std([1, 2, 3, 4, 100], ddof=1), 2))
-        self.assertEqual(fila["mejor_resumen"], "mediana")          # el 100 arrastra la media
+        self.assertEqual(fila["mejor_resumen"], "mediana")
         self.assertIsNone(fila["moda"])
 
-    # Datos simetricos: la media resume bien; y la moda
+    # Con datos simetricos (10, 11, 11, 12) el mejor resumen es la media y la moda es 11
     def test_simetrica_y_moda(self):
         fila = estadistica.describir([10, 11, 11, 12], "x", "todos", "pares", con_moda=True)
         self.assertEqual(fila["mejor_resumen"], "media")
@@ -108,7 +108,7 @@ class PruebasBootstrap(unittest.TestCase):
 # Las tres hipotesis
 class PruebasHipotesis(PruebaTablas):
 
-    # Intervalo por encima de 0, por debajo o incluyendolo
+    # Intervalo por encima de 0: la apoyan; por debajo: la contradicen; si incluye el 0: evidencia insuficiente
     def test_veredicto(self):
         self.assertEqual(estadistica.veredicto(5, 10, 0), "los datos la apoyan")
         self.assertEqual(estadistica.veredicto(-10, -5, 0), "los datos la contradicen")

@@ -68,7 +68,7 @@ class PruebasModelosYTallas(PruebaTablas):
         self.assertEqual(tablas["ventas_por_talla"]["pares"].sum(), demanda["cantidad"].sum())
         self.assertEqual(tablas["modelos_abc"]["pares"].sum(), demanda["cantidad"].sum())
 
-    # Pares y peso de cada talla
+    # Talla 40: 1 par (33.3 %) y talla 41: 2 pares (66.7 %); el cancelado no cuenta
     def test_ventas_por_talla(self):
         tabla = self.tablas()["ventas_por_talla"]
         self.assertEqual(tabla["talla"].tolist(), [40, 41])
@@ -146,7 +146,7 @@ class PruebasTiempo(PruebaTablas):
         self.assertTrue(pd.isna(ventas.loc[0, "variacion_importe_pct"]))
         self.assertEqual(tablas["cohortes"]["estado"].iloc[0], "NO CALCULABLE")
 
-    # Con dos meses ya hay variacion mensual
+    # Con los pedidos de noviembre hay dos meses y el importe sube un 33.3 %
     def test_dos_meses(self):
         self.anadir_otro_mes()
         ventas = self.tablas()["ventas_por_periodo"]
@@ -180,17 +180,17 @@ class PruebasTiempo(PruebaTablas):
 # Stock por SKU y cobertura
 class PruebasStock(PruebaTablas):
 
-    # Una fila por SKU, stock total y SKU con alerta
+    # 3 SKU, 17 pares de stock en total y 2 SKU con alerta de stock bajo
     def test_totales_de_inventario(self):
         stock = self.tablas()["stock_variantes"]
         self.assertEqual(len(stock), 3)                      # una fila por SKU: el cruce no multiplica
         self.assertEqual(stock["stock_disponible"].sum(), 17)
         self.assertEqual(stock["alerta_stock_bajo"].sum(), 2)
 
-    # Stock bajo de menos a mas stock
+    # La tabla de stock bajo va de menos a mas stock: M1-41 (0 pares) antes que M1-40 (5)
     def test_stock_bajo_ordenado(self):
         bajo = self.tablas()["stock_bajo"]
-        self.assertEqual(bajo["sku"].tolist(), ["M1-41", "M1-40"])   # de menos a mas stock
+        self.assertEqual(bajo["sku"].tolist(), ["M1-41", "M1-40"])
 
     # Cada color es un SKU aparte: su stock no se suma
     def test_no_se_suma_entre_colores(self):
@@ -257,7 +257,7 @@ class PruebasOtrasTablas(PruebaTablas):
         self.assertEqual(sorted(precios["grupo"]), ["nombre_modelo = M, tipo_pedido = custom",
                                                     "nombre_modelo = M, tipo_pedido = normal"])
 
-    # Nulos y porcentaje de nulos de una columna
+    # El telefono de clientes tiene 1 nulo en 2 filas: un 50 % de nulos
     def test_nulos_por_columna(self):
         resultado = calidad.evaluar(self.carpeta)
         nulos = calidad.nulos_por_columna(resultado["datos"]).set_index(["tabla", "columna"])
@@ -280,4 +280,4 @@ class PruebasTablasVacias(PruebaTablas):
         self.assertEqual(tablas["matriz_modelo_mes"]["estado"].iloc[0], "NO CALCULABLE")
         self.assertEqual(set(tablas["modelos_abc"]["clase_abc"]), {"C"})
         self.assertEqual(tablas["clientes_actividad"]["sin_pedidos"].tolist(), [True, True])
-        self.assertEqual(tablas["stock_variantes"]["stock_disponible"].sum(), 17)   # el stock sigue ahi
+        self.assertEqual(tablas["stock_variantes"]["stock_disponible"].sum(), 17)

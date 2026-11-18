@@ -5,7 +5,7 @@ import pandas as pd
 import config
 import pipeline
 
-# Las 12 reglas de calidad
+# Las 12 reglas de calidad: codigo y nombre que salen en la tabla de incidencias
 REGLAS = {
     "01": "Fichero vacío o cabeceras insuficientes",
     "02": "IDs duplicados donde deban ser únicos",
@@ -41,9 +41,9 @@ COLUMNAS_INCIDENCIA = ["regla", "nombre_regla", "tabla", "registro", "fila", "co
                        "valor", "gravedad", "tratamiento", "detalle"]
 
 
-# Ayudas
+# Funciones de ayuda que usan las reglas
 
-# Una fila de la tabla de incidencias
+# Crea una fila (diccionario) de la tabla de incidencias
 def incidencia(regla, tabla, gravedad, detalle, registro="", fila="", columna="", valor=""):
     return {"regla": regla, "nombre_regla": REGLAS[regla], "tabla": tabla,
             "registro": registro, "fila": fila, "columna": columna, "valor": valor,
@@ -56,7 +56,8 @@ def original(textos, nombre, indice, columna):
     return "" if pd.isna(valor) else str(valor)
 
 
-# Una incidencia por cada fila marcada en la mascara
+# Crea una incidencia por cada fila marcada a True en la mascara
+# Devuelve la lista de incidencias, con el valor tal como venia en el CSV
 def por_filas(regla, nombre, datos, textos, mascara, columna, gravedad, detalle):
     lista = []
     # Un valor que no se pudo convertir da nulo en la comparacion: no cuenta aqui
@@ -70,7 +71,7 @@ def por_filas(regla, nombre, datos, textos, mascara, columna, gravedad, detalle)
     return lista
 
 
-# Celdas vacias y celdas con texto que no se ha podido convertir a su tipo
+# Devuelve dos mascaras de una columna: celdas vacias y celdas con texto que no se ha podido convertir
 def vacio_y_no_convertible(datos, textos, nombre, columna):
     texto = textos[nombre][columna]
     vacio = texto.isna()
@@ -81,6 +82,7 @@ def vacio_y_no_convertible(datos, textos, nombre, columna):
 # Regla 01: se aplica al cargar los archivos
 
 # Lee los cinco CSV; un archivo que no se puede leer es bloqueante
+# Devuelve las tablas convertidas, las mismas tablas como texto, las incidencias y los avisos
 def cargar(carpeta):
     carpeta = Path(carpeta)
     datos = {}
@@ -104,6 +106,7 @@ def cargar(carpeta):
 
 
 # Reglas 02 a 12: necesitan los cinco archivos cargados
+# Cada regla recibe las tablas convertidas y como texto, y devuelve una lista de incidencias
 
 # Regla 02: identificador repetido (bloqueante) o vacio (se rechaza la fila)
 def regla_02_ids_duplicados(datos, textos):
@@ -211,7 +214,7 @@ def regla_08_tallas(datos, textos):
     return lista
 
 
-# Regla 09: falta el cliente, el pedido o el modelo
+# Regla 09: falta el cliente, el pedido o el modelo de una fila, o el nombre de un cliente o modelo
 def regla_09_ausencia_cliente_modelo(datos, textos):
     lista = []
     # columna[3:] quita el prefijo "id_" para el mensaje: id_cliente -> cliente
@@ -248,7 +251,8 @@ def regla_11_stock(datos, textos):
     return lista
 
 
-# Texto con las lineas de cada pedido, para encontrar pedidos repetidos
+# Resume en un texto las lineas de cada pedido, para encontrar pedidos repetidos
+# Devuelve una Serie con una huella por id_pedido, por ejemplo "NOVA-1-43 x1 | NOVA-2-42 x2"
 def huella_de_pedidos(lineas):
     # Una linea sin SKU (X-NOVA) se identifica por su modelo y su talla
     sin_sku = "modelo " + lineas["id_modelo"].fillna("?") + " talla " + lineas["talla"].astype(str)
@@ -259,7 +263,7 @@ def huella_de_pedidos(lineas):
     return partes.groupby(lineas["id_pedido"]).agg(lambda valores: " | ".join(sorted(valores)))
 
 
-# Regla 12: los totales del pedido tienen que ser la suma de sus lineas
+# Regla 12: cantidad_total e importe_total del pedido tienen que ser la suma de sus lineas
 def comprobar_totales_pedido(datos, textos):
     lista = []
     pedidos = datos["pedidos"]
@@ -365,6 +369,7 @@ REGLAS_CON_DATOS = [regla_02_ids_duplicados, regla_03_claves_huerfanas, regla_04
 # Separar filas validas y rechazadas, y resumen por tabla
 
 # Rechaza las filas con incidencias; las advertencias no rechazan la fila
+# Devuelve las tablas solo con las filas validas y una tabla con las rechazadas y su motivo
 def separar(datos, incidencias):
     motivos = {nombre: {} for nombre in datos}   # nombre -> {indice de fila: motivo}
     de_fila = incidencias[(incidencias["gravedad"] != ADVERTENCIA) & (incidencias["fila"] != "")]
@@ -442,6 +447,7 @@ def resumen_calidad(datos, validos, incidencias):
 
 
 # Evaluacion completa: carga, aplica las reglas y separa las filas validas
+# Devuelve un diccionario con datos, avisos, incidencias, validos, rechazadas, resumen y bloqueado
 def evaluar(carpeta):
     datos, textos, lista, avisos = cargar(carpeta)
     cargados = len(datos) == len(config.ARCHIVOS)
@@ -468,7 +474,7 @@ def evaluar(carpeta):
     }
 
 
-# Nulos de cada columna y si la columna es obligatoria
+# Una fila por columna de cada tabla: nulos, % de nulos y si la columna es obligatoria
 def nulos_por_columna(datos):
     filas = []
     for nombre, tabla in datos.items():

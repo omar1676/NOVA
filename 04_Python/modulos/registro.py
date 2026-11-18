@@ -11,7 +11,8 @@ COLUMNAS = ["fecha_hora", "origen", "carpeta", "operacion", "resultado", "filas_
             "incidencias", "bloqueantes", "version_datos", "duracion_s", "detalle"]
 
 
-# Anade una fila al registro (si el CSV no existe, lo crea con la cabecera)
+# Anade una fila al registro de eventos (si el CSV no existe, lo crea con la cabecera)
+# Recibe la ruta del CSV y los campos por nombre; los que no llegan quedan vacios y la fecha, la de ahora
 def anotar(archivo, **campos):
     archivo = Path(archivo)
     archivo.parent.mkdir(parents=True, exist_ok=True)
@@ -29,6 +30,7 @@ def anotar(archivo, **campos):
 
 
 # Lee las ultimas filas del registro, de la mas reciente a la mas antigua
+# Devuelve un DataFrame (vacio, con las columnas, si todavia no hay registro)
 def leer(archivo, ultimas=100):
     archivo = Path(archivo)
     if not archivo.exists():

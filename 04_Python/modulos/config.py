@@ -2,7 +2,7 @@ from pathlib import Path
 
 # Las rutas son relativas a la carpeta del proyecto (04_Python), asi funciona en cualquier ordenador
 CARPETA_PROYECTO = Path(__file__).resolve().parent.parent   # carpeta 04_Python (config.py esta en modulos/)
-CARPETA_ENTRADA = CARPETA_PROYECTO / "entrada_acc"
+CARPETA_ENTRADA = CARPETA_PROYECTO / "entrada_acc"   # CSV que exporta Acceso a Datos (Python solo los lee)
 
 # Carpeta donde se guardan los resultados
 CARPETA_SALIDA = CARPETA_PROYECTO / "outputs"
@@ -132,6 +132,7 @@ TOLERANCIA_EUROS = 0.005
 
 # Fase 3: KPIs, DataFrames analiticos y graficos
 
+# Estado de pago que cuenta para el KPI K08 (importe con pago registrado)
 ESTADO_PAGADO = "pagado"
 
 # Stock bajo: un SKU con menos de 10 pares
@@ -147,7 +148,7 @@ ABC_LIMITE_B = 95
 # Concentracion de Pareto: que parte de los pares se lleva el 20 % de los modelos
 PARETO_PORCENTAJE = 20
 
-# Atipicos por IQR (DataFrame 10): solo con grupos de al menos 5 valores
+# Atipicos por IQR (DataFrame 10 de la rubrica): solo en grupos de al menos 5 valores
 MINIMO_MUESTRA_IQR = 5
 
 # Fase 4: datos sinteticos y estadistica
@@ -171,10 +172,10 @@ MUESTRA_PEQUENA = 30
 
 # Fase 5: segmentacion RFM, KMeans y prediccion de demanda
 
-# Con menos clientes no se segmenta
+# Con menos clientes con compras que estos no se calcula el RFM ni el KMeans
 MINIMO_CLIENTES_RFM = 10
 MINIMO_CLIENTES_KMEANS = 10
-KMEANS_K = [2, 3, 4, 5]          # numeros de grupos que se prueban
+KMEANS_K = [2, 3, 4, 5]          # valores de k (numero de grupos) que se prueban
 
 # Prediccion: los ultimos 3 meses se reservan para evaluar; hacen falta 12 meses completos
 MESES_EVALUACION = 3

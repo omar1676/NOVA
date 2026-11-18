@@ -30,22 +30,26 @@ CABECERAS = {
 }
 
 
+# Base de las pruebas de los seis fallos de la auditoria del 18/11/2026:
+# cada prueba falla con el codigo anterior a la PR #16 (a4249ea)
 class PruebaRegresion(PruebaCiclo):
-    # Los seis fallos de la auditoria del 18/11/2026: cada prueba falla con el codigo de main a4249ea
 
+    # Ejecuta main.py sin graficos ni salida por consola; devuelve el codigo y la carpeta de salida
     def ejecutar_main(self):
         salida = self.carpeta / "salida"
         with contextlib.redirect_stdout(io.StringIO()):
             codigo = main.ejecutar(self.carpeta, salida, con_graficos=False)
         return codigo, salida
 
+    # Lee un CSV de la carpeta de salida como texto
     def leer_salida(self, salida, archivo):
         return pd.read_csv(salida / archivo, encoding="utf-8", dtype=str, keep_default_na=False)
 
 
+# Fallo 1 (Docker): el usuario nova no podia crear /app/logs y el dashboard se caia al abrirlo
 class PruebasFallo1RegistroSinPermiso(PruebaRegresion):
-    # Docker: el usuario nova no podia crear /app/logs y el dashboard se caia al abrirlo
 
+    # Si no se puede escribir el registro, el ciclo publica igual (CORRECTO) y lo dice en los avisos
     def test_el_ciclo_sigue_si_no_se_puede_escribir_el_registro(self):
         # Un archivo donde deberia ir la carpeta: mkdir falla con OSError, como sin permisos
         archivo = Path(self.otra.name) / "no_es_carpeta"
@@ -55,6 +59,8 @@ class PruebasFallo1RegistroSinPermiso(PruebaRegresion):
         self.assertIsNotNone(estado["publicado"])
         self.assertTrue(any("registro de eventos" in aviso for aviso in estado["avisos"]))
 
+    # El Dockerfile crea /app/logs y se lo da a nova antes de USER nova;
+    # dentro de la imagen se comprueba que se puede escribir en la carpeta de logs
     def test_el_dockerfile_crea_logs_para_el_usuario_nova(self):
         dockerfile = CARPETA_PYTHON / "Dockerfile"
         if not dockerfile.exists():
@@ -68,13 +74,15 @@ class PruebasFallo1RegistroSinPermiso(PruebaRegresion):
         self.assertLess(texto.index("chown nova:nova /app/logs"), texto.index("USER nova"))
 
 
+# Fallo 2: una linea con id_pedido vacio pasaba como valida y contaba como demanda sin pedido
 class PruebasFallo2LineaSinPedido(PruebaRegresion):
-    # Una linea con id_pedido vacio pasaba como valida y contaba como demanda sin pedido
 
+    # Antes de cada prueba deja la linea 101 sin id_pedido
     def setUp(self):
         super().setUp()
         self.cambiar("lineas_pedido.csv", "101,10,M1-41", "101,,M1-41")
 
+    # La linea 101 sale en la regla 09 como recuperable y queda fuera de los validos, sin bloquear
     def test_la_linea_se_rechaza_por_la_regla_09(self):
         resultado = self.evaluar()
         r09 = self.de_la_regla(resultado, "09")
@@ -85,6 +93,7 @@ class PruebasFallo2LineaSinPedido(PruebaRegresion):
         self.assertNotIn("101", set(resultado["validos"]["lineas_pedido"]["id_linea"]))
         self.assertFalse(resultado["bloqueado"])
 
+    # El ABC y las tallas suman los pares de los pedidos no cancelados; ninguna linea queda sin pedido
     def test_los_pares_cuadran_en_todas_las_tablas(self):
         resultado = self.evaluar()
         tablas = analiticas.calcular_tablas(resultado["datos"], resultado["validos"])
@@ -95,9 +104,10 @@ class PruebasFallo2LineaSinPedido(PruebaRegresion):
         self.assertEqual(int(tablas["lineas_enriquecidas"]["id_pedido"].isna().sum()), 0)
 
 
+# Fallo 3: sin la columna personalizacion, calidad.py y analiticas.py daban KeyError
 class PruebasFallo3SinPersonalizacion(PruebaRegresion):
-    # Sin la columna personalizacion, calidad.py y analiticas.py daban KeyError
 
+    # Antes de cada prueba escribe un pedidos.csv sin la columna personalizacion
     def setUp(self):
         super().setUp()
         self.escribir("pedidos.csv",
@@ -106,6 +116,7 @@ class PruebasFallo3SinPersonalizacion(PruebaRegresion):
                       "10,P-1,1,2026-10-01 10:00:00,normal,confirmado,pagado,3,239.97\n"
                       "11,P-2,2,2026-11-02 12:30:00,custom,cancelado,reembolsado,2,239.80\n")
 
+    # La regla 01 da un bloqueante y su detalle nombra la columna personalizacion
     def test_es_un_bloqueo_de_la_regla_01_con_mensaje_claro(self):
         resultado = self.evaluar()
         r01 = self.de_la_regla(resultado, "01")
@@ -113,6 +124,8 @@ class PruebasFallo3SinPersonalizacion(PruebaRegresion):
         self.assertIn("personalizacion", r01["detalle"].iloc[0])
         self.assertTrue(resultado["bloqueado"])
 
+    # Sin KeyError: main termina con codigo 1 y estado BLOQUEADO, y el ciclo del dashboard da
+    # ERROR DE CARGA con el mensaje "faltan columnas obligatorias"
     def test_main_y_el_dashboard_no_se_caen(self):
         codigo, salida = self.ejecutar_main()
         self.assertEqual(codigo, 1)
@@ -122,9 +135,11 @@ class PruebasFallo3SinPersonalizacion(PruebaRegresion):
         self.assertIn("faltan columnas obligatorias: personalizacion", estado["mensaje"])
 
 
+# Fallo 4: sin ninguna fecha_corte valida no se bloqueaba y despues fallaba con NaT
 class PruebasFallo4SinFechaDeCorte(PruebaRegresion):
-    # Sin ninguna fecha_corte valida no se bloqueaba y despues fallaba con NaT
 
+    # Todas las fecha_corte vacias: un solo bloqueante (regla 12), main sale con codigo 1 (BLOQUEADO)
+    # y el ciclo da DATOS INVALIDOS
     def test_stock_sin_fechas_de_corte_bloquea(self):
         self.cambiar("stock.csv", "2026-11-09 19:00:00", "")
         resultado = self.evaluar()
@@ -136,6 +151,8 @@ class PruebasFallo4SinFechaDeCorte(PruebaRegresion):
         self.assertEqual(self.leer_salida(salida, "estado_ejecucion.csv")["estado"].iloc[0], "BLOQUEADO")
         self.assertEqual(self.ciclo()["estado"], actualizacion.DATOS_INVALIDOS)
 
+    # Con los cinco CSV solo con la cabecera tampoco hay fecha de corte: main sale con codigo 1
+    # (BLOQUEADO) y el ciclo da DATOS INVALIDOS
     def test_los_cinco_csv_solo_con_cabecera_bloquean(self):
         for archivo, cabecera in CABECERAS.items():
             self.escribir(archivo, cabecera)
@@ -145,9 +162,10 @@ class PruebasFallo4SinFechaDeCorte(PruebaRegresion):
         self.assertEqual(self.ciclo()["estado"], actualizacion.DATOS_INVALIDOS)
 
 
+# Fallo 5: si main se cortaba, estado_ejecucion.csv seguia diciendo CORRECTO (de la ejecucion anterior)
 class PruebasFallo5EstadoSiSeCorta(PruebaRegresion):
-    # Si main se cortaba, estado_ejecucion.csv seguia diciendo CORRECTO (de la ejecucion anterior)
 
+    # Tras una ejecucion CORRECTO, otra que se corta (error simulado en paso_estadistica) deja EN CURSO
     def test_una_ejecucion_cortada_queda_en_curso(self):
         codigo, salida = self.ejecutar_main()
         self.assertEqual(codigo, 0)
@@ -157,15 +175,17 @@ class PruebasFallo5EstadoSiSeCorta(PruebaRegresion):
                 self.ejecutar_main()
         self.assertEqual(self.leer_salida(salida, "estado_ejecucion.csv")["estado"].iloc[0], "EN CURSO")
 
+    # Aunque estado_ejecucion.csv se guarda dos veces (EN CURSO y al final), sale una sola vez en los metadatos
     def test_una_ejecucion_completa_no_duplica_los_metadatos(self):
         _, salida = self.ejecutar_main()
         metadatos = self.leer_salida(salida, "metadatos_dataframes.csv")
         self.assertEqual((metadatos["archivo"] == "estado_ejecucion.csv").sum(), 1)
 
 
+# Fallo 6: comprobaciones.py unia ids con join y fallaba con un id vacio (TypeError)
 class PruebasFallo6IdsVaciosEnLaFase1(PruebaRegresion):
-    # comprobaciones.py unia ids con join y fallaba con un id vacio (TypeError)
 
+    # Linea sin id y con importe mal: la fase 1 da ERROR con el id como <NA> y main termina (codigo 0)
     def test_linea_sin_id_e_importe_mal_calculado(self):
         self.cambiar("lineas_pedido.csv", "100,10,M1-40,1,40,1,79.99,79.99", ",10,M1-40,1,40,1,79.99,1.00")
         datos, _ = pipeline.cargar_todos(self.carpeta)
@@ -175,6 +195,7 @@ class PruebasFallo6IdsVaciosEnLaFase1(PruebaRegresion):
         codigo, _ = self.ejecutar_main()
         self.assertEqual(codigo, 0)
 
+    # Pedido sin id y sin lineas: la fase 1 da ERROR sin TypeError y main termina (codigo 0)
     def test_pedido_sin_id_y_sin_lineas(self):
         self.anadir("pedidos.csv", ",P-9,1,2026-10-03 10:00:00,normal,pendiente,pendiente,,1,10.00\n")
         datos, _ = pipeline.cargar_todos(self.carpeta)

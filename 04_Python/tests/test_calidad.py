@@ -24,6 +24,7 @@ class PruebaCalidad(PruebaConCarpeta):
     def anadir(self, archivo, filas):
         self.escribir(archivo, VALIDOS[archivo] + filas)
 
+    # Evalua la calidad de los CSV de la carpeta temporal
     def evaluar(self):
         return calidad.evaluar(self.carpeta)
 
@@ -64,13 +65,13 @@ class PruebasRegla01(PruebaCalidad):
         self.assertEqual(estados["stock"], "no cargado")
         self.assertEqual(estados["pedidos"], "sin evaluar")
 
-    # Archivo de 0 bytes
+    # clientes.csv de 0 bytes: el detalle de la regla 01 dice que esta vacio
     def test_archivo_vacio(self):
         self.escribir("clientes.csv", "")
         r01 = self.de_la_regla(self.evaluar(), "01")
         self.assertIn("vacío", r01["detalle"].iloc[0])
 
-    # Falta una columna obligatoria (precio_base)
+    # Sin las columnas obligatorias precio_base y activo: el detalle de la regla 01 nombra precio_base
     def test_falta_columna(self):
         self.escribir("modelos.csv", "id_modelo,nombre_modelo\n1,Uno\n2,Dos\n")
         r01 = self.de_la_regla(self.evaluar(), "01")
@@ -100,7 +101,7 @@ class PruebasRegla02(PruebaCalidad):
         self.assertEqual(set(repetidos["gravedad"]), {"bloqueante"})
         self.assertTrue(resultado["bloqueado"])
 
-    # Un id vacio solo rechaza su fila
+    # Un id_linea vacio es recuperable: no bloquea, pero se rechaza esa linea y su pedido entero
     def test_id_vacio_se_rechaza(self):
         self.cambiar("lineas_pedido.csv", "101,10,M1-41", ",10,M1-41")
         resultado = self.evaluar()
@@ -147,7 +148,7 @@ class PruebasRegla04(PruebaCalidad):
         self.cambiar("pedidos.csv", "2026-11-02 12:30:00", "2026-02-30 12:30:00")
         resultado = self.evaluar()
         r04 = self.de_la_regla(resultado, "04")
-        self.assertEqual(r04["valor"].tolist(), ["2026-02-30 12:30:00"])   # el valor original
+        self.assertEqual(r04["valor"].tolist(), ["2026-02-30 12:30:00"])
         self.assertEqual(r04["gravedad"].tolist(), ["recuperable"])
         self.assertIn("11", self.rechazadas(resultado, "pedidos"))
 
@@ -264,13 +265,13 @@ class PruebasRegla10(PruebaCalidad):
         r10 = self.de_la_regla(resultado, "10")
         self.assertEqual(r10["registro"].tolist(), ["100", "103"])
         self.assertEqual(set(r10["gravedad"]), {"advertencia"})
-        self.assertEqual(len(resultado["rechazadas"]), 0)   # las dos lineas se quedan
+        self.assertEqual(len(resultado["rechazadas"]), 0)
 
 
 # Regla 11: stock
 class PruebasRegla11(PruebaCalidad):
 
-    # Stock negativo
+    # Un stock de -3 sale en la regla 11 con su valor
     def test_stock_negativo(self):
         self.cambiar("stock.csv", "true,12,", "true,-3,")
         r11 = self.de_la_regla(self.evaluar(), "11")
@@ -341,9 +342,8 @@ class PruebasRegla12(PruebaCalidad):
         self.assertEqual(len(resultado["rechazadas"]), 0)
         self.assertEqual(len(resultado["validos"]["pedidos"]), 3)
 
-    # Misma cantidad pero otros articulos: no es un pedido repetido
+    # Mismo cliente y 3 pares, pero otros articulos: no es un pedido repetido
     def test_misma_cantidad_no_basta_para_ser_repetido(self):
-        # Mismo cliente y 3 pares, pero otros articulos: no es sospechoso
         self.anadir("pedidos.csv", "12,P-3,1,2026-10-02 10:00:00,normal,pendiente,pendiente,,3,359.70\n")
         self.anadir("lineas_pedido.csv", "103,12,M2-42,2,42,3,119.90,359.70\n")
         self.assertEqual(len(self.de_la_regla(self.evaluar(), "12")), 0)
@@ -388,7 +388,7 @@ class PruebasCsvDeCalidad(PruebaCalidad):
         with self.assertRaises(pipeline.ErrorDatos):
             pipeline.guardar_salida(self.evaluar()["resumen"], "resumen.csv", self.carpeta, self.carpeta, "x", "y")
 
-    # Evaluar no cambia ningun CSV original
+    # La huella SHA-256 de cada CSV es la misma antes y despues de evaluar
     def test_evaluar_no_modifica_los_originales(self):
         antes = {ruta.name: hashlib.sha256(ruta.read_bytes()).hexdigest() for ruta in self.carpeta.glob("*.csv")}
         self.evaluar()

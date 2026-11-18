@@ -82,6 +82,7 @@ class PruebasDemandaMensual(unittest.TestCase):
 # Variables de entrada de la regresion
 class PruebasVariables(unittest.TestCase):
 
+    # Antes de cada prueba: demanda de A y B de enero a mayo de 2026 con sus variables de entrada
     def setUp(self):
         demanda = prediccion.demanda_mensual(lineas({"A": [10, 20, 30, 40, 50], "B": [1, 2, 3, 4, 5]},
                                                     primer_mes="2026-01"), CORTE)
@@ -111,6 +112,7 @@ class PruebasVariables(unittest.TestCase):
 # Separacion por fecha: sin fuga de datos de la evaluacion al entrenamiento
 class PruebasSeparacionTemporal(unittest.TestCase):
 
+    # Antes de cada prueba: prediccion con las series al azar de 18 meses, sin cambiar nada
     def setUp(self):
         self.series = series_aleatorias()
         self.resultado = prediccion.predecir_demanda(lineas(self.series), CORTE)
@@ -206,13 +208,13 @@ class PruebasMetodos(unittest.TestCase):
             self.assertEqual(metricas.loc[metodo, "rmse"],
                              round(prediccion.rmse(predicciones["pares_reales"], predicciones[metodo]), 2))
         self.assertEqual(metricas.loc["baseline", "filas_evaluacion"], 3 * 4)
-        self.assertTrue((predicciones["regresion"] >= 0).all())          # nunca pares negativos
+        self.assertTrue((predicciones["regresion"] >= 0).all())
 
     # Solo es mejora si bajan el MAE y el RMSE; empatar no cuenta
     def test_comparacion_de_metodos(self):
         self.assertTrue(prediccion.mejora(1, 2, 3, 4).startswith("sí"))
         self.assertTrue(prediccion.mejora(5, 6, 3, 4).startswith("no"))
-        self.assertTrue(prediccion.mejora(3, 4, 3, 4).startswith("no"))   # empatar no es mejorar
+        self.assertTrue(prediccion.mejora(3, 4, 3, 4).startswith("no"))
         self.assertEqual(prediccion.mejora(2, 5, 3, 4), "solo en una métrica: MAE sí, RMSE no")
 
     # Con una tendencia clara, la regresion mejora al baseline
@@ -252,7 +254,7 @@ class PruebasDatosInsuficientes(unittest.TestCase):
         for nombre in ["predicciones", "metricas_prediccion", "errores_por_modelo", "coeficientes_regresion"]:
             self.assertEqual(resultado[nombre]["estado"].iloc[0], NO_CALCULABLE, nombre)
         self.assertIn("11 meses", resultado["predicciones"]["motivo"].iloc[0])
-        self.assertEqual(len(resultado["demanda_mensual_modelo"]), 11)   # la demanda si se describe
+        self.assertEqual(len(resultado["demanda_mensual_modelo"]), 11)
 
     # Sin ningun mes completo, todo NO CALCULABLE
     def test_sin_ningun_mes_completo(self):

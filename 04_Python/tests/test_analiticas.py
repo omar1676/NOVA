@@ -16,6 +16,7 @@ from test_calidad import PruebaCalidad
 # Base: lineas enriquecidas y pedidos unicos de los CSV de prueba
 class PruebaAnalisis(PruebaCalidad):
 
+    # Evalua la calidad (sin bloqueantes) y devuelve las lineas enriquecidas y los pedidos unicos
     def construir(self):
         resultado = calidad.evaluar(self.carpeta)
         self.assertFalse(resultado["bloqueado"])
@@ -53,9 +54,8 @@ class PruebasLineasEnriquecidas(PruebaAnalisis):
         por_pedido = lineas.groupby("id_pedido")["participacion_linea"].sum()
         self.assertAlmostEqual(por_pedido["10"], 1.0, places=3)
 
-    # Linea sin SKU: se queda sin color, pero el cruce con stock no falla
+    # Una linea sin SKU (como las X-NOVA) se queda sin color, pero el cruce con stock no falla
     def test_linea_sin_sku_no_rompe_el_cruce_con_stock(self):
-        # Una linea sin SKU (como las X-NOVA) no tiene color, pero no es un error
         self.anadir("lineas_pedido.csv", "103,10,,1,40,1,79.99,79.99\n")
         self.cambiar("pedidos.csv", "3,239.97", "4,319.96")
         lineas, _ = self.construir()
@@ -95,7 +95,7 @@ class PruebasCruces(PruebaAnalisis):
 # DataFrame de pedidos unicos
 class PruebasPedidosUnicos(PruebaAnalisis):
 
-    # Una fila por pedido
+    # P-1 y P-2 salen una sola vez, aunque P-1 tenga dos lineas
     def test_una_fila_por_pedido(self):
         _, pedidos = self.construir()
         self.assertEqual(pedidos["referencia"].tolist(), ["P-1", "P-2"])
@@ -122,7 +122,7 @@ class PruebasPedidosUnicos(PruebaAnalisis):
         self.assertEqual(pedidos["dia_semana"].tolist(), ["jueves", "lunes"])
         self.assertEqual(pedidos["antiguedad_dias"].tolist(), [39, 7])   # hasta la fecha de corte
 
-    # Marcas de custom, cancelado y confirmado
+    # P-1 es normal y confirmado; P-2 es custom y cancelado
     def test_indicadores_de_tipo_y_estado(self):
         _, pedidos = self.construir()
         self.assertEqual(pedidos["es_custom"].tolist(), [False, True])
@@ -163,11 +163,12 @@ class PruebasPedidosUnicos(PruebaAnalisis):
 # Pedidos, pares e importe con los tres criterios
 class PruebasImportesPorCriterio(PruebaAnalisis):
 
+    # Tabla de importes por criterio, con el nombre del criterio como indice
     def criterios(self):
         _, pedidos = self.construir()
         return analiticas.importes_por_criterio(pedidos).set_index("criterio")
 
-    # Registrados, no cancelados y confirmados en adelante
+    # Registrados: 2 pedidos, 5 pares y 479.77; no cancelados y confirmados: 1, 3 y 239.97
     def test_tres_criterios(self):
         criterios = self.criterios()
         self.assertEqual(criterios.loc["registrados", ["pedidos", "pares", "importe_eur"]].tolist(), [2, 5, 479.77])
@@ -267,6 +268,7 @@ SQL_CASO_N = {
 # Contraste del caso N (N-1, N-2 y N-3)
 class PruebasCasoN(PruebaAnalisis):
 
+    # Evalua la calidad y calcula todas las tablas analiticas de los CSV de prueba
     def tablas(self):
         resultado = calidad.evaluar(self.carpeta)
         return analiticas.calcular_tablas(resultado["datos"], resultado["validos"])

@@ -23,6 +23,7 @@ AVISO_ORIGEN = {
 }
 
 
+# Devuelve el aviso de AVISO_ORIGEN para ese origen; si no esta, avisa de que es desconocido
 def aviso(tipo_origen):
     return AVISO_ORIGEN.get(tipo_origen, " Origen desconocido: no se sabe de qué base salen los datos.")
 
@@ -30,6 +31,7 @@ def aviso(tipo_origen):
 # Estadistica descriptiva (apartado 6.6)
 
 # Media, mediana, moda, dispersion y percentiles de una variable
+# Devuelve una fila (diccionario) que dice tambien si la resume mejor la media o la mediana
 def describir(valores, variable, grupo, unidad, con_moda):
     valores = pd.Series(valores, dtype=float).dropna()
     fila = {"variable": variable, "grupo": grupo, "unidad": unidad, "n": len(valores)}
@@ -102,7 +104,7 @@ def descriptivos(tablas):
     return tabla.sort_values("variable", kind="stable").reset_index(drop=True)
 
 
-# Bootstrap
+# Bootstrap: intervalos de confianza sacando muchas muestras nuevas de los mismos datos
 
 # Muestra nueva del mismo tamano, sacada con reemplazo
 def remuestrear(rng, valores):
@@ -110,13 +112,14 @@ def remuestrear(rng, valores):
 
 
 # Intervalo de confianza: percentiles 2,5 y 97,5 si el nivel es del 95 %
+# Recibe los resultados de todos los remuestreos y devuelve (inferior, superior)
 def intervalo(resultados):
     cola = (100 - config.NIVEL_CONFIANZA) / 2
     inferior, superior = np.percentile(resultados, [cola, 100 - cola])
     return round(float(inferior), 2), round(float(superior), 2)
 
 
-# Intervalo bootstrap de la media
+# Intervalo bootstrap de la media; con la semilla fija sale siempre igual
 def bootstrap_media(valores, semilla=config.SEMILLA, remuestreos=config.BOOTSTRAP_REMUESTREOS):
     valores = np.asarray(valores, dtype=float)
     rng = np.random.default_rng(semilla)
@@ -127,6 +130,7 @@ def bootstrap_media(valores, semilla=config.SEMILLA, remuestreos=config.BOOTSTRA
 
 
 # Intervalo del ticket medio de venta; con menos de 5 pedidos es NO CALCULABLE
+# Devuelve una tabla de una fila con la estimacion, el intervalo y la interpretacion
 def bootstrap_ticket_medio(pedidos_unicos, tipo_origen):
     importes = de_venta(pedidos_unicos)["importe"].astype(float).to_numpy()
     estimacion = None
@@ -153,8 +157,10 @@ def bootstrap_ticket_medio(pedidos_unicos, tipo_origen):
 
 
 # Las tres hipotesis (apartado 6.7)
+# Cada hipotesis devuelve una fila con su estimacion, su intervalo y el resultado
 
-# Si el intervalo queda a un lado de la referencia hay respuesta; si la incluye, no
+# Resultado de la hipotesis: el intervalo por encima de la referencia la apoya, por debajo la contradice
+# y si incluye la referencia no hay evidencia suficiente
 def veredicto(inferior, superior, referencia):
     if inferior > referencia:
         return "los datos la apoyan"
@@ -163,7 +169,7 @@ def veredicto(inferior, superior, referencia):
     return f"evidencia insuficiente: el intervalo incluye {referencia}"
 
 
-# Aviso si algun grupo tiene menos de 30 valores
+# Texto de aviso si algun grupo tiene menos de 30 valores (vacio si no)
 def aviso_muestra(*tamanos):
     if min(tamanos) < config.MUESTRA_PEQUENA:
         return (f" Muestra pequeña (menos de {config.MUESTRA_PEQUENA} valores en algún grupo): "
@@ -171,7 +177,7 @@ def aviso_muestra(*tamanos):
     return ""
 
 
-# Hipotesis que no se puede contrastar por falta de datos
+# Completa la fila de una hipotesis que no se puede contrastar por falta de datos
 def insuficiente(fila, motivo, tipo_origen):
     fila["resultado"] = f"evidencia insuficiente: {motivo}"
     fila["interpretacion"] = "No se puede contrastar con estos datos." + aviso(tipo_origen)
@@ -310,7 +316,7 @@ def hipotesis_crecimiento(pedidos_unicos, tipo_origen):
     return fila
 
 
-# Las tres hipotesis en una tabla
+# Contrasta las tres hipotesis y devuelve una tabla con una fila por hipotesis
 def contrastar_hipotesis(tablas, tipo_origen):
     filas = [
         hipotesis_custom(tablas["pedidos_unicos"], tipo_origen),

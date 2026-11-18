@@ -55,14 +55,14 @@ CONSULTAS_CASO_N = {
 COLUMNAS_TEXTO = ["estado", "modelo", "anio_mes"]
 
 
-# Definicion de una consulta, sea P-A a P-C o del caso N
+# Devuelve la definicion (archivo, sql y python) de una consulta, sea P-A a P-C o del caso N
 def definicion(consulta):
     if consulta in CONSULTAS:
         return CONSULTAS[consulta]
     return CONSULTAS_CASO_N[consulta]
 
 
-# CSV de resultados SQL que todavia no estan en la carpeta
+# Devuelve la lista de CSV de resultados SQL que todavia no estan en la carpeta (vacia si estan todos)
 def faltan_resultados(carpeta_sql, consultas=CONSULTAS):
     carpeta_sql = Path(carpeta_sql)
     faltan = []
@@ -81,7 +81,8 @@ def leer_resultado(carpeta_sql, consulta):
     return tabla
 
 
-# Una fila de la conciliacion: cifra de SQL, cifra de Python y si coinciden
+# Crea una fila de la conciliacion: cifra de SQL, cifra de Python y si coinciden
+# Los importes (euros=True) admiten la tolerancia de medio centimo
 def comparar(consulta, indicador, clave, valor_sql, valor_python, euros=False):
     if pd.isna(valor_sql):
         resultado = "falta en SQL"
@@ -107,6 +108,7 @@ def comparar(consulta, indicador, clave, valor_sql, valor_python, euros=False):
 
 
 # Compara grupo a grupo; un grupo que solo esta en un lado sale como "falta en ..."
+# Recibe las tablas de SQL y de Python con la misma clave; devuelve una lista de filas de comparar()
 def comparar_por_grupos(consulta, sql, python, clave, indicadores):
     cruce = sql.merge(python, on=clave, how="outer", suffixes=("_sql", "_python"), validate="one_to_one")
     filas = []
@@ -117,7 +119,7 @@ def comparar_por_grupos(consulta, sql, python, clave, indicadores):
     return filas
 
 
-# Conciliacion P-A, P-B y P-C; None si falta algun resultado SQL
+# Conciliacion P-A, P-B y P-C: una fila por cifra comparada; None si falta algun resultado SQL
 def conciliar(carpeta_sql, pedidos_unicos, lineas_enriquecidas):
     if faltan_resultados(carpeta_sql):
         return None
@@ -147,7 +149,7 @@ def conciliar(carpeta_sql, pedidos_unicos, lineas_enriquecidas):
     return pd.DataFrame(filas)
 
 
-# Contraste del caso N (N-1, N-2 y N-3); None si falta algun resultado
+# Contraste del caso N (N-1, N-2 y N-3) con las tablas de analiticas; None si falta algun resultado
 def contrastar_caso_n(carpeta_sql, tablas):
     if faltan_resultados(carpeta_sql, CONSULTAS_CASO_N):
         return None

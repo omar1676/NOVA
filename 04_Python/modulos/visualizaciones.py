@@ -2,14 +2,14 @@ from pathlib import Path
 
 import matplotlib
 matplotlib.use("Agg")   # dibuja directamente en archivos, sin abrir ventanas
-import matplotlib.dates as mdates   # noqa: E402  (tiene que ir despues de elegir "Agg")
-import matplotlib.pyplot as plt   # noqa: E402
-import numpy as np   # noqa: E402
-import pandas as pd   # noqa: E402
-from matplotlib.patches import Patch   # noqa: E402
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt   # se importa despues de elegir "Agg"
+import numpy as np
+import pandas as pd
+from matplotlib.patches import Patch
 
-import config   # noqa: E402
-from analiticas import de_demanda, es_no_calculable, rellenar_meses   # noqa: E402
+import config
+from analiticas import de_demanda, es_no_calculable, rellenar_meses
 
 # Colores de los graficos
 AZUL = "#1f5fa8"
@@ -19,7 +19,7 @@ COLOR_CLASE = {"A": "#2e7d32", "B": "#f9a825", "C": GRIS}
 COLOR_TIPO = {"normal": AZUL, "custom": NARANJA}
 MAXIMO_CLIENTES = 15   # en el ranking de clientes; con mas barras no se lee
 
-# Lo que responde cada grafico (para la consola y las pruebas)
+# Archivo, tipo de grafico y pregunta que responde cada uno (para la consola y las pruebas)
 GRAFICOS = [
     ("01_pedidos_por_estado.png", "barras", "¿En qué estado están los pedidos?"),
     ("02_pareto_modelos.png", "Pareto", "¿Qué modelos concentran la demanda? (ABC)"),
@@ -34,7 +34,7 @@ GRAFICOS = [
 ]
 
 
-# Figura con la pregunta como titulo y un subtitulo
+# Crea una figura con la pregunta como titulo y un subtitulo; devuelve (fig, ax)
 def nueva_figura(pregunta, subtitulo):
     fig, ax = plt.subplots(figsize=(10, 6))
     fig.suptitle(pregunta, fontsize=13, fontweight="bold", x=0.02, ha="left")
@@ -42,7 +42,7 @@ def nueva_figura(pregunta, subtitulo):
     return fig, ax
 
 
-# Anade el pie (origen, corte, filtros...) y guarda el PNG
+# Anade el pie (origen, corte, filtros...), guarda el PNG, cierra la figura y devuelve la ruta
 def guardar(fig, carpeta, archivo, pie):
     fig.text(0.02, 0.012, pie, fontsize=7.5, color="#555555", ha="left", va="bottom")
     fig.tight_layout(rect=(0, 0.04, 1, 0.97))
@@ -52,12 +52,14 @@ def guardar(fig, carpeta, archivo, pie):
     return ruta
 
 
-# Mensaje en el centro cuando no hay nada que dibujar
+# Escribe un mensaje en el centro cuando no hay nada que dibujar
 def sin_datos(ax, mensaje="Sin datos para este gráfico"):
     ax.text(0.5, 0.5, mensaje, ha="center", va="center", fontsize=12, transform=ax.transAxes)
     ax.set_xticks([])
     ax.set_yticks([])
 
+
+# Graficos 01 a 10: cada uno recibe su tabla, la carpeta y el pie, y devuelve la ruta del PNG
 
 # Grafico 01: pedidos por estado; en azul los que cuentan como venta
 def grafico_pedidos_por_estado(tabla, carpeta, pie):
@@ -309,11 +311,13 @@ def grafico_pares_frente_a_importe(pedidos, carpeta, pie):
     return guardar(fig, carpeta, GRAFICOS[9][0], pie)
 
 
-# Fase 5: va aparte (en graficos_prediccion/) porque es una prediccion, no una descripcion de los datos
+# Fase 5: el grafico 11 va aparte (main.py lo guarda en graficos_prediccion/) porque es una
+# prediccion, no una descripcion de los datos
 GRAFICO_PREDICCION = ("11_real_frente_a_prediccion.png", "dispersión", "¿Acierta la predicción de demanda?")
 
 
 # Grafico 11: pares reales frente a predichos, con el baseline y la regresion
+# Recibe la tabla de predicciones de prediccion.predecir_demanda; si es NO CALCULABLE, ensena el motivo
 def grafico_real_frente_a_prediccion(predicciones, carpeta, pie):
     carpeta = Path(carpeta)
     carpeta.mkdir(parents=True, exist_ok=True)
@@ -342,7 +346,8 @@ def grafico_real_frente_a_prediccion(predicciones, carpeta, pie):
     return guardar(fig, carpeta, GRAFICO_PREDICCION[0], pie)
 
 
-# Genera los 10 graficos de analisis en la carpeta
+# Genera los 10 graficos de analisis en la carpeta y devuelve la lista de rutas
+# Recibe el diccionario de tablas de analiticas.calcular_tablas
 def generar_todos(tablas, carpeta, pie):
     carpeta = Path(carpeta)
     carpeta.mkdir(parents=True, exist_ok=True)

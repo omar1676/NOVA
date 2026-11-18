@@ -1,19 +1,23 @@
 import config
 
+# Comprobaciones rapidas de la fase 1 sobre los CSV ya cargados (las ensena main.py por consola)
+# Cada comprobacion recibe las tablas cargadas y devuelve una fila hecha con resultado()
 
-# Una fila del resultado: nombre de la comprobacion, OK/AVISO/ERROR y detalle
+
+# Crea una fila del resultado: nombre de la comprobacion, OK/AVISO/ERROR y detalle
 def resultado(nombre, estado, detalle):
     return {"comprobacion": nombre, "resultado": estado, "detalle": detalle}
 
 
-# Valores que no se han podido convertir a su tipo
+# Avisa si hay valores que no se han podido convertir a su tipo
+# Recibe la lista de avisos de la carga (pipeline.preparar)
 def comprobar_conversiones(avisos):
     if not avisos:
         return resultado("Tipos de datos", "OK", "todos los valores se han convertido a su tipo")
     return resultado("Tipos de datos", "AVISO", f"{len(avisos)} valores no se han podido convertir (ver avisos)")
 
 
-# Columnas que faltan, que sobran o que vienen en otro orden
+# Avisa de las columnas que faltan, que sobran o que vienen en otro orden que en config.ARCHIVOS
 def comprobar_columnas(datos):
     diferencias = []
     for nombre, definicion in config.ARCHIVOS.items():
@@ -35,7 +39,7 @@ def comprobar_columnas(datos):
     return resultado("Columnas del exportador", "OK", f"las {total} columnas esperadas, en su orden")
 
 
-# Texto mal codificado en las columnas de texto
+# Da error si hay texto mal codificado en las columnas de texto
 def comprobar_codificacion(datos):
     sospechosos = []
     for nombre, tabla in datos.items():
@@ -51,7 +55,7 @@ def comprobar_codificacion(datos):
     return resultado("Codificación UTF-8", "OK", "leídos como UTF-8, sin caracteres mal convertidos")
 
 
-# Identificadores repetidos en las columnas de CLAVES_UNICAS
+# Da error si hay identificadores repetidos en las columnas de config.CLAVES_UNICAS
 def comprobar_claves_unicas(datos):
     repetidas = []
     for nombre, columna in config.CLAVES_UNICAS:
@@ -64,13 +68,13 @@ def comprobar_claves_unicas(datos):
     return resultado("Claves únicas", "OK", "ningún identificador repetido")
 
 
-# Valores de la tabla hija que no existen en la tabla padre
+# Devuelve los valores de la tabla hija que no existen en la tabla padre (sin repetir)
 def sin_pareja(hijos, columna, padres, columna_padre):
     valores = hijos[columna].dropna()
     return valores[~valores.isin(padres[columna_padre])].unique()
 
 
-# Claves ajenas sin pareja (relaciones de config.RELACIONES)
+# Da error si alguna clave ajena de config.RELACIONES no tiene pareja en su tabla padre
 def comprobar_relaciones(datos):
     huerfanas = []
     for hijos, columna, padres, columna_padre in config.RELACIONES:
@@ -82,7 +86,7 @@ def comprobar_relaciones(datos):
     return resultado("Relaciones entre tablas", "OK", f"las {len(config.RELACIONES)} relaciones encuentran su pareja")
 
 
-# Pedidos que no tienen ninguna linea
+# Avisa si hay pedidos que no tienen ninguna linea
 def comprobar_pedidos_con_lineas(datos):
     sin_lineas = sin_pareja(datos["pedidos"], "id_pedido", datos["lineas_pedido"], "id_pedido")
     if len(sin_lineas) > 0:
@@ -90,7 +94,7 @@ def comprobar_pedidos_con_lineas(datos):
     return resultado("Pedidos con líneas", "OK", "todos los pedidos tienen al menos una línea")
 
 
-# Cantidades, precios e importes que no cuadran
+# Da error si hay cantidades, precios o stock negativos, o importes y totales que no cuadran
 def comprobar_importes_y_cantidades(datos):
     lineas = datos["lineas_pedido"]
     pedidos = datos["pedidos"]
@@ -130,7 +134,7 @@ def comprobar_importes_y_cantidades(datos):
                      f"{int(lineas['cantidad'].sum())} pares y {lineas['importe_linea'].sum():.2f} €")
 
 
-# Fechas de los pedidos: con menos de 2 meses no hay series mensuales
+# Periodo de los pedidos; avisa si hay menos de 2 meses distintos (no hay series mensuales)
 def comprobar_periodo(datos):
     fechas = datos["pedidos"]["fecha_pedido"].dropna()
     if len(fechas) == 0:
@@ -143,7 +147,7 @@ def comprobar_periodo(datos):
     return resultado("Periodo de los pedidos", "OK", detalle)
 
 
-# Lanza todas las comprobaciones y devuelve una fila por cada una
+# Lanza todas las comprobaciones y devuelve una lista con una fila por cada una
 def comprobar_todo(datos, avisos):
     return [
         comprobar_conversiones(avisos),

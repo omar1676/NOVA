@@ -55,8 +55,9 @@ class PruebaApp(unittest.TestCase):
             setattr(config, nombre, valor)
         cls.temporal.cleanup()
 
+    # Antes de cada prueba vuelve a escribir la exportacion "de prueba":
+    # los cinco CSV validos de test_pipeline.py y un ORIGEN.txt de tipo PRUEBA
     def setUp(self):
-        # La exportacion "de prueba": los cinco CSV validos de test_pipeline.py
         self.acc.mkdir(exist_ok=True)
         for archivo, texto in VALIDOS.items():
             (self.acc / archivo).write_text(texto, encoding="utf-8", newline="")
@@ -115,7 +116,7 @@ class PruebasArranque(PruebaApp):
                 with self.subTest(origen=origen, pestana=pestana):
                     self.abrir(origen, pestana)
 
-    # Hay al menos cinco botones de descarga distintos
+    # Entre las seis pestanas de los sinteticos hay al menos cinco botones de descarga distintos
     def test_al_menos_cinco_descargas(self):
         nombres = set()
         for pestana in PESTANAS:
@@ -145,12 +146,13 @@ class PruebasCalidadYOrigen(PruebaApp):
         self.assertIn("BLOQUEADO", self.textos(calidad_app.error))
         self.assertEqual(self.tarjetas(calidad_app)["Bloqueantes"], "3")
 
-    # incidencias.csv trae las 21 incidencias con su origen y, al descargarlo, queda en el registro
+    # El CSV de incidencias de los sinteticos con errores (incidencias_sintetico.csv) trae las 21
+    # con sus 7 columnas de origen y metadatos, y al descargarlo queda apuntado en el registro
     def test_descarga_de_incidencias(self):
         descargas = {}
         boton_real = st.download_button
 
-        # Hace de boton de descarga y guarda lo que entrega y lo que hace al pulsarlo
+        # Hace de boton de descarga: guarda el CSV y las opciones (on_click y args) y crea el boton real
         def boton_que_guarda(etiqueta, datos, *args, **opciones):
             descargas[opciones["file_name"]] = (datos, opciones)
             return boton_real(etiqueta, datos, *args, **opciones)
