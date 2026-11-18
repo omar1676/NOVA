@@ -2,6 +2,7 @@
 
 BEGIN;
 
+-- Los 7 modelos del catalogo; X-NOVA es el de fabricacion a medida
 INSERT INTO public.modelos (nombre, descripcion, precio_base, activo)
 VALUES
 ('NOVA Origin', 'Estilo clasico y minimalista', 79.99, true),
@@ -12,6 +13,7 @@ VALUES
 ('NOVA Pulse', 'Estilo tecnico y futurista', 114.90, true),
 ('X-NOVA', 'Concepto de fabricacion personalizada mediante escaneo simulado del pie', 12000.00, true);
 
+-- Dos colores (variantes) por modelo, menos X-NOVA
 INSERT INTO public.variantes (id_modelo, color)
 SELECT m.id_modelo, datos.color
 FROM (
@@ -31,6 +33,7 @@ FROM (
 ) AS datos(nombre_modelo, color)
 JOIN public.modelos m ON m.nombre = datos.nombre_modelo;
 
+-- Un SKU por variante y talla, de la 40 a la 44 (60 SKU)
 INSERT INTO public.producto_sku (id_variante, talla, sku)
 SELECT
     v.id_variante,
@@ -50,11 +53,13 @@ WHERE m.nombre IN (
 );
 
 
+-- Una sola nave (almacen)
 INSERT INTO public.nave (nombre, ubicacion, capacidad)
 VALUES ('NOVA Central', 'Madrid', 2000);
 
 
 
+-- 20 pares de cada SKU en NOVA Central (1200 pares en total)
 INSERT INTO public.existencias (
     id_producto_sku,
     id_nave,
@@ -68,6 +73,7 @@ FROM public.producto_sku s
 CROSS JOIN public.nave n
 WHERE n.nombre = 'NOVA Central';
 
+-- Cinco clientes particulares (el tipo por defecto)
 INSERT INTO public.clientes (nombre, email)
 VALUES
     ('Daniel Jan', 'daniel.jan@example.com'),
@@ -76,22 +82,26 @@ VALUES
     ('Nuria Soto', 'nuria.soto@example.com'),
     ('Aitor Parras', 'aitor.parras@example.com');
 
+-- Un cliente empresa: el club del pedido de 40 pares
 INSERT INTO public.clientes (nombre, tipo, email, telefono)
 VALUES
     ('Club Atletico NOVA', 'empresa', 'club.atletico@example.com', '600000000');
 
+-- Los tres roles de la aplicacion
 INSERT INTO public.roles (nombre, descripcion)
 VALUES
     ('administrador', 'Gestiona el catalogo, los pedidos y el inventario'),
     ('trabajador', 'Prepara los pedidos y actualiza su estado'),
     ('comercial', 'Registra pedidos de clientes en la tienda');
 
+-- Una persona de demostracion por rol
 INSERT INTO public.personal (nombre, dni, puesto)
 VALUES
     ('Demo Administracion', 'X0000001X', 'Administrador de sistema'),
     ('Demo Taller', 'X0000002X', 'Operario de taller'),
     ('Demo Tienda', 'X0000003X', 'Comercial de tienda');
 
+-- Una cuenta por rol, sin contrasena (!): se activan con 13_activar_usuarios.sql
 INSERT INTO public.usuarios (
     username,
     password_hash,
@@ -116,6 +126,7 @@ JOIN public.roles r
 JOIN public.personal pe
     ON pe.dni = datos.dni;
 
+-- Diez pedidos pendientes: tres personalizados y dos sin usuario asignado
 INSERT INTO public.pedidos (
     referencia,
     id_cliente,
@@ -152,6 +163,7 @@ LEFT JOIN public.usuarios u
     ON u.username = datos.username;
 
 
+-- Una linea de un par en cada pedido; el subtotal (0) lo recalcula el trigger
 INSERT INTO public.linea_pedido (
     id_pedido,
     id_producto_sku,
@@ -191,6 +203,7 @@ JOIN public.producto_sku s
     ON s.id_variante = v.id_variante
    AND s.talla = datos.talla;
 
+-- Pedido NOVA-0011: el del club, personalizado
 INSERT INTO public.pedidos (
     referencia,
     id_cliente,
@@ -213,6 +226,7 @@ JOIN public.usuarios u
     ON u.username = 'tienda.demo'
 WHERE c.email = 'club.atletico@example.com';
 
+-- Sus 40 pares: 10 de NOVA Velocity Rojo en cada talla, de la 40 a la 43
 INSERT INTO public.linea_pedido (
     id_pedido,
     id_producto_sku,

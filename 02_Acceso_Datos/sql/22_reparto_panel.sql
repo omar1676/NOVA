@@ -7,7 +7,7 @@
 -- Todo o nada: si algo falla, no queda nada a medias
 BEGIN;
 
--- 1. La funcion
+-- 1. La funcion: un administrador pasa un pedido confirmado a enviado
 CREATE OR REPLACE FUNCTION public.marcar_pedido_en_reparto(p_id_usuario integer, p_id_pedido integer)
  RETURNS void
  LANGUAGE plpgsql
@@ -33,6 +33,7 @@ BEGIN
     END IF;
 
     -- 2. El pedido existe y esta confirmado. FOR UPDATE: si llegan dos clics
+    --    a la vez, el segundo espera al primero y ya lo ve enviado
     SELECT estado
     INTO v_estado
     FROM public.pedidos
@@ -48,6 +49,7 @@ BEGIN
     END IF;
 
     -- 3. Quien hace el cambio: lo mismo que deja iniciar_sesion (02), el id
+    --    y su firma. Asi auditar_estado_pedido (08) apunta al administrador
     v_sesion_anterior := current_setting('nova.id_usuario', true);
     PERFORM set_config(
         'nova.id_usuario',
@@ -57,6 +59,7 @@ BEGIN
     );
 
     -- 4. El cambio de estado. Los triggers de 03 no tocan el stock: solo
+    --    actuan al confirmar o al cancelar
     UPDATE public.pedidos
     SET estado = 'enviado'
     WHERE id_pedido = p_id_pedido;
@@ -67,6 +70,7 @@ END;
 $function$
 ;
 
+-- Por defecto nadie puede ejecutarla; solo panel_reparto (abajo)
 REVOKE EXECUTE ON FUNCTION public.marcar_pedido_en_reparto(integer, integer) FROM PUBLIC;
 
 -- 2. El rol que solo puede marcar pedidos en reparto
@@ -80,6 +84,7 @@ CREATE ROLE panel_reparto NOLOGIN;
 GRANT USAGE ON SCHEMA public TO panel_reparto;
 GRANT EXECUTE ON FUNCTION public.marcar_pedido_en_reparto(integer, integer) TO panel_reparto;
 
+-- web_nova (de 19_usuario_web.sql) puede pasar a panel_reparto con SET ROLE, sin heredar
 GRANT panel_reparto TO web_nova WITH INHERIT FALSE, SET TRUE;
 
 COMMIT;

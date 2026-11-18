@@ -1,5 +1,8 @@
+# Monta la base nova_sneakers la primera vez que arranca el contenedor db
+# set -e: si un comando falla, el script se para
 set -e
 
+# Carpeta de los scripts SQL dentro del contenedor
 SQL=/nova/sql
 LOGS=/tmp/nova-logs   # la salida de cada script, para revisarla si algo falla
 mkdir -p "$LOGS"
@@ -9,6 +12,7 @@ cd "$LOGS"            # el 15 y el 16 dejan aqui sus CSV
 instalar() {
   local script=$1
   shift
+  # Las respuestas entran a psql por la entrada estandar; ON_ERROR_STOP para en el primer error
   if ! printf '%s\n' "$@" | psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
       -f "$SQL/$script.sql" > "$script.log" 2>&1; then
     echo "NOVA: ERROR en $script.sql"
@@ -21,6 +25,7 @@ instalar() {
 # probar <script>: consultas y pruebas; el 09 tiene un ERROR previsto (S4b)
 probar() {
   psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "$SQL/$1.sql" > "$1.log" 2>&1
+  # Cuenta las lineas del log con PASS, FAIL y ERROR
   echo "NOVA: $1.sql -> PASS: $(grep -c PASS "$1.log"), FAIL: $(grep -c FAIL "$1.log"), ERROR: $(grep -c ERROR "$1.log")"
 }
 
@@ -39,6 +44,7 @@ for script in 06_consultas 09_pruebas 10_caso_custom 11_dml_ejemplos 12_consulta
 done
 
 # 4. Cuentas de demostracion (el 13 pide admin.demo, taller.demo, tienda.demo
+#    y otra vez admin.demo) y el pedido CUSTOM-40
 instalar 13_activar_usuarios "$CLAVE_DEMO" "$CLAVE_DEMO" "$CLAVE_DEMO" "$CLAVE_DEMO"
 instalar 14_caso_custom_persistente "$CLAVE_DEMO"
 
@@ -54,4 +60,5 @@ instalar 23_portal_trabajador
 
 # El 18 (datos de SO024) no se lanza: necesita los datos acordados.
 
+# Resumen final: PASS, FAIL y ERROR de todas las pruebas, del 09 al 16
 echo "NOVA: base nova_sneakers montada. Pruebas 09 a 16 -> PASS: $(cat 09_*.log 1[0-6]_*.log | grep -c PASS), FAIL: $(cat 09_*.log 1[0-6]_*.log | grep -c FAIL), ERROR: $(cat 09_*.log 1[0-6]_*.log | grep -c ERROR)"

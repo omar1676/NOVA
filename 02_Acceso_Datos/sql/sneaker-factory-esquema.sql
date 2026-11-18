@@ -1,10 +1,14 @@
+-- Esquema de la base nova_sneakers: tablas, claves ajenas e indices
+
 BEGIN;
 
+-- Extension pgcrypto (crypt y hmac para las contrasenas) en su propio esquema
 CREATE SCHEMA IF NOT EXISTS extensiones;
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto SCHEMA extensiones;
 
 
+-- Tabla de modelos de zapatilla
 CREATE TABLE public.modelos (
     id_modelo int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
     nombre varchar(40) NOT NULL,
@@ -17,6 +21,7 @@ CREATE TABLE public.modelos (
     CONSTRAINT modelos_precio_check CHECK (precio_base >= 0)
 );
 
+-- Tabla de variantes: cada color de un modelo
 CREATE TABLE public.variantes (
     id_variante int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
     id_modelo int4 NOT NULL,
@@ -27,6 +32,7 @@ CREATE TABLE public.variantes (
     CONSTRAINT variantes_check_1 CHECK (suplemento_precio >= 0)
 );
 
+-- Tabla de productos (SKU): una variante en una talla, de la 20 a la 55
 CREATE TABLE public.producto_sku (
     id_producto_sku int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
     id_variante int4 NOT NULL,
@@ -39,6 +45,7 @@ CREATE TABLE public.producto_sku (
     CONSTRAINT producto_sku_check_1 CHECK (talla BETWEEN 20 AND 55)
 );
 
+-- Tabla de naves (almacenes)
 CREATE TABLE public.nave (
     id_nave int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
     nombre varchar(80) NOT NULL,
@@ -48,6 +55,7 @@ CREATE TABLE public.nave (
     CONSTRAINT nave_check_1 CHECK (capacidad >= 0)
 );
 
+-- Tabla de existencias: pares de cada SKU en cada nave (el stock nunca es negativo)
 CREATE TABLE public.existencias (
     id_existencia int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
     id_producto_sku int4 NOT NULL,
@@ -58,6 +66,7 @@ CREATE TABLE public.existencias (
     CONSTRAINT existencias_check_1 CHECK (cantidad >= 0)
 );
 
+-- Tabla de clientes (particulares o empresas)
 CREATE TABLE public.clientes (
     id_cliente int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
     nombre varchar(120) NOT NULL,
@@ -71,6 +80,7 @@ CREATE TABLE public.clientes (
     CONSTRAINT clientes_check_1 CHECK (tipo IN ('particular', 'empresa'))
 );
 
+-- Tabla del personal de la empresa
 CREATE TABLE public.personal (
     id_personal int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
     nombre varchar(120) NOT NULL,
@@ -80,6 +90,7 @@ CREATE TABLE public.personal (
     CONSTRAINT personal_dni_uq UNIQUE (dni)
 );
 
+-- Tabla de roles de la aplicacion (administrador, trabajador, comercial)
 CREATE TABLE public.roles (
     id_rol int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
     nombre varchar(50) NOT NULL,
@@ -88,6 +99,7 @@ CREATE TABLE public.roles (
     CONSTRAINT roles_nombre_uq UNIQUE (nombre)
 );
 
+-- Tabla de usuarios: cuenta de acceso con su rol y su ficha de personal
 CREATE TABLE public.usuarios (
     id_usuario int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
     username varchar(60) NOT NULL,
@@ -100,6 +112,7 @@ CREATE TABLE public.usuarios (
     CONSTRAINT usuarios_id_personal_uq UNIQUE (id_personal)
 );
 
+-- Tabla de tiendas fisicas
 CREATE TABLE public.tienda_fisica (
     id_tienda int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
     nombre varchar(100) NOT NULL,
@@ -108,6 +121,7 @@ CREATE TABLE public.tienda_fisica (
     CONSTRAINT tienda_fisica_pk PRIMARY KEY (id_tienda)
 );
 
+-- Tabla de pedidos, con su estado y su estado de pago
 CREATE TABLE public.pedidos (
     id_pedido int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
     referencia varchar(30) NOT NULL,
@@ -130,6 +144,7 @@ CREATE TABLE public.pedidos (
     CONSTRAINT pedidos_check_4 CHECK (estado_pago IN ('pendiente', 'pagado', 'reembolsado'))
 );
 
+-- Tabla de lineas de pedido; stock_descontado dice si ya se resto el stock
 CREATE TABLE public.linea_pedido (
     id_linea int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
     id_pedido int4 NOT NULL,
@@ -145,6 +160,7 @@ CREATE TABLE public.linea_pedido (
     CONSTRAINT linea_pedido_check_3 CHECK (subtotal >= 0)
 );
 
+-- Tabla de auditoria: la rellenan los triggers de 08_auditoria.sql
 CREATE TABLE public.log_eventos (
     id_evento int4 GENERATED ALWAYS AS IDENTITY NOT NULL,
     id_usuario int4,
@@ -156,6 +172,7 @@ CREATE TABLE public.log_eventos (
     CONSTRAINT log_eventos_pk PRIMARY KEY (id_evento)
 );
 
+-- Claves ajenas entre las tablas
 ALTER TABLE public.variantes ADD CONSTRAINT variantes_id_modelo_fk FOREIGN KEY (id_modelo) REFERENCES public.modelos (id_modelo);
 ALTER TABLE public.producto_sku ADD CONSTRAINT producto_sku_id_variante_fk FOREIGN KEY (id_variante) REFERENCES public.variantes (id_variante);
 ALTER TABLE public.existencias ADD CONSTRAINT existencias_id_producto_sku_fk FOREIGN KEY (id_producto_sku) REFERENCES public.producto_sku (id_producto_sku);
@@ -170,6 +187,7 @@ ALTER TABLE public.linea_pedido ADD CONSTRAINT linea_pedido_id_producto_sku_fk F
 ALTER TABLE public.linea_pedido ADD CONSTRAINT linea_pedido_id_nave_fk FOREIGN KEY (id_nave) REFERENCES public.nave (id_nave);
 ALTER TABLE public.log_eventos ADD CONSTRAINT log_eventos_id_usuario_fk FOREIGN KEY (id_usuario) REFERENCES public.usuarios (id_usuario);
 
+-- Indices en las claves ajenas para que los JOIN vayan mas rapido
 CREATE INDEX variantes_id_modelo_idx ON public.variantes (id_modelo);
 CREATE INDEX producto_sku_id_variante_idx ON public.producto_sku (id_variante);
 CREATE INDEX existencias_id_producto_sku_idx ON public.existencias (id_producto_sku);

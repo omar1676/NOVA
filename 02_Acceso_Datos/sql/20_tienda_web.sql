@@ -24,6 +24,7 @@ REVOKE ALL ON public.cuentas_cliente FROM PUBLIC;
 
 -- 2. Funciones
 
+-- Funcion: da de alta un cliente de la web con su contrasena cifrada
 CREATE OR REPLACE FUNCTION public.registrar_cliente(
     p_nombre character varying,
     p_email character varying,
@@ -73,12 +74,14 @@ BEGIN
 
     RETURN v_id_cliente;
 EXCEPTION
+    -- Dos altas a la vez con el mismo correo: la segunda choca con clientes_email_uq
     WHEN unique_violation THEN
         RAISE EXCEPTION 'Ese correo ya esta registrado';
 END;
 $function$
 ;
 
+-- Funcion: login de un cliente de la web; devuelve su id
 CREATE OR REPLACE FUNCTION public.iniciar_sesion_cliente(p_email character varying, p_password text)
  RETURNS integer
  LANGUAGE plpgsql
@@ -98,6 +101,7 @@ BEGIN
 
     IF NOT FOUND THEN
         -- Se calcula un hash igualmente para tardar lo mismo que con un
+        -- correo que si existe: asi el tiempo no delata que correos hay
         PERFORM crypt(COALESCE(p_password, ''), gen_salt('bf'));
         RAISE EXCEPTION 'Correo o contrasena incorrectos';
     END IF;
@@ -111,6 +115,7 @@ END;
 $function$
 ;
 
+-- Funcion: crea el pedido del carrito de la web, pendiente de pago
 CREATE OR REPLACE FUNCTION public.crear_compra_web(
     p_id_cliente integer,
     p_referencia character varying,
@@ -190,6 +195,7 @@ BEGIN
     SELECT id_nave INTO v_id_nave FROM public.nave ORDER BY id_nave LIMIT 1;
 
     -- 7. Cada producto existe, esta a la venta y hay stock AHORA.
+    --    Es solo un aviso: la comprobacion que manda es la del trigger al confirmar
     FOR i IN 1 .. cardinality(p_skus) LOOP
         SELECT m.nombre || ' (' || v.color || ', talla ' || s.talla || ')',
                COALESCE(e.cantidad, 0)
@@ -219,6 +225,7 @@ BEGIN
     WHERE id_cliente = p_id_cliente;
 
     -- 9. El pedido, con las funciones originales: la primera linea crea la
+    --    cabecera y las demas se anaden. El precio lo pone la base
     v_id_pedido := public.realizar_compra(
         p_referencia, p_id_cliente, p_skus[1], v_id_nave, p_cantidades[1]);
 
@@ -229,6 +236,7 @@ BEGIN
 
     RETURN v_id_pedido;
 EXCEPTION
+    -- Dos peticiones con la misma referencia a la vez: se devuelve el pedido de la primera
     WHEN unique_violation THEN
         SELECT id_pedido, id_cliente
         INTO v_id_pedido, v_duenyo
@@ -243,6 +251,7 @@ END;
 $function$
 ;
 
+-- Funcion: paga y confirma un pedido web del cliente (al confirmar se descuenta el stock)
 CREATE OR REPLACE FUNCTION public.confirmar_compra_web(p_id_cliente integer, p_id_pedido integer)
  RETURNS void
  LANGUAGE plpgsql
@@ -268,6 +277,7 @@ BEGIN
         RAISE EXCEPTION 'El pedido no existe';
     END IF;
 
+    -- Si ya estaba pagado no se hace nada: pulsar dos veces no paga dos veces
     IF v_estado = 'confirmado' AND v_pago = 'pagado' THEN
         RETURN;
     END IF;
@@ -284,6 +294,7 @@ END;
 $function$
 ;
 
+-- Funcion: cancela un pedido web que todavia no se ha pagado
 CREATE OR REPLACE FUNCTION public.cancelar_compra_web(p_id_cliente integer, p_id_pedido integer)
  RETURNS void
  LANGUAGE plpgsql
@@ -307,6 +318,7 @@ BEGIN
         RAISE EXCEPTION 'El pedido no existe';
     END IF;
 
+    -- Si ya estaba cancelado no se hace nada
     IF v_estado = 'cancelado' THEN
         RETURN;
     END IF;
@@ -322,6 +334,7 @@ END;
 $function$
 ;
 
+-- Por defecto nadie puede ejecutar las cinco funciones; solo tienda_web (mas abajo)
 REVOKE EXECUTE ON FUNCTION
     public.registrar_cliente(character varying, character varying, text, character varying, text),
     public.iniciar_sesion_cliente(character varying, text),
@@ -345,6 +358,7 @@ GRANT SELECT ON public.modelos, public.variantes, public.producto_sku, public.ex
 TO tienda_web;
 GRANT SELECT (id_nave) ON public.nave TO tienda_web;
 
+-- Clientes, pedidos y lineas: solo las columnas que usa la tienda
 GRANT SELECT (id_cliente, nombre, email, telefono, direccion_entrega, activo)
 ON public.clientes TO tienda_web;
 

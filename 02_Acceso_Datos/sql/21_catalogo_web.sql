@@ -6,6 +6,7 @@
 
 BEGIN;
 
+-- Tabla temporal con las seis colecciones: precio, descripcion y tallas de cada una
 CREATE TEMP TABLE colecciones_web (
     coleccion varchar(10),
     precio numeric(8,2),
@@ -23,6 +24,8 @@ VALUES
 ('Mujer',   99.90, 'Detalles cuidados y horma pensada para mujer',                          35, 42),
 ('Unisex',  94.90, 'Diseno neutro y tallaje amplio, para cualquier persona',                36, 46);
 
+-- Tabla temporal con los 100 modelos: color y pares por talla (5 o 20).
+-- nombre_antiguo es el nombre que tenia el modelo antes, si lo cambio
 CREATE TEMP TABLE catalogo_web (
     nombre varchar(40),
     color varchar(30),
@@ -140,6 +143,7 @@ VALUES
 ('NOVA Unisex Toledo',    'Naranja y verde',        20, NULL);
 
 -- 0. Si la base tiene los nombres antiguos, se cambian por los nuevos. Solo
+--    si el nombre nuevo no existe ya (modelos_nombre_uq no deja repetirlo)
 UPDATE public.modelos m
 SET nombre = c.nombre
 FROM catalogo_web c

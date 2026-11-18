@@ -1,4 +1,4 @@
--- 15_exportar_fabricacion.sql
+-- 15_exportar_fabricacion.sql — exporta a CSV la orden de fabricacion de un pedido, para PSP
 
 \set ON_ERROR_STOP on
 
@@ -19,6 +19,7 @@ CREATE TEMP TABLE pedido_a_exportar ON COMMIT DROP AS
 SELECT :'referencia'::varchar(30) AS referencia;
 
 -- 1. Comprobaciones previas. Si alguna falla, psql se detiene aqui y el
+--    CSV anterior se queda como estaba
 \echo ''
 \echo 'Comprobaciones previas'
 
@@ -59,11 +60,13 @@ BEGIN
         ON s.id_producto_sku = l.id_producto_sku
      WHERE l.id_pedido = v_pedido;
 
+    -- Regla de la orden de fabricacion: exactamente 40 pares
     IF v_pares <> 40 THEN
         RAISE EXCEPTION
             '% tiene % pares y la orden de fabricacion exige exactamente 40', v_ref, v_pares;
     END IF;
 
+    -- Una linea por talla: si hay mas lineas que tallas, alguna esta repetida
     IF v_lineas <> v_tallas THEN
         RAISE EXCEPTION
             '% tiene % lineas para % tallas: hay tallas repetidas', v_ref, v_lineas, v_tallas;
@@ -98,6 +101,7 @@ WHERE p.referencia = (SELECT referencia FROM pedido_a_exportar)
 ORDER BY s.talla;
 
 -- 3. La exportacion, dentro de la misma transaccion (READ COMMITTED).
+--    La orden copy de psql tiene que ir entera en una sola linea
 \echo ''
 \echo 'Exportacion'
 
