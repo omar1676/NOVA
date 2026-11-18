@@ -66,8 +66,17 @@ services:
   # El panel lo muestra en la pagina "Analisis de datos" (http://localhost:8501).
   dashboard:
     build: ./04_Python
+    environment:
+      TZ: Europe/Madrid   # sin esto, las horas del dashboard salen en UTC
+    volumes:
+      # Los CSV se leen de esta carpeta (solo lectura): una exportacion nueva se ve
+      # en el siguiente refresco de 60 s, sin reconstruir la imagen
+      - ./04_Python/entrada_acc:/app/entrada_acc:ro
+      # El registro de eventos se conserva aunque se recree el contenedor
+      - logs_dashboard:/app/logs
     ports:
       - "127.0.0.1:8501:8501"
 
 volumes:
   datos_postgres:
+  logs_dashboard:
