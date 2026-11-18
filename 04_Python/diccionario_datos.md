@@ -73,7 +73,7 @@ usarán en cálculos ni se mostrarán o descargarán en el dashboard.
 | `tipo_pedido` | Estándar o personalizado | `pedidos.personalizado` | texto | `normal`, `custom` | no | sí |
 | `estado_pedido` | Estado del pedido | `pedidos.estado` | texto | `pendiente`, `confirmado`, `en_preparacion`, `enviado`, `entregado`, `cancelado` | no | sí |
 | `estado_pago` | Estado del pago | `pedidos.estado_pago` | texto | `pendiente`, `pagado`, `reembolsado` | no | sí |
-| `personalizacion` | Qué se personaliza | `pedidos.personalizacion` | texto | texto libre | sí, en los `normal` | no |
+| `personalizacion` | Qué se personaliza | `pedidos.personalizacion` | texto | texto libre | sí, en los `normal` | sí |
 | `cantidad_total` | Pares del pedido | `pedidos.cantidad_total` | entero | pares, ≥ 0; suma de sus líneas | no | sí |
 | `importe_total` | Importe del pedido | `pedidos.importe_total` | decimal | euros, ≥ 0; suma de sus líneas | no | sí |
 

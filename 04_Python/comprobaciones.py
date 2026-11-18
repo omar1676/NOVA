@@ -98,7 +98,7 @@ def comprobar_importes_y_cantidades(datos):
     distinto = (diferencia > config.TOLERANCIA_EUROS).fillna(False)
     mal_calculadas = lineas.loc[distinto, "id_linea"]
     if len(mal_calculadas) > 0:
-        problemas.append(f"importe_linea no es cantidad x precio en las líneas {', '.join(mal_calculadas)}")
+        problemas.append(f"importe_linea no es cantidad x precio en las líneas {', '.join(map(str, mal_calculadas))}")
 
     # Suma de las lineas de cada pedido, comparada con su cabecera
     suma = lineas.groupby("id_pedido").agg(pares=("cantidad", "sum"), importe=("importe_linea", "sum"))
@@ -109,7 +109,7 @@ def comprobar_importes_y_cantidades(datos):
     distinto = (pares_distintos | importe_distinto).fillna(False)
     no_cuadran = cruce.loc[distinto, "id_pedido"]
     if len(no_cuadran) > 0:
-        problemas.append(f"el total no es la suma de sus líneas en los pedidos {', '.join(no_cuadran)}")
+        problemas.append(f"el total no es la suma de sus líneas en los pedidos {', '.join(map(str, no_cuadran))}")
 
     if problemas:
         return resultado("Importes y cantidades", "ERROR", "; ".join(problemas))

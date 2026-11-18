@@ -173,7 +173,10 @@ def ciclo(carpeta, anterior=None, operacion="comprobación automática", archivo
         estado["mensaje"] = estado["mensaje"].replace(ruta, carpeta_relativa(carpeta))
     estado["desactualizado"] = estado["publicado"] is not None and estado["estado"] in (DATOS_INVALIDOS, ERROR_CARGA)
     estado["duracion"] = round(time.perf_counter() - inicio, 2)
-    anotar_ciclo(estado, operacion, archivo_registro)
+    try:
+        anotar_ciclo(estado, operacion, archivo_registro)
+    except OSError as error:
+        estado["avisos"].append(f"No se ha podido escribir el registro de eventos: {error}")
     return estado
 
 

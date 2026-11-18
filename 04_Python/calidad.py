@@ -198,7 +198,7 @@ def regla_08_tallas(datos, textos):
 def regla_09_ausencia_cliente_modelo(datos, textos):
     lista = []
     # columna[3:] quita el prefijo "id_" para el mensaje: id_cliente -> cliente
-    for nombre, columna in [("pedidos", "id_cliente"), ("lineas_pedido", "id_modelo"), ("stock", "id_modelo")]:
+    for nombre, columna in [("pedidos", "id_cliente"), ("lineas_pedido", "id_pedido"), ("lineas_pedido", "id_modelo"), ("stock", "id_modelo")]:
         lista += por_filas("09", nombre, datos, textos, datos[nombre][columna].isna(), columna, RECUPERABLE,
                            f"{columna} vacío: no se sabe de qué {columna[3:]} es")
     for nombre, columna in [("clientes", "nombre"), ("modelos", "nombre_modelo")]:
@@ -299,7 +299,11 @@ def regla_12_coherencia(datos, textos):
         lista.append(incidencia("12", "stock", BLOQUEANTE,
                                 f"stock.csv mezcla {len(fechas_corte)} fechas de corte distintas: no es una sola exportación",
                                 registro="stock.csv", columna="fecha_corte"))
-    if len(fechas_corte) > 0:
+    if len(fechas_corte) == 0:
+        lista.append(incidencia("12", "stock", BLOQUEANTE,
+                                "stock.csv no tiene ninguna fecha_corte válida: sin fecha de corte no se calcula nada",
+                                registro="stock.csv", columna="fecha_corte"))
+    else:
         corte = stock["fecha_corte"].max()
         lista += por_filas("12", "pedidos", datos, textos, pedidos["fecha_pedido"] > corte, "fecha_pedido", RECUPERABLE,
                            f"pedido posterior a la exportación ({corte:%Y-%m-%d %H:%M:%S})")

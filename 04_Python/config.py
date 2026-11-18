@@ -60,7 +60,7 @@ ARCHIVOS = {
             "importe_total": "decimal",
         },
         "obligatorias": ["id_pedido", "referencia", "id_cliente", "fecha_pedido", "tipo_pedido",
-                         "estado_pedido", "estado_pago", "cantidad_total", "importe_total"],
+                         "estado_pedido", "estado_pago", "personalizacion", "cantidad_total", "importe_total"],
     },
     "lineas_pedido": {
         "archivo": "lineas_pedido.csv",
