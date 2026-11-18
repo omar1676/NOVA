@@ -4,21 +4,26 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
+// Hijo 3: comprueba que las cantidades cuadran y escribe la ficha auxiliar para el taller
 public class GeneradorFichaTaller {
 
+    // Rayas que separan las partes de la ficha
     private static final String RAYA_DOBLE =
             "==================================================";
     private static final String RAYA_SIMPLE =
             "--------------------------------------------------";
 
+    // Lee los datos por stdin linea a linea y, si todo cuadra, escribe OK;referencia y la ficha
     public static void main(String[] args) throws Exception {
 
+        // stdout y stderr en UTF-8, que es como los lee el padre
         System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
         System.setErr(new PrintStream(System.err, true, StandardCharsets.UTF_8));
 
         BufferedReader entrada = new BufferedReader(
                 new InputStreamReader(System.in, StandardCharsets.UTF_8));
 
+        // Datos del pedido que se van leyendo
         String referencia = "";
         String origen = "";
         String cliente = "";
@@ -27,6 +32,7 @@ public class GeneradorFichaTaller {
         ArrayList<String> filasVariantes = new ArrayList<>();
         ArrayList<String> filasTallas = new ArrayList<>();
 
+        // Sumas por variante y por talla, para comprobar que las dos dan el total
         int sumaVariantes = 0;
         int sumaTallas = 0;
         int total = -1;
@@ -35,10 +41,12 @@ public class GeneradorFichaTaller {
 
         String linea;
 
+        // Se lee hasta la linea FIN
         while ((linea = entrada.readLine()) != null) {
 
             numeroLinea++;
 
+            // La primera linea tiene que ser PEDIDO;referencia
             if (numeroLinea == 1) {
                 if (!linea.startsWith("PEDIDO;") || linea.equals("PEDIDO;")) {
                     error("La primera linea tiene que ser PEDIDO;referencia");
@@ -52,6 +60,8 @@ public class GeneradorFichaTaller {
                 break;
             }
 
+            // Cada linea empieza por su tipo (ORIGEN, CLIENTE, VARIANTE_TALLA, TALLA, TOTAL...).
+            // El -1 hace que split no quite los campos vacios del final
             String[] partes = linea.split(";", -1);
             String tipo = partes[0];
 
@@ -93,6 +103,7 @@ public class GeneradorFichaTaller {
             }
         }
 
+        // Comprobaciones: que no falte nada
         if (numeroLinea == 0) {
             error("No ha llegado ningun dato");
         }
@@ -109,13 +120,16 @@ public class GeneradorFichaTaller {
             error("Falta la linea TOTAL");
         }
 
+        // Las dos sumas tienen que dar el total que manda el analizador
         if (sumaVariantes != total || sumaTallas != total) {
             error("Las cantidades no cuadran: por variante suman " + sumaVariantes
                     + ", por talla " + sumaTallas + " y el total dice " + total);
         }
 
+        // Primera linea para el padre; despues, la ficha
         System.out.println("OK;" + referencia);
 
+        // Cabecera de la ficha
         System.out.println(RAYA_DOBLE);
         System.out.println("NOVA SNEAKERS - FICHA AUXILIAR PARA TALLER");
         System.out.println(RAYA_DOBLE);
@@ -149,6 +163,7 @@ public class GeneradorFichaTaller {
         System.out.println();
 
         System.out.println("TOTAL: " + total + " pares");
+        // Pie: la ficha no sustituye a la orden de fabricacion de Odoo
         System.out.println(RAYA_SIMPLE);
         System.out.println("Documento auxiliar generado por PSP a partir de");
         System.out.println("una exportacion del pedido. No sustituye a la");
@@ -156,10 +171,12 @@ public class GeneradorFichaTaller {
         System.out.println(RAYA_DOBLE);
     }
 
+    // Devuelve lo que va despues del primer ; de la linea
     private static String loQueSigue(String linea) {
         return linea.substring(linea.indexOf(';') + 1);
     }
 
+    // Pasa un texto a entero; rechaza los negativos y lo que no es un numero
     private static int aNumero(String texto, int numeroLinea) {
 
         try {
@@ -176,6 +193,7 @@ public class GeneradorFichaTaller {
         }
     }
 
+    // Rechaza los datos: ERROR;motivo por stderr y codigo 2
     private static void error(String motivo) {
         System.err.println("ERROR;" + motivo);
         System.exit(2);

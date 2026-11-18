@@ -9,32 +9,43 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
+// Proceso padre: comprueba el CSV del pedido, lanza los tres hijos uno detras de otro,
+// les pasa los datos y guarda la ficha para el taller y el registro
 public class ProcesadorPedidosCustom {
 
+    // Los tres hijos; el 2 es el analizador de Alvaro (03_PSP/src/Psp), sin cambios
     private static final String VALIDADOR = "ValidadorPedidoCustom";
     private static final String ANALIZADOR = "Psp.AnalizadorTallas";
     private static final String GENERADOR = "GeneradorFichaTaller";
 
+    // Segundos que se deja a cada hijo antes de cancelarlo
     private static final int SEGUNDOS_MAXIMOS = 10;
 
+    // Carpeta de las fichas y archivo donde se apunta cada ejecucion
     private static final Path CARPETA_SALIDAS = Path.of("salidas");
     private static final Path REGISTRO = CARPETA_SALIDAS.resolve("registro_psp.txt");
 
+    // Codigos de salida del padre
     public static final int CORRECTO = 0;
     public static final int ERROR_ARCHIVO = 1;
     public static final int DATOS_RECHAZADOS = 2;
     public static final int FALLO_PROCESO = 3;
 
+    // Codigo con el que un hijo avisa de que los datos del pedido son incorrectos
     private static final int HIJO_RECHAZA_DATOS = 2;
 
+    // Lineas que se guardaran en el registro al terminar
     private static final ArrayList<String> resumen = new ArrayList<>();
 
+    // Los tres pasos en orden; si uno falla, el siguiente no se lanza
     public static void main(String[] args) throws Exception {
 
+        // Cabecera del registro con la fecha y la hora
         String ahora = LocalDateTime.now().format(
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         anotar("===== NOVA Sneakers - PSP - " + ahora + " =====");
 
+        // Antes de lanzar ningun hijo se comprueban el argumento y el archivo
         if (args.length != 1) {
             terminar(ERROR_ARCHIVO, "Uso: java ProcesadorPedidosCustom <archivo.csv>");
         }
@@ -47,6 +58,7 @@ public class ProcesadorPedidosCustom {
             terminar(ERROR_ARCHIVO, problema);
         }
 
+        // Se lee el CSV; si no esta en UTF-8, se para
         Path archivo = Path.of(args[0]);
         String csv;
 
@@ -55,6 +67,7 @@ public class ProcesadorPedidosCustom {
 
         } catch (MalformedInputException e) {
             terminar(ERROR_ARCHIVO, "El archivo no esta en UTF-8");
+            // El return hace falta porque el compilador no sabe que terminar() acaba el programa
             return;
 
         } catch (IOException e) {
@@ -62,6 +75,7 @@ public class ProcesadorPedidosCustom {
             return;
         }
 
+        // Paso 1: el validador recibe el CSV y contesta OK;referencia;lineas;pares
         GestorProcesos validador = new GestorProcesos(VALIDADOR, SEGUNDOS_MAXIMOS);
         validador.ejecutar(csv);
         comprobarPaso(1, validador, null);
@@ -79,6 +93,8 @@ public class ProcesadorPedidosCustom {
             terminar(FALLO_PROCESO, "El validador no ha dado un total de pares valido");
         }
 
+        // Se reparte su salida: PEDIDO, LINEA y FIN van al analizador;
+        // CLIENTE y PERSONALIZACION se guardan para el generador
         StringBuilder paraAnalizador = new StringBuilder();
         ArrayList<String> datosPedido = new ArrayList<>();
 
@@ -92,10 +108,12 @@ public class ProcesadorPedidosCustom {
             }
         }
 
+        // Paso 2: el analizador agrupa los pares por variante y por talla
         GestorProcesos analizador = new GestorProcesos(ANALIZADOR, SEGUNDOS_MAXIMOS);
         analizador.ejecutar(paraAnalizador.toString());
         comprobarPaso(2, analizador, referencia);
 
+        // Se cuentan sus lineas; su total tiene que coincidir con el del validador
         int combinaciones = 0;
         int tallas = 0;
         int totalAnalizador = -1;
@@ -119,6 +137,8 @@ public class ProcesadorPedidosCustom {
         anotar("  " + combinaciones + " combinaciones de modelo, color y talla; "
                 + tallas + " tallas; " + totalAnalizador + " pares");
 
+        // Entrada del generador: pedido, archivo de origen, cliente, personalizacion
+        // y la salida del analizador sin su primera linea (OK;referencia)
         StringBuilder paraGenerador = new StringBuilder();
         paraGenerador.append("PEDIDO;").append(referencia).append("\n");
         paraGenerador.append("ORIGEN;").append(archivo.getFileName()).append("\n");
@@ -133,16 +153,19 @@ public class ProcesadorPedidosCustom {
 
         paraGenerador.append("FIN\n");
 
+        // Paso 3: el generador comprueba las cantidades y escribe la ficha
         GestorProcesos generador = new GestorProcesos(GENERADOR, SEGUNDOS_MAXIMOS);
         generador.ejecutar(paraGenerador.toString());
         comprobarPaso(3, generador, referencia);
 
+        // La ficha es la salida del generador sin su primera linea (OK;referencia)
         ArrayList<String> ficha = new ArrayList<>();
 
         for (int i = 1; i < generador.getSalida().size(); i++) {
             ficha.add(generador.getSalida().get(i));
         }
 
+        // Se guarda en salidas/ficha_taller_referencia.txt y se muestra en pantalla
         Path archivoFicha = CARPETA_SALIDAS.resolve(
                 "ficha_taller_" + nombreParaArchivo(referencia) + ".txt");
 
@@ -164,6 +187,7 @@ public class ProcesadorPedidosCustom {
         terminar(CORRECTO, "Pedido " + referencia + " procesado");
     }
 
+    // Comprueba la ruta antes de leerla: devuelve el problema, o null si esta bien
     private static String comprobarArchivo(String ruta) {
 
         Path archivo;
@@ -197,6 +221,8 @@ public class ProcesadorPedidosCustom {
         return null;
     }
 
+    // Revisa como ha terminado un paso: tiempo, arranque, codigo, envio de datos y respuesta.
+    // Si algo falla, termina el programa con el codigo que toca
     private static void comprobarPaso(int numero, GestorProcesos paso, String referencia) {
 
         String nombre = "Paso " + numero + " " + paso.getClase() + ": ";
@@ -216,11 +242,13 @@ public class ProcesadorPedidosCustom {
         anotar(nombre + "codigo " + codigo + " en "
                 + String.format("%.2f", paso.getSegundos()) + " s");
 
+        // Codigo 2: el hijo ha rechazado los datos del pedido
         if (codigo == HIJO_RECHAZA_DATOS) {
             anotar("  " + primeraLinea(paso.getErrores()));
             terminar(DATOS_RECHAZADOS, "El paso " + numero + " ha rechazado los datos del pedido");
         }
 
+        // Cualquier otro codigo distinto de 0 es un fallo del hijo
         if (codigo != 0) {
             anotar("  " + primeraLinea(paso.getErrores()));
 
@@ -233,11 +261,13 @@ public class ProcesadorPedidosCustom {
             terminar(FALLO_PROCESO, mensaje);
         }
 
+        // Si el hijo no recibio todos los datos, su respuesta no vale
         if (paso.getErrorDeEscritura() != null) {
             terminar(FALLO_PROCESO, "El paso " + numero + " ha contestado sin recibir"
                     + " todos los datos (" + paso.getErrorDeEscritura() + ")");
         }
 
+        // La respuesta tiene que empezar por OK; y hablar del mismo pedido
         String respuesta = primeraLinea(paso.getSalida());
         String[] partes = respuesta.split(";");
 
@@ -255,11 +285,13 @@ public class ProcesadorPedidosCustom {
         anotar("  " + respuesta);
     }
 
+    // Escribe una linea en pantalla y la guarda para el registro
     private static void anotar(String linea) {
         System.out.println(linea);
         resumen.add(linea);
     }
 
+    // Termina el programa: escribe el resultado, guarda el registro y sale con el codigo
     private static void terminar(int codigo, String mensaje) {
 
         String estado;
@@ -278,6 +310,7 @@ public class ProcesadorPedidosCustom {
 
         resumen.add("");
 
+        // APPEND: el registro se anade al final y se conservan las ejecuciones anteriores
         try {
             Files.createDirectories(CARPETA_SALIDAS);
             Files.write(REGISTRO, resumen, StandardCharsets.UTF_8,
@@ -290,6 +323,7 @@ public class ProcesadorPedidosCustom {
         System.exit(codigo);
     }
 
+    // Primera linea de una lista, o un aviso si esta vacia
     private static String primeraLinea(ArrayList<String> lineas) {
 
         if (lineas.isEmpty()) {
@@ -298,6 +332,7 @@ public class ProcesadorPedidosCustom {
         return lineas.get(0);
     }
 
+    // Pasa un texto a entero; devuelve -1 si no es un numero
     private static int aNumero(String texto) {
 
         try {
@@ -307,6 +342,7 @@ public class ProcesadorPedidosCustom {
         }
     }
 
+    // Cambia por _ los caracteres que no conviene poner en el nombre de un archivo
     private static String nombreParaArchivo(String referencia) {
 
         StringBuilder nombre = new StringBuilder();

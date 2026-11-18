@@ -1,10 +1,14 @@
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
+// Version anterior del hijo 2 (8 de noviembre): suma los pares de cada talla del CSV.
+// La lanza LanzadorValidacion; el coordinador usa Psp.AnalizadorTallas, el de Alvaro
 public class AnalizadorTallas {
 
+    // Lee el CSV por stdin y escribe los pares de cada talla y el total
     public static void main(String[] args) throws Exception {
 
+        // Listas paralelas: la talla tallas.get(i) tiene cantidades.get(i) pares
         ArrayList<Integer> tallas = new ArrayList<>();
         ArrayList<Integer> cantidades = new ArrayList<>();
 
@@ -12,15 +16,18 @@ public class AnalizadorTallas {
 
         ArrayList<ArrayList<String>> registros;
 
+        // Si el CSV esta mal formado: ERROR por stderr y codigo 2
         try {
             registros = LectorCsv.partirTodo(contenido);
 
         } catch (IllegalArgumentException e) {
             System.err.println("ERROR;El CSV esta mal formado: " + e.getMessage());
             System.exit(2);
+            // El return hace falta porque el compilador no sabe que System.exit acaba el programa
             return;
         }
 
+        // Se empieza en 1 para saltar la cabecera
         for (int i = 1; i < registros.size(); i++) {
 
             ArrayList<String> campos = registros.get(i);
@@ -34,6 +41,7 @@ public class AnalizadorTallas {
             int talla;
             int cantidad;
 
+            // Los campos 6 y 7 son la talla y la cantidad
             try {
                 talla = Integer.parseInt(campos.get(6).trim());
                 cantidad = Integer.parseInt(campos.get(7).trim());
@@ -45,6 +53,7 @@ public class AnalizadorTallas {
                 return;
             }
 
+            // Si la talla ya esta en la lista se suman los pares; si no, se anade
             int posicion = buscarTalla(tallas, talla);
 
             if (posicion == -1) {
@@ -60,6 +69,7 @@ public class AnalizadorTallas {
             System.exit(2);
         }
 
+        // Resultado ordenado por talla, con el total al final
         ordenarPorTalla(tallas, cantidades);
 
         int totalPares = 0;
@@ -74,6 +84,7 @@ public class AnalizadorTallas {
         System.out.println("Total: " + totalPares + " pares");
     }
 
+    // Devuelve la posicion de la talla en la lista, o -1 si no esta
     private static int buscarTalla(ArrayList<Integer> tallas, int talla) {
 
         for (int i = 0; i < tallas.size(); i++) {
@@ -86,6 +97,7 @@ public class AnalizadorTallas {
         return -1;
     }
 
+    // Ordena las tallas de menor a mayor (metodo de la burbuja) y mueve con ellas sus cantidades
     private static void ordenarPorTalla(ArrayList<Integer> tallas,
                                         ArrayList<Integer> cantidades) {
 
