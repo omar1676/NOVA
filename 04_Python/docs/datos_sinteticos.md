@@ -43,7 +43,10 @@ mismos datos: lo comprueba una prueba automática.
 ## Hipótesis de la simulación
 
 Son reglas **inventadas** para que los datos tengan variedad, pero **no describen
-la demanda real**. Están al principio de `generador_datos.py`.
+la demanda real**. Sus parámetros están al principio de `generador_datos.py`
+(líneas 11-34: meses, clientes, pedidos, catálogo, pesos, recargo Custom, subida de
+precios y cancelaciones). La explicación en prosa que había en la cabecera del
+archivo la quitó el commit `a4249ea` (17/11); ahora está solo en esta tabla.
 
 | Qué | Regla |
 |---|---|
@@ -133,8 +136,8 @@ de prueba: no hay código duplicado. Con ellos funcionan:
 - los 10 gráficos;
 - la estadística.
 
-Al probarlo con 18 meses salieron tres cosas que con un solo día no se veían. Las
-he corregido, cada una con su prueba:
+Al probarlo con 18 meses salieron tres cosas que con un solo día no se veían. Se
+corrigieron, cada una con su prueba:
 
 1. **Atípicos de precio.** Se comparaban por modelo, y un Custom (+20 %) salía
    como atípico de su propio modelo: había 96 falsas alarmas. Ahora se comparan

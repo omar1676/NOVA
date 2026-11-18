@@ -4,6 +4,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parent / "modulos"))   # los modulos estan en modulos/
+
 import config
 
 # Parametros de la simulacion: datos inventados, no son de NOVA
@@ -32,23 +34,24 @@ PROPORCION_CANCELADOS = 0.08
 PERSONALIZACIONES = ["Logo del club y dorsal", "Iniciales en el talón", "Colores del club"]
 
 
-# Pesos que suman 1, para usarlos como probabilidades
+# Divide los pesos entre su suma para que sumen 1 y se puedan usar como probabilidades
+# Recibe una lista de pesos; devuelve un array de numpy
 def normalizar(pesos):
     pesos = np.array(pesos, dtype=float)
     return pesos / pesos.sum()
 
 
-# Los dos colores de cada modelo
+# Devuelve los dos colores de un modelo, sacados de COLORES segun su id_modelo
 def colores_del_modelo(id_modelo):
     return [COLORES[(id_modelo - 1) % len(COLORES)], COLORES[(id_modelo + 2) % len(COLORES)]]
 
 
-# Codigo del SKU, por ejemplo S01-NEG-42
+# Devuelve el codigo del SKU de un modelo, color y talla, por ejemplo S01-NEG-42
 def codigo_sku(id_modelo, color, talla):
     return f"S{id_modelo:02d}-{color[:3].upper()}-{talla}"
 
 
-# Clientes inventados: clubes (empresas) y particulares
+# Crea los clientes inventados: clubes (empresas) y particulares. Devuelve el DataFrame de clientes
 def generar_clientes():
     filas = []
     for numero in range(1, NUMERO_CLIENTES + 1):
@@ -72,7 +75,8 @@ def generar_clientes():
     return pd.DataFrame(filas)
 
 
-# Modelos inventados con su precio base
+# Crea los modelos inventados con un precio base al azar. Devuelve el DataFrame de modelos
+# rng es el generador de numeros aleatorios de numpy (con la semilla fija)
 def generar_modelos(rng):
     precios = rng.integers(7, 15, size=len(NOMBRES_MODELOS)) * 10 - 0.01   # de 69,99 a 139,99 euros
     filas = []
@@ -88,7 +92,7 @@ def generar_modelos(rng):
     return pd.DataFrame(filas)
 
 
-# Un SKU por modelo, color y talla, con stock al azar de 0 a 60 pares
+# Crea un SKU por modelo, color y talla, con stock al azar de 0 a 60 pares. Devuelve el DataFrame de stock
 def generar_stock(rng, modelos):
     filas = []
     for id_modelo in modelos["id_modelo"]:
@@ -107,6 +111,7 @@ def generar_stock(rng, modelos):
 
 
 # Fechas de los pedidos: mas o menos pedidos cada mes segun la temporada y el crecimiento
+# Devuelve la lista de las NUMERO_PEDIDOS fechas, ordenadas
 def generar_fechas(rng):
     meses = pd.period_range(PRIMER_MES, periods=NUMERO_MESES, freq="M")
     pesos = []
@@ -124,7 +129,8 @@ def generar_fechas(rng):
     return sorted(fechas)
 
 
-# Articulos de un pedido: (modelo, color, talla, pares)
+# Elige los articulos de un pedido, Custom o normal
+# Devuelve una lista de tuplas (id_modelo, color, talla, pares)
 def elegir_articulos(rng, custom, ids_modelos, peso_modelos):
     if custom:
         # Un club pide un modelo y un color en varias tallas distintas
@@ -154,7 +160,8 @@ def elegir_articulos(rng, custom, ids_modelos, peso_modelos):
     return articulos
 
 
-# Estado segun la antiguedad: cuanto mas antiguo, mas avanzado
+# Elige el estado del pedido segun su antiguedad: cuanto mas antiguo, mas avanzado
+# Recibe la fecha del pedido y la de corte; una parte (PROPORCION_CANCELADOS) sale cancelada al azar
 def elegir_estado(rng, fecha, corte):
     if rng.random() < PROPORCION_CANCELADOS:
         return "cancelado"
@@ -168,7 +175,7 @@ def elegir_estado(rng, fecha, corte):
     return str(rng.choice(["pendiente", "confirmado"]))
 
 
-# Estado de pago coherente con el estado del pedido
+# Elige un estado de pago coherente con el estado del pedido (pagado, pendiente o reembolsado)
 def elegir_estado_pago(rng, estado):
     if estado == "entregado":
         return "pagado"
@@ -184,6 +191,7 @@ def elegir_estado_pago(rng, estado):
 
 
 # Precio en la fecha del pedido: mas barato antes de la subida y con recargo si es Custom
+# Devuelve el precio unitario redondeado a 2 decimales
 def precio_en_fecha(precio_actual, fecha, custom):
     precio = precio_actual
     if fecha < pd.Timestamp(MES_SUBIDA_PRECIOS + "-01"):
@@ -193,7 +201,8 @@ def precio_en_fecha(precio_actual, fecha, custom):
     return round(precio, 2)
 
 
-# Pedidos y lineas de la simulacion
+# Crea los pedidos de la simulacion y sus lineas
+# Devuelve dos DataFrames: pedidos y lineas_pedido
 def generar_pedidos(rng, clientes, modelos):
     corte = pd.Timestamp(FECHA_CORTE)
     precios = dict(zip(modelos["id_modelo"], modelos["precio_base"]))
@@ -276,7 +285,8 @@ def generar_pedidos(rng, clientes, modelos):
     return pd.DataFrame(pedidos), pd.DataFrame(lineas)
 
 
-# Genera las cinco tablas con la semilla fija
+# Genera las cinco tablas con la semilla fija (siempre salen iguales)
+# Devuelve un diccionario de tablas, con las columnas en el orden de config.ARCHIVOS
 def generar(semilla=config.SEMILLA):
     rng = np.random.default_rng(semilla)
     clientes = generar_clientes()
@@ -294,6 +304,7 @@ def generar(semilla=config.SEMILLA):
 # Copia con errores introducidos a proposito
 
 # Pasa la tabla a texto (decimales con 2 cifras) para poder meter valores erroneos
+# Devuelve una copia: la tabla original no cambia
 def como_texto(tabla):
     texto = tabla.copy()
     for columna in texto.columns:
@@ -304,7 +315,8 @@ def como_texto(tabla):
     return texto
 
 
-# Mete errores de las reglas 02 a 12 y apunta lo que tiene que detectar calidad.py
+# Mete errores de las reglas 02 a 12 en una copia de los datos y apunta lo que tiene que detectar calidad.py
+# Devuelve la copia con errores (diccionario de tablas) y la tabla de errores introducidos
 def introducir_errores(datos):
     copia = {nombre: como_texto(tabla) for nombre, tabla in datos.items()}
     pedidos = copia["pedidos"]
@@ -312,7 +324,7 @@ def introducir_errores(datos):
     stock = copia["stock"]
     errores = []
 
-    # Apunta un error introducido y la incidencia que se espera
+    # Apunta en la lista errores un error introducido y la incidencia que se espera
     def anotar(regla, tabla, registro, cambio, se_espera):
         errores.append({"regla": regla, "tabla": tabla, "registro": registro, "cambio": cambio,
                         "se_espera": se_espera})
@@ -333,7 +345,7 @@ def introducir_errores(datos):
     anotar("10", "lineas_pedido", "999998", f"copia de la línea {lineas.at[80, 'id_linea']} (mismo pedido y SKU)",
            "10 advertencia en las dos líneas; 12 porque el total del pedido ya no es la suma")
 
-    # Cambia una celda y lo apunta
+    # Cambia una celda de la tabla y apunta el error con el identificador de esa fila
     def cambiar(regla, tabla, nombre_tabla, fila, columna, valor, se_espera):
         anterior = tabla.at[fila, columna]
         tabla.at[fila, columna] = valor
@@ -370,9 +382,10 @@ def introducir_errores(datos):
     return copia, pd.DataFrame(errores)
 
 
-# Guardar
+# Guardar en disco
 
-# Guarda los CSV y ORIGEN.txt; nunca dentro de entrada_acc/
+# Guarda los CSV y ORIGEN.txt en la carpeta; nunca dentro de entrada_acc/ (da error)
+# Devuelve la carpeta donde se han guardado
 def guardar(datos, carpeta, descripcion):
     carpeta = Path(carpeta).resolve()
     entrada = config.CARPETA_ENTRADA.resolve()
@@ -387,7 +400,7 @@ def guardar(datos, carpeta, descripcion):
     return carpeta
 
 
-# Genera los datos limpios y la copia con errores, y los guarda
+# Genera los datos limpios y la copia con errores, los guarda y escribe un resumen. Devuelve 0
 def main():
     datos = generar(config.SEMILLA)
     descripcion = (f"Datos INVENTADOS por generador_datos.py con la semilla {config.SEMILLA}: "

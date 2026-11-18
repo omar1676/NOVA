@@ -5,11 +5,11 @@ Columnas de los cinco CSV que exporta Acceso a Datos con
 tipos se han comprobado contra ese script, contra el esquema
 (`sneaker-factory-esquema.sql` y `04_xnova.sql`) y contra la exportación de PRUEBA del
 9 de noviembre de 2026. Acceso a Datos tiene su propio diccionario en
-`02_Acceso_Datos/documentacion/README.md`, apartado «Exportación de los cinco CSV del
-contrato».
+`02_Acceso_Datos/documentacion/README.md`, apartado 13, «Exportación de los cinco CSV del
+dashboard».
 
-Los tipos de pandas son los que deja `pipeline.py` después de convertir cada columna
-(`config.py`). **Los identificadores se guardan como texto**: sirven para unir tablas,
+Los tipos de pandas son los que deja `modulos/pipeline.py` después de convertir cada columna
+(`modulos/config.py`). **Los identificadores se guardan como texto**: sirven para unir tablas,
 nunca para sumar ni promediar.
 
 ## Formato de los cinco archivos
@@ -126,7 +126,7 @@ equivalencias:
 
 > Lista escrita en la fase 1. Varios puntos ya están resueltos en el código: el
 > histórico sintético (`generador_datos.py`), la regla 08 con tallas 20-55 y la talla
-> del SKU (`calidad.py`), la regla 11 por modelo, color y talla, y R2
+> del SKU (`modulos/calidad.py`), la regla 11 por modelo, color y talla, y R2
 > (`tests/test_actualizacion.py`). Se conserva como registro de lo que se decidió.
 
 Visto en la exportación del 9 de noviembre de 2026 (base de prueba reconstruida
@@ -139,7 +139,7 @@ con los scripts del repositorio):
 2. **Hay pocos clientes (6), y solo uno con compras.** RFM da una fila por cliente,
    pero ni los segmentos ni KMeans son defendibles con los datos de PRUEBA (apartado
    6.8). Salen como NO CALCULABLE y se demuestran con el sintético (ver
-   `segmentacion_y_prediccion.md`).
+   `docs/segmentacion_y_prediccion.md`).
 3. **No hay coste unitario.** El margen (DataFrame 11) será «NO CALCULABLE».
 4. **No hay categoría de modelo.** No existe en el esquema.
 5. **Solo hay dos estados.** Hay 11 pedidos `pendiente`, 1 `confirmado`, ningún
@@ -153,10 +153,10 @@ con los scripts del repositorio):
    memoria y el dashboard.
 7. **No se sabe si los importes son netos o brutos.** El contrato no dice si
    llevan IVA, y la rúbrica pide distinguirlo. Queda «pendiente de confirmar» en
-   `config.py` y en los resultados.
+   `modulos/config.py` y en los resultados.
 8. **Hay dos pedidos de 40 pares para el mismo club.** `NOVA-0011` (pendiente) y
    `CUSTOM-40` (confirmado). Son 80 de los 90 pares. Investigado en la fase 2
-   (`calidad_datos.md`, caso A): no comparten ningún identificador, pero sí
+   (`docs/calidad_datos.md`, caso A): no comparten ningún identificador, pero sí
    cliente, artículos, cantidades y precio. Python mantiene los dos con una
    advertencia; Acceso a Datos tiene que decir si son el mismo encargo.
 9. **Las tallas válidas no están definidas.** La base admite 20–55, el catálogo
@@ -174,7 +174,7 @@ con los scripts del repositorio):
 
 ## DataFrames de análisis (fase 2)
 
-Los construye `analiticas.py` solo con las filas válidas (`calidad.py` ya ha apartado
+Los construye `modulos/analiticas.py` solo con las filas válidas (`modulos/calidad.py` ya ha apartado
 las rechazadas). Cada cruce declara su cardinalidad con `validate=` y comprueba con
 `indicator=True` que todas las filas encuentran pareja: si un cruce multiplicara
 filas o perdiera claves, el programa se para con un error.
@@ -216,7 +216,7 @@ cuenta.
 
 ## Variables derivadas
 
-Todas están en `analiticas.py`. Las de calendario las calcula una sola función,
+Todas están en `modulos/analiticas.py`. Las de calendario las calcula una sola función,
 `anadir_calendario`, para las dos tablas: así no hay dos fórmulas para lo mismo.
 
 | Variable | Dónde | Cálculo | Unidad | Nivel | Disponible | Para qué sirve |
@@ -250,4 +250,4 @@ dependen del estado en el momento del corte. `antiguedad_dias` depende de la
 fecha de corte. No se pueden usar para predecir un mes sin comprobar que no
 filtran información futura. En la fase 5 no son variables de entrada:
 `es_cancelado` solo decide qué pares cuentan como demanda (ver la limitación en
-`segmentacion_y_prediccion.md`).
+`docs/segmentacion_y_prediccion.md`).

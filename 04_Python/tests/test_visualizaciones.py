@@ -1,7 +1,11 @@
 import contextlib
 import io
+import sys
+from pathlib import Path
 
 import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "modulos"))   # los modulos estan en ../modulos
 
 import config
 import main
@@ -70,7 +74,8 @@ class PruebasEjecucionCompleta(PruebaTablas):
     def leer(self, salida, archivo):
         return pd.read_csv(salida / archivo, encoding="utf-8", dtype=str, keep_default_na=False)
 
-    # Con SQL que cuadra: CORRECTO, 20 KPIs, 10 graficos y sin nombres de clientes
+    # Con SQL que cuadra: CORRECTO, 20 KPIs, 10 graficos y sin nombres de clientes;
+    # como la carpeta no tiene ORIGEN.txt, el origen sale DESCONOCIDO
     def test_ejecucion_correcta(self):
         self.escribir_sql()
         codigo, salida = self.ejecutar()
@@ -91,7 +96,7 @@ class PruebasEjecucionCompleta(PruebaTablas):
         codigo, salida = self.ejecutar()
         self.assertEqual(codigo, 1)
         self.assertEqual(self.leer(salida, "estado_ejecucion.csv")["estado"].iloc[0], "BLOQUEADO")
-        self.assertTrue((salida / "incidencias.csv").exists())   # las incidencias si se guardan
+        self.assertTrue((salida / "incidencias.csv").exists())
         self.assertFalse((salida / "kpis.csv").exists())
         self.assertFalse((salida / "modelos_abc.csv").exists())
         self.assertFalse((salida / "graficos").exists())

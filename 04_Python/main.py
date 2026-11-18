@@ -5,6 +5,8 @@ from pathlib import Path
 
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parent / "modulos"))   # los modulos estan en modulos/
+
 import analiticas
 import calidad
 import comprobaciones
@@ -39,7 +41,7 @@ NOMBRES = {
 NO_SE_GUARDAN = ["lineas_enriquecidas"]
 
 
-# Titulo subrayado en la consola
+# Escribe un titulo subrayado en la consola
 def titulo(texto):
     print()
     print(texto)
@@ -48,7 +50,8 @@ def titulo(texto):
 
 # Lo que comparten todos los pasos: la ejecucion y el guardado de los CSV
 
-# Datos de esta ejecucion (carpetas, momento y origen) y cabecera en pantalla
+# Prepara los datos de esta ejecucion (carpetas, momento y origen) y escribe la cabecera en pantalla
+# Devuelve el diccionario "ejecucion" que reciben todos los pasos
 def empezar(carpeta, salida):
     carpeta = Path(carpeta)
     ejecucion = {
@@ -67,9 +70,10 @@ def empezar(carpeta, salida):
     return ejecucion
 
 
-# Guarda una tabla en la carpeta de salida y la apunta para los metadatos
+# Guarda una tabla en un CSV de la carpeta de salida y la apunta para los metadatos
+# Devuelve la ruta del CSV guardado
 def guardar(ejecucion, tabla, archivo):
-    # Una tabla con indice con nombre (una matriz) lo pasa a columna
+    # Si la tabla tiene un indice con nombre (una matriz), el indice pasa a ser una columna
     if tabla.index.name is not None:
         tabla = tabla.reset_index()
     ejecucion["guardados"].append((archivo, len(tabla)))
@@ -77,7 +81,7 @@ def guardar(ejecucion, tabla, archivo):
                                    ejecucion["momento"])
 
 
-# Guarda el estado final de la ejecucion y los metadatos de cada DataFrame
+# Guarda el estado final (estado_ejecucion.csv) y los metadatos de cada DataFrame (metadatos_dataframes.csv)
 def anotar_estado(ejecucion, resultado, estado, detalle):
     guardar(ejecucion, pd.DataFrame([{"estado": estado, "detalle": detalle}]), "estado_ejecucion.csv")
     tabla_metadatos = metadatos.tabla(ejecucion["guardados"], resultado["datos"], resultado["validos"])
@@ -85,7 +89,7 @@ def anotar_estado(ejecucion, resultado, estado, detalle):
                             ejecucion["origen"], ejecucion["momento"])
 
 
-# Filas de una tabla o, si no se ha podido calcular, el motivo
+# Escribe en la consola las filas de una tabla o, si es NO CALCULABLE, el motivo
 def imprimir_filas(nombre, tabla):
     if analiticas.es_no_calculable(tabla):
         print(f"  {nombre:32} NO CALCULABLE: {tabla['motivo'].iloc[0]}")
@@ -95,7 +99,8 @@ def imprimir_filas(nombre, tabla):
 
 # Los pasos, en el orden en que los llama ejecutar()
 
-# Paso 1: las 12 reglas de calidad
+# Paso 1: aplica las 12 reglas de calidad y guarda incidencias, resumen y filas rechazadas
+# Devuelve el resultado de calidad.evaluar (datos leidos, validos, incidencias y si hay bloqueo)
 def paso_calidad(ejecucion):
     resultado = calidad.evaluar(ejecucion["carpeta"])
     incidencias = resultado["incidencias"]
@@ -115,6 +120,7 @@ def paso_calidad(ejecucion):
 
 
 # Con incidencias bloqueantes se para: no se publica ninguna cifra
+# Guarda el estado BLOQUEADO y devuelve 1 (el programa acaba con error)
 def parar_por_bloqueo(ejecucion, resultado):
     anotar_estado(ejecucion, resultado, "BLOQUEADO",
                   "hay incidencias bloqueantes y no se ha calculado ninguna cifra. Cualquier otro resultado de "
@@ -125,7 +131,8 @@ def parar_por_bloqueo(ejecucion, resultado):
     return 1
 
 
-# Paso 2: filas leidas, archivos, avisos y comprobaciones rapidas
+# Paso 2: ensena las filas leidas, los archivos, los avisos y las comprobaciones rapidas
+# Solo escribe en la consola: no guarda ningun CSV
 def paso_resumen_carga(ejecucion, resultado, corte):
     datos = resultado["datos"]
     titulo("Resumen de la carga")
@@ -143,7 +150,8 @@ def paso_resumen_carga(ejecucion, resultado, corte):
         print(f"  [{comprobacion['resultado']:5}] {comprobacion['comprobacion']}: {comprobacion['detalle']}")
 
 
-# Paso 3: DataFrames de analisis, cada uno en su CSV
+# Paso 3: calcula los DataFrames de analisis y guarda cada uno en su CSV
+# Devuelve el diccionario de tablas (tambien lineas_enriquecidas, que no se guarda)
 def paso_tablas(ejecucion, datos, validos):
     tablas = analiticas.calcular_tablas(datos, validos)
     tablas["nulos_por_columna"] = calidad.nulos_por_columna(datos)
@@ -158,7 +166,7 @@ def paso_tablas(ejecucion, datos, validos):
     return tablas
 
 
-# Paso 4: pedidos, pares e importe con los tres criterios
+# Paso 4: pedidos, pares e importe con los tres criterios (registrados, no cancelados y confirmados)
 def paso_importes(ejecucion, tablas):
     criterios = analiticas.importes_por_criterio(tablas["pedidos_unicos"])
     guardar(ejecucion, criterios, "importes_por_criterio.csv")
@@ -166,7 +174,7 @@ def paso_importes(ejecucion, tablas):
     print(criterios[["criterio", "pedidos", "pares", "importe_eur", "iva"]].to_string(index=False))
 
 
-# Paso 5: los 20 KPIs
+# Paso 5: calcula los 20 KPIs, los guarda en kpis.csv y devuelve la tabla
 def paso_kpis(ejecucion, tablas):
     tabla_kpis = kpis.calcular_kpis(tablas["pedidos_unicos"], tablas["modelos_abc"], tablas["ventas_por_talla"],
                                     tablas["stock_variantes"], tablas["ventas_por_periodo"])
@@ -177,6 +185,7 @@ def paso_kpis(ejecucion, tablas):
 
 
 # Paso 6: conciliacion con SQL; devuelve False si alguna cifra no cuadra
+# Con datos sinteticos o sin los resultados SQL no compara nada y devuelve True
 def paso_conciliacion(ejecucion, tablas, tabla_kpis):
     carpeta_sql = ejecucion["carpeta"] / config.CARPETA_SQL
     tabla_conciliacion = conciliacion.conciliar(carpeta_sql, tablas["pedidos_unicos"], tablas["lineas_enriquecidas"])
@@ -194,7 +203,7 @@ def paso_conciliacion(ejecucion, tablas, tabla_kpis):
     guardar(ejecucion, tabla_conciliacion, "conciliacion_sql.csv")
     guardar(ejecucion, coherencia, "coherencia_kpis_sql.csv")
     comparadas = [("tablas", tabla_conciliacion), ("KPIs", coherencia)]
-    # Caso N: ingresos de un mes, matriz talla x modelo y clientes unicos
+    # Caso N: venta de un mes (N-1), matriz modelo x talla (N-2) y clientes distintos (N-3)
     caso_n = conciliacion.contrastar_caso_n(carpeta_sql, tablas)
     if caso_n is None:
         faltan = ", ".join(conciliacion.faltan_resultados(carpeta_sql, conciliacion.CONSULTAS_CASO_N))
@@ -216,13 +225,13 @@ def paso_conciliacion(ejecucion, tablas, tabla_kpis):
     return cuadra
 
 
-# Pie de los graficos: origen, corte, momento del calculo, filtros e IVA
+# Devuelve el texto del pie de los graficos: origen, corte, momento del calculo, filtros e IVA
 def pie_de_graficos(ejecucion, corte):
     return (f"Origen: {ejecucion['origen']} · Corte: {corte:%Y-%m-%d %H:%M} · Calculado: {ejecucion['momento']} · "
             f"Filtros: ninguno · IVA {config.IVA}")
 
 
-# Paso 7: graficos PNG
+# Paso 7: genera los graficos PNG en la carpeta graficos/ de la salida y escribe la lista
 def paso_graficos(ejecucion, tablas, pie):
     rutas = visualizaciones.generar_todos(tablas, ejecucion["salida"] / "graficos", pie)
     titulo(f"Gráficos ({len(rutas)} PNG en {ejecucion['salida'] / 'graficos'})")
@@ -230,7 +239,7 @@ def paso_graficos(ejecucion, tablas, pie):
         print(f"  {archivo:32} {tipo_grafico:26} {pregunta}")
 
 
-# Paso 8: descriptivos, hipotesis y bootstrap del ticket medio
+# Paso 8: descriptivos, hipotesis y bootstrap del ticket medio; los guarda en CSV y los ensena
 def paso_estadistica(ejecucion, tablas):
     tipo = ejecucion["tipo"]
     descriptivos = estadistica.descriptivos(tablas)
@@ -250,7 +259,8 @@ def paso_estadistica(ejecucion, tablas):
           f"{fila_ticket['ic_superior']} €, n = {fila_ticket['n']}) -> {fila_ticket['resultado']}")
 
 
-# Paso 9: RFM, KMeans, prediccion de demanda e informe ejecutivo
+# Paso 9: RFM, KMeans, prediccion de demanda e informe ejecutivo, cada tabla en su CSV
+# Devuelve el diccionario con todas esas tablas
 def paso_segmentacion_y_prediccion(ejecucion, tablas, validos, corte):
     tipo = ejecucion["tipo"]
     resultados = segmentacion.segmentar_clientes(tablas["pedidos_unicos"], validos["clientes"], corte)
@@ -286,7 +296,7 @@ def paso_segmentacion_y_prediccion(ejecucion, tablas, validos, corte):
     return resultados
 
 
-# Grafico de pares reales frente a la prediccion
+# Dibuja el grafico de pares reales frente a la prediccion (en la carpeta graficos_prediccion/)
 def paso_grafico_prediccion(ejecucion, predicciones, pie):
     ruta = visualizaciones.grafico_real_frente_a_prediccion(predicciones, ejecucion["salida"] / "graficos_prediccion",
                                                            pie)
@@ -294,7 +304,8 @@ def paso_grafico_prediccion(ejecucion, predicciones, pie):
     print(f"  Gráfico: {ruta}")
 
 
-# Ejecuta todos los pasos; devuelve 0 si todo cuadra y 1 si no
+# Ejecuta todos los pasos con la carpeta de entrada y la de salida
+# Devuelve 0 si todo va bien y 1 si hay bloqueantes o alguna cifra no cuadra con SQL
 def ejecutar(carpeta, salida, con_graficos=True):
     pd.set_option("display.width", 200)
     pd.set_option("display.max_colwidth", 90)
@@ -305,23 +316,23 @@ def ejecutar(carpeta, salida, con_graficos=True):
                             "estado_ejecucion.csv", ejecucion["salida"], ejecucion["carpeta"],
                             ejecucion["origen"], ejecucion["momento"])
 
-    resultado = paso_calidad(ejecucion)                                   # 1
+    resultado = paso_calidad(ejecucion)
     if resultado["bloqueado"]:
         return parar_por_bloqueo(ejecucion, resultado)
     datos = resultado["datos"]
     validos = resultado["validos"]
-    corte = datos["stock"]["fecha_corte"].max()   # momento de la exportacion
+    corte = datos["stock"]["fecha_corte"].max()   # fecha de corte del stock: el momento de la exportacion
 
-    paso_resumen_carga(ejecucion, resultado, corte)                       # 2
-    tablas = paso_tablas(ejecucion, datos, validos)                       # 3
-    paso_importes(ejecucion, tablas)                                      # 4
-    tabla_kpis = paso_kpis(ejecucion, tablas)                             # 5
-    cuadra = paso_conciliacion(ejecucion, tablas, tabla_kpis)             # 6
+    paso_resumen_carga(ejecucion, resultado, corte)
+    tablas = paso_tablas(ejecucion, datos, validos)
+    paso_importes(ejecucion, tablas)
+    tabla_kpis = paso_kpis(ejecucion, tablas)
+    cuadra = paso_conciliacion(ejecucion, tablas, tabla_kpis)
     if con_graficos:
         pie = pie_de_graficos(ejecucion, corte)
-        paso_graficos(ejecucion, tablas, pie)                             # 7
-    paso_estadistica(ejecucion, tablas)                                   # 8
-    resultados = paso_segmentacion_y_prediccion(ejecucion, tablas, validos, corte)   # 9
+        paso_graficos(ejecucion, tablas, pie)
+    paso_estadistica(ejecucion, tablas)
+    resultados = paso_segmentacion_y_prediccion(ejecucion, tablas, validos, corte)
     if con_graficos:
         paso_grafico_prediccion(ejecucion, resultados["predicciones"], pie)
 
@@ -337,7 +348,8 @@ def ejecutar(carpeta, salida, con_graficos=True):
     return 1
 
 
-# Lee los argumentos de la linea de comandos y lanza la ejecucion
+# Lee los argumentos de la linea de comandos (--modo, --entrada, --salida) y lanza la ejecucion
+# Devuelve el codigo de salida del programa (0 o 1)
 def main():
     parser = argparse.ArgumentParser(description="NOVA Sneakers: calidad, análisis, KPIs, gráficos, estadística, "
                                                  "segmentación y predicción")

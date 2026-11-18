@@ -1,7 +1,7 @@
 # Segmentación de clientes y predicción de demanda (fase 5)
 
 Apartados 6.8 (RFM y clustering) y 6.10 (predicción con aprendizaje automático)
-de la rúbrica. El código está en `segmentacion.py` y `prediccion.py`, y `main.py`
+de la rúbrica. El código está en `segmentacion.py` y `prediccion.py` (en `modulos/`), y `main.py`
 lo ejecuta en el paso 9.
 
 > **Todo lo que sale aquí con cifras es de los datos SINTÉTICOS** de

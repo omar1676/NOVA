@@ -1,9 +1,13 @@
 import unittest
+import sys
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "modulos"))   # los modulos estan en ../modulos
 
 import config
 import generador_datos
@@ -100,7 +104,6 @@ class PruebasSegmentos(unittest.TestCase):
     # Quintiles: con 15 clientes, 3 en cada puntuacion
     def test_puntuaciones_por_quintiles(self):
         tabla_rfm = segmentacion.rfm(compradores(15), clientes(15), CORTE).set_index("id_cliente")
-        # 15 clientes: 3 en cada puntuacion de 1 a 5
         for columna in ["r_score", "f_score", "m_score"]:
             self.assertEqual(tabla_rfm[columna].value_counts().sort_index().tolist(), [3, 3, 3, 3, 3])
         # El cliente 1 compro hace menos (R = 5) pero poco (F = 1); el 15, al reves
@@ -164,6 +167,7 @@ class PruebasSegmentos(unittest.TestCase):
 # KMeans con los datos sinteticos
 class PruebasKMeans(unittest.TestCase):
 
+    # Una sola vez para toda la clase: RFM de los sinteticos y KMeans con k de 2 a 5
     @classmethod
     def setUpClass(cls):
         cls.rfm = rfm_sintetico()
@@ -173,8 +177,8 @@ class PruebasKMeans(unittest.TestCase):
     def test_variables_estandarizadas_y_sin_nulos(self):
         datos = segmentacion.variables_kmeans(self.rfm[self.rfm["frequency"] > 0])
         self.assertEqual(datos.shape[1], 3)
-        np.testing.assert_allclose(datos.mean(axis=0), 0, atol=1e-9)    # media 0
-        np.testing.assert_allclose(datos.std(axis=0), 1, atol=1e-9)     # desviacion 1
+        np.testing.assert_allclose(datos.mean(axis=0), 0, atol=1e-9)
+        np.testing.assert_allclose(datos.std(axis=0), 1, atol=1e-9)
         con_nulo = self.rfm[self.rfm["frequency"] > 0].copy()
         con_nulo.loc[con_nulo.index[0], "recency_dias"] = np.nan
         with self.assertRaises(ValueError):

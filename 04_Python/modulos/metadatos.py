@@ -8,7 +8,7 @@ TODOS = "todos"                       # periodo, modelo, talla, tipo, estado y c
 MODELO_Y_TALLA = "modelo y talla"     # el stock: es una foto en la fecha de corte
 NINGUNO = "ninguno"                   # resultados globales (calidad, RFM, prediccion...)
 
-# Las cinco tablas de la exportacion
+# Las cinco tablas de la exportacion y las dos de pedidos
 TODAS = ["clientes", "modelos", "pedidos", "lineas_pedido", "stock"]
 PEDIDOS = ["pedidos", "lineas_pedido"]
 
@@ -130,19 +130,20 @@ DATAFRAMES = {
 DE_FILAS_LEIDAS = ["incidencias", "resumen_calidad", "filas_rechazadas", "nulos_por_columna", "estado_ejecucion"]
 
 
-# Numero de filas de cada tabla
+# Devuelve un diccionario con el numero de filas de cada tabla
 def contar(tablas):
     return {nombre: len(tabla) for nombre, tabla in tablas.items()}
 
 
-# Fecha de corte de stock.csv, como texto
+# Devuelve la fecha de corte de stock.csv como texto (o un aviso si no se ha podido leer)
 def fecha_corte(datos):
     if "stock" not in datos or datos["stock"]["fecha_corte"].isna().all():
         return "desconocida: no se ha podido leer stock.csv"
     return datos["stock"]["fecha_corte"].max().strftime(config.FORMATO_FECHA)
 
 
-# Metadatos de un DataFrame: funcion, fecha de corte, reglas, filtros y filas de origen
+# Devuelve los metadatos de un DataFrame (funcion, corte, reglas, filtros y filas de origen) en un diccionario
+# Recibe el nombre, sus filas, el corte y las filas de cada tabla de entrada ("leidas" o "validas")
 def fila(nombre, filas_resultado, corte, entradas, clase, texto_filtros):
     funcion, tablas, reglas, _ = DATAFRAMES[nombre]
     partes = []
@@ -155,7 +156,8 @@ def fila(nombre, filas_resultado, corte, entradas, clase, texto_filtros):
             "filtros": texto_filtros, "filas_origen": "; ".join(partes), "filas_resultado": filas_resultado}
 
 
-# Tabla de metadatos de todos los CSV guardados, sin filtros
+# Crea la tabla de metadatos (metadatos_dataframes.csv) de todos los CSV que guarda main.py, sin filtros
+# Recibe la lista (archivo, filas) de los guardados; devuelve un DataFrame con una fila por CSV
 def tabla(guardados, datos, validos):
     corte = fecha_corte(datos)
     leidas = contar(datos)
@@ -172,7 +174,8 @@ def tabla(guardados, datos, validos):
     return resultado
 
 
-# Filtros del dashboard que se aplican a un DataFrame, segun su alcance
+# Devuelve los filtros del dashboard que se aplican a un DataFrame, segun su alcance
+# (todos, solo modelo y talla, o ninguno)
 def filtros_que_usa(nombre, elegidos):
     alcance = DATAFRAMES[nombre][3]
     if alcance == TODOS:
@@ -182,7 +185,7 @@ def filtros_que_usa(nombre, elegidos):
     return dict(filtros.SIN_FILTROS)
 
 
-# Texto de los filtros que se han aplicado a un DataFrame
+# Devuelve el texto de los filtros que se han aplicado a un DataFrame
 def texto_filtros(nombre, elegidos):
     if DATAFRAMES[nombre][3] == NINGUNO:
         return "ninguno (resultado global)"
@@ -190,6 +193,7 @@ def texto_filtros(nombre, elegidos):
 
 
 # Metadatos de un DataFrame descargado desde el dashboard, con sus filtros
+# Cuenta las filas validas que quedan con esos filtros; devuelve una fila (diccionario)
 def del_dashboard(nombre, filas_resultado, datos, validos, elegidos):
     usados = filtros_que_usa(nombre, elegidos)
     filtrados = filtros.filtrar_validos(validos, usados)

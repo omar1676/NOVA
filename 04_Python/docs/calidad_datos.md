@@ -1,11 +1,13 @@
 # Calidad de los datos (fase 2)
 
-`calidad.py` aplica las doce reglas del apartado 6.2 de la rúbrica a los cinco CSV
+`calidad.py` (en `modulos/`) aplica las doce reglas del apartado 6.2 de la rúbrica a los cinco CSV
 y genera `incidencias.csv`, `resumen_calidad.csv` y `filas_rechazadas.csv` en
 `outputs/real/`. Con la exportación de prueba del 9 de noviembre de 2026 hay **2
 incidencias, las dos advertencias**, y ninguna fila rechazada: la calidad es del
-100 % en las cinco tablas. Las 61 pruebas nuevas meten cada fallo a propósito
-para comprobar que se detecta.
+100 % en las cinco tablas. Las 38 pruebas de `tests/test_calidad.py` meten cada
+fallo a propósito para comprobar que se detecta; `tests/test_regresiones.py` añade
+los casos que encontró la auditoría del 18/11 (línea sin `id_pedido`, falta la
+columna `personalizacion`, `stock.csv` sin ninguna `fecha_corte` válida).
 
 ## Gravedad y tratamiento
 

@@ -2,8 +2,11 @@ import hashlib
 import tempfile
 import unittest
 from pathlib import Path
+import sys
 
 import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "modulos"))   # los modulos estan en ../modulos
 
 import comprobaciones
 import pipeline
@@ -44,12 +47,14 @@ VALIDOS = {
 # Base: una carpeta temporal con los cinco CSV validos
 class PruebaConCarpeta(unittest.TestCase):
 
+    # Antes de cada prueba crea una carpeta temporal nueva con los cinco CSV validos
     def setUp(self):
         self.temporal = tempfile.TemporaryDirectory()
         self.carpeta = Path(self.temporal.name)
         for archivo, texto in VALIDOS.items():
             self.escribir(archivo, texto)
 
+    # Al acabar cada prueba borra la carpeta temporal
     def tearDown(self):
         self.temporal.cleanup()
 
@@ -85,13 +90,13 @@ class PruebasLeerCsv(PruebaConCarpeta):
         self.assertTrue(pd.api.types.is_datetime64_any_dtype(pedidos["fecha_pedido"]))
         self.assertEqual(pedidos.loc[1, "personalizacion"], "Logo, dorsal")  # coma dentro de comillas
 
-    # Archivo que no existe
+    # Leer un archivo que no existe da ErrorDatos con el mensaje "No existe"
     def test_csv_ausente(self):
         with self.assertRaises(pipeline.ErrorDatos) as contexto:
             pipeline.leer_csv(self.carpeta / "no_existe.csv", "clientes")
         self.assertIn("No existe", str(contexto.exception))
 
-    # Archivo de 0 bytes
+    # Un archivo de 0 bytes da ErrorDatos y el mensaje dice que esta vacio
     def test_csv_vacio(self):
         ruta = self.escribir("clientes.csv", "")
         with self.assertRaises(pipeline.ErrorDatos) as contexto:
@@ -226,21 +231,21 @@ class PruebasComprobaciones(PruebaConCarpeta):
         self.assertEqual(errores, [])
         self.assertEqual(resultados["Periodo de los pedidos"]["resultado"], "OK")   # octubre y noviembre
 
-    # Linea de un pedido que no existe
+    # Una linea del pedido 99, que no existe: "Relaciones entre tablas" da ERROR y nombra el 99
     def test_linea_huerfana(self):
         self.escribir("lineas_pedido.csv", VALIDOS["lineas_pedido.csv"] + "103,99,M1-40,1,40,1,79.99,79.99\n")
         resultado = self.resultados()["Relaciones entre tablas"]
         self.assertEqual(resultado["resultado"], "ERROR")
         self.assertIn("99", resultado["detalle"])
 
-    # id_cliente repetido
+    # Un id_cliente 2 repetido: "Claves unicas" da ERROR y dice cual es
     def test_id_duplicado(self):
         self.escribir("clientes.csv", VALIDOS["clientes.csv"] + "2,Otro,particular,otro@example.com,,true\n")
         resultado = self.resultados()["Claves únicas"]
         self.assertEqual(resultado["resultado"], "ERROR")
         self.assertIn("clientes.id_cliente: 2", resultado["detalle"])
 
-    # Total del pedido que no es la suma de sus lineas
+    # El total del pedido 10 no es la suma de sus lineas: "Importes y cantidades" da ERROR
     def test_total_que_no_cuadra(self):
         self.escribir("pedidos.csv", VALIDOS["pedidos.csv"].replace("3,239.97", "3,250.00"))
         resultado = self.resultados()["Importes y cantidades"]

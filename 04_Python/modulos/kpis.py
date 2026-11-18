@@ -8,7 +8,7 @@ from analiticas import NO_CALCULABLE, de_demanda, de_venta, dividir, es_no_calcu
 COLUMNAS = ["codigo", "nombre", "valor", "unidad", "detalle", "formula", "poblacion", "tabla_origen", "estado"]
 
 
-# Una fila de la tabla de KPIs
+# Crea una fila de la tabla de KPIs; si el valor es None, el estado es "sin datos"
 def kpi(codigo, nombre, valor, unidad, formula, poblacion, origen, detalle=""):
     estado = "calculado" if valor is not None else "sin datos"
     return {"codigo": codigo, "nombre": nombre, "valor": valor, "unidad": unidad, "detalle": detalle,
@@ -22,7 +22,8 @@ def kpi_no_calculable(codigo, nombre, unidad, formula, poblacion, origen, motivo
     return fila
 
 
-# Modelo o talla con mas pares de demanda; si hay empate salen todos
+# Modelo o talla con mas pares de demanda; si hay empate salen todos en el detalle
+# Recibe modelos_abc o ventas_por_talla y la columna que se ensena (etiqueta)
 def mas_solicitado(codigo, nombre, tabla, etiqueta, origen):
     formula = f"máximo de pares de demanda por {etiqueta}"
     if len(tabla) == 0 or tabla["pares"].max() == 0:
@@ -35,6 +36,7 @@ def mas_solicitado(codigo, nombre, tabla, etiqueta, origen):
 
 
 # Los 20 KPIs. Demanda: pedidos no cancelados; venta: confirmados en adelante
+# Recibe df_pedidos_unicos y las tablas de analiticas; devuelve un DataFrame con una fila por KPI
 def calcular_kpis(pedidos, tabla_abc, tabla_tallas, tabla_stock, tabla_meses):
     demanda = de_demanda(pedidos)
     venta = de_venta(pedidos)
@@ -42,7 +44,7 @@ def calcular_kpis(pedidos, tabla_abc, tabla_tallas, tabla_stock, tabla_meses):
     pares_venta = int(venta["pares"].sum())
     importe_venta = round(float(venta["importe"].sum()), 2)
     origen = "df_pedidos_unicos"
-    # K01-K14: pedidos, pares, importes y medias
+    # K01-K14: pedidos, pares, importes, medias, % Custom y modelo/talla mas solicitados
     lista = [
         kpi("K01", "Pedidos registrados", len(pedidos), "pedidos",
             "nº de pedidos (una fila por pedido)", "todos", origen),
@@ -148,6 +150,7 @@ def cobertura_total(tabla_stock):
 
 
 # Compara K01-K07 con las consultas P-A y P-B de Acceso a Datos
+# Devuelve None si falta alguno de los CSV de P-A a P-C en la carpeta SQL
 def coherencia_con_sql(tabla_kpis, carpeta_sql):
     if conciliacion.faltan_resultados(carpeta_sql):
         return None

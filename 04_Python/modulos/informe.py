@@ -15,7 +15,7 @@ SUSTENTO = {
     5: "metricas_prediccion.csv y predicciones.csv · gráfico 11_real_frente_a_prediccion.png (pestaña Predicción)",
 }
 
-# De donde salen los datos y su limitacion, segun ORIGEN.txt
+# De donde salen los datos y su limitacion, segun el tipo de ORIGEN.txt
 PROCEDENCIA = {
     "PRUEBA": "Datos de prueba (exportación de ACC)",
     "SINTETICO": "Datos sintéticos",
@@ -28,7 +28,8 @@ LIMITE_ORIGEN = {
 }
 
 
-# Numero en formato espanol: punto de miles y coma decimal
+# Pasa un numero a texto en formato espanol: punto de miles y coma decimal
+# Recibe el valor y los decimales; devuelve el texto (1234.5 pasa a "1.234,5")
 def numero(valor, decimales=0):
     texto = f"{float(valor):,.{decimales}f}"   # formato ingles: 1,234.5
     texto = texto.replace(",", "_")             # 1_234.5 (los miles, aparte un momento)
@@ -36,7 +37,8 @@ def numero(valor, decimales=0):
     return texto.replace("_", ".")              # 1.234,5 (punto de miles)
 
 
-# Una conclusion del informe ejecutivo
+# Junta los campos de una conclusion del informe ejecutivo en un diccionario (una fila de la tabla)
+# calculable es False cuando no hay datos; si no se dicen, la urgencia es baja y no hay impacto
 def conclusion(numero_, titulo, procede_de, evidencia, interpretacion, decision, limitacion, calculable=True,
                urgencia="baja", impacto="Ninguno todavía: no hay datos para decidir."):
     return {"numero": numero_, "titulo": titulo, "procede_de": procede_de, "calculable": calculable,
@@ -46,6 +48,7 @@ def conclusion(numero_, titulo, procede_de, evidencia, interpretacion, decision,
 
 
 # Conclusion 1: la demanda se concentra en los modelos de clase A
+# Recibe la tabla modelos_abc, la procedencia y la limitacion del origen; devuelve la conclusion
 def concentracion_modelos(abc, procede_de, limite):
     if es_no_calculable(abc) or abc["pares"].sum() == 0:
         return conclusion(1, "La demanda se concentra en pocos modelos", procede_de,
@@ -72,6 +75,7 @@ def concentracion_modelos(abc, procede_de, limite):
 
 
 # Conclusion 2: peso de los pedidos Custom en pedidos, pares e importe
+# Recibe la tabla custom_vs_estandar (una fila por tipo de pedido); devuelve la conclusion
 def peso_custom(tabla, procede_de, limite):
     custom = tabla[tabla["tipo_pedido"] == "custom"].iloc[0]
     normal = tabla[tabla["tipo_pedido"] == "normal"].iloc[0]
@@ -100,6 +104,7 @@ def peso_custom(tabla, procede_de, limite):
 
 
 # Conclusion 3: segmentos RFM (mejores clientes y clientes en riesgo)
+# Recibe el resumen rfm_segmentos; devuelve la conclusion
 def clientes_rfm(resumen, procede_de, limite):
     # El mismo minimo que segmentacion.puntuar: con menos clientes con compras no hay segmentos
     con_compras = int(resumen.loc[resumen["segmento"] != SIN_COMPRAS, "clientes"].sum())
@@ -129,6 +134,7 @@ def clientes_rfm(resumen, procede_de, limite):
 
 
 # Conclusion 4: SKU con stock bajo y pedidos recientes
+# Recibe la tabla stock_variantes (con la columna alerta_stock_bajo); devuelve la conclusion
 def riesgo_stock(stock, procede_de, limite):
     titulo = "Riesgo de quedarse sin stock"
     if len(stock) == 0:
@@ -163,6 +169,7 @@ def riesgo_stock(stock, procede_de, limite):
 
 
 # Conclusion 5: si la regresion mejora o no al baseline
+# Recibe la tabla metricas_prediccion (una fila por metodo); devuelve la conclusion
 def prediccion_frente_a_baseline(metricas, procede_de, limite):
     procedencia = f"Predicción · {procede_de}"   # es una prediccion hecha con esos datos
     if es_no_calculable(metricas):
@@ -204,7 +211,8 @@ def prediccion_frente_a_baseline(metricas, procede_de, limite):
         f"meses. {limite}", urgencia=urgencia, impacto=impacto)
 
 
-# Las cinco conclusiones del informe ejecutivo, con su prioridad
+# Calcula las cinco conclusiones del informe ejecutivo y su prioridad (lo usan main.py y el dashboard)
+# Recibe las tablas, el resumen RFM, las metricas de prediccion y el tipo de origen; devuelve un DataFrame
 def conclusiones(tablas, resumen_rfm, metricas_prediccion, tipo):
     procede_de = PROCEDENCIA.get(tipo, "Origen desconocido")
     limite = LIMITE_ORIGEN.get(tipo, "No se sabe de qué base salen los datos.")

@@ -4,8 +4,11 @@ import io
 import tempfile
 import unittest
 from pathlib import Path
+import sys
 
 import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "modulos"))   # los modulos estan en ../modulos
 
 import calidad
 import config
@@ -19,17 +22,18 @@ REGLAS_02_A_12 = [f"{numero:02d}" for numero in range(2, 13)]
 # Generador de datos sinteticos
 class PruebasGenerador(unittest.TestCase):
 
+    # Una sola vez para toda la clase: genera los sinteticos con la semilla del proyecto
     @classmethod
     def setUpClass(cls):
         cls.datos = generador_datos.generar(config.SEMILLA)
 
-    # Misma semilla, mismos datos
+    # Generar otra vez con la misma semilla da las cinco tablas identicas
     def test_misma_semilla_mismos_datos(self):
         otra_vez = generador_datos.generar(config.SEMILLA)
         for nombre, tabla in self.datos.items():
             pd.testing.assert_frame_equal(tabla, otra_vez[nombre])
 
-    # Otra semilla, otros datos
+    # Con la semilla + 1 los pedidos ya no son los mismos
     def test_otra_semilla_otros_datos(self):
         otra = generador_datos.generar(config.SEMILLA + 1)
         self.assertFalse(self.datos["pedidos"].equals(otra["pedidos"]))
@@ -112,6 +116,7 @@ class PruebasDatosGuardados(unittest.TestCase):
         cls.resultado_limpios = calidad.evaluar(cls.limpios)
         cls.resultado_errores = calidad.evaluar(cls.con_errores)
 
+    # Al acabar la clase borra la carpeta temporal con las dos copias
     @classmethod
     def tearDownClass(cls):
         cls.temporal.cleanup()
@@ -200,6 +205,7 @@ class PruebasCompatibilidad(unittest.TestCase):
             cls.codigo = main.ejecutar(entrada, cls.salida)
         cls.consola = consola.getvalue()
 
+    # Al acabar la clase borra la carpeta temporal con los sinteticos y la salida de main.py
     @classmethod
     def tearDownClass(cls):
         cls.temporal.cleanup()
@@ -208,11 +214,11 @@ class PruebasCompatibilidad(unittest.TestCase):
     def leer(self, archivo):
         return pd.read_csv(self.salida / archivo, encoding="utf-8", dtype=str, keep_default_na=False)
 
-    # Termina en CORRECTO; la conciliacion SQL no aplica
+    # Termina en CORRECTO con codigo 0; la conciliacion sale NO APLICA (no hay SQL con que conciliar)
     def test_ejecucion_correcta(self):
         self.assertEqual(self.codigo, 0)
         self.assertEqual(self.leer("estado_ejecucion.csv")["estado"].iloc[0], "CORRECTO")
-        self.assertIn("NO APLICA", self.consola)                    # no hay SQL con que conciliar
+        self.assertIn("NO APLICA", self.consola)
 
     # Cada CSV de salida dice que su origen es SINTETICO
     def test_todo_etiquetado_como_sintetico(self):

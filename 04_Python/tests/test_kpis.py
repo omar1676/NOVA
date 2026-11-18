@@ -1,4 +1,9 @@
+import sys
+from pathlib import Path
+
 import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "modulos"))   # los modulos estan en ../modulos
 
 import config
 import kpis
@@ -16,6 +21,7 @@ class PruebaKpis(PruebaTablas):
                                    tablas["stock_variantes"], tablas["ventas_por_periodo"])
         return tabla.set_index("codigo")
 
+    # Valor de un KPI concreto, por ejemplo el de K01
     def valor(self, tabla, codigo):
         return tabla.loc[codigo, "valor"]
 
@@ -28,27 +34,27 @@ class PruebasKpis(PruebaKpis):
         tabla = self.calcular().reset_index()
         self.assertEqual(list(tabla.columns), kpis.COLUMNAS)
         self.assertTrue(tabla["codigo"].is_unique)
-        self.assertTrue(tabla["formula"].str.len().gt(0).all())   # todos llevan formula
-        self.assertTrue(tabla["unidad"].str.len().gt(0).all())    # y unidad
+        self.assertTrue(tabla["formula"].str.len().gt(0).all())
+        self.assertTrue(tabla["unidad"].str.len().gt(0).all())
 
-    # Al menos 12 KPIs calculados
+    # Con los CSV de prueba al menos 12 de los 20 KPIs salen con estado "calculado"
     def test_doce_o_mas_kpis_calculados(self):
         tabla = self.calcular()
         self.assertGreaterEqual((tabla["estado"] == "calculado").sum(), 12)
 
-    # K01 a K03: registrados, confirmados y cancelados
+    # K01 a K03: 2 pedidos registrados, 1 confirmado (P-1) y 1 cancelado (P-2)
     def test_estados_de_los_pedidos(self):
         tabla = self.calcular()
-        self.assertEqual(self.valor(tabla, "K01"), 2)    # registrados
-        self.assertEqual(self.valor(tabla, "K02"), 1)    # confirmados
-        self.assertEqual(self.valor(tabla, "K03"), 1)    # cancelados
+        self.assertEqual(self.valor(tabla, "K01"), 2)
+        self.assertEqual(self.valor(tabla, "K02"), 1)
+        self.assertEqual(self.valor(tabla, "K03"), 1)
 
     # K06 a K08: importe registrado, confirmado y con pago registrado
     def test_registrado_confirmado_y_pagado_son_distintos(self):
         tabla = self.calcular()
-        self.assertEqual(self.valor(tabla, "K06"), 479.77)   # registrado: incluye el cancelado
-        self.assertEqual(self.valor(tabla, "K07"), 239.97)   # confirmado
-        self.assertEqual(self.valor(tabla, "K08"), 239.97)   # con pago registrado (P-1 esta pagado)
+        self.assertEqual(self.valor(tabla, "K06"), 479.77)   # 239.97 + 239.80: incluye el cancelado
+        self.assertEqual(self.valor(tabla, "K07"), 239.97)
+        self.assertEqual(self.valor(tabla, "K08"), 239.97)   # P-1 esta pagado
 
     # Confirmado no quiere decir pagado
     def test_pagado_no_se_supone(self):
@@ -64,7 +70,7 @@ class PruebasKpis(PruebaKpis):
         self.assertEqual(self.valor(tabla, "K10"), 3.0)
         self.assertEqual(self.valor(tabla, "K11"), 79.99)
 
-    # K04: los pares del pedido cancelado no cuentan
+    # K04 = 3: solo cuentan los pares de P-1, los 2 del pedido cancelado no
     def test_pares_solicitados_sin_cancelados(self):
         self.assertEqual(self.valor(self.calcular(), "K04"), 3)
 
@@ -77,14 +83,14 @@ class PruebasKpis(PruebaKpis):
         self.assertEqual(self.valor(tabla, "K14"), 2)
         self.assertIn("41", tabla.loc["K14", "detalle"])
 
-    # Si dos tallas empatan, salen las dos
+    # Si las tallas 40 y 41 empatan a 1 par, el detalle de K14 nombra las dos
     def test_empate_en_lo_mas_solicitado_nombra_a_todos(self):
         self.cambiar("lineas_pedido.csv", "101,10,M1-41,1,41,2,79.99,159.98", "101,10,M1-41,1,41,1,79.99,79.99")
         self.cambiar("pedidos.csv", "3,239.97", "2,159.98")
         tabla = self.calcular()
         self.assertIn("40, 41", tabla.loc["K14", "detalle"])
 
-    # K16 y K17: stock total y SKU con stock bajo
+    # K16 y K17: 17 pares de stock en total y 2 SKU con stock bajo
     def test_inventario(self):
         tabla = self.calcular()
         self.assertEqual(self.valor(tabla, "K16"), 17)
@@ -103,7 +109,7 @@ class PruebasKpis(PruebaKpis):
         self.anadir_otro_mes()
         tabla = self.calcular()
         self.assertEqual(self.valor(tabla, "K19"), 33.3)
-        self.assertEqual(self.valor(tabla, "K20"), 22.7)   # 17 pares / (3 pares en 28 dias / 4)
+        self.assertEqual(self.valor(tabla, "K20"), 22.7)   # 17 pares de stock / (3 pares pedidos en 28 dias / 4)
 
     # Sin pedidos no se divide entre cero: "sin datos" o NO CALCULABLE
     def test_sin_pedidos_no_divide_entre_cero(self):

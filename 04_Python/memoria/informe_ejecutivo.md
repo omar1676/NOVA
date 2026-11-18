@@ -1,7 +1,7 @@
 # Informe ejecutivo: cinco conclusiones (apartado 6.11)
 
-Dirigido a producción y comercial. Las conclusiones las calcula `informe.py` a
-partir de las tablas de análisis. Las cifras no están escritas a mano: si cambian
+Dirigido a producción y comercial. Las conclusiones las calcula `informe.py` (en
+`04_Python/modulos/`) a partir de las tablas de análisis. Las cifras no están escritas a mano: si cambian
 los datos, cambian las cifras. Aparecen:
 - en la pestaña Dirección del dashboard;
 - en `outputs/<modo>/informe_ejecutivo.csv`, que escribe `main.py`.

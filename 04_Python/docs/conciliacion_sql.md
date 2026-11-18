@@ -8,11 +8,11 @@ sin cambiar nada). Con la exportación de prueba del 9 de noviembre de 2026
 
 ## Las tres consultas y en qué se diferencian de Python
 
-| Consulta (línea en el `.sql`) | Qué calcula SQL | Qué calcula Python | Diferencias de definición |
+| Consulta (líneas en el `.sql`) | Qué calcula SQL | Qué calcula Python | Diferencias de definición |
 |---|---|---|---|
-| P-A (129) | `count(*)`, `sum(cantidad_total)` y `sum(importe_total)` de los pedidos con `estado <> 'cancelado'` | filas de `df_pedidos_unicos` con `es_cancelado = False`; pares e importe sumados desde sus líneas | SQL usa los **totales de la cabecera**; Python suma **las líneas**. SQL cuenta **todos** los pedidos de la base; Python, solo los **válidos** |
-| P-B (138) | por estado: `count(*)`, `sum(cantidad_total)` y `sum(importe_total)` de todos los pedidos, también los cancelados | `df_pedidos_unicos` agrupado por `estado_pedido`; pares e importe desde las líneas | las mismas que P-A |
-| P-C (149) | por `COALESCE(modelo, 'X-NOVA')`: `SUM(cantidad)` y `COUNT(DISTINCT id_pedido)` de las líneas de pedidos no cancelados | `df_lineas_enriquecidas` sin cancelados, agrupado por `nombre_modelo`: suma de `cantidad` y `nunique` de `id_pedido` | SQL llega al modelo por SKU → variante → modelo; Python, por el `id_modelo` que trae `lineas_pedido.csv` (en X-NOVA, el exportador pone el modelo X-NOVA). Python solo usa líneas válidas |
+| P-A (133-139) | `count(*)`, `sum(cantidad_total)` y `sum(importe_total)` de los pedidos con `estado <> 'cancelado'` | filas de `df_pedidos_unicos` con `es_cancelado = False`; pares e importe sumados desde sus líneas | SQL usa los **totales de la cabecera**; Python suma **las líneas**. SQL cuenta **todos** los pedidos de la base; Python, solo los **válidos** |
+| P-B (142-150) | por estado: `count(*)`, `sum(cantidad_total)` y `sum(importe_total)` de todos los pedidos, también los cancelados | `df_pedidos_unicos` agrupado por `estado_pedido`; pares e importe desde las líneas | las mismas que P-A |
+| P-C (153-165) | por `COALESCE(modelo, 'X-NOVA')`: `SUM(cantidad)` y `COUNT(DISTINCT id_pedido)` de las líneas de pedidos no cancelados | `df_lineas_enriquecidas` sin cancelados, agrupado por `nombre_modelo`: suma de `cantidad` y `nunique` de `id_pedido` | SQL llega al modelo por SKU → variante → modelo; Python, por el `id_modelo` que trae `lineas_pedido.csv` (en X-NOVA, el exportador pone el modelo X-NOVA). Python solo usa líneas válidas |
 
 **Por qué se pueden comparar igualmente:**
 - **Cabecera y líneas:** la regla 12 comprueba que la cabecera es la suma de sus líneas, así que dan lo mismo.
@@ -83,7 +83,7 @@ La base de prueba es un clúster temporal, distinto del PostgreSQL del equipo:
 3. Se ejecutaron las tres consultas, copiadas tal cual del archivo.
 
 Ninguna de las tres usa fechas. N-1, N-2 y N-3 se sacaron el 13 de noviembre de
-2026 de otra base de prueba montada igual, con los scripts 1–17 .
+2026 de otra base de prueba montada igual, con los scripts 1–17.
 Su exportación también era idéntica a la de `entrada_acc/` salvo esas dos fechas,
 que caen en el mismo mes (2026-11), y P-A, P-B y P-C salían iguales byte a byte.
 

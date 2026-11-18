@@ -12,6 +12,7 @@ class ErrorDatos(Exception):
 
 
 # Lee un CSV y convierte cada columna a su tipo
+# Recibe la ruta y el nombre de la tabla en config.ARCHIVOS; devuelve (DataFrame, lista de avisos)
 def leer_csv(ruta, nombre):
     ruta = Path(ruta)
     return preparar(leer_texto(ruta), nombre, ruta.name)
@@ -25,6 +26,7 @@ def leer_texto(ruta):
     if ruta.stat().st_size == 0:
         raise ErrorDatos(f"El archivo {ruta.name} está vacío (0 bytes)")
 
+    # Solo la celda vacia cuenta como nulo: un texto como "NA" se queda tal cual
     try:
         datos = pd.read_csv(ruta, sep=config.SEPARADOR, encoding=config.CODIFICACION,
                             dtype=str, keep_default_na=False, na_values=[""])
@@ -43,6 +45,7 @@ def leer_texto(ruta):
 
 
 # Comprueba las columnas obligatorias y convierte cada columna a su tipo
+# Recibe la tabla leida como texto; devuelve la tabla convertida y la lista de avisos
 def preparar(texto, nombre, archivo):
     definicion = config.ARCHIVOS[nombre]
     datos = texto.copy()
@@ -59,7 +62,7 @@ def preparar(texto, nombre, archivo):
     if len(datos) == 0:
         avisos.append(f"{archivo}: solo tiene la cabecera, ninguna fila")
 
-    # Un valor que no se puede convertir se avisa, pero no para la carga
+    # Un valor que no se puede convertir se avisa, pero no detiene la carga
     for columna, tipo in definicion["tipos"].items():
         if columna in datos.columns:
             convertidos, fallidos = convertir(datos[columna], tipo)
@@ -72,6 +75,7 @@ def preparar(texto, nombre, archivo):
 
 
 # Convierte una columna a su tipo: entero, decimal, fecha, logico o texto
+# Devuelve la columna convertida y los valores que no se han podido convertir
 def convertir(valores, tipo):
     if tipo == "entero":
         numeros = pd.to_numeric(valores, errors="coerce")
@@ -93,6 +97,7 @@ def convertir(valores, tipo):
 
 
 # Carga los cinco CSV; si falla alguno, da un solo error con todos los motivos
+# Devuelve un diccionario {nombre de la tabla: DataFrame} y la lista de avisos
 def cargar_todos(carpeta=config.CARPETA_ENTRADA):
     carpeta = Path(carpeta)
     datos = {}
@@ -109,7 +114,7 @@ def cargar_todos(carpeta=config.CARPETA_ENTRADA):
     return datos, avisos
 
 
-# Filas, columnas, tamano y fecha de cada CSV analizado
+# Tabla con las filas, columnas, tamano y fecha de modificacion de cada CSV analizado
 def manifiesto(carpeta, datos):
     carpeta = Path(carpeta)
     ahora = datetime.now().strftime(config.FORMATO_FECHA)
@@ -128,7 +133,7 @@ def manifiesto(carpeta, datos):
     return pd.DataFrame(filas)
 
 
-# Texto de ORIGEN.txt (o un aviso si no existe)
+# Devuelve el texto de ORIGEN.txt (o un aviso si no existe)
 def leer_origen(carpeta):
     ruta = Path(carpeta) / config.ARCHIVO_ORIGEN
     if not ruta.exists():
@@ -136,7 +141,7 @@ def leer_origen(carpeta):
     return ruta.read_text(encoding="utf-8").strip()
 
 
-# Tipo que dice la linea "Tipo:" de ORIGEN.txt; si no esta, DESCONOCIDO
+# Devuelve el tipo de la linea "Tipo:" de ORIGEN.txt (PRUEBA, REAL o SINTETICO); si no esta, DESCONOCIDO
 def tipo_origen(carpeta):
     ruta = Path(carpeta) / config.ARCHIVO_ORIGEN
     if ruta.exists():
@@ -148,13 +153,14 @@ def tipo_origen(carpeta):
     return "DESCONOCIDO"
 
 
-# Etiqueta del origen para ensenarla en pantalla
+# Etiqueta del origen para ensenarla en pantalla (los textos de config.TIPOS_ORIGEN)
 def etiqueta_origen(carpeta):
     tipo = tipo_origen(carpeta)
     return config.TIPOS_ORIGEN.get(tipo, "DESCONOCIDO (no hay línea 'Tipo:' en ORIGEN.txt)")
 
 
 # Guarda una tabla en CSV con su origen y su ejecucion; nunca en la carpeta de entrada
+# Devuelve la ruta del CSV guardado
 def guardar_salida(tabla, archivo, carpeta_salida, carpeta_entrada, origen, ejecucion):
     carpeta_salida = Path(carpeta_salida)
     if carpeta_salida.resolve() == Path(carpeta_entrada).resolve():
@@ -172,12 +178,13 @@ def guardar_salida(tabla, archivo, carpeta_salida, carpeta_entrada, origen, ejec
 COLUMNAS_PERSONALES = ["nombre_cliente", "nombre", "correo", "telefono"]
 
 
-# Quita de la tabla las columnas personales que tenga
+# Devuelve la tabla sin las columnas personales que tenga
 def sin_datos_personales(tabla):
     return tabla.drop(columns=[columna for columna in COLUMNAS_PERSONALES if columna in tabla.columns])
 
 
 # CSV del boton de descarga del dashboard: sin datos personales y con origen, filtros y metadatos
+# Devuelve el CSV en bytes (UTF-8), que es lo que necesita el boton de descarga
 def csv_descarga(tabla, origen, ejecucion, filtros, metadatos=None):
     salida = sin_datos_personales(tabla).copy()
     salida.insert(0, "origen", origen)

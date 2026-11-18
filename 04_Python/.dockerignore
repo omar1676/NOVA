@@ -1,6 +1,8 @@
 # Lo que no hace falta en la imagen del dashboard
 .venv/
-__pycache__/
+# Las caches de Python de cualquier carpeta (modulos/, tests/...)
+**/__pycache__/
+**/*.pyc
 outputs/
 logs/
 evidencias/

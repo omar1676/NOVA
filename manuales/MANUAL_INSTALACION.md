@@ -257,7 +257,7 @@ y abrir `http://127.0.0.1:8000/01_Interfaces/cliente/`. También funciona abrien
 |---|---|---|---|
 | SQL | Scripts 09 a 16 en el orden del §3 | **123 PASS, 0 FAIL y 1 ERROR previsto** (S4b) | 123 / 0 / 1 (la regresión del 13/11) |
 | PSP | En `03_PSP`, tras compilar: `java -cp clases PruebasPsp` | `Pruebas superadas: 27 de 27` | 27 / 27 (ídem) |
-| Python | En `04_Python`: `.venv\Scripts\python.exe -m unittest discover -s tests -v` (el tiempo depende del equipo; 265 pruebas, unos 157 s en este cierre) | `Ran 265 tests` y `OK` | 265 OK (la regresión del 13/11) |
+| Python | En `04_Python`: `.venv\Scripts\python.exe -m unittest discover -s tests -v` (el tiempo depende del equipo: unos 157 s con las 265 de aquel cierre; desde el 18/11 son 278) | `Ran 278 tests` y `OK` | 265 OK (el 13/11 aún no estaban las 12 de `test_regresiones.py`) |
 | Panel | En `servidor-admin`, con `$env:PRUEBA_ADMIN_USUARIO`, `PRUEBA_ADMIN_CLAVE`, `PRUEBA_OTRO_USUARIO` y `PRUEBA_OTRO_CLAVE` (y las `PRUEBA_COMERCIAL_*`): `npm test` | `tests 23`, `pass 23` con `PRUEBA_TIENDA_BASE_DESECHABLE=si` (sin ella, una se salta) | 23 / 23 y 22 + 1 saltada (la regresión del 13/11) |
 | Tienda | `$env:PRUEBA_TIENDA_BASE_DESECHABLE = "si"; npm run test:tienda` | `tests 39`, `pass 39` | 39 / 39 (ídem) |
 | Login único y portal | `$env:PRUEBA_TIENDA_BASE_DESECHABLE = "si"; $env:PRUEBA_SUPERUSUARIO = "postgres"; npm run test:portal` | `tests 24`, `pass 24` | 24 / 24 (ídem) |
@@ -285,7 +285,7 @@ y abrir `http://127.0.0.1:8000/01_Interfaces/cliente/`. También funciona abrien
 | `PruebasPsp` falla con caracteres raros | Se lanzó con `-Dfile.encoding=UTF-8` | Lanzarla sin esa opción |
 | `python` abre la Microsoft Store | Es el alias de Windows | Usar `py` o `.venv\Scripts\python.exe` |
 | `main.py` termina con «DATOS BLOQUEADOS» | Hay incidencias bloqueantes | Ver `outputs\<modo>\incidencias.csv`; los CSV de entrada no se tocan |
-| `main.py` termina con «NO CUADRA CON SQL» | P-A, P-B, P-C o N-1 a N-3 son de otra exportación | Exportar los 5 CSV y las consultas a la vez (`04_Python/conciliacion_sql.md`) |
+| `main.py` termina con «NO CUADRA CON SQL» | P-A, P-B, P-C o N-1 a N-3 son de otra exportación | Exportar los 5 CSV y las consultas a la vez (`04_Python/docs/conciliacion_sql.md`) |
 | El dashboard dice «Error de carga» | Falta un CSV, está vacío o le falta una columna | Volver a exportar con el 16; el último resultado válido se ve rotulado DESACTUALIZADO |
 | El dashboard pone «PRUEBA» en naranja | Es lo que dice `ORIGEN.txt` | Poner `Tipo: REAL` solo si la exportación es de la base del equipo |
 | Un pedido nuevo no sale en el dashboard | No se ha vuelto a exportar | Lanzar el 16 y esperar al siguiente ciclo de 60 s (o «Actualizar ahora») |

@@ -3,8 +3,11 @@ import io
 import tempfile
 import unittest
 from pathlib import Path
+import sys
 
 import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "modulos"))   # los modulos estan en ../modulos
 
 import analiticas
 import calidad
@@ -47,6 +50,7 @@ def valor(tablas, codigo):
 # Filtros de pedidos y lineas
 class PruebasFiltros(unittest.TestCase):
 
+    # Una sola vez para toda la clase: coge los sinteticos de la cache
     @classmethod
     def setUpClass(cls):
         cls.resultado = sinteticos()
@@ -124,9 +128,8 @@ class PruebasFiltros(unittest.TestCase):
         self.assertEqual(texto, "periodo 2026-01-01 a 2026-06-30 · modelo: SINT Runner · tipo: normal · "
                                 "estado: entregado")
 
-    # Filtrar modelo a modelo no duplica pedidos ni importes
+    # Filtrando modelo a modelo, los pares (K04) y los euros (K06) suman lo mismo que sin filtrar
     def test_sin_duplicar_pedidos_ni_importes(self):
-        # Filtrando modelo a modelo, los pares y los euros suman lo mismo que sin filtrar
         completas = calcular()
         pares = importe = 0
         for modelo in self.resultado["validos"]["modelos"]["nombre_modelo"]:
@@ -182,6 +185,7 @@ class PruebasFiltros(unittest.TestCase):
 # Filtros de la pestana Inventario
 class PruebasInventario(unittest.TestCase):
 
+    # Antes de cada prueba: los sinteticos (de la cache) y la fecha de corte del stock
     def setUp(self):
         self.resultado = sinteticos()
         self.corte = self.resultado["datos"]["stock"]["fecha_corte"].max()

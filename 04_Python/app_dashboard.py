@@ -1,8 +1,12 @@
 import tempfile
 from datetime import datetime
+import sys
+from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+
+sys.path.insert(0, str(Path(__file__).resolve().parent / "modulos"))   # los modulos estan en modulos/
 
 import actualizacion
 import config
@@ -33,9 +37,10 @@ FORMATO_HORA = "%d/%m/%Y %H:%M:%S"
 MARGEN_SEGUNDOS = 5
 
 
-# Refresco
+# Refresco de los datos
 
-# Lanza un ciclo si toca (carga inicial, 60 s o boton); devuelve True si lo ha lanzado
+# Lanza un ciclo de actualizacion.py si toca (carga inicial, 60 s o boton); devuelve True si lo ha lanzado
+# Recibe el origen y la operacion (None: decide sola); guarda el estado en st.session_state["estados"]
 def actualizar(nombre, operacion=None):
     estados = st.session_state.setdefault("estados", {})
     anterior = estados.get(nombre)
@@ -52,7 +57,7 @@ def actualizar(nombre, operacion=None):
 
 # Filtros (barra lateral)
 
-# Boton Restablecer: periodo completo y listas vacias
+# Al pulsar Restablecer filtros: vuelve al periodo completo y vacia las listas de ese origen
 def restablecer_filtros(sufijo, primero, ultimo):
     st.session_state[f"periodo_{sufijo}"] = (primero, ultimo)
     for nombre in ["modelos", "tallas", "tipos", "estados", "clientes"]:
@@ -60,12 +65,14 @@ def restablecer_filtros(sufijo, primero, ultimo):
 
 
 # Lista de seleccion multiple; antes quita los valores guardados que ya no son opciones
+# Devuelve los valores elegidos (lista vacia = todos)
 def lista_filtro(etiqueta, opciones, clave, format_func=str):
     st.session_state[clave] = [valor for valor in st.session_state.get(clave, []) if valor in opciones]
     return st.multiselect(etiqueta, opciones, key=clave, placeholder="Todos", format_func=format_func)
 
 
 # Selector del periodo: si no estaba acotado o se sale de las fechas, vuelve al completo
+# Devuelve las fechas elegidas (una o dos, segun lo que haya marcado el usuario)
 def filtro_periodo(sufijo, primero, ultimo):
     clave = f"periodo_{sufijo}"
     guardado = st.session_state.get(clave)
@@ -82,7 +89,8 @@ def filtro_periodo(sufijo, primero, ultimo):
                          format="DD/MM/YYYY")
 
 
-# Filtros de la barra lateral; devuelve los filtros elegidos
+# Dibuja los filtros de la barra lateral para el origen elegido
+# Devuelve los filtros elegidos (diccionario con las claves de filtros.SIN_FILTROS)
 def elegir_filtros(nombre, estado):
     st.subheader("Filtros")
     publicado = estado["publicado"]
@@ -96,7 +104,7 @@ def elegir_filtros(nombre, estado):
     primero = pedidos["fecha_pedido"].min().date()
     ultimo = pedidos["fecha_pedido"].max().date()
     periodo = filtro_periodo(sufijo, primero, ultimo)
-    # Las opciones de los filtros de modelo y talla, ordenadas
+    # Las opciones de los filtros de modelo, talla y cliente, ordenadas
     nombres_modelos = sorted(publicado["validos"]["modelos"]["nombre_modelo"])
     tallas = sorted(int(talla) for talla in lineas["talla"].dropna().unique())
     clientes = publicado["validos"]["clientes"]
@@ -126,7 +134,8 @@ def elegir_filtros(nombre, estado):
 
 # Piezas que se repiten: tarjetas, tablas, graficos y descargas
 
-# Valor del KPI como texto para su tarjeta (N/D si no se ha calculado)
+# Devuelve el valor del KPI como texto para su tarjeta (N/D si no se ha calculado)
+# Recibe la fila del KPI (diccionario con valor, unidad y estado)
 def texto_kpi(fila):
     valor = fila["valor"]
     if fila["estado"] != "calculado" or valor is None:
@@ -148,7 +157,7 @@ def texto_kpi(fila):
     return texto
 
 
-# Tarjeta de un KPI; la ayuda dice su formula y su poblacion
+# Dibuja la tarjeta de un KPI en una columna; su ayuda dice la formula y la poblacion
 def tarjeta(columna, fila, etiqueta=None):
     ayuda = f"{fila['formula']} ({fila['unidad']}). Población: {fila['poblacion']}."
     if fila["detalle"]:
@@ -156,7 +165,8 @@ def tarjeta(columna, fila, etiqueta=None):
     columna.metric(etiqueta or fila["nombre"], texto_kpi(fila), help=ayuda, border=True)
 
 
-# Etiqueta que dice si el bloque usa los filtros o es global
+# Pone la etiqueta que dice si el bloque usa los filtros o es global
+# c es el diccionario que comparten las pestanas (se crea en panel)
 def alcance(c, filtrado=True):
     if not filtrado:
         st.badge("Global: no usa los filtros", icon=":material/public:", color="gray")
@@ -166,7 +176,8 @@ def alcance(c, filtrado=True):
         st.badge("Todos los datos (sin filtros)", icon=":material/filter_alt_off:", color="gray")
 
 
-# Deja la tabla lista para ensenar: sin indice, sin datos personales y con columnas de texto
+# Deja la tabla lista para ensenar o descargar y la devuelve
+# (sin indice, sin datos personales y con los nombres de columna como texto)
 def preparar(tabla):
     if tabla.index.name is not None:
         tabla = tabla.reset_index()
@@ -175,18 +186,19 @@ def preparar(tabla):
     return tabla
 
 
-# Ensena una tabla con las columnas de euros formateadas
+# Ensena una tabla en pantalla con las columnas de euros formateadas
 def tabla(datos, alto="auto"):
     datos = preparar(datos)
     # Las columnas de euros se ensenan con 2 decimales y el euro (no porcentajes ni rankings)
     formatos = {}
-    for columna in datos.columns:   # preparar ya las ha dejado como texto
+    for columna in datos.columns:   # preparar ya ha pasado a texto los nombres de columna
         if ("importe" in columna or "ticket" in columna or "monetary" in columna) and not columna.endswith("_pct") and not columna.startswith(("porcentaje", "ranking")):
             formatos[columna] = st.column_config.NumberColumn(format="%.2f €")
     st.dataframe(datos, hide_index=True, column_config=formatos, height=alto)
 
 
-# Apunta cada descarga en el registro de eventos
+# Apunta una descarga del dashboard en el registro de eventos
+# La llaman todos los botones de descarga (on_click), tambien el de incidencias.csv
 def anotar_descarga(archivo, filas, origen, carpeta, version, texto_filtros):
     registro.anotar(config.ARCHIVO_REGISTRO, origen=origen, carpeta=carpeta, operacion=f"descarga de {archivo}",
                     resultado="correcto", filas_procesadas=filas, version_datos=version,
@@ -194,6 +206,7 @@ def anotar_descarga(archivo, filas, origen, carpeta, version, texto_filtros):
 
 
 # Boton para descargar la tabla en CSV, con sus metadatos y sus filtros
+# Al pulsarlo, anotar_descarga lo apunta en el registro de eventos
 def descarga(datos, nombre, c):
     datos = preparar(datos)
     publicado = c["publicado"]
@@ -209,7 +222,7 @@ def descarga(datos, nombre, c):
               publicado["version"], texto_filtros))
 
 
-# Carpeta temporal para los PNG del dashboard (una por sesion)
+# Devuelve la carpeta temporal para los PNG del dashboard (se crea una por sesion)
 def carpeta_graficos():
     if "carpeta_graficos" not in st.session_state:
         st.session_state["carpeta_graficos"] = tempfile.mkdtemp(prefix="nova_graficos_")
@@ -217,6 +230,7 @@ def carpeta_graficos():
 
 
 # Dibuja un grafico de visualizaciones.py y, debajo, sus datos
+# Recibe la funcion del grafico, la tabla con la que se dibuja y la tabla que se ensena debajo
 def grafico(funcion, entrada, datos, c, **opciones):
     ruta = funcion(entrada, carpeta_graficos(), c["pie"], **opciones)
     st.image(str(ruta), width="stretch")
@@ -224,25 +238,25 @@ def grafico(funcion, entrada, datos, c, **opciones):
         tabla(datos)
 
 
-# Aviso con el motivo de una tabla NO CALCULABLE
+# Ensena un aviso con el motivo de una tabla NO CALCULABLE
 def aviso_no_calculable(datos):
     st.info(f"{NO_CALCULABLE}: {datos['motivo'].iloc[0]}", icon=":material/info:")
 
 
-# Los KPIs en un diccionario por codigo (K01, K02...)
+# Devuelve los KPIs en un diccionario por codigo (K01, K02...)
 def kpis_por_codigo(tabla_kpis):
     return {fila["codigo"]: fila for fila in tabla_kpis.to_dict("records")}
 
 
 # Pestanas
 
-# Mensaje cuando no hay datos validos que ensenar
+# Ensena un mensaje de error cuando no hay datos validos que ensenar
 def sin_cifras():
     st.error("No se publican cifras: los datos actuales no son válidos (o no se pueden leer). "
              "El detalle está en la pestaña Calidad.", icon=":material/block:")
 
 
-# Pestana Direccion: KPIs, evolucion, estados y conclusiones
+# Dibuja la pestana Direccion: KPIs, evolucion, estados y conclusiones
 def pestana_direccion(c):
     tablas = c["tablas"]
     k = kpis_por_codigo(tablas["kpis"])
@@ -322,7 +336,7 @@ def pestana_direccion(c):
                         f"**Urgencia.** {conclusion['urgencia']} · **Sustento.** {conclusion['sustento']}")
 
 
-# Pestana Productos: ranking ABC, tallas y Custom frente a estandar
+# Dibuja la pestana Productos: ranking ABC, tallas y Custom frente a estandar
 def pestana_productos(c):
     tablas = c["tablas"]
     abc = tablas["modelos_abc"]
@@ -358,7 +372,7 @@ def pestana_productos(c):
     tabla(tablas["custom_vs_estandar"])
 
 
-# Pestana Clientes: actividad, RFM, KMeans y cohortes
+# Dibuja la pestana Clientes: actividad, RFM, KMeans y cohortes
 def pestana_clientes(c):
     tablas = c["tablas"]
     segmentos = c["publicado"]["segmentacion"]
@@ -430,7 +444,7 @@ def pestana_clientes(c):
         tabla(cohortes)
 
 
-# Pestana Inventario: stock, alertas y cobertura (solo filtros de modelo y talla)
+# Dibuja la pestana Inventario: stock, alertas y cobertura (solo filtros de modelo y talla)
 def pestana_inventario(c):
     publicado = c["publicado"]
     st.info(f"El stock es una foto en la fecha de corte ({publicado['corte']:%d/%m/%Y %H:%M}), no un histórico. "
@@ -490,7 +504,8 @@ def pestana_inventario(c):
         descarga(stock, "stock_variantes", c)
 
 
-# Pestana Calidad: incidencias, rechazadas, origen, conciliacion y registro
+# Dibuja la pestana Calidad: incidencias, rechazadas, origen, conciliacion y registro
+# Es la unica que se ensena aunque no haya datos validos publicados
 def pestana_calidad(c):
     estado = c["estado"]
     resultado = estado["calidad"]
@@ -534,14 +549,19 @@ def pestana_calidad(c):
         tabla(afectadas)
         st.subheader("Incidencias")
         tabla(incidencias)
-        # Descarga de las incidencias: cuentan las filas leidas y no usan filtros
+        # Descarga de las incidencias: va aparte de descarga() porque tambien sirve con datos bloqueados
+        # (sin publicacion); cuenta las filas leidas y no usa filtros
         datos_meta = metadatos.fila("incidencias", len(incidencias), metadatos.fecha_corte(resultado["datos"]),
                                     metadatos.contar(resultado["datos"]), "leídas", "ninguno")
+        archivo = f"incidencias_{estado['tipo'].lower()}.csv"
         st.download_button("Descargar incidencias.csv",
                            pipeline.csv_descarga(incidencias, estado["origen"],
                                                  f"{estado['comprobado']:%Y-%m-%d %H:%M:%S}", "ninguno", datos_meta),
-                           file_name=f"incidencias_{estado['tipo'].lower()}.csv", mime="text/csv",
-                           key="descarga_incidencias", icon=":material/download:")
+                           file_name=archivo, mime="text/csv", key="descarga_incidencias", icon=":material/download:",
+                           # Al pulsarlo se anota en el registro, como las demas descargas
+                           on_click=anotar_descarga,
+                           args=(archivo, len(incidencias), estado["origen"],
+                                 actualizacion.carpeta_relativa(estado["carpeta"]), estado["version"], "ninguno"))
     if len(resultado["rechazadas"]) > 0:
         st.subheader("Filas rechazadas")
         tabla(resultado["rechazadas"])
@@ -570,7 +590,7 @@ def pestana_calidad(c):
     tabla(registro.leer(config.ARCHIVO_REGISTRO, ultimas=50), alto=320)
 
 
-# Pestana Prediccion: baseline frente a regresion lineal
+# Dibuja la pestana Prediccion: baseline frente a regresion lineal
 def pestana_prediccion(c):
     publicado = c["publicado"]
     resultados = publicado["prediccion"]
@@ -617,7 +637,7 @@ def pestana_prediccion(c):
 
 # Cabecera y panel (se refresca cada 60 s)
 
-# Cabecera: origen, estado, horas y avisos
+# Dibuja la cabecera: origen, estado, horas y avisos
 def cabecera(estado):
     st.title("NOVA Sneakers · Panel de datos")
     st.badge(estado["origen"], icon=":material/database:", color=COLOR_ORIGEN.get(estado["tipo"], "red"))
@@ -656,7 +676,8 @@ def cabecera(estado):
         st.warning(aviso, icon=":material/warning:")
 
 
-# Publicacion que se ensena; la desactualizada, solo si el usuario la pide
+# Elige la publicacion que se ensena; la desactualizada, solo si el usuario la pide
+# Devuelve la publicacion o None (entonces las pestanas no ensenan cifras)
 def publicacion_visible(estado):
     publicado = estado["publicado"]
     if publicado is None or not estado["desactualizado"]:
@@ -669,7 +690,8 @@ def publicacion_visible(estado):
     return None
 
 
-# Panel principal: st.fragment lo vuelve a ejecutar cada 60 s
+# Panel principal (cabecera y pestanas): st.fragment lo vuelve a ejecutar cada 60 s
+# Recibe el origen y los filtros elegidos en la barra lateral
 @st.fragment(run_every=f"{config.SEGUNDOS_REFRESCO}s")
 def panel(nombre, elegidos):
     version = st.session_state["estados"][nombre]["version"]
@@ -679,7 +701,7 @@ def panel(nombre, elegidos):
     cabecera(estado)
     publicado = publicacion_visible(estado)
 
-    # Lo que necesitan todas las pestanas
+    # c: lo que necesitan todas las pestanas (estado, publicacion, filtros, tablas, pie de los graficos...)
     c = {"estado": estado, "publicado": publicado, "filtros": elegidos, "texto_filtros": filtros.describir(elegidos),
          "tablas": None}
     if publicado is not None:
@@ -695,7 +717,8 @@ def panel(nombre, elegidos):
             abierta = nombre_pestana
             break
     if publicado is not None and abierta in ["Dirección", "Productos", "Clientes"]:
-        # Las tablas filtradas salen de la MISMA version de los datos que todo lo demas
+        # Solo estas tres pestanas usan las tablas filtradas
+        # Salen de la MISMA version de los datos que todo lo demas
         c["tablas"] = filtros.calcular_filtrado(publicado["datos"], publicado["validos"], elegidos)
         total = len(publicado["tablas"]["pedidos_unicos"])
         if filtros.hay_filtros(elegidos):
@@ -718,7 +741,7 @@ def panel(nombre, elegidos):
                 funcion(c)
 
 
-# Pagina: barra lateral (origen, boton y filtros) y panel
+# Dibuja la pagina: barra lateral (origen, boton y filtros) y panel
 def main():
     st.set_page_config(page_title="NOVA Sneakers · Dashboard", page_icon="👟", layout="wide")
     with st.sidebar:

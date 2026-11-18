@@ -10,6 +10,7 @@ VARIABLES = ["pares_mes_anterior", "media_3_meses_previos", "mes_seno", "mes_cos
 
 
 # Pares de demanda por modelo y mes completo, antes de la fecha de corte
+# Devuelve una fila por modelo y mes (nombre_modelo, mes, pares), con 0 en los meses sin pedidos
 def demanda_mensual(lineas_enriquecidas, fecha_corte):
     demanda = de_demanda(lineas_enriquecidas)
     demanda = demanda[demanda["fecha_pedido"] < fecha_corte]
@@ -27,7 +28,8 @@ def demanda_mensual(lineas_enriquecidas, fecha_corte):
     return pares.reindex(todas, fill_value=0).reset_index(name="pares")
 
 
-# Variables de cada mes sacadas solo de meses anteriores (shift): no hay fuga de datos
+# Anade las variables de la regresion: pares del mes anterior y media de los 3 anteriores (con shift,
+# solo meses pasados: no hay fuga de datos), seno y coseno del mes y el modelo en one-hot
 def anadir_variables(demanda):
     tabla = demanda.sort_values(["nombre_modelo", "mes"]).reset_index(drop=True)
     pares_del_modelo = tabla.groupby("nombre_modelo")["pares"]
@@ -45,7 +47,8 @@ def anadir_variables(demanda):
     return pd.concat([tabla, columnas_modelo], axis=1)
 
 
-# Separacion por fecha: los ultimos 3 meses son evaluacion; sin 3 meses previos, historial
+# Separa por fecha en la columna conjunto: los ultimos 3 meses son evaluacion, las filas sin
+# 3 meses previos son historial y el resto, entrenamiento
 def separar_por_fecha(tabla):
     meses = sorted(tabla["mes"].unique())
     evaluacion = meses[-config.MESES_EVALUACION:]
@@ -70,7 +73,7 @@ def rmse(real, prediccion):
     return float(np.sqrt(np.mean((real - prediccion) ** 2)))
 
 
-# Texto "primer mes a ultimo mes"
+# Texto "primer mes a ultimo mes" ("-" si no hay meses)
 def periodo(meses):
     meses = sorted(meses)
     if meses:
@@ -92,6 +95,7 @@ def mejora(mae_regresion, rmse_regresion, mae_baseline, rmse_baseline):
 
 
 # Tabla de metricas: baseline frente a regresion
+# Una fila por metodo con MAE, RMSE, si mejora al baseline y los periodos usados
 def calcular_metricas(predicciones, entrenamiento, evaluacion):
     real = predicciones["pares_reales"]
     mae_baseline = mae(real, predicciones["baseline"])
@@ -114,10 +118,11 @@ def calcular_metricas(predicciones, entrenamiento, evaluacion):
 
 
 # Prediccion de los pares de cada modelo por mes: baseline y regresion lineal
+# Devuelve un diccionario con cinco tablas (NO CALCULABLE si hay menos de 12 meses completos)
 def predecir_demanda(lineas_enriquecidas, fecha_corte):
     demanda = demanda_mensual(lineas_enriquecidas, fecha_corte)
     meses = demanda["mes"].nunique()
-    # Con pocos meses no se predice: todo sale NO CALCULABLE con el motivo
+    # Con pocos meses no se predice: las tablas de prediccion salen NO CALCULABLE con el motivo
     if meses < config.MINIMO_MESES_PREDICCION:
         motivo = (f"hay {meses} meses completos de demanda y hacen falta al menos "
                   f"{config.MINIMO_MESES_PREDICCION} (3 de historial, 6 o más de entrenamiento "

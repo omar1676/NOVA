@@ -4,10 +4,13 @@ import unittest
 from datetime import date, timedelta
 from pathlib import Path
 from unittest import mock
+import sys
 
 import pandas as pd
 import streamlit as st
 from streamlit.testing.v1 import AppTest
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "modulos"))   # los modulos estan en ../modulos
 
 import calidad
 import config
@@ -52,8 +55,9 @@ class PruebaApp(unittest.TestCase):
             setattr(config, nombre, valor)
         cls.temporal.cleanup()
 
+    # Antes de cada prueba vuelve a escribir la exportacion "de prueba":
+    # los cinco CSV validos de test_pipeline.py y un ORIGEN.txt de tipo PRUEBA
     def setUp(self):
-        # La exportacion "de prueba": los cinco CSV validos de test_pipeline.py
         self.acc.mkdir(exist_ok=True)
         for archivo, texto in VALIDOS.items():
             (self.acc / archivo).write_text(texto, encoding="utf-8", newline="")
@@ -112,7 +116,7 @@ class PruebasArranque(PruebaApp):
                 with self.subTest(origen=origen, pestana=pestana):
                     self.abrir(origen, pestana)
 
-    # Hay al menos cinco botones de descarga distintos
+    # Entre las seis pestanas de los sinteticos hay al menos cinco botones de descarga distintos
     def test_al_menos_cinco_descargas(self):
         nombres = set()
         for pestana in PESTANAS:
@@ -141,6 +145,33 @@ class PruebasCalidadYOrigen(PruebaApp):
         calidad_app = self.abrir("sinteticos-errores", "Calidad")
         self.assertIn("BLOQUEADO", self.textos(calidad_app.error))
         self.assertEqual(self.tarjetas(calidad_app)["Bloqueantes"], "3")
+
+    # El CSV de incidencias de los sinteticos con errores (incidencias_sintetico.csv) trae las 21
+    # con sus 7 columnas de origen y metadatos, y al descargarlo queda apuntado en el registro
+    def test_descarga_de_incidencias(self):
+        descargas = {}
+        boton_real = st.download_button
+
+        # Hace de boton de descarga: guarda el CSV y las opciones (on_click y args) y crea el boton real
+        def boton_que_guarda(etiqueta, datos, *args, **opciones):
+            descargas[opciones["file_name"]] = (datos, opciones)
+            return boton_real(etiqueta, datos, *args, **opciones)
+
+        with mock.patch.object(st, "download_button", boton_que_guarda):
+            self.abrir("sinteticos-errores", "Calidad")
+        datos, opciones = descargas["incidencias_sintetico.csv"]
+        leida = pd.read_csv(io.BytesIO(datos), encoding="utf-8", dtype=str)
+        self.assertEqual(len(leida), 21)
+        self.assertEqual(list(leida.columns[:7]), ["origen", "ejecucion", "filtros", "fecha_corte", "funcion",
+                                                   "reglas_de_negocio", "filas_origen"])
+        self.assertEqual(list(leida.columns[7:]), calidad.COLUMNAS_INCIDENCIA)
+        self.assertTrue(leida["origen"].str.startswith("SINTÉTICO").all())
+        # Al pulsar el boton, Streamlit llama a on_click: se anota la descarga
+        opciones["on_click"](*opciones["args"])
+        ultima = registro.leer(config.ARCHIVO_REGISTRO).iloc[0]
+        self.assertEqual(ultima["operacion"], "descarga de incidencias_sintetico.csv")
+        self.assertEqual(ultima["filas_procesadas"], "21")
+        self.assertEqual(ultima["carpeta"], "con_errores")
 
     # Al cambiar de origen cambian las cifras; cada origen guarda su propio estado
     def test_cambio_de_origen(self):

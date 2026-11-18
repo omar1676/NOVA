@@ -3,8 +3,11 @@ import os
 import tempfile
 import time
 from pathlib import Path
+import sys
 
 import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "modulos"))   # los modulos estan en ../modulos
 
 import actualizacion
 import config
@@ -29,15 +32,18 @@ def valor(estado, codigo):
 # Base: la carpeta de prueba y un registro de eventos en otra carpeta temporal
 class PruebaCiclo(PruebaCalidad):
 
+    # Antes de cada prueba: los CSV validos y el registro de eventos en otra carpeta temporal
     def setUp(self):
         super().setUp()
         self.otra = tempfile.TemporaryDirectory()
         self.archivo_registro = Path(self.otra.name) / "registro_eventos.csv"
 
+    # Al acabar borra la carpeta del registro y despues la de los CSV
     def tearDown(self):
         self.otra.cleanup()
         super().tearDown()
 
+    # Un ciclo sobre la carpeta de prueba; anterior es el estado que dejo el ciclo de antes
     def ciclo(self, anterior=None, operacion="prueba"):
         return actualizacion.ciclo(self.carpeta, anterior, operacion, self.archivo_registro)
 
@@ -134,7 +140,7 @@ class PruebasCiclo(PruebaCiclo):
     # CSV sin la columna clave: error de carga y lo anterior queda desactualizado
     def test_csv_corrupto(self):
         primero = self.ciclo()
-        self.escribir("pedidos.csv", VALIDOS["pedidos.csv"].replace("id_pedido,", "", 1))   # sin columna clave
+        self.escribir("pedidos.csv", VALIDOS["pedidos.csv"].replace("id_pedido,", "", 1))
         segundo = self.ciclo(primero)
         self.assertEqual(segundo["estado"], actualizacion.ERROR_CARGA)
         self.assertTrue(segundo["desactualizado"])
@@ -157,6 +163,7 @@ class PruebasCiclo(PruebaCiclo):
 
     # El ciclo no cambia ningun archivo de la carpeta de entrada
     def test_no_escribe_en_la_entrada(self):
+        # Huella SHA-256 de cada archivo de la carpeta de entrada
         def huellas():
             return {ruta.name: hashlib.sha256(ruta.read_bytes()).hexdigest() for ruta in self.carpeta.iterdir()}
         antes = huellas()
@@ -185,7 +192,7 @@ class PruebasOrigenes(PruebaCiclo):
         with tempfile.TemporaryDirectory() as temporal:
             sinteticos = generador_datos.guardar(generador_datos.generar(config.SEMILLA), Path(temporal), "test")
             otro = actualizacion.ciclo(sinteticos, prueba, "cambio de origen", self.archivo_registro)
-        self.assertEqual(otro["estado"], actualizacion.CORRECTO)        # no hereda nada de la otra carpeta
+        self.assertEqual(otro["estado"], actualizacion.CORRECTO)
         self.assertEqual(otro["tipo"], "SINTETICO")
         self.assertEqual(valor(otro, "K01"), 900)
         self.assertEqual(valor(prueba, "K01"), 2)
