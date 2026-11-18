@@ -1,5 +1,6 @@
 import contextlib
 import io
+import os
 from pathlib import Path
 from unittest import mock
 
@@ -9,6 +10,7 @@ import actualizacion
 import analiticas
 import calidad
 import comprobaciones
+import config
 import main
 import pipeline
 from test_actualizacion import PruebaCiclo
@@ -51,7 +53,12 @@ class PruebasFallo1RegistroSinPermiso(PruebaRegresion):
         self.assertTrue(any("registro de eventos" in aviso for aviso in estado["avisos"]))
 
     def test_el_dockerfile_crea_logs_para_el_usuario_nova(self):
-        texto = (CARPETA_PYTHON / "Dockerfile").read_text(encoding="utf-8")
+        dockerfile = CARPETA_PYTHON / "Dockerfile"
+        if not dockerfile.exists():
+            # Dentro de la imagen no esta el Dockerfile (.dockerignore): se mira la carpeta de verdad
+            self.assertTrue(os.access(config.CARPETA_LOGS, os.W_OK), f"no se puede escribir en {config.CARPETA_LOGS}")
+            return
+        texto = dockerfile.read_text(encoding="utf-8")
         self.assertIn("mkdir -p /app/logs", texto)
         self.assertIn("chown nova:nova /app/logs", texto)
         # Tiene que ser antes de USER nova: despues ya no hay permiso para hacerlo
