@@ -5,9 +5,11 @@ from sklearn.linear_model import LinearRegression
 import config
 from analiticas import de_demanda, no_calculable
 
+# Variables de entrada de la regresion (ademas del modelo en one-hot)
 VARIABLES = ["pares_mes_anterior", "media_3_meses_previos", "mes_seno", "mes_coseno"]
 
 
+# Pares de demanda por modelo y mes completo, antes de la fecha de corte
 def demanda_mensual(lineas_enriquecidas, fecha_corte):
     demanda = de_demanda(lineas_enriquecidas)
     demanda = demanda[demanda["fecha_pedido"] < fecha_corte]
@@ -25,6 +27,7 @@ def demanda_mensual(lineas_enriquecidas, fecha_corte):
     return pares.reindex(todas, fill_value=0).reset_index(name="pares")
 
 
+# Variables de cada mes sacadas solo de meses anteriores (shift): no hay fuga de datos
 def anadir_variables(demanda):
     tabla = demanda.sort_values(["nombre_modelo", "mes"]).reset_index(drop=True)
     pares_del_modelo = tabla.groupby("nombre_modelo")["pares"]
@@ -34,12 +37,15 @@ def anadir_variables(demanda):
     tabla["pares_mes_anterior"] = hace_1_mes
     tabla["media_3_meses_previos"] = (hace_1_mes + hace_2_meses + hace_3_meses) / 3
     tabla["numero_mes"] = tabla["mes"].dt.month
+    # Seno y coseno del mes: asi diciembre y enero quedan cerca
     tabla["mes_seno"] = np.sin(2 * np.pi * tabla["numero_mes"] / 12)
     tabla["mes_coseno"] = np.cos(2 * np.pi * tabla["numero_mes"] / 12)
+    # Una columna 0/1 por modelo (one-hot); la primera se quita porque sobra
     columnas_modelo = pd.get_dummies(tabla["nombre_modelo"], prefix="modelo", drop_first=True, dtype=int)
     return pd.concat([tabla, columnas_modelo], axis=1)
 
 
+# Separacion por fecha: los ultimos 3 meses son evaluacion; sin 3 meses previos, historial
 def separar_por_fecha(tabla):
     meses = sorted(tabla["mes"].unique())
     evaluacion = meses[-config.MESES_EVALUACION:]
@@ -50,18 +56,21 @@ def separar_por_fecha(tabla):
     return tabla
 
 
+# MAE: error medio en pares
 def mae(real, prediccion):
     real = np.asarray(real, dtype=float)
     prediccion = np.asarray(prediccion, dtype=float)
     return float(np.mean(np.abs(real - prediccion)))
 
 
+# RMSE: como el MAE, pero castiga mas los errores grandes
 def rmse(real, prediccion):
     real = np.asarray(real, dtype=float)
     prediccion = np.asarray(prediccion, dtype=float)
     return float(np.sqrt(np.mean((real - prediccion) ** 2)))
 
 
+# Texto "primer mes a ultimo mes"
 def periodo(meses):
     meses = sorted(meses)
     if meses:
@@ -69,6 +78,7 @@ def periodo(meses):
     return "-"
 
 
+# Dice si la regresion tiene menos error que el baseline en MAE y en RMSE
 def mejora(mae_regresion, rmse_regresion, mae_baseline, rmse_baseline):
     mejor_mae = mae_regresion < mae_baseline
     mejor_rmse = rmse_regresion < rmse_baseline
@@ -81,6 +91,7 @@ def mejora(mae_regresion, rmse_regresion, mae_baseline, rmse_baseline):
     return "solo en una métrica: RMSE sí, MAE no"
 
 
+# Tabla de metricas: baseline frente a regresion
 def calcular_metricas(predicciones, entrenamiento, evaluacion):
     real = predicciones["pares_reales"]
     mae_baseline = mae(real, predicciones["baseline"])
@@ -102,9 +113,11 @@ def calcular_metricas(predicciones, entrenamiento, evaluacion):
     return metricas
 
 
+# Prediccion de los pares de cada modelo por mes: baseline y regresion lineal
 def predecir_demanda(lineas_enriquecidas, fecha_corte):
     demanda = demanda_mensual(lineas_enriquecidas, fecha_corte)
     meses = demanda["mes"].nunique()
+    # Con pocos meses no se predice: todo sale NO CALCULABLE con el motivo
     if meses < config.MINIMO_MESES_PREDICCION:
         motivo = (f"hay {meses} meses completos de demanda y hacen falta al menos "
                   f"{config.MINIMO_MESES_PREDICCION} (3 de historial, 6 o más de entrenamiento "
@@ -118,6 +131,7 @@ def predecir_demanda(lineas_enriquecidas, fecha_corte):
                 "metricas_prediccion": no_calculable(motivo), "errores_por_modelo": no_calculable(motivo),
                 "coeficientes_regresion": no_calculable(motivo)}
 
+    # Variables, conjuntos y columnas de entrada
     tabla = separar_por_fecha(anadir_variables(demanda))
     columnas = VARIABLES + [columna for columna in tabla.columns if columna.startswith("modelo_")]
     entrenamiento = tabla[tabla["conjunto"] == "entrenamiento"]
@@ -137,9 +151,11 @@ def predecir_demanda(lineas_enriquecidas, fecha_corte):
         "baseline": evaluacion["pares_mes_anterior"],
         "regresion": prediccion_regresion,
     }).reset_index(drop=True)
+    # Error = pares reales - prediccion
     predicciones["error_baseline"] = predicciones["pares_reales"] - predicciones["baseline"]
     predicciones["error_regresion"] = (predicciones["pares_reales"] - predicciones["regresion"]).round(1)
 
+    # Demanda mensual con sus variables y el conjunto de cada fila
     demanda_por_mes = pd.DataFrame({
         "nombre_modelo": tabla["nombre_modelo"], "anio_mes": tabla["mes"].astype(str),
         "pares": tabla["pares"], "pares_mes_anterior": tabla["pares_mes_anterior"],
@@ -159,6 +175,7 @@ def predecir_demanda(lineas_enriquecidas, fecha_corte):
     }
 
 
+# MAE y RMSE de cada modelo y cual de los dos metodos falla menos (o empate)
 def errores_por_modelo(predicciones):
     filas = []
     for nombre, grupo in predicciones.groupby("nombre_modelo"):

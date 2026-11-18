@@ -1,16 +1,6 @@
-// servidor.js — servidor de NOVA Sneakers: el panel de administracion, el
-// portal del trabajador y la tienda web.
-//
-//   navegador (panel y portal)  -->  este servidor (Express)  -->  PostgreSQL (web_nova)
-//   navegador (tienda web)      -->  este servidor (Express)  -->  PostgreSQL (tienda_nova)
-//
-// El navegador nunca habla con PostgreSQL: pide /api/... a este servidor, que
-// hace las consultas. El mismo servidor entrega los archivos del panel, del
-// portal y de la tienda, asi que paginas y API tienen el mismo origen (sin CORS).
-//   http://127.0.0.1:3000/login.html   acceso unico del personal
-//   http://127.0.0.1:3000/admin.html   panel (solo administradores)
-//   http://127.0.0.1:3000/trabajador/  portal del trabajador (solo trabajadores)
-//   http://127.0.0.1:3000/tienda/      tienda web (rutas en tienda.js)
+// servidor.js — servidor Express de NOVA: entrega las paginas y la API /api/... (mismo origen).
+// Paginas: /login.html (personal), /admin.html (panel), /trabajador/ (portal) y /tienda/ (tienda.js).
+// El navegador nunca habla con PostgreSQL: lo hace este servidor (web_nova, y tienda_nova para la tienda).
 
 const path = require('node:path');
 const express = require('express');
@@ -23,17 +13,15 @@ const correo = require('./correo');
 const crearRutasTrabajador = require('./rutas-trabajador'); // portal del trabajador (Berme)
 const odoo = require('./odoo'); // conector de Berme: desactivado sin configuracion
 
+// Configuracion: puerto, host y carpetas de las paginas
 const PUERTO = Number(process.env.PUERTO) || 3000;
-const HOST = process.env.HOST || '127.0.0.1'; // solo este ordenador; en Docker, compose.yaml pone 0.0.0.0 y publica el puerto solo en 127.0.0.1
+const HOST = process.env.HOST || '127.0.0.1'; // solo este ordenador (en Docker, compose.yaml lo publica en 127.0.0.1)
 const CARPETA_PANEL = path.join(__dirname, '..', '01_Interfaces', 'admin');
 const CARPETA_TIENDA = path.join(__dirname, '..', '01_Interfaces', 'cliente');
 const CARPETA_PORTAL = path.join(__dirname, '..', '01_Interfaces', 'trabajador');
 
-// Login unico para el personal: cada rol de la tabla roles entra en su panel.
-//   administrador -> panel de administracion (01_Interfaces/admin)
-//   trabajador    -> portal del trabajador (01_Interfaces/trabajador, de Berme)
-// Un rol que no esta aqui (comercial) no tiene panel web, asi que el
-// login le deniega el acceso.
+// Login unico del personal: cada rol entra en su panel (administrador -> 01_Interfaces/admin,
+// trabajador -> 01_Interfaces/trabajador, de Berme). Un rol sin panel web (comercial) no puede entrar.
 const ROL_PANEL = 'administrador';
 const ROL_PORTAL = 'trabajador';
 const PANELES = {
@@ -44,9 +32,8 @@ const PANELES = {
 const app = express();
 app.disable('x-powered-by'); // no anunciar en cada respuesta que el servidor es Express
 
-// Solo se atienden peticiones dirigidas a este ordenador por su nombre. Asi una
-// web maliciosa que haga apuntar su dominio a 127.0.0.1 ("DNS rebinding") no
-// puede usar el panel desde el navegador del administrador.
+// Proteccion contra "DNS rebinding": solo se aceptan peticiones a 127.0.0.1 o localhost. Asi una
+// web maliciosa que apunte su dominio a este ordenador no puede usar el panel desde el navegador.
 const HOSTS_PERMITIDOS = ['127.0.0.1', 'localhost'];
 app.use((req, res, next) => {
   if (!HOSTS_PERMITIDOS.includes(req.hostname)) {
@@ -66,6 +53,7 @@ app.use((req, res, next) => {
   next();
 });
 
+// Lee el cuerpo JSON de las peticiones y lo deja en req.body
 app.use(express.json());
 
 // ---------------------------------------------------------------------
@@ -88,14 +76,9 @@ app.get('/api/estado', async (req, res) => {
 
 // ---------------------------------------------------------------------
 // Login y logout
-//
-// La contrasena la comprueba PostgreSQL con iniciar_sesion (bcrypt).
-// Si no coincide, o la cuenta no tiene contrasena
-// o esta desactivada, iniciar_sesion lanza una excepcion (RAISE EXCEPTION,
-// codigo P0001).
-//
-// Despues de 5 fallos seguidos con el mismo usuario, se responde 429 durante
-// unos minutos sin comprobar la contrasena (intentos.js).
+// La contrasena la comprueba PostgreSQL con iniciar_sesion (bcrypt): si no coincide, o la cuenta
+// no tiene contrasena o esta desactivada, lanza RAISE EXCEPTION (codigo P0001).
+// Tras 5 fallos seguidos con el mismo usuario: 429 unos minutos, sin mirar la contrasena (intentos.js).
 // ---------------------------------------------------------------------
 
 // El rol de un usuario ACTIVO, o null si la cuenta no existe o esta desactivada.
@@ -107,6 +90,7 @@ async function rolDeUsuarioActivo(cliente, idUsuario) {
   return resultado.rows.length > 0 ? resultado.rows[0].rol : null;
 }
 
+// Ruta: login del personal
 app.post('/api/login', async (req, res) => {
   const usuario = req.body?.usuario;
   const contrasena = req.body?.contrasena;
@@ -133,8 +117,7 @@ app.post('/api/login', async (req, res) => {
 
     intentos.borrarFallos(usuario);
 
-    // Contrasena correcta, pero su rol no tiene ningun panel web: acceso
-    // denegado y sin sesion
+    // Contrasena correcta, pero su rol no tiene panel web: 403 y sin sesion
     const destino = PANELES[datos.rol];
     if (!destino) {
       return res.status(403).json({
@@ -154,12 +137,13 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+// Ruta: logout (borra la sesion y la cookie)
 app.post('/api/logout', (req, res) => {
   sesiones.cerrarSesion(req, res);
   res.json({ ok: true });
 });
 
-// Quien ha entrado, con que rol y cual es su panel (destino)
+// Ruta: quien ha entrado, con que rol y cual es su panel (destino)
 app.get('/api/sesion', (req, res) => {
   const sesion = sesiones.leerSesion(req);
   if (!sesion) {
@@ -172,14 +156,10 @@ app.get('/api/sesion', (req, res) => {
 });
 
 // ---------------------------------------------------------------------
-// Rutas del panel (solo administradores) y del portal (solo trabajadores)
-//   401 = no sabemos quien eres (no hay sesion): hay que entrar
-//   403 = sabemos quien eres, pero tu rol no tiene permiso
-//
-// En cada peticion se vuelve a mirar en la base si la cuenta sigue activa y
-// sigue teniendo ese rol. Si se desactiva o se le cambia el rol, su sesion
-// deja de valer en ese mismo momento (y se borra). El rol nunca sale del
-// navegador: solo de la sesion (en memoria) y de la base.
+// Permisos del panel (solo administradores) y del portal (solo trabajadores)
+//   401 = no hay sesion, hay que entrar · 403 = hay sesion, pero su rol no tiene permiso
+// En cada peticion se mira en la base si la cuenta sigue activa y con ese rol; si no, la
+// sesion se borra en ese momento. El rol sale de la sesion y de la base, nunca del navegador.
 // ---------------------------------------------------------------------
 
 // Devuelve 0 si la sesion es de un usuario activo con ese rol, o el codigo
@@ -201,7 +181,7 @@ async function comprobarRol(req, res, rol) {
   return 0;
 }
 
-// Crea la comprobacion de una zona de la API: soloRol('administrador', ...)
+// Crea un middleware que solo deja pasar a ese rol (si no, responde 401 o 403)
 function soloRol(rol, mensajeSinPermiso) {
   return async (req, res, next) => {
     const teniaSesion = Boolean(sesiones.leerSesion(req));
@@ -221,6 +201,7 @@ function soloRol(rol, mensajeSinPermiso) {
 const soloAdministrador = soloRol(ROL_PANEL, 'Tu usuario no tiene permiso para el panel de administración');
 const soloTrabajador = soloRol(ROL_PORTAL, 'Tu usuario no tiene permiso para el portal del trabajador');
 
+// Toda la API del panel pide administrador, y la del portal, trabajador
 app.use('/api/admin', soloAdministrador);
 app.use('/api/trabajador', soloTrabajador);
 
@@ -228,9 +209,8 @@ app.use('/api/trabajador', soloTrabajador);
 // detras de soloTrabajador y usan el rol portal_trabajador (script 23).
 app.use(crearRutasTrabajador(bd, sesiones));
 
-// Lee un filtro de la URL, por ejemplo /api/admin/pedidos?estado=pendiente.
-// Si no viene, devuelve '' (sin filtro). Si viene un valor que no esta en la
-// lista de permitidos, la peticion se rechaza con 400.
+// Lee un filtro de la URL (por ejemplo ?estado=pendiente). Si no viene, devuelve '' (sin filtro);
+// si trae un valor que no esta en la lista de permitidos, la peticion se rechaza con 400.
 function leerFiltro(req, nombre, permitidos) {
   const valor = req.query[nombre];
   if (valor === undefined) return '';
@@ -244,13 +224,13 @@ function leerFiltro(req, nombre, permitidos) {
   return limpio;
 }
 
-// El texto del buscador va dentro de un ILIKE, donde % y _ son comodines.
-// Se escapan con \ para que se busquen como letras normales (si no,
-// ?texto=_ devolveria todas las filas).
+// El texto del buscador va dentro de un ILIKE, donde % y _ son comodines: se escapan con \
+// para buscarlos como letras normales (si no, ?texto=_ devolveria todas las filas).
 function leerTexto(req) {
   return leerFiltro(req, 'texto').replace(/[\\%_]/g, '\\$&');
 }
 
+// Un error 400 con un mensaje que se puede ensenar al navegador
 function errorDePeticion(mensaje) {
   const error = new Error(mensaje);
   error.status = 400;
@@ -259,62 +239,68 @@ function errorDePeticion(mensaje) {
 
 // Las ocho rutas de lectura del panel. Cada una lee sus filtros y llama a su
 // consulta de consultas.js dentro de una transaccion de solo lectura.
+
+// Ruta: dashboard (cifras, ultimos pedidos y stock bajo)
 app.get('/api/admin/dashboard', async (req, res) => {
   res.json(await bd.consultarSoloLectura((cliente) => consultas.dashboard(cliente)));
 });
 
+// Ruta: pedidos (filtro por estado y buscador)
 app.get('/api/admin/pedidos', async (req, res) => {
   const estado = leerFiltro(req, 'estado', consultas.ESTADOS_PEDIDO);
   const texto = leerTexto(req);
   res.json(await bd.consultarSoloLectura((cliente) => consultas.pedidos(cliente, estado, texto)));
 });
 
+// Ruta: productos (activos o inactivos y buscador)
 app.get('/api/admin/productos', async (req, res) => {
   const estado = leerFiltro(req, 'estado', consultas.ESTADOS_ACTIVO);
   const texto = leerTexto(req);
   res.json(await bd.consultarSoloLectura((cliente) => consultas.productos(cliente, estado, texto)));
 });
 
+// Ruta: inventario (stock suficiente, bajo o agotado y buscador)
 app.get('/api/admin/inventario', async (req, res) => {
   const estado = leerFiltro(req, 'estado', consultas.ESTADOS_STOCK);
   const texto = leerTexto(req);
   res.json(await bd.consultarSoloLectura((cliente) => consultas.inventario(cliente, estado, texto)));
 });
 
+// Ruta: clientes (activos o inactivos y buscador)
 app.get('/api/admin/clientes', async (req, res) => {
   const estado = leerFiltro(req, 'estado', consultas.ESTADOS_ACTIVO);
   const texto = leerTexto(req);
   res.json(await bd.consultarSoloLectura((cliente) => consultas.clientes(cliente, estado, texto)));
 });
 
+// Ruta: trabajadores y sus cuentas de usuario
 app.get('/api/admin/trabajadores', async (req, res) => {
   const estado = leerFiltro(req, 'estado', consultas.ESTADOS_ACTIVO);
   const texto = leerTexto(req);
   res.json(await bd.consultarSoloLectura((cliente) => consultas.trabajadores(cliente, estado, texto)));
 });
 
+// Ruta: auditoria (filtro por accion y buscador)
 app.get('/api/admin/auditoria', async (req, res) => {
   const accion = leerFiltro(req, 'accion', consultas.ACCIONES_AUDITORIA);
   const texto = leerTexto(req);
   res.json(await bd.consultarSoloLectura((cliente) => consultas.auditoria(cliente, accion, texto)));
 });
 
+// Ruta: estadisticas (mes actual, ingresos y mas vendidos)
 app.get('/api/admin/estadisticas', async (req, res) => {
   res.json(await bd.consultarSoloLectura((cliente) => consultas.estadisticas(cliente)));
 });
 
 // ---------------------------------------------------------------------
-// La unica ruta del panel que cambia algo: el boton "Marcar en reparto".
-// Pasa un pedido confirmado a "enviado" con marcar_pedido_en_reparto
-// (script 22), en una transaccion de escritura aparte (bd.marcarEnReparto).
-// La funcion vuelve a comprobar que el usuario es administrador y la
-// auditoria apunta el cambio a su nombre. Respuestas:
-//   401 / 403  como las demas rutas del panel (soloAdministrador)
-//   415        si no llega JSON
-//   404        el pedido no existe
-//   409        el pedido no esta confirmado (pendiente, cancelado, ya enviado...)
-//   200        el pedido, ya en "enviado"
+// Ruta: boton "Marcar en reparto", la unica del panel que cambia algo.
+// Pasa un pedido confirmado a "enviado" con marcar_pedido_en_reparto (script 22), en una transaccion
+// aparte (bd.marcarEnReparto). La funcion vuelve a comprobar que es administrador y la auditoria
+// apunta el cambio a su nombre.
+//   401/403 sin permiso · 415 sin JSON · 404 no existe · 409 no esta confirmado · 200 ya "enviado"
 // ---------------------------------------------------------------------
+
+// Mensaje de la funcion SQL -> [codigo HTTP, texto para el panel]
 const ERRORES_REPARTO = {
   'Usuario no autorizado': [403, 'Tu usuario no tiene permiso para el panel de administración'],
   'El pedido no existe': [404, 'Ese pedido no existe'],
@@ -323,11 +309,12 @@ const ERRORES_REPARTO = {
 };
 
 app.post('/api/admin/pedidos/:id/reparto', async (req, res) => {
-  // Solo JSON, como manda el panel: un formulario de otra web no puede
-  // enviar este tipo de datos sin que el servidor lo permita (CORS)
+  // Solo JSON, como manda el panel: un formulario de otra web no puede enviar JSON
+  // sin que el servidor lo permita (CORS)
   if (!req.is('application/json')) {
     return res.status(415).json({ error: 'Los datos tienen que ir en JSON' });
   }
+  // El id tiene que ser un numero entero positivo (de 1 a 9 cifras)
   if (!/^[1-9][0-9]{0,8}$/.test(req.params.id)) {
     return res.status(404).json({ error: 'Ese pedido no existe' });
   }
@@ -357,11 +344,8 @@ app.use('/api', (req, res) => {
 
 // ---------------------------------------------------------------------
 // Archivos de la tienda web: publicos, en /tienda/
-//
-// Van antes que los del panel para que protegerPanel no pida sesion. Sin la
-// barra final, el navegador buscaria css/ y js/ fuera de /tienda/, asi que
-// /tienda se redirige a /tienda/. express.static no sirve nada que este
-// fuera de 01_Interfaces/cliente (rechaza las rutas con ..).
+// Van antes que los del panel para que protegerPanel no pida sesion. /tienda se redirige a /tienda/
+// para que css/ y js/ se busquen dentro. express.static no sale de 01_Interfaces/cliente (rechaza ..).
 // ---------------------------------------------------------------------
 app.use((req, res, next) => {
   if (req.path === '/tienda') return res.redirect('/tienda/');
@@ -372,12 +356,11 @@ app.use('/tienda', (req, res) => res.status(404).send('No encontrado')); // y no
 
 // ---------------------------------------------------------------------
 // Archivos del panel y del portal del trabajador
-//
-// La pagina de acceso (login.html) es la misma para los dos. Sin sesion, o
-// con la sesion de otro rol, solo se entrega lo que necesita esa pagina, y
-// cualquier otra lleva a login.html. Como en la API, el rol se vuelve a
-// mirar en la base en cada peticion.
+// login.html es la misma para los dos. Sin sesion (o con la de otro rol) solo se entrega lo que
+// necesita esa pagina; lo demas lleva a login.html. Como en la API, el rol se mira en la base cada vez.
 // ---------------------------------------------------------------------
+
+// Lo que necesita la pagina de acceso: se ve sin sesion
 const ARCHIVOS_PUBLICOS = ['/login.html', '/login.js', '/styles.css'];
 
 // La ruta pedida, en minusculas, o null si no vale (mal codificada o con ..)
@@ -394,6 +377,7 @@ function leerRuta(req) {
   return ruta;
 }
 
+// Paginas del panel: solo administradores (lo publico, para todos); si no, a login.html
 async function protegerPanel(req, res, next) {
   const ruta = leerRuta(req);
   if (ruta === null) return res.status(400).end();
@@ -405,6 +389,7 @@ async function protegerPanel(req, res, next) {
   res.redirect('/login.html');
 }
 
+// Paginas del portal: solo trabajadores; si no, a login.html
 async function protegerPortal(req, res, next) {
   const ruta = leerRuta(req);
   if (ruta === null) return res.status(400).end();
@@ -425,6 +410,7 @@ app.use('/trabajador', protegerPortal);
 app.use('/trabajador', express.static(CARPETA_PORTAL, { index: false }));
 app.use('/trabajador', (req, res) => res.status(404).send('No encontrado'));
 
+// El panel: la raiz lleva a admin.html y sus archivos van protegidos
 app.get('/', (req, res) => res.redirect('/admin.html'));
 app.use(protegerPanel);
 app.use(express.static(CARPETA_PANEL, { index: false }));
@@ -440,8 +426,7 @@ app.use((error, req, res, next) => {
   if (error.type === 'entity.too.large') {
     return res.status(413).json({ error: 'Los datos enviados son demasiado grandes' });
   }
-  // Cualquier otro problema con los datos enviados que detecte express.json
-  // (por ejemplo, un juego de caracteres que no admite: 415)
+  // Otro problema que detecte express.json (por ejemplo, un juego de caracteres que no admite: 415)
   if (error.type && error.status >= 400 && error.status < 500) {
     return res.status(error.status).json({ error: 'Los datos enviados no son válidos' });
   }

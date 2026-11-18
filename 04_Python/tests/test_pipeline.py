@@ -8,6 +8,7 @@ import pandas as pd
 import comprobaciones
 import pipeline
 
+# Los cinco CSV de prueba, sin ningun error (los usan casi todas las pruebas)
 VALIDOS = {
     "clientes.csv": (
         "id_cliente,nombre,tipo,correo,telefono,activo\n"
@@ -40,6 +41,7 @@ VALIDOS = {
 }
 
 
+# Base: una carpeta temporal con los cinco CSV validos
 class PruebaConCarpeta(unittest.TestCase):
 
     def setUp(self):
@@ -51,6 +53,7 @@ class PruebaConCarpeta(unittest.TestCase):
     def tearDown(self):
         self.temporal.cleanup()
 
+    # Escribe un archivo en la carpeta temporal
     def escribir(self, archivo, texto, codificacion="utf-8"):
         # newline="" para que Windows no cambie los saltos de linea
         with open(self.carpeta / archivo, "w", encoding=codificacion, newline="") as f:
@@ -58,8 +61,10 @@ class PruebaConCarpeta(unittest.TestCase):
         return self.carpeta / archivo
 
 
+# Lectura de un CSV
 class PruebasLeerCsv(PruebaConCarpeta):
 
+    # CSV valido: UTF-8, ids como texto, vacios como nulos y logicos bien leidos
     def test_csv_valido(self):
         clientes, avisos = pipeline.leer_csv(self.carpeta / "clientes.csv", "clientes")
         self.assertEqual(len(clientes), 2)
@@ -70,6 +75,7 @@ class PruebasLeerCsv(PruebaConCarpeta):
         self.assertTrue(pd.isna(clientes.loc[0, "telefono"]))               # celda vacia = nulo
         self.assertEqual(clientes["activo"].tolist(), [True, True])
 
+    # Numeros, fechas y textos con comas pasan a su tipo
     def test_tipos_convertidos(self):
         lineas, avisos = pipeline.leer_csv(self.carpeta / "lineas_pedido.csv", "lineas_pedido")
         pedidos, _ = pipeline.leer_csv(self.carpeta / "pedidos.csv", "pedidos")
@@ -79,23 +85,27 @@ class PruebasLeerCsv(PruebaConCarpeta):
         self.assertTrue(pd.api.types.is_datetime64_any_dtype(pedidos["fecha_pedido"]))
         self.assertEqual(pedidos.loc[1, "personalizacion"], "Logo, dorsal")  # coma dentro de comillas
 
+    # Archivo que no existe
     def test_csv_ausente(self):
         with self.assertRaises(pipeline.ErrorDatos) as contexto:
             pipeline.leer_csv(self.carpeta / "no_existe.csv", "clientes")
         self.assertIn("No existe", str(contexto.exception))
 
+    # Archivo de 0 bytes
     def test_csv_vacio(self):
         ruta = self.escribir("clientes.csv", "")
         with self.assertRaises(pipeline.ErrorDatos) as contexto:
             pipeline.leer_csv(ruta, "clientes")
         self.assertIn("vacío", str(contexto.exception))
 
+    # Solo la cabecera: se lee, pero con un aviso
     def test_csv_solo_cabecera(self):
         ruta = self.escribir("clientes.csv", "id_cliente,nombre,tipo,correo,telefono,activo\n")
         clientes, avisos = pipeline.leer_csv(ruta, "clientes")
         self.assertEqual(len(clientes), 0)
         self.assertIn("solo tiene la cabecera", avisos[0])
 
+    # Faltan columnas obligatorias: el error dice cuales
     def test_columna_obligatoria_ausente(self):
         ruta = self.escribir("pedidos.csv", "id_pedido,referencia,id_cliente\n10,P-1,1\n")
         with self.assertRaises(pipeline.ErrorDatos) as contexto:
@@ -103,12 +113,14 @@ class PruebasLeerCsv(PruebaConCarpeta):
         self.assertIn("fecha_pedido", str(contexto.exception))
         self.assertIn("importe_total", str(contexto.exception))
 
+    # CSV con ";": el error avisa del separador
     def test_separador_punto_y_coma(self):
         ruta = self.escribir("clientes.csv", "id_cliente;nombre;tipo;correo;telefono;activo\n1;Ana;particular;a@example.com;;true\n")
         with self.assertRaises(pipeline.ErrorDatos) as contexto:
             pipeline.leer_csv(ruta, "clientes")
         self.assertIn("separador", str(contexto.exception))
 
+    # Valores mal escritos: se avisan y quedan nulos, sin perder la fila
     def test_datos_mal_formados(self):
         ruta = self.escribir("lineas_pedido.csv", (
             "id_linea,id_pedido,sku,id_modelo,talla,cantidad,precio_unitario,importe_linea\n"
@@ -127,6 +139,7 @@ class PruebasLeerCsv(PruebaConCarpeta):
         self.assertTrue(pd.isna(lineas.loc[2, "precio_unitario"]))
         self.assertEqual(lineas.loc[1, "cantidad"], 2)   # el resto de la fila se conserva
 
+    # Logico y fecha mal escritos: dos avisos y dos nulos
     def test_fecha_y_logico_mal_formados(self):
         ruta = self.escribir("stock.csv", (
             "sku,id_modelo,color,talla,activo,stock_disponible,fecha_corte\n"
@@ -137,6 +150,7 @@ class PruebasLeerCsv(PruebaConCarpeta):
         self.assertTrue(pd.isna(stock.loc[0, "activo"]))
         self.assertTrue(pd.isna(stock.loc[0, "fecha_corte"]))
 
+    # Filas con valores de mas o comillas sin cerrar: no es un CSV correcto
     def test_csv_corrupto(self):
         cabecera = "id_cliente,nombre,tipo,correo,telefono,activo\n"
         corruptos = {
@@ -152,12 +166,14 @@ class PruebasLeerCsv(PruebaConCarpeta):
                     pipeline.leer_csv(ruta, "clientes")
                 self.assertIn("no es un CSV correcto", str(contexto.exception))
 
+    # Un archivo en latin-1 da error de UTF-8
     def test_no_es_utf8(self):
         ruta = self.escribir("clientes.csv", VALIDOS["clientes.csv"], codificacion="latin-1")
         with self.assertRaises(pipeline.ErrorDatos) as contexto:
             pipeline.leer_csv(ruta, "clientes")
         self.assertIn("UTF-8", str(contexto.exception))
 
+    # Leer no cambia ni el contenido ni la fecha del archivo
     def test_no_modifica_el_original(self):
         ruta = self.carpeta / "pedidos.csv"
         antes = hashlib.sha256(ruta.read_bytes()).hexdigest()
@@ -167,8 +183,10 @@ class PruebasLeerCsv(PruebaConCarpeta):
         self.assertEqual(ruta.stat().st_mtime, fecha_antes)
 
 
+# Carga de los cinco CSV
 class PruebasCargarTodos(PruebaConCarpeta):
 
+    # Los cinco validos se cargan sin avisos
     def test_cinco_validos(self):
         datos, avisos = pipeline.cargar_todos(self.carpeta)
         self.assertEqual(sorted(datos), ["clientes", "lineas_pedido", "modelos", "pedidos", "stock"])
@@ -176,12 +194,14 @@ class PruebasCargarTodos(PruebaConCarpeta):
         manifiesto = pipeline.manifiesto(self.carpeta, datos)
         self.assertEqual(manifiesto["filas"].tolist(), [2, 2, 2, 3, 3])
 
+    # Si falta un archivo, el error lo nombra
     def test_falta_un_archivo(self):
         (self.carpeta / "stock.csv").unlink()
         with self.assertRaises(pipeline.ErrorDatos) as contexto:
             pipeline.cargar_todos(self.carpeta)
         self.assertIn("stock.csv", str(contexto.exception))
 
+    # Con dos archivos mal, el error nombra los dos
     def test_informa_de_todos_los_errores(self):
         (self.carpeta / "stock.csv").unlink()
         self.escribir("clientes.csv", "")
@@ -191,36 +211,43 @@ class PruebasCargarTodos(PruebaConCarpeta):
         self.assertIn("clientes.csv", str(contexto.exception))
 
 
+# Comprobaciones rapidas de la fase 1
 class PruebasComprobaciones(PruebaConCarpeta):
 
+    # Resultado de cada comprobacion, por su nombre
     def resultados(self):
         datos, avisos = pipeline.cargar_todos(self.carpeta)
         return {r["comprobacion"]: r for r in comprobaciones.comprobar_todo(datos, avisos)}
 
+    # Con los CSV validos no hay ningun ERROR
     def test_datos_coherentes(self):
         resultados = self.resultados()
         errores = [r for r in resultados.values() if r["resultado"] == "ERROR"]
         self.assertEqual(errores, [])
         self.assertEqual(resultados["Periodo de los pedidos"]["resultado"], "OK")   # octubre y noviembre
 
+    # Linea de un pedido que no existe
     def test_linea_huerfana(self):
         self.escribir("lineas_pedido.csv", VALIDOS["lineas_pedido.csv"] + "103,99,M1-40,1,40,1,79.99,79.99\n")
         resultado = self.resultados()["Relaciones entre tablas"]
         self.assertEqual(resultado["resultado"], "ERROR")
         self.assertIn("99", resultado["detalle"])
 
+    # id_cliente repetido
     def test_id_duplicado(self):
         self.escribir("clientes.csv", VALIDOS["clientes.csv"] + "2,Otro,particular,otro@example.com,,true\n")
         resultado = self.resultados()["Claves únicas"]
         self.assertEqual(resultado["resultado"], "ERROR")
         self.assertIn("clientes.id_cliente: 2", resultado["detalle"])
 
+    # Total del pedido que no es la suma de sus lineas
     def test_total_que_no_cuadra(self):
         self.escribir("pedidos.csv", VALIDOS["pedidos.csv"].replace("3,239.97", "3,250.00"))
         resultado = self.resultados()["Importes y cantidades"]
         self.assertEqual(resultado["resultado"], "ERROR")
         self.assertIn("10", resultado["detalle"])
 
+    # Texto con caracteres mal convertidos
     def test_texto_mal_codificado(self):
         # "Muñoz" guardado en UTF-8 despues de haberlo leido mal: "MuÃ±oz"
         self.escribir("clientes.csv", VALIDOS["clientes.csv"].replace("Muñoz", "MuÃ±oz"))

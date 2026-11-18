@@ -1,12 +1,6 @@
-// intentos.js — limite de intentos de inicio de sesion.
-//
-// Si alguien falla 5 veces seguidas con el mismo nombre de usuario, ese
-// nombre queda bloqueado unos minutos: el servidor responde 429 sin mirar la
-// contrasena, aunque esta vez sea la buena.
-//   - Se cuenta por nombre de usuario, exista o no la cuenta. Asi la
-//     respuesta es la misma en los dos casos y no se descubre que usuarios hay.
-//   - Al entrar bien, el contador vuelve a cero.
-//   - Se guarda en memoria: al reiniciar el servidor se olvida.
+// intentos.js — limite de intentos de login: tras 5 fallos seguidos con el mismo nombre, ese nombre
+// queda bloqueado unos minutos (429, sin mirar la contrasena). Se cuenta exista o no la cuenta, para no
+// descubrir que usuarios hay. Al entrar bien vuelve a cero. Va en memoria: al reiniciar se olvida.
 
 const MAX_FALLOS = 5;
 const BLOQUEO_MS = Number(process.env.BLOQUEO_LOGIN_MS) || 5 * 60 * 1000; // 5 minutos
@@ -21,6 +15,7 @@ function tiempoDeBloqueo(usuario) {
   return quedan > 0 ? quedan : 0;
 }
 
+// Apunta un fallo de ese usuario; al quinto, lo bloquea
 function apuntarFallo(usuario) {
   const ahora = Date.now();
 
@@ -44,6 +39,7 @@ function apuntarFallo(usuario) {
   fallos.set(usuario, registro);
 }
 
+// Login correcto: el contador vuelve a cero
 function borrarFallos(usuario) {
   fallos.delete(usuario);
 }

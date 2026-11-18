@@ -6,6 +6,7 @@
 \echo ''
 \prompt 'Contrasena para java_nova: ' clave_java
 
+-- El usuario solo se crea si todavia no existe
 SELECT NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'java_nova') AS hay_que_crear
 \gset
 
@@ -13,6 +14,7 @@ SELECT NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'java_nova') AS hay_qu
 CREATE ROLE java_nova LOGIN NOINHERIT;
 \endif
 
+-- NOINHERIT: sin SET ROLE no tiene los permisos de los roles que se le dan abajo
 ALTER ROLE java_nova WITH LOGIN NOINHERIT PASSWORD :'clave_java';
 \unset clave_java
 

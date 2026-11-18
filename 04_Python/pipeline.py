@@ -6,15 +6,18 @@ import pandas as pd
 import config
 
 
+# Error propio para los problemas de los datos (archivo que falta, CSV mal formado...)
 class ErrorDatos(Exception):
     pass
 
 
+# Lee un CSV y convierte cada columna a su tipo
 def leer_csv(ruta, nombre):
     ruta = Path(ruta)
     return preparar(leer_texto(ruta), nombre, ruta.name)
 
 
+# Lee el CSV todo como texto; si no se puede, lanza ErrorDatos con el motivo
 def leer_texto(ruta):
     ruta = Path(ruta)
     if not ruta.exists():
@@ -32,12 +35,14 @@ def leer_texto(ruta):
     except pd.errors.ParserError as error:
         raise ErrorDatos(f"El archivo {ruta.name} no es un CSV correcto: {error}")
 
+    # Si una fila tiene mas valores que la cabecera, pandas usa la primera columna como indice
     if not isinstance(datos.index, pd.RangeIndex):
         raise ErrorDatos(f"El archivo {ruta.name} no es un CSV correcto: "
                          f"tiene filas con más valores que columnas en la cabecera")
     return datos
 
 
+# Comprueba las columnas obligatorias y convierte cada columna a su tipo
 def preparar(texto, nombre, archivo):
     definicion = config.ARCHIVOS[nombre]
     datos = texto.copy()
@@ -54,6 +59,7 @@ def preparar(texto, nombre, archivo):
     if len(datos) == 0:
         avisos.append(f"{archivo}: solo tiene la cabecera, ninguna fila")
 
+    # Un valor que no se puede convertir se avisa, pero no para la carga
     for columna, tipo in definicion["tipos"].items():
         if columna in datos.columns:
             convertidos, fallidos = convertir(datos[columna], tipo)
@@ -65,6 +71,7 @@ def preparar(texto, nombre, archivo):
     return datos, avisos
 
 
+# Convierte una columna a su tipo: entero, decimal, fecha, logico o texto
 def convertir(valores, tipo):
     if tipo == "entero":
         numeros = pd.to_numeric(valores, errors="coerce")
@@ -85,6 +92,7 @@ def convertir(valores, tipo):
     return convertidos, fallidos
 
 
+# Carga los cinco CSV; si falla alguno, da un solo error con todos los motivos
 def cargar_todos(carpeta=config.CARPETA_ENTRADA):
     carpeta = Path(carpeta)
     datos = {}
@@ -101,6 +109,7 @@ def cargar_todos(carpeta=config.CARPETA_ENTRADA):
     return datos, avisos
 
 
+# Filas, columnas, tamano y fecha de cada CSV analizado
 def manifiesto(carpeta, datos):
     carpeta = Path(carpeta)
     ahora = datetime.now().strftime(config.FORMATO_FECHA)
@@ -119,6 +128,7 @@ def manifiesto(carpeta, datos):
     return pd.DataFrame(filas)
 
 
+# Texto de ORIGEN.txt (o un aviso si no existe)
 def leer_origen(carpeta):
     ruta = Path(carpeta) / config.ARCHIVO_ORIGEN
     if not ruta.exists():
@@ -126,6 +136,7 @@ def leer_origen(carpeta):
     return ruta.read_text(encoding="utf-8").strip()
 
 
+# Tipo que dice la linea "Tipo:" de ORIGEN.txt; si no esta, DESCONOCIDO
 def tipo_origen(carpeta):
     ruta = Path(carpeta) / config.ARCHIVO_ORIGEN
     if ruta.exists():
@@ -137,11 +148,13 @@ def tipo_origen(carpeta):
     return "DESCONOCIDO"
 
 
+# Etiqueta del origen para ensenarla en pantalla
 def etiqueta_origen(carpeta):
     tipo = tipo_origen(carpeta)
     return config.TIPOS_ORIGEN.get(tipo, "DESCONOCIDO (no hay línea 'Tipo:' en ORIGEN.txt)")
 
 
+# Guarda una tabla en CSV con su origen y su ejecucion; nunca en la carpeta de entrada
 def guardar_salida(tabla, archivo, carpeta_salida, carpeta_entrada, origen, ejecucion):
     carpeta_salida = Path(carpeta_salida)
     if carpeta_salida.resolve() == Path(carpeta_entrada).resolve():
@@ -159,10 +172,12 @@ def guardar_salida(tabla, archivo, carpeta_salida, carpeta_entrada, origen, ejec
 COLUMNAS_PERSONALES = ["nombre_cliente", "nombre", "correo", "telefono"]
 
 
+# Quita de la tabla las columnas personales que tenga
 def sin_datos_personales(tabla):
     return tabla.drop(columns=[columna for columna in COLUMNAS_PERSONALES if columna in tabla.columns])
 
 
+# CSV del boton de descarga del dashboard: sin datos personales y con origen, filtros y metadatos
 def csv_descarga(tabla, origen, ejecucion, filtros, metadatos=None):
     salida = sin_datos_personales(tabla).copy()
     salida.insert(0, "origen", origen)

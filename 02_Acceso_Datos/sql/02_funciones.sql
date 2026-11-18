@@ -1,3 +1,7 @@
+-- 02_funciones.sql — funciones de sesion, contrasenas, pedidos y stock
+
+-- Funcion: comprueba usuario y contrasena y abre la sesion
+-- SECURITY DEFINER: lee password_hash, que los roles de la aplicacion no pueden ver
 CREATE OR REPLACE FUNCTION public.iniciar_sesion(p_username character varying, p_password text)
  RETURNS integer
  LANGUAGE plpgsql
@@ -18,14 +22,18 @@ BEGIN
         RAISE EXCEPTION 'Usuario o contrasena incorrectos';
     END IF;
 
+    -- Una cuenta sin contrasena tiene ! en vez de un hash bcrypt (que empieza por $)
     IF v_hash IS NULL OR left(v_hash, 1) <> '$' THEN
         RAISE EXCEPTION 'La cuenta no tiene contrasena establecida';
     END IF;
 
+    -- crypt con el hash guardado da ese mismo hash solo si la contrasena es correcta
     IF crypt(p_password, v_hash) <> v_hash THEN
         RAISE EXCEPTION 'Usuario o contrasena incorrectos';
     END IF;
 
+    -- Guarda id:firma en nova.id_usuario, solo para esta transaccion.
+    -- La firma HMAC usa el hash como clave: nadie puede inventarse otro id
     PERFORM set_config(
         'nova.id_usuario',
         v_id_usuario::text || ':' ||
@@ -37,6 +45,7 @@ BEGIN
 END;
 $function$
 ;
+-- Funcion: devuelve el id del usuario de la sesion, o NULL si no hay sesion valida
 CREATE OR REPLACE FUNCTION public.usuario_sesion()
  RETURNS integer
  LANGUAGE plpgsql
@@ -56,6 +65,7 @@ BEGIN
         RETURN NULL;
     END IF;
 
+    -- El valor tiene la forma id:firma
     v_id := split_part(v_valor, ':', 1);
     v_firma := split_part(v_valor, ':', 2);
 
@@ -73,6 +83,7 @@ BEGIN
         RETURN NULL;
     END IF;
 
+    -- Se recalcula la firma: si no coincide (o ha cambiado la contrasena), no hay sesion
     IF v_firma <> encode(hmac(v_id, v_hash, 'sha256'), 'hex') THEN
         RETURN NULL;
     END IF;
@@ -81,6 +92,7 @@ BEGIN
 END;
 $function$
 ;
+-- Funcion: cierra la sesion vaciando nova.id_usuario
 CREATE OR REPLACE FUNCTION public.cerrar_sesion()
  RETURNS void
  LANGUAGE plpgsql
@@ -90,6 +102,7 @@ BEGIN
 END;
 $function$
 ;
+-- Funcion del trigger trg_actualizar_totales: recalcula los totales del pedido con sus lineas
 CREATE OR REPLACE FUNCTION public.actualizar_totales_pedido()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -97,6 +110,7 @@ AS $function$
 DECLARE
     v_id_pedido int4;
 BEGIN
+    -- En un DELETE solo existe OLD; en INSERT y UPDATE se usa NEW
     IF TG_OP = 'DELETE' THEN
         v_id_pedido := OLD.id_pedido;
     ELSE
@@ -117,10 +131,12 @@ BEGIN
         ), 0)
     WHERE id_pedido = v_id_pedido;
 
+    -- Es un trigger AFTER: el valor devuelto no se usa
     RETURN NULL;
 END;
 $function$
 ;
+-- Funcion del trigger trg_calcular_subtotal: subtotal = cantidad por precio unitario
 CREATE OR REPLACE FUNCTION public.calcular_subtotal_linea()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -132,6 +148,7 @@ BEGIN
 END;
 $function$
 ;
+-- Funcion: resta pares del stock de un SKU en una nave; falla si no hay suficientes
 CREATE OR REPLACE FUNCTION public.descontar_stock(p_id_producto_sku integer, p_id_nave integer, p_cantidad integer)
  RETURNS void
  LANGUAGE plpgsql
@@ -141,6 +158,7 @@ BEGIN
         RAISE EXCEPTION 'La cantidad debe ser mayor que cero';
     END IF;
 
+    -- La condicion cantidad >= p_cantidad evita que el stock quede negativo
     UPDATE public.existencias
     SET cantidad = cantidad - p_cantidad
     WHERE id_producto_sku = p_id_producto_sku
@@ -153,7 +171,9 @@ BEGIN
 END;
 $function$
 ;
+-- Se borra la version antigua de realizar_compra (5 parametros, sin p_id_usuario)
 DROP FUNCTION IF EXISTS public.realizar_compra(character varying, integer, integer, integer, integer);
+-- Funcion: anade una linea a un pedido pendiente con el precio actual del producto
 CREATE OR REPLACE FUNCTION public.anadir_linea_pedido(p_id_pedido integer, p_id_producto_sku integer, p_id_nave integer, p_cantidad integer)
  RETURNS void
  LANGUAGE plpgsql
@@ -181,6 +201,7 @@ BEGIN
         RAISE EXCEPTION 'Solo se pueden anadir lineas a un pedido pendiente';
     END IF;
 
+    -- Precio = precio base del modelo + suplemento de la variante
     SELECT m.precio_base + v.suplemento_precio
     INTO v_precio
     FROM public.producto_sku s
@@ -196,6 +217,7 @@ BEGIN
         RAISE EXCEPTION 'Producto no disponible';
     END IF;
 
+    -- El subtotal lo calcula el trigger; el stock no se toca hasta confirmar el pedido
     INSERT INTO public.linea_pedido (
         id_pedido,
         id_producto_sku,
@@ -217,6 +239,7 @@ BEGIN
 END;
 $function$
 ;
+-- Funcion: crea un pedido pendiente con su primera linea y devuelve su id
 CREATE OR REPLACE FUNCTION public.realizar_compra(p_referencia character varying, p_id_cliente integer, p_id_producto_sku integer, p_id_nave integer, p_cantidad integer, p_id_usuario integer DEFAULT NULL)
  RETURNS integer
  LANGUAGE plpgsql
@@ -251,6 +274,7 @@ BEGIN
 END;
 $function$
 ;
+-- Funcion: crea el pedido de una configuracion X-NOVA que aun no tiene pedido
 CREATE OR REPLACE FUNCTION public.realizar_compra_xnova(p_referencia character varying, p_id_configuracion integer)
  RETURNS integer
  LANGUAGE plpgsql
@@ -262,6 +286,7 @@ DECLARE
     v_id_pedido integer;
     v_precio numeric(8,2);
 BEGIN
+    -- FOR UPDATE bloquea la configuracion para que no se compre dos veces a la vez
     SELECT id_cliente
     INTO v_id_cliente
     FROM public.configuraciones_xnova
@@ -299,6 +324,7 @@ BEGIN
     )
     RETURNING id_pedido INTO v_id_pedido;
 
+    -- La linea X-NOVA apunta a la configuracion: no tiene SKU, ni nave, ni stock
     INSERT INTO public.linea_pedido (
         id_pedido,
         id_configuracion_xnova,
@@ -314,6 +340,7 @@ BEGIN
         0
     );
 
+    -- La configuracion queda unida al pedido y ya no se puede volver a comprar
     UPDATE public.configuraciones_xnova
     SET id_pedido = v_id_pedido
     WHERE id_configuracion = p_id_configuracion;
@@ -322,6 +349,7 @@ BEGIN
 END;
 $function$
 ;
+-- Funcion del trigger trg_devolver_stock_cancelacion: al cancelar un pedido devuelve su stock
 CREATE OR REPLACE FUNCTION public.devolver_stock_cancelacion()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -331,6 +359,7 @@ AS $function$
 DECLARE
     linea RECORD;
 BEGIN
+    -- Un pedido cancelado no puede volver a otro estado
     IF OLD.estado = 'cancelado'
        AND NEW.estado <> 'cancelado' THEN
         RAISE EXCEPTION 'No se puede reactivar un pedido cancelado';
@@ -339,6 +368,7 @@ BEGIN
     IF NEW.estado = 'cancelado'
        AND OLD.estado <> 'cancelado' THEN
 
+        -- Solo se devuelven las lineas que ya habian descontado stock
         FOR linea IN
             SELECT *
             FROM public.linea_pedido
@@ -365,6 +395,7 @@ BEGIN
 END;
 $function$
 ;
+-- Funcion del trigger trg_proteger_linea_pedido: protege las lineas de una compra registrada
 CREATE OR REPLACE FUNCTION public.proteger_linea_pedido()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -378,6 +409,7 @@ BEGIN
     FROM public.pedidos
     WHERE id_pedido = OLD.id_pedido;
 
+    -- La linea esta bloqueada si ya desconto stock, si es X-NOVA o si el pedido no esta pendiente
     linea_bloqueada := OLD.stock_descontado
         OR OLD.id_configuracion_xnova IS NOT NULL
         OR estado_pedido <> 'pendiente';
@@ -402,6 +434,7 @@ BEGIN
         END IF;
     END IF;
 
+    -- La marca de stock solo cambia al confirmar (false a true) o al cancelar (true a false)
     IF OLD.stock_descontado IS DISTINCT FROM NEW.stock_descontado THEN
         IF NOT (
             (
@@ -424,6 +457,7 @@ BEGIN
 END;
 $function$
 ;
+-- Funcion: guarda la contrasena cifrada con bcrypt (minimo 8 caracteres)
 CREATE OR REPLACE FUNCTION public.establecer_password(p_username character varying, p_password text)
  RETURNS void
  LANGUAGE plpgsql
@@ -445,6 +479,7 @@ BEGIN
 END;
 $function$
 ;
+-- Funcion del trigger trg_descontar_stock_confirmacion: al confirmar descuenta el stock de cada linea
 CREATE OR REPLACE FUNCTION public.descontar_stock_confirmacion()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -463,12 +498,14 @@ BEGIN
           AND id_nave IS NOT NULL
         FOR UPDATE
     LOOP
+        -- Si falta stock, descontar_stock da error y el pedido no se confirma
         PERFORM public.descontar_stock(
             linea.id_producto_sku,
             linea.id_nave,
             linea.cantidad
         );
 
+        -- La marca evita descontar otra vez si el pedido se vuelve a confirmar
         UPDATE public.linea_pedido
         SET stock_descontado = true
         WHERE id_linea = linea.id_linea;
@@ -478,6 +515,7 @@ BEGIN
 END;
 $function$
 ;
+-- Funcion: crea un usuario activo con el rol indicado, todavia sin contrasena
 CREATE OR REPLACE FUNCTION public.crear_usuario(p_username character varying, p_nombre_rol character varying)
  RETURNS integer
  LANGUAGE plpgsql
@@ -497,6 +535,7 @@ BEGIN
         RAISE EXCEPTION 'El rol indicado no existe';
     END IF;
 
+    -- ! no es un hash: nadie puede entrar hasta que se use establecer_password
     INSERT INTO public.usuarios (username, password_hash, id_rol, activo)
     VALUES (p_username, '!', v_id_rol, true)
     RETURNING id_usuario INTO v_id_usuario;

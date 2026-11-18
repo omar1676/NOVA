@@ -1,7 +1,11 @@
+-- 09_pruebas.sql — bateria de pruebas: cada prueba escribe PASS o FAIL
+-- Las que cambian datos van entre BEGIN y ROLLBACK, asi que la base queda igual
+
 \echo 'NOVA Sneakers: bateria de pruebas'
 \echo ''
 \echo 'Los identificadores se obtienen de la base, no se escriben a mano.'
 
+-- Ids de prueba: se leen de la base y se guardan en variables de psql
 SELECT min(id_cliente) AS cliente_a, max(id_cliente) AS cliente_b FROM public.clientes
 \gset
 SELECT min(id_producto_sku) AS sku FROM public.producto_sku
@@ -39,6 +43,7 @@ FROM (
 
 \echo ''
 \echo 'P1b las funciones SECURITY DEFINER pertenecen al dueno de las tablas'
+-- prosecdef indica SECURITY DEFINER y proowner es el dueno de la funcion
 SELECT
     CASE WHEN count(*) = 0 THEN 'PASS' ELSE 'FAIL' END AS p1b,
     count(*) AS funciones_con_otro_dueno
@@ -51,6 +56,7 @@ WHERE f.pronamespace = 'public'::regnamespace
 
 \echo ''
 \echo 'P1c las funciones SECURITY DEFINER fijan su search_path'
+-- proconfig vacio quiere decir que la funcion no fija su search_path
 SELECT
     CASE WHEN count(*) = 0 THEN 'PASS' ELSE 'FAIL' END AS p1c,
     count(*) AS funciones_sin_search_path
@@ -144,6 +150,7 @@ FROM (
 \echo 'COMPRAS Y CANCELACIONES'
 \echo ''
 \echo 'P4 crear un pedido NO mueve el stock; confirmarlo si'
+-- Se guarda el stock de antes para compararlo al crear y al confirmar
 BEGIN;
 SELECT sum(cantidad) AS stock_antes FROM public.existencias
 \gset
@@ -300,6 +307,7 @@ FROM (
 
 \echo ''
 \echo 'P6b cancelar dos veces no devuelve el stock por duplicado'
+-- Sigue en la transaccion de P6: el pedido ya esta cancelado
 UPDATE public.pedidos SET estado = 'cancelado' WHERE id_pedido = :id_pedido;
 SELECT
     CASE WHEN sum(cantidad) = :stock_antes THEN 'PASS' ELSE 'FAIL' END AS p6b,
@@ -314,6 +322,7 @@ SELECT sum(cantidad) AS stock_antes FROM public.existencias
 \gset
 SELECT public.realizar_compra('P7', :cliente_a, :sku, :nave, 2) AS id_pedido
 \gset
+-- SET ROLE: hasta RESET ROLE se trabaja con los permisos de nova_admin
 SET ROLE nova_admin;
 UPDATE public.pedidos SET estado = 'confirmado' WHERE id_pedido = :id_pedido;
 SELECT sum(cantidad) AS stock_confirmado FROM public.existencias
@@ -398,6 +407,7 @@ SELECT public.anadir_linea_pedido(
     :nave,
     9999
 );
+-- El bloque DO captura el error esperado: si salta escribe PASS y si no, FAIL
 DO $$
 BEGIN
     UPDATE public.pedidos SET estado = 'confirmado' WHERE referencia = 'P9b';
@@ -462,6 +472,7 @@ ROLLBACK;
 \echo 'P11 el registro guarda el OPERADOR autenticado, no el usuario del pedido'
 \echo '    (el pedido se asigna a tienda.demo y la operacion la ejecuta taller.demo)'
 BEGIN;
+-- Contrasena aleatoria: no queda ninguna clave escrita en el archivo
 SELECT gen_random_uuid()::text AS clave_p11
 \gset
 SELECT public.establecer_password('taller.demo', :'clave_p11');
@@ -577,6 +588,7 @@ FROM (
 
 \echo ''
 \echo 'P13 cancelar un X-NOVA no mueve el stock'
+-- Sigue en la transaccion de P12, con el mismo pedido X-NOVA
 UPDATE public.pedidos SET estado = 'cancelado' WHERE id_pedido = :id_pedido;
 SELECT
     CASE WHEN stock = :stock_antes AND estado = 'cancelado'
@@ -599,6 +611,7 @@ VALUES (:cliente_b, 43, 'Blanco', 'Piel sintetica', 'Goma')
 RETURNING id_configuracion AS configuracion
 \gset
 SELECT public.realizar_compra_xnova('P14', :configuracion);
+-- consulta_uno es la Consulta 1 de 06_consultas.sql
 WITH consulta_uno AS (
     SELECT
         COALESCE(m.nombre, 'X-NOVA') AS modelo,
@@ -630,6 +643,7 @@ ROLLBACK;
 \echo 'OPERACIONES QUE DEBEN SER RECHAZADAS'
 \echo ''
 \echo 'E1 cambiar la cantidad de una linea de un pedido ya confirmado'
+-- Pruebas E: cada bloque DO intenta algo prohibido y comprueba el mensaje de error
 BEGIN;
 SELECT public.realizar_compra('E1', :cliente_a, :sku, :nave, 2) AS id_pedido
 \gset
@@ -763,6 +777,7 @@ $$;
 ROLLBACK;
 \echo ''
 \echo 'E6 repetir una referencia de pedido que ya existe'
+-- SQLSTATE 23505: valor repetido en una columna UNIQUE
 BEGIN;
 DO $$
 BEGIN
@@ -903,6 +918,7 @@ EXCEPTION
 END
 $$;
 ROLLBACK;
+-- Se comprueba despues del ROLLBACK: todo tiene que estar como al principio
 SELECT
     CASE WHEN stock = :stock_antes AND pedidos = :pedidos_antes
               AND eventos = :eventos_antes
@@ -922,6 +938,7 @@ FROM (
 \echo 'el permiso sobre la tabla antes de mirar las filas.'
 \echo ''
 \echo 'S1 nova_cliente ve el catalogo (permitido)'
+-- Pruebas S: cada una entra en un rol con SET ROLE y prueba si un permiso funciona
 BEGIN;
 SET ROLE nova_cliente;
 DO $$
@@ -944,6 +961,7 @@ ROLLBACK;
 
 \echo ''
 \echo 'S2 nova_cliente NO ve los pedidos'
+-- SQLSTATE 42501: permiso denegado
 BEGIN;
 SET ROLE nova_cliente;
 DO $$
@@ -980,6 +998,7 @@ ROLLBACK;
 
 \echo ''
 \echo 'S4 nova_cliente NO tiene permiso para llamar a descontar_stock'
+-- has_function_privilege solo consulta el permiso: no ejecuta la funcion
 SELECT
     CASE WHEN NOT has_function_privilege(
                    'nova_cliente',
@@ -995,6 +1014,7 @@ SELECT
 \echo 'S4b al intentarlo de verdad, nova_cliente recibe un error'
 BEGIN;
 SET ROLE nova_cliente;
+-- ERROR previsto: va sin bloque DO, asi que psql muestra el error de permiso
 SELECT public.descontar_stock(:sku, :nave, 1);
 ROLLBACK;
 RESET ROLE;
@@ -1220,6 +1240,7 @@ BEGIN;
 SELECT gen_random_uuid()::text AS clave_a6
 \gset
 SELECT public.establecer_password('admin.demo', :'clave_a6');
+-- Un hash bcrypt empieza por $2a$
 SELECT
     CASE WHEN password_hash <> :'clave_a6' AND left(password_hash, 4) = '$2a$'
          THEN 'PASS' ELSE 'FAIL' END AS a6,
@@ -1236,6 +1257,7 @@ SELECT gen_random_uuid()::text AS clave_a7
 \gset
 SELECT public.establecer_password('admin.demo', :'clave_a7');
 SELECT public.establecer_password('taller.demo', :'clave_a7');
+-- bcrypt usa una sal aleatoria: la misma contrasena da hashes distintos
 SELECT
     CASE WHEN count(DISTINCT password_hash) = 2 THEN 'PASS' ELSE 'FAIL' END AS a7,
     count(DISTINCT password_hash) AS hashes_distintos
@@ -1332,6 +1354,7 @@ SELECT
     CASE WHEN public.usuario_sesion() IS NOT NULL THEN 'PASS' ELSE 'FAIL' END AS a12_dentro,
     public.usuario_sesion() AS operador;
 ROLLBACK;
+-- Fuera de la transaccion ya no queda sesion
 SELECT
     CASE WHEN public.usuario_sesion() IS NULL THEN 'PASS' ELSE 'FAIL' END AS a12_despues,
     public.usuario_sesion() AS operador;
@@ -1401,6 +1424,7 @@ ROLLBACK;
 \echo 'firmado y usuario_sesion() comprueba la firma antes de devolver nada.'
 \echo ''
 \echo 'F1 poner el id a pelo no da sesion'
+-- Pruebas F: se escribe nova.id_usuario a mano y usuario_sesion debe devolver NULL
 BEGIN;
 SET ROLE nova_trabajador;
 SELECT set_config('nova.id_usuario', '1', true);
@@ -1448,10 +1472,12 @@ SELECT gen_random_uuid()::text AS clave_f4
 \gset
 SELECT public.establecer_password('taller.demo', :'clave_f4');
 SELECT public.iniciar_sesion('taller.demo', :'clave_f4');
+-- Testigo: el valor id:firma que ha dejado iniciar_sesion
 SELECT current_setting('nova.id_usuario') AS testigo_de_taller
 \gset
 SELECT id_usuario AS id_admin_f4 FROM public.usuarios WHERE username = 'admin.demo'
 \gset
+-- Se pone el id de admin.demo con la firma de taller.demo
 SELECT set_config('nova.id_usuario',
     :'id_admin_f4' || ':' || split_part(:'testigo_de_taller', ':', 2), true);
 SELECT
@@ -1529,6 +1555,7 @@ SELECT current_setting('nova.id_usuario') AS testigo_g2
 \gset
 SELECT gen_random_uuid()::text AS clave_g2b
 \gset
+-- Nueva contrasena: la firma antigua ya no cuadra con el hash nuevo
 SELECT public.establecer_password('taller.demo', :'clave_g2b');
 SELECT set_config('nova.id_usuario', :'testigo_g2', true);
 SELECT
@@ -1671,6 +1698,7 @@ FROM (
         (SELECT sum(cantidad) FROM public.existencias) AS stock,
         (SELECT estado FROM public.pedidos WHERE id_pedido = :id_pedido) AS estado
 ) AS t;
+-- G10b: con el mismo rol, crear un usuario tiene que fallar
 SET ROLE nova_comercial;
 DO $$
 BEGIN
@@ -1692,6 +1720,7 @@ ROLLBACK;
 \echo 'CICLO DE ESTADOS DEL PEDIDO'
 \echo ''
 \echo 'B1 el esquema admite pendiente, confirmado y cancelado'
+-- Busca los seis estados dentro del CHECK pedidos_check_3 de la tabla pedidos
 SELECT
     CASE WHEN estados_admitidos = 6 THEN 'PASS' ELSE 'FAIL' END AS b1,
     estados_admitidos

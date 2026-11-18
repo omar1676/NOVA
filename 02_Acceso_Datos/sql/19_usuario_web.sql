@@ -1,4 +1,5 @@
 -- 19_usuario_web.sql — la cuenta con la que se conecta el servidor del
+-- panel de administracion (servidor-admin/)
 
 \set ON_ERROR_STOP on
 
@@ -38,7 +39,7 @@ ON public.personal TO panel_lectura;
 GRANT SELECT (id_usuario, username, id_rol, id_personal, activo)   -- sin password_hash
 ON public.usuarios TO panel_lectura;
 
--- El login
+-- El login: iniciar_sesion es SECURITY DEFINER, asi panel_lectura nunca ve el hash
 GRANT EXECUTE ON FUNCTION public.iniciar_sesion(character varying, text) TO panel_lectura;
 
 -- 2. El usuario con el que se conecta el servidor
@@ -63,6 +64,7 @@ SELECT EXISTS (
 REVOKE nova_admin FROM web_nova;
 \endif
 
+-- Solo puede pasar a panel_lectura con SET ROLE; no hereda sus permisos
 GRANT panel_lectura TO web_nova WITH INHERIT FALSE, SET TRUE;
 
 -- Comprobaciones

@@ -1,5 +1,7 @@
 // Formulario Custom: suma los pares por talla y simula el envío.
 // No hay servidor: no se envía ni se guarda ningún dato.
+
+// Elementos del formulario
 const formularioCustom = document.querySelector("#form-custom");
 const camposTalla = document.querySelectorAll(".custom__tallas input");
 const totalPares = document.querySelector("#custom-total");
@@ -24,10 +26,11 @@ function contarPares() {
   return total;
 }
 
+// El total se recalcula cada vez que se escribe en el formulario
 formularioCustom.addEventListener("input", contarPares);
 
-// Antes de este evento, el navegador ya ha comprobado los campos obligatorios,
-// el formato del email y que las cantidades sean números enteros no negativos.
+// Envío simulado. Antes de este evento, el navegador ya ha comprobado los campos
+// obligatorios, el formato del email y que las cantidades sean enteros no negativos.
 formularioCustom.addEventListener("submit", (evento) => {
   evento.preventDefault(); // no hay servidor: el formulario no se envía
   const total = contarPares();
@@ -37,6 +40,7 @@ formularioCustom.addEventListener("submit", (evento) => {
     camposTalla[0].focus();
     return;
   }
+  // Las tallas pedidas, por ejemplo "42: 3"
   const tallas = [];
   camposTalla.forEach((campo) => {
     if (Number(campo.value) > 0) {

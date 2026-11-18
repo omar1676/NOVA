@@ -1,20 +1,15 @@
-// bd.js — las conexiones con PostgreSQL.
-//
-// El panel y el portal del trabajador se conectan SIEMPRE con web_nova
-// (script 19_usuario_web.sql), nunca con postgres. Los datos de conexion
-// salen de las variables de entorno PGHOST, PGPORT, PGDATABASE, PGUSER y
-// PGPASSWORD, que la libreria pg lee sola. Se escriben en el archivo .env,
-// que no se sube a Git.
-// La tienda usa su propio usuario, tienda_nova (ver mas abajo).
+// bd.js — conexiones con PostgreSQL. El panel y el portal usan SIEMPRE web_nova
+// (script 19_usuario_web.sql), nunca postgres; la tienda usa tienda_nova (mas abajo).
+// Los datos de conexion (PGHOST, PGUSER...) van en .env, que no se sube a Git; pg los lee solo.
 
 const { Pool, types } = require('pg');
 
-// PostgreSQL devuelve los numeric y los bigint como texto para no perder
-// precision. En el panel son importes con dos decimales y contadores, asi que
-// los convertimos a numero para que el JSON lleve numeros.
+// PostgreSQL devuelve numeric y bigint como texto para no perder precision. Aqui son importes
+// y contadores, asi que se pasan a numero para que el JSON lleve numeros.
 types.setTypeParser(1700, (valor) => parseFloat(valor)); // numeric: importes
 types.setTypeParser(20, (valor) => parseInt(valor, 10)); // bigint: count(*), sum de enteros
 
+// Sin .env no arranca, y nunca con el superusuario postgres
 if (!process.env.PGUSER || !process.env.PGDATABASE) {
   throw new Error('Faltan PGUSER o PGDATABASE: copia .env.example como .env y rellenalo');
 }
@@ -22,6 +17,7 @@ if (process.env.PGUSER === 'postgres') {
   throw new Error('El servidor no puede conectarse como postgres: usa web_nova (script 19)');
 }
 
+// Conexiones del panel y del portal (usuario web_nova)
 const pool = new Pool({
   max: 5,                          // como mucho 5 conexiones a la vez
   connectionTimeoutMillis: 5000,   // si no hay conexion libre en 5 s, error en vez de esperar siempre
@@ -33,11 +29,9 @@ pool.on('error', (error) => {
   console.error('Error en una conexion inactiva con PostgreSQL:', error.message);
 });
 
-// Abre una transaccion en una conexion de "conexiones" (el pool del panel o el
-// de la tienda), cambia al rol de PostgreSQL que toca y ejecuta "trabajo".
-// Si todo va bien, COMMIT; si algo falla, ROLLBACK y el error sigue hacia
-// arriba: no queda nada a medias. "inicio" y "cambioDeRol" son siempre textos
-// fijos de este archivo, nunca datos que lleguen del navegador.
+// Ejecuta "trabajo" en una transaccion del pool que toca (panel o tienda) y con su rol de PostgreSQL.
+// Si todo va bien, COMMIT; si algo falla, ROLLBACK (no queda nada a medias) y el error sigue.
+// "inicio" y "cambioDeRol" son siempre textos fijos de este archivo, nunca datos del navegador.
 async function enTransaccion(conexiones, inicio, cambioDeRol, trabajo) {
   const cliente = await conexiones.connect();
   let conexionRota = false;
@@ -56,47 +50,36 @@ async function enTransaccion(conexiones, inicio, cambioDeRol, trabajo) {
   }
 }
 
-// REPEATABLE READ hace que todas las consultas de una peticion vean la misma
-// "foto" de los datos: las cifras del dashboard cuadran entre si aunque
-// alguien este escribiendo a la vez.
+// REPEATABLE READ: todas las consultas de una peticion ven la misma "foto" de los datos,
+// asi las cifras del dashboard cuadran aunque alguien este escribiendo a la vez.
 const SOLO_LECTURA = 'BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY';
 
-// Ejecuta "trabajo" dentro de una transaccion de SOLO LECTURA y con los
-// permisos de panel_lectura (script 19). Hay dos barreras contra escribir:
-//   - SET LOCAL ROLE panel_lectura: web_nova no tiene permisos propios
-//     (NOINHERIT) y aqui pasa a panel_lectura, que no tiene ningun
-//     permiso de escritura. Esta barrera la pone PostgreSQL.
-//   - READ ONLY: ademas, la transaccion rechaza cualquier INSERT, UPDATE o
-//     DELETE aunque hubiera permiso.
+// Lecturas del panel: transaccion de SOLO LECTURA con el rol panel_lectura (script 19). Dos barreras:
+//   - web_nova no tiene permisos propios (NOINHERIT) y panel_lectura no puede escribir nada.
+//   - READ ONLY rechaza cualquier INSERT, UPDATE o DELETE aunque hubiera permiso.
 async function consultarSoloLectura(trabajo) {
   return enTransaccion(pool, SOLO_LECTURA, 'SET LOCAL ROLE panel_lectura', trabajo);
 }
 
-// La UNICA escritura del panel: el boton "Marcar en reparto" (script 22).
-// Va en una transaccion aparte, solo para esta llamada, con el rol
-// panel_reparto: no puede leer ni escribir ninguna tabla, solo ejecutar
-// marcar_pedido_en_reparto, que vuelve a comprobar que el usuario es
-// administrador y que el pedido esta confirmado. Todas las demas consultas
-// del panel siguen yendo por consultarSoloLectura.
+// La UNICA escritura del panel: el boton "Marcar en reparto" (script 22), en su propia transaccion.
+// El rol panel_reparto no puede leer ni escribir tablas: solo ejecutar marcar_pedido_en_reparto,
+// que vuelve a comprobar que el usuario es administrador y que el pedido esta confirmado.
 async function marcarEnReparto(idUsuario, idPedido) {
   await enTransaccion(pool, 'BEGIN', 'SET LOCAL ROLE panel_reparto', (cliente) =>
     cliente.query('SELECT public.marcar_pedido_en_reparto($1, $2)', [idUsuario, idPedido]));
 }
 
 // ---------------------------------------------------------------------
-// El portal del trabajador (script 23) usa la misma conexion (web_nova),
-// pero con su propio rol, portal_trabajador:
-//   - consultarComoTrabajador: lecturas, en una transaccion de SOLO
-//     LECTURA, como las del panel. Solo ve las columnas que ensena el portal.
-//   - cambiarComoTrabajador: las dos escrituras del portal. El rol no puede
-//     escribir en ninguna tabla: solo ejecutar avanzar_pedido_trabajador y
-//     ajustar_existencias_trabajador, que vuelven a comprobar que el usuario
-//     es un trabajador activo.
+// El portal del trabajador (script 23): la misma conexion (web_nova), con el rol portal_trabajador.
 // ---------------------------------------------------------------------
+
+// Lecturas del portal: SOLO LECTURA, como las del panel, y solo las columnas que ensena el portal
 async function consultarComoTrabajador(trabajo) {
   return enTransaccion(pool, SOLO_LECTURA, 'SET LOCAL ROLE portal_trabajador', trabajo);
 }
 
+// Las dos escrituras del portal: el rol no escribe en tablas, solo ejecuta avanzar_pedido_trabajador
+// y ajustar_existencias_trabajador, que vuelven a comprobar que el usuario es un trabajador activo.
 async function cambiarComoTrabajador(sql, parametros) {
   return enTransaccion(pool, 'BEGIN', 'SET LOCAL ROLE portal_trabajador', (cliente) =>
     cliente.query(sql, parametros));
@@ -109,13 +92,9 @@ async function comprobarConexion() {
 }
 
 // ---------------------------------------------------------------------
-// La tienda web usa OTRA conexion, con el usuario tienda_nova (script 20).
-// Asi web_nova sigue sin poder escribir nada, y la tienda solo puede lo que
-// permite tienda_web: leer el catalogo, los datos del cliente y sus pedidos,
-// y llamar a las cinco funciones del script 20 (registro, login y compra).
-// Servidor, base y puerto son los mismos (PGHOST, PGPORT, PGDATABASE); el
-// usuario y la contrasena van en TIENDA_PGUSER y TIENDA_PGPASSWORD. Si no
-// estan, el panel funciona igual y la tienda responde 503.
+// La tienda web usa OTRA conexion, el usuario tienda_nova (script 20): asi web_nova sigue sin escribir.
+// tienda_web solo lee catalogo, cliente y pedidos, y llama a las cinco funciones del script 20
+// (registro, login y compra). Sin TIENDA_PGUSER y TIENDA_PGPASSWORD, el panel va igual y la tienda, 503.
 // ---------------------------------------------------------------------
 const tiendaConfigurada = Boolean(process.env.TIENDA_PGUSER && process.env.TIENDA_PGPASSWORD);
 
@@ -123,6 +102,7 @@ if (process.env.TIENDA_PGUSER === 'postgres') {
   throw new Error('La tienda no puede conectarse como postgres: usa tienda_nova (script 20)');
 }
 
+// Conexiones de la tienda (null si no esta configurada). Mismo servidor y base que el panel.
 const poolTienda = tiendaConfigurada
   ? new Pool({
     user: process.env.TIENDA_PGUSER,
@@ -139,11 +119,8 @@ if (poolTienda) {
   });
 }
 
-// Ejecuta "trabajo" en UNA transaccion con los permisos de tienda_web.
-// Si algo falla (por ejemplo, falta stock al confirmar), ROLLBACK: no queda
-// nada a medias. No es READ ONLY porque las funciones de compra escriben,
-// pero tienda_web no tiene permiso para escribir en ninguna tabla por su
-// cuenta: solo a traves de esas funciones.
+// Operaciones de la tienda: UNA transaccion con el rol tienda_web; si algo falla (sin stock...), ROLLBACK.
+// No es READ ONLY porque las compras escriben, pero solo a traves de las funciones del script 20.
 async function operarEnTienda(trabajo) {
   if (!poolTienda) {
     const error = new Error('La tienda no está disponible en este momento');

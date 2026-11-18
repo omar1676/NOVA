@@ -11,6 +11,7 @@
 
 <body class="adm adm-login">
 
+  <!-- Caja de acceso del personal (administradores y trabajadores) -->
   <main class="adm-panel adm-login-caja">
     <div class="adm-marca">
       <img src="img/Nova Logo.png" alt="NOVA Sneakers">
@@ -19,6 +20,7 @@
     <h1>Acceso del personal</h1>
     <p class="adm-nota">Entra con tu usuario de NOVA: los administradores pasan al panel de administración y los trabajadores, al portal del trabajador.</p>
 
+    <!-- Formulario de login: lo envia login.js con fetch -->
     <form id="adm-login" method="post" action="/api/login">
       <div class="adm-campo">
         <label for="adm-usuario">Usuario</label>
@@ -31,6 +33,7 @@
       </div>
 
       <button type="submit" class="adm-boton">Entrar</button>
+      <!-- Aqui login.js escribe los errores (role="alert" hace que el lector de pantalla los lea) -->
       <p class="adm-aviso" id="adm-login-aviso" role="alert"></p>
     </form>
   </main>

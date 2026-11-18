@@ -1,17 +1,6 @@
-// Pruebas automaticas de la API del panel (node --test, sin librerias extra).
-//
-// Necesitan PostgreSQL con los scripts instalados (tambien el 19) y el .env del
-// servidor. Las contrasenas de las cuentas de prueba NO se escriben aqui: se
-// dan al ejecutar. En PowerShell, desde servidor-admin:
-//   $env:PRUEBA_ADMIN_USUARIO = "admin.demo";  $env:PRUEBA_ADMIN_CLAVE = "..."
-//   $env:PRUEBA_OTRO_USUARIO  = "taller.demo"; $env:PRUEBA_OTRO_CLAVE  = "..."
-//   npm test
-// Sin esas variables, las pruebas que las necesitan se saltan (y lo dicen).
-//
-// Todas solo leen, salvo UNA: la que pulsa "Marcar en reparto" en un pedido
-// confirmado y lo deja en "enviado". Esa solo se lanza con una base
-// DESECHABLE y la misma variable que las pruebas de la tienda:
-//   $env:PRUEBA_TIENDA_BASE_DESECHABLE = "si"
+// Pruebas de la API del panel (npm test, con node --test). Necesitan PostgreSQL con los scripts (tambien
+// el 19), el .env y las cuentas PRUEBA_ADMIN_* y PRUEBA_OTRO_* (ver README.md); si faltan, se saltan.
+// Solo una cambia la base ("Marcar en reparto") y solo con PRUEBA_TIENDA_BASE_DESECHABLE=si.
 
 // En las pruebas, el bloqueo por intentos dura 1,5 s en lugar de 5 minutos.
 // Tiene que ponerse antes de cargar el servidor.
@@ -24,11 +13,13 @@ const { once } = require('node:events');
 const app = require('../servidor');
 const bd = require('../bd');
 
+// Las 8 rutas del panel y las cuentas de prueba (las contrasenas se dan al ejecutar, nunca aqui)
 const RUTAS = ['dashboard', 'pedidos', 'productos', 'inventario', 'clientes', 'trabajadores', 'auditoria', 'estadisticas'];
 const ADMIN = process.env.PRUEBA_ADMIN_USUARIO;
 const CLAVE_ADMIN = process.env.PRUEBA_ADMIN_CLAVE;
 const OTRO = process.env.PRUEBA_OTRO_USUARIO;
 const CLAVE_OTRO = process.env.PRUEBA_OTRO_CLAVE;
+// Motivo para saltar una prueba si falta algo (false = se ejecuta)
 const sinAdmin = !(ADMIN && CLAVE_ADMIN) && 'faltan PRUEBA_ADMIN_USUARIO y PRUEBA_ADMIN_CLAVE';
 const sinOtro = !(OTRO && CLAVE_OTRO) && 'faltan PRUEBA_OTRO_USUARIO y PRUEBA_OTRO_CLAVE';
 const sinBaseDesechable = sinAdmin || (process.env.PRUEBA_TIENDA_BASE_DESECHABLE !== 'si'
@@ -37,17 +28,20 @@ const sinBaseDesechable = sinAdmin || (process.env.PRUEBA_TIENDA_BASE_DESECHABLE
 let servidor;
 let base;
 
+// Antes de las pruebas: arranca el servidor
 test.before(async () => {
   servidor = app.listen(0, '127.0.0.1'); // puerto libre cualquiera
   await once(servidor, 'listening');
   base = `http://127.0.0.1:${servidor.address().port}`;
 });
 
+// Al terminar: para el servidor y cierra las conexiones con PostgreSQL
 test.after(async () => {
   servidor.close();
   await bd.pool.end();
 });
 
+// Login: devuelve el codigo, la cookie de sesion y el JSON de la respuesta
 async function entrar(usuario, contrasena) {
   const respuesta = await fetch(base + '/api/login', {
     method: 'POST',
@@ -58,6 +52,7 @@ async function entrar(usuario, contrasena) {
   return { codigo: respuesta.status, cookie, datos: await respuesta.json() };
 }
 
+// Un GET con o sin cookie, sin seguir las redirecciones (para ver los 302)
 function pedir(ruta, cookie) {
   return fetch(base + ruta, { headers: cookie ? { Cookie: cookie } : {}, redirect: 'manual' });
 }
@@ -77,6 +72,7 @@ function leer(sql, parametros) {
   return bd.consultarSoloLectura(async (cliente) => (await cliente.query(sql, parametros)).rows);
 }
 
+// Seguridad general: conexion, cabeceras, host, datos y rutas que no valen
 test('el servidor responde y se conecta con web_nova, no con postgres', async () => {
   const respuesta = await pedir('/api/estado');
   assert.equal(respuesta.status, 200);
@@ -122,6 +118,7 @@ test('las rutas con .. o mal codificadas dan 400 y lo publico se ve sin sesion',
   assert.equal((await pedir('/img/Nova%20Logo.png')).status, 200);
 });
 
+// Permisos: sin sesion, con otro rol y como administrador
 test('sin sesion, las 8 rutas responden 401', async () => {
   for (const ruta of RUTAS) {
     assert.equal((await pedir('/api/admin/' + ruta)).status, 401, ruta);
@@ -163,6 +160,7 @@ test('el administrador recibe JSON de las 8 rutas, sin datos sensibles', { skip:
   }
 });
 
+// Datos del panel: dashboard y filtros
 test('el dashboard marca las sugerencias como no disponibles y usa el umbral 10', { skip: sinAdmin }, async () => {
   const login = await entrar(ADMIN, CLAVE_ADMIN);
   const datos = await (await pedir('/api/admin/dashboard', login.cookie)).json();
@@ -187,6 +185,7 @@ test('los filtros se aplican y un valor no permitido da 400', { skip: sinAdmin }
   assert.ok(guion.filas.every((fila) => (fila.referencia + fila.cliente).includes('_')));
 });
 
+// Solo lectura, logout y permisos de web_nova en PostgreSQL
 test('consultar no puede escribir: la transaccion es de solo lectura', async () => {
   await assert.rejects(
     bd.consultarSoloLectura((cliente) => cliente.query('UPDATE public.pedidos SET estado = estado')),
@@ -360,6 +359,7 @@ test('reparto: las rutas de lectura no aceptan POST y las de reparto no aceptan 
   assert.equal((await pedir('/api/admin/pedidos/1/reparto', login.cookie)).status, 404);
 });
 
+// Bloqueo del login tras 5 fallos (intentos.js)
 test('tras 5 fallos el usuario queda bloqueado (429), exista o no, y despues puede entrar', { skip: sinAdmin }, async () => {
   const respuestas = [];
   for (const usuario of [ADMIN, 'usuario.que.no.existe']) {

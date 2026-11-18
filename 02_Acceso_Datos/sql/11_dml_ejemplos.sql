@@ -1,3 +1,4 @@
+-- 11_dml_ejemplos.sql — INSERT, UPDATE y DELETE de ejemplo (D1-D6) y casos rechazados (R1-R6)
 \echo 'EJEMPLOS DML: INSERT, UPDATE, DELETE y casos rechazados'
 \echo ''
 \echo 'Todo va dentro de transacciones que terminan en ROLLBACK, asi que los'
@@ -88,6 +89,7 @@ ROLLBACK;
 
 \echo ''
 \echo 'D5 DELETE: borrar una linea de un pedido pendiente sin stock descontado'
+-- Se elige una linea que el trigger proteger_linea_pedido deja borrar (no X-NOVA)
 BEGIN;
 SELECT l.id_linea AS linea
 FROM public.linea_pedido l
@@ -124,6 +126,8 @@ ROLLBACK;
 
 \echo ''
 \echo 'R1 CHECK: una linea con cantidad cero'
+-- Casos R: el bloque DO espera un error concreto, por su SQLSTATE, y escribe PASS.
+-- SQLSTATE 23514: no se cumple un CHECK
 BEGIN;
 DO $$
 BEGIN
@@ -146,6 +150,7 @@ ROLLBACK;
 
 \echo ''
 \echo 'R2 UNIQUE: dos clientes con el mismo correo'
+-- SQLSTATE 23505: valor repetido en una columna UNIQUE
 BEGIN;
 DO $$
 BEGIN
@@ -165,6 +170,7 @@ ROLLBACK;
 
 \echo ''
 \echo 'R3 FOREIGN KEY: un pedido de un cliente que no existe'
+-- SQLSTATE 23503: la clave ajena apunta a un registro que no existe
 BEGIN;
 DO $$
 BEGIN
@@ -184,6 +190,7 @@ ROLLBACK;
 
 \echo ''
 \echo 'R4 NOT NULL: un modelo sin nombre'
+-- SQLSTATE 23502: falta un valor obligatorio (NOT NULL)
 BEGIN;
 DO $$
 BEGIN
@@ -202,6 +209,7 @@ ROLLBACK;
 
 \echo ''
 \echo 'R5 CHECK: un estado de pedido que no esta permitido'
+-- SQLSTATE 23514: salta el CHECK de estados (pedidos_check_3)
 BEGIN;
 DO $$
 BEGIN
@@ -221,6 +229,7 @@ ROLLBACK;
 
 \echo ''
 \echo 'R6 CHECK: una linea que es a la vez de catalogo y X-NOVA'
+-- Vale el CHECK (23514) o la clave ajena (23503), por si no existe la configuracion 1
 BEGIN;
 DO $$
 BEGIN

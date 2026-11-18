@@ -1,4 +1,4 @@
--- 14_caso_custom_persistente.sql
+-- 14_caso_custom_persistente.sql — deja guardado CUSTOM-40 confirmado y lo comprueba (C1 a C9)
 
 \set ON_ERROR_STOP on
 
@@ -12,8 +12,10 @@
 
 BEGIN;
 
+-- La sesion solo dura esta transaccion: asi la auditoria apunta al operador
 SELECT public.iniciar_sesion('tienda.demo', :'clave_tienda') AS operador;
 
+-- Bloque 1: crea y confirma CUSTOM-40, o revisa el que ya existe
 DO $$
 DECLARE
     v_pedido  integer;
@@ -115,7 +117,8 @@ BEGIN
         END IF;
     END LOOP;
 
-    -- 4. Confirmarlo. El trigger descuenta el stock una sola vez y
+    -- 4. Confirmarlo: el trigger descuenta el stock una sola vez y marca cada linea.
+    --    Si no hubiera stock, el error deshace todo
     UPDATE public.pedidos
        SET estado = 'confirmado'
      WHERE id_pedido = v_pedido;
@@ -126,6 +129,7 @@ BEGIN
 END
 $$;
 
+-- Bloque 2: comprobaciones C1 a C9; si una falla, no se guarda nada
 DO $$
 DECLARE
     v_pedido     integer;   -- el id del pedido CUSTOM-40
@@ -241,6 +245,7 @@ BEGIN
 END
 $$;
 
+-- Aqui si se guarda (10_caso_custom.sql terminaba en ROLLBACK)
 COMMIT;
 
 \unset clave_tienda

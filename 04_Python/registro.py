@@ -6,10 +6,12 @@ import pandas as pd
 
 import config
 
+# Columnas del registro de eventos
 COLUMNAS = ["fecha_hora", "origen", "carpeta", "operacion", "resultado", "filas_procesadas", "filas_validas",
             "incidencias", "bloqueantes", "version_datos", "duracion_s", "detalle"]
 
 
+# Anade una fila al registro (si el CSV no existe, lo crea con la cabecera)
 def anotar(archivo, **campos):
     archivo = Path(archivo)
     archivo.parent.mkdir(parents=True, exist_ok=True)
@@ -26,6 +28,7 @@ def anotar(archivo, **campos):
         escritor.writerow(fila)
 
 
+# Lee las ultimas filas del registro, de la mas reciente a la mas antigua
 def leer(archivo, ultimas=100):
     archivo = Path(archivo)
     if not archivo.exists():

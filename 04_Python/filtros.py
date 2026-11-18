@@ -4,9 +4,11 @@ import analiticas
 import config
 import kpis
 
+# Filtros vacios: asi empieza el dashboard
 SIN_FILTROS = {"desde": None, "hasta": None, "modelos": [], "tallas": [], "tipos": [], "estados": [], "clientes": []}
 
 
+# True si hay al menos un filtro puesto
 def hay_filtros(filtros):
     for clave in SIN_FILTROS:
         if filtros.get(clave):
@@ -14,6 +16,7 @@ def hay_filtros(filtros):
     return False
 
 
+# Texto con los filtros activos, para mostrarlo en pantalla
 def describir(filtros):
     partes = []
     if filtros.get("desde") or filtros.get("hasta"):
@@ -30,10 +33,12 @@ def describir(filtros):
     return "ninguno"
 
 
+# Pasa los nombres de modelo elegidos a sus id_modelo
 def ids_de_modelos(modelos, nombres):
     return modelos.loc[modelos["nombre_modelo"].isin(nombres), "id_modelo"]
 
 
+# Aplica los filtros a los pedidos y a sus lineas
 def filtrar_validos(validos, filtros):
     pedidos = validos["pedidos"]
     lineas = validos["lineas_pedido"]
@@ -59,6 +64,7 @@ def filtrar_validos(validos, filtros):
         lineas = lineas[lineas["id_modelo"].isin(ids_elegidos)]
     if filtros.get("tallas"):
         lineas = lineas[lineas["talla"].isin(filtros["tallas"])]
+    # Solo quedan los pedidos con alguna linea que cumpla el filtro
     if filtros.get("modelos") or filtros.get("tallas"):
         pedidos = pedidos[pedidos["id_pedido"].isin(lineas["id_pedido"])]
 
@@ -69,6 +75,7 @@ def filtrar_validos(validos, filtros):
     return filtrados
 
 
+# El stock solo se filtra por modelo y talla
 def filtrar_stock(validos, filtros):
     stock = validos["stock"]
     if filtros.get("modelos"):
@@ -78,6 +85,7 @@ def filtrar_stock(validos, filtros):
     return stock
 
 
+# Vuelve a calcular las tablas y los KPIs solo con los datos filtrados
 def calcular_filtrado(datos, validos, filtros):
     tablas = analiticas.calcular_tablas(datos, filtrar_validos(validos, filtros))
     tablas["kpis"] = kpis.calcular_kpis(tablas["pedidos_unicos"], tablas["modelos_abc"], tablas["ventas_por_talla"],
@@ -85,6 +93,7 @@ def calcular_filtrado(datos, validos, filtros):
     return tablas
 
 
+# Tabla de stock y stock bajo con los filtros de modelo y talla
 def tablas_inventario(validos, tablas_completas, corte, filtros, umbral=config.UMBRAL_STOCK_BAJO):
     stock = filtrar_stock(validos, filtros)
     lineas = tablas_completas["lineas_enriquecidas"]

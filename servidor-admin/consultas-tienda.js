@@ -1,18 +1,10 @@
-// consultas-tienda.js — el SQL de la tienda web.
-//
-// Dos tipos de sentencias:
-//   - Lecturas: el catalogo (el mismo para todos) y los datos y pedidos del
-//     cliente, siempre filtrados por el id del cliente que tiene la sesion.
-//   - Llamadas a las funciones del script 20 (registrar_cliente,
-//     crear_compra_web, ...). Son lo unico que escribe en la base.
-// Aqui no se calcula ningun precio ni se toca el stock: lo hace PostgreSQL.
-// Todas reciben "cliente", la conexion que abre bd.operarEnTienda.
+// consultas-tienda.js — el SQL de la tienda. Todas reciben "cliente", la conexion de bd.operarEnTienda.
+// Lecturas: el catalogo y los datos y pedidos del cliente, siempre filtrados por el id de su sesion.
+// Escrituras: solo las funciones del script 20. Precios y stock los calcula PostgreSQL, no este archivo.
 
 // ---------------------------------------------------------------------
-// Catalogo: los modelos a la venta, con sus colores, tallas y stock.
-// El precio es precio_base + suplemento del color: lo que mostrara la ficha.
-// El que se guarda en el pedido lo pone anadir_linea_pedido al crearlo.
-// El stock es el de la nave que usan los pedidos (la primera).
+// Catalogo: modelos a la venta con colores, tallas y stock (el de la primera nave, la de los pedidos).
+// Precio de la ficha = precio_base + suplemento del color; el del pedido lo pone anadir_linea_pedido.
 // ---------------------------------------------------------------------
 async function catalogo(cliente) {
   const resultado = await cliente.query(`
@@ -52,6 +44,8 @@ async function catalogo(cliente) {
 // ---------------------------------------------------------------------
 // Cuentas
 // ---------------------------------------------------------------------
+
+// Registro de un cliente nuevo (registrar_cliente): devuelve su id
 async function registrar(cliente, nombre, email, contrasena, telefono, direccion) {
   const resultado = await cliente.query(
     'SELECT public.registrar_cliente($1, $2, $3, $4, $5) AS id',
@@ -59,6 +53,7 @@ async function registrar(cliente, nombre, email, contrasena, telefono, direccion
   return resultado.rows[0].id;
 }
 
+// Login del cliente: iniciar_sesion_cliente comprueba la contrasena y devuelve su id
 async function iniciarSesion(cliente, email, contrasena) {
   const resultado = await cliente.query(
     'SELECT public.iniciar_sesion_cliente($1, $2) AS id', [email, contrasena]);
@@ -77,6 +72,8 @@ async function datosCliente(cliente, idCliente) {
 // ---------------------------------------------------------------------
 // Compras: siempre a traves de las funciones del script 20
 // ---------------------------------------------------------------------
+
+// Crea el pedido PENDIENTE (crear_compra_web): devuelve su id
 async function crearCompra(cliente, idCliente, referencia, skus, cantidades, telefono, direccion) {
   const resultado = await cliente.query(
     'SELECT public.crear_compra_web($1, $2, $3::int[], $4::int[], $5, $6) AS id',
@@ -84,10 +81,12 @@ async function crearCompra(cliente, idCliente, referencia, skus, cantidades, tel
   return resultado.rows[0].id;
 }
 
+// Pago aceptado: confirmado y pagado (el trigger descuenta el stock)
 async function confirmarCompra(cliente, idCliente, idPedido) {
   await cliente.query('SELECT public.confirmar_compra_web($1, $2)', [idCliente, idPedido]);
 }
 
+// Cancela un pedido sin pagar, sin tocar el stock
 async function cancelarCompra(cliente, idCliente, idPedido) {
   await cliente.query('SELECT public.cancelar_compra_web($1, $2)', [idCliente, idPedido]);
 }
@@ -95,6 +94,8 @@ async function cancelarCompra(cliente, idCliente, idPedido) {
 // ---------------------------------------------------------------------
 // Historial: solo los pedidos de ESE cliente
 // ---------------------------------------------------------------------
+
+// Columnas de un pedido en el historial y en el detalle
 const COLUMNAS_PEDIDO = `
     id_pedido AS id,
     referencia,
@@ -104,6 +105,7 @@ const COLUMNAS_PEDIDO = `
     cantidad_total AS pares,
     importe_total AS total`;
 
+// Todos sus pedidos, del mas reciente al mas antiguo
 async function pedidos(cliente, idCliente) {
   const resultado = await cliente.query(`
     SELECT ${COLUMNAS_PEDIDO}

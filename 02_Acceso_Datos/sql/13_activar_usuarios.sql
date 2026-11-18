@@ -1,3 +1,4 @@
+-- 13_activar_usuarios.sql — pone contrasena a las tres cuentas de demostracion
 \echo 'ACTIVAR LAS CUENTAS DE DEMOSTRACION'
 \echo ''
 \echo 'Las tres cuentas se instalan con password_hash = ! , que no es un hash y'
@@ -12,6 +13,7 @@
 \echo 'el panel pueda hacer el primer inicio de sesion.'
 \echo ''
 
+-- Cada contrasena se pide por teclado y se guarda cifrada con establecer_password
 \prompt 'Contrasena para admin.demo   : ' clave_admin
 SELECT public.establecer_password('admin.demo', :'clave_admin') AS admin_demo_lista;
 
@@ -21,12 +23,14 @@ SELECT public.establecer_password('taller.demo', :'clave_taller') AS taller_demo
 \prompt 'Contrasena para tienda.demo  : ' clave_tienda
 SELECT public.establecer_password('tienda.demo', :'clave_tienda') AS tienda_demo_lista;
 
+-- Se borran las contrasenas de las variables de psql
 \unset clave_admin
 \unset clave_taller
 \unset clave_tienda
 
 \echo ''
 \echo 'comprobacion: las tres cuentas tienen ya un hash bcrypt'
+-- Un hash bcrypt empieza por $2a$
 SELECT
     u.username,
     r.nombre AS rol,

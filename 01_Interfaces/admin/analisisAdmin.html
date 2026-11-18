@@ -7,6 +7,7 @@
     <title>NOVA Sneakers · Análisis de datos</title>
     <link rel="icon" href="img/Nova Logo.png">
     <link rel="stylesheet" href="styles.css">
+    <!-- Estilos propios de esta pagina: el marco del dashboard y su enlace -->
     <style>
         .adm-analisis-marco {
             display: block;
@@ -27,6 +28,7 @@
 
 <body class="adm" data-pagina="analisis">
 
+<!-- Menu lateral del panel -->
 <div class="adm-sidebar">
     <div class="adm-marca">
         <img src="img/Nova Logo.png" alt="NOVA Sneakers">
@@ -48,12 +50,14 @@
     </nav>
 </div>
 
+<!-- Contenido: el dashboard de Python (Streamlit) dentro de un iframe -->
 <div class="adm-contenido">
     <h1>Análisis de datos</h1>
     <p class="adm-nota">
         El dashboard de Python (calidad de los datos, KPIs, productos, clientes, inventario y predicción),
         dentro del panel. Lee los CSV que exporta Acceso a Datos (script 16), no la base en vivo, y se vuelve a calcular solo cada 60 segundos.
     </p>
+    <!-- Aviso si Streamlit no esta arrancado (lo rellena analisis.js) -->
     <p class="adm-nota" id="adm-analisis-aviso" role="status" hidden></p>
 
     <div class="adm-panel" style="margin-top: 20px;">
@@ -65,6 +69,7 @@
     </p>
 </div>
 
+<!-- Iconos (Lucide), script comun del panel y el de esta pagina -->
 <script src="https://cdn.jsdelivr.net/npm/lucide@1.62.0/dist/umd/lucide.min.js" integrity="sha384-KbBG+Cdzk6eN6IszNtkSQeU6IJq84TBpyLQN+W8Fn8y0QNsTNiB+j8vFW5Rn1SGZ" crossorigin="anonymous"></script>
 <script src="script.js"></script>
 <script src="analisis.js"></script>

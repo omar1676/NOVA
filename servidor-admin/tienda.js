@@ -1,19 +1,6 @@
-// tienda.js — las rutas de la tienda web: /api/tienda/...
-//
-//   web cliente (01_Interfaces/cliente)  -->  estas rutas  -->  PostgreSQL (tienda_nova)
-//
-// Este archivo hace tres cosas:
-//   1. Comprueba que los datos que llegan tienen la forma correcta (tipos,
-//      longitudes, cantidades enteras...). Si no, responde 400.
-//   2. Saca el id del cliente de SU SESION. Nunca usa un id que mande el
-//      navegador, ni un precio, ni un total: no se leen del cuerpo.
-//   3. Llama a las funciones del script 20, que son las que comprueban el
-//      dueno del pedido, su estado y el stock. Precios, totales y existencias
-//      los calcula PostgreSQL.
-//
-// Rutas sin sesion:  GET catalogo · POST registro · POST login · POST logout · GET sesion
-// Rutas con sesion:  POST pedidos · POST pedidos/:id/pago · POST pedidos/:id/cancelacion
-//                    GET pedidos · GET pedidos/:id
+// tienda.js — rutas /api/tienda/... de la web cliente (01_Interfaces/cliente), con el usuario tienda_nova.
+// Comprueba la forma de los datos (si no, 400) y saca el id del cliente de SU SESION: nunca usa un id,
+// un precio ni un total del navegador. Dueno, estado, stock y precios los resuelve el script 20.
 
 const express = require('express');
 const bd = require('./bd');
@@ -37,9 +24,8 @@ function errorParaElCliente(mensaje, status = 400) {
   return error;
 }
 
-// Las funciones SQL avisan con RAISE EXCEPTION (codigo P0001). Sus mensajes
-// van sin tildes, como todos los scripts SQL. Aqui se decide que codigo HTTP
-// le corresponde a cada uno y como se escribe para la web.
+// Mensajes de las funciones SQL (RAISE EXCEPTION, codigo P0001, sin tildes como los scripts)
+// -> [codigo HTTP, texto para la web]
 const ERRORES_BD = {
   'Ese correo ya esta registrado': [409, 'Ese correo ya está registrado. Inicia sesión.'],
   'El correo no es valido': [400, 'El correo no es válido'],
@@ -53,6 +39,7 @@ const ERRORES_BD = {
   'Cliente no valido': [401, 'Tu sesión ya no es válida. Vuelve a entrar.']
 };
 
+// Pasa un error de las funciones SQL a un error para el cliente; los demas acaban en 500
 function traducirErrorBD(error) {
   if (error.code !== 'P0001') return error; // no es de nuestras funciones: error 500
   const conocido = ERRORES_BD[error.message];
@@ -103,12 +90,11 @@ function leerContrasena(cuerpo) {
   return valor;
 }
 
-// El navegador crea una clave aleatoria (crypto.randomUUID) al abrir el
-// checkout y la manda con el pedido. Con ella se forma la referencia
-// WEB-XXXXXXXXXXXXXXXXXXXX. Si la misma compra llega dos veces (doble clic,
-// reintento), trae la misma clave y crear_compra_web devuelve el mismo pedido.
+// El navegador crea una clave aleatoria (crypto.randomUUID) al abrir el checkout y con ella se forma
+// la referencia WEB-XXXX... Si la compra llega dos veces (doble clic), crear_compra_web da el mismo pedido.
 const FORMATO_CLAVE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+// Comprueba la clave y la convierte en la referencia del pedido
 function referenciaDeLaCompra(clave) {
   if (typeof clave !== 'string' || !FORMATO_CLAVE.test(clave)) {
     throw errorParaElCliente('Falta la clave de la compra. Recarga la página.');
@@ -155,9 +141,8 @@ function leerIdPedido(req) {
 }
 
 // ---------------------------------------------------------------------
-// Solo para clientes con sesion. En cada peticion se vuelve a mirar en la
-// base que el cliente sigue activo; si no, la sesion se borra.
-// Deja sus datos en req.cliente: { id, nombre, email, telefono, direccion }.
+// Solo para clientes con sesion: en cada peticion se mira en la base que sigue activo (si no, se
+// borra la sesion). Deja sus datos en req.cliente: { id, nombre, email, telefono, direccion }.
 // ---------------------------------------------------------------------
 async function soloCliente(req, res, next) {
   const sesion = sesionesTienda.leerSesion(req);
@@ -174,15 +159,19 @@ async function soloCliente(req, res, next) {
 }
 
 // ---------------------------------------------------------------------
-// Catalogo
+// Catalogo (sin sesion)
 // ---------------------------------------------------------------------
+
+// Ruta: catalogo con precios, colores, tallas y stock
 rutas.get('/catalogo', async (req, res) => {
   res.json({ modelos: await enTienda((c) => consultas.catalogo(c)) });
 });
 
 // ---------------------------------------------------------------------
-// Registro, login, logout y sesion
+// Cuenta: registro, login, logout y sesion (no piden haber entrado)
 // ---------------------------------------------------------------------
+
+// Ruta: registro de un cliente nuevo
 rutas.post('/registro', async (req, res) => {
   const nombre = leerTexto(req.body, 'nombre', 120, true, 'tu nombre');
   const email = leerTexto(req.body, 'email', 150, true, 'el correo').toLowerCase();
@@ -198,8 +187,8 @@ rutas.post('/registro', async (req, res) => {
   res.status(201).json({ nombre, email });
 });
 
-// Igual que el login del personal: la contrasena la comprueba PostgreSQL y,
-// tras 5 fallos con el mismo correo, se responde 429 unos minutos.
+// Ruta: login del cliente. Como el del personal: la contrasena la comprueba PostgreSQL
+// y, tras 5 fallos con el mismo correo, se responde 429 unos minutos.
 rutas.post('/login', async (req, res) => {
   const email = leerTexto(req.body, 'email', 150, true, 'el correo').toLowerCase();
   const contrasena = leerContrasena(req.body);
@@ -231,12 +220,13 @@ rutas.post('/login', async (req, res) => {
   res.json({ nombre: cliente.nombre, email: cliente.email });
 });
 
+// Ruta: logout del cliente
 rutas.post('/logout', (req, res) => {
   sesionesTienda.cerrarSesion(req, res);
   res.json({ ok: true });
 });
 
-// La web pregunta al cargar si hay alguien dentro. Sin sesion responde 200
+// Ruta: la web pregunta al cargar si hay alguien dentro. Sin sesion responde 200
 // con cliente: null (no es un error: la tienda se puede ver sin entrar).
 rutas.get('/sesion', async (req, res) => {
   const sesion = sesionesTienda.leerSesion(req);
@@ -259,7 +249,7 @@ function cancelarPedido(idCliente, idPedido) {
   });
 }
 
-// Paso 1 del checkout: crea el pedido PENDIENTE y devuelve sus lineas con el
+// Ruta: paso 1 del checkout. Crea el pedido PENDIENTE y devuelve sus lineas con el
 // precio y el total que ha calculado PostgreSQL. No descuenta stock.
 rutas.post('/pedidos', soloCliente, async (req, res) => {
   const referencia = referenciaDeLaCompra(req.body?.clave);
@@ -275,14 +265,11 @@ rutas.post('/pedidos', soloCliente, async (req, res) => {
   res.status(201).json(pedido);
 });
 
-// Paso 2: el resultado del pago SIMULADO.
-//   aceptado  -> confirmar_compra_web: confirmado y pagado; el trigger
-//                descuenta el stock. Si ya no queda, se deshace y el pedido
-//                se cancela. Si queda confirmado, se envia el recibo por
-//                correo (correo.js).
+// Ruta: paso 2, el resultado del pago SIMULADO (en una tienda real lo daria la pasarela
+// de pago al servidor, nunca el navegador; aqui no se cobra nada).
+//   aceptado  -> confirmar_compra_web: confirmado y pagado, y el trigger descuenta el stock
+//                (si ya no queda, se cancela). Si queda confirmado, se manda el recibo (correo.js).
 //   rechazado -> cancelar_compra_web: cancelado, sin tocar el stock y sin correo.
-// En una tienda real el resultado lo daria la pasarela de pago al servidor,
-// nunca el navegador. Aqui es una simulacion academica: no se cobra nada.
 rutas.post('/pedidos/:id/pago', soloCliente, async (req, res) => {
   const idPedido = leerIdPedido(req);
   const resultado = req.body?.resultado;
@@ -297,9 +284,8 @@ rutas.post('/pedidos/:id/pago', soloCliente, async (req, res) => {
   let pago;
   try {
     pago = await bd.operarEnTienda(async (c) => {
-      // Si llegan dos pagos del mismo pedido a la vez (doble clic), este
-      // bloqueo de PostgreSQL hace que vayan uno detras de otro. Asi solo el
-      // que lo pasa de pendiente a confirmado manda el recibo.
+      // Dos pagos a la vez del mismo pedido (doble clic) van uno detras de otro con este
+      // bloqueo: asi solo el que lo pasa de pendiente a confirmado manda el recibo.
       await c.query('SELECT pg_advisory_xact_lock($1)', [idPedido]);
       const antes = await consultas.pedido(c, req.cliente.id, idPedido);
       await consultas.confirmarCompra(c, req.cliente.id, idPedido);
@@ -317,29 +303,26 @@ rutas.post('/pedidos/:id/pago', soloCliente, async (req, res) => {
     throw traducirErrorBD(error);
   }
 
-  // El pago ya esta guardado (COMMIT): primero se responde al cliente y
-  // despues se manda el recibo, asi que si el correo falla o tarda la compra
-  // no cambia. Va al correo con el que se registro: req.cliente lo ha leido
-  // soloCliente de la base, no viene del navegador. enviarRecibo no lanza
-  // errores: como mucho los apunta en la consola.
+  // El pago ya esta guardado (COMMIT): se responde primero y despues se manda el recibo, que no
+  // lanza errores, asi el correo no cambia la compra. El email sale de la base, no del navegador.
   res.json(pago.pedido);
   if (pago.recienPagado) {
     await correo.enviarRecibo(req.cliente, pago.pedido);
   }
 });
 
-// El cliente cancela un pedido que todavia no ha pagado
+// Ruta: el cliente cancela un pedido que todavia no ha pagado
 rutas.post('/pedidos/:id/cancelacion', soloCliente, async (req, res) => {
   const idPedido = leerIdPedido(req);
   res.json(await cancelarPedido(req.cliente.id, idPedido));
 });
 
-// Historial: solo sus pedidos
+// Ruta: historial, solo sus pedidos
 rutas.get('/pedidos', soloCliente, async (req, res) => {
   res.json({ pedidos: await enTienda((c) => consultas.pedidos(c, req.cliente.id)) });
 });
 
-// Un pedido con sus lineas. Si es de otro cliente, 404 (no se dice que existe).
+// Ruta: un pedido con sus lineas. Si es de otro cliente, 404 (no se dice que existe).
 rutas.get('/pedidos/:id', soloCliente, async (req, res) => {
   const idPedido = leerIdPedido(req);
   const pedido = await enTienda((c) => consultas.pedido(c, req.cliente.id, idPedido));

@@ -1,20 +1,6 @@
-// Pruebas del login unico y del portal del trabajador (npm run test:portal).
-//
-// Necesitan PostgreSQL con los scripts instalados, tambien el 22 y el 23.
-// Las contrasenas NO se escriben aqui: se dan al ejecutar. En PowerShell,
-// desde servidor-admin:
-//   $env:PRUEBA_ADMIN_USUARIO = "admin.demo";  $env:PRUEBA_ADMIN_CLAVE = "..."
-//   $env:PRUEBA_OTRO_USUARIO  = "taller.demo"; $env:PRUEBA_OTRO_CLAVE  = "..."   (un trabajador)
-//   $env:PRUEBA_COMERCIAL_USUARIO = "tienda.demo"; $env:PRUEBA_COMERCIAL_CLAVE = "..."  (opcional)
-//
-// Las que CAMBIAN la base (avanzan pedidos, cambian stock, registran un
-// cliente de la tienda) solo se lanzan con una base DESECHABLE:
-//   $env:PRUEBA_TIENDA_BASE_DESECHABLE = "si"
-// Las que desactivan una cuenta o le cambian el rol necesitan, ademas, un
-// superusuario de esa base desechable (web_nova no puede tocar usuarios).
-// Crean su propia cuenta de trabajador, prueba.portal.<hora>:
-//   $env:PRUEBA_SUPERUSUARIO = "postgres"; $env:PRUEBA_SUPERUSUARIO_CLAVE = "..." (si la pide)
-// Sin esas variables, las pruebas que las necesitan se saltan (y lo dicen).
+// Pruebas del login unico y del portal del trabajador (npm run test:portal). Necesitan PostgreSQL con
+// los scripts (tambien el 22 y el 23) y las cuentas PRUEBA_* (ver README.md); si faltan, se saltan.
+// Las que cambian la base piden PRUEBA_TIENDA_BASE_DESECHABLE=si (y las de cuentas, PRUEBA_SUPERUSUARIO).
 
 // En las pruebas, el bloqueo por intentos dura 1,5 s en lugar de 5 minutos.
 // Tiene que ponerse antes de cargar el servidor.
@@ -38,6 +24,7 @@ const app = require('../servidor');
 const bd = require('../bd');
 const odoo = require('../odoo');
 
+// Cuentas de prueba (las contrasenas se dan al ejecutar, nunca aqui). TRABAJADOR es PRUEBA_OTRO_USUARIO.
 const ADMIN = process.env.PRUEBA_ADMIN_USUARIO;
 const CLAVE_ADMIN = process.env.PRUEBA_ADMIN_CLAVE;
 const TRABAJADOR = process.env.PRUEBA_OTRO_USUARIO;
@@ -47,6 +34,8 @@ const CLAVE_COMERCIAL = process.env.PRUEBA_COMERCIAL_CLAVE;
 const SUPER = process.env.PRUEBA_SUPERUSUARIO;
 const CLAVE_SUPER = process.env.PRUEBA_SUPERUSUARIO_CLAVE;
 
+// Motivo para saltar una prueba si falta algo (false = se ejecuta). El superusuario hace falta
+// porque web_nova no puede tocar la tabla usuarios.
 const sinAdmin = !(ADMIN && CLAVE_ADMIN) && 'faltan PRUEBA_ADMIN_USUARIO y PRUEBA_ADMIN_CLAVE';
 const sinTrabajador = !(TRABAJADOR && CLAVE_TRABAJADOR) && 'faltan PRUEBA_OTRO_USUARIO y PRUEBA_OTRO_CLAVE (un trabajador)';
 const sinComercial = !(COMERCIAL && CLAVE_COMERCIAL) && 'faltan PRUEBA_COMERCIAL_USUARIO y PRUEBA_COMERCIAL_CLAVE';
@@ -56,6 +45,7 @@ const sinEscritura = sinTrabajador || sinAdmin || sinDesechable
   || (!bd.poolTienda && 'falta la tienda (TIENDA_PGUSER y TIENDA_PGPASSWORD): crea los pedidos de prueba');
 const sinSuper = sinDesechable || (!SUPER && 'falta PRUEBA_SUPERUSUARIO (cambia cuentas en la base desechable)');
 
+// Rutas y paginas que se recorren en las pruebas
 const RUTAS_ADMIN = ['dashboard', 'pedidos', 'productos', 'inventario', 'clientes', 'trabajadores', 'auditoria', 'estadisticas'];
 const RUTAS_PORTAL = ['resumen', 'pedidos', 'inventario', 'personalizados'];
 const PAGINAS_PORTAL = ['trabajador.html', 'pedidosTrabajador.html', 'inventarioTrabajador.html', 'personalizadosTrabajador.html'];
@@ -64,12 +54,14 @@ const DOS_HORAS = 2 * 60 * 60 * 1000;
 let servidor;
 let base;
 
+// Antes de las pruebas: arranca el servidor en un puerto libre
 test.before(async () => {
   servidor = app.listen(0, '127.0.0.1');
   await once(servidor, 'listening');
   base = `http://127.0.0.1:${servidor.address().port}`;
 });
 
+// Al terminar: para el servidor y cierra las conexiones con PostgreSQL
 test.after(async () => {
   servidor.close();
   await bd.pool.end();
@@ -79,6 +71,8 @@ test.after(async () => {
 // ---------------------------------------------------------------------
 // Ayudas
 // ---------------------------------------------------------------------
+
+// Login: devuelve el codigo, la cookie de sesion y el JSON de la respuesta
 async function entrar(usuario, contrasena) {
   const respuesta = await fetch(base + '/api/login', {
     method: 'POST',
@@ -89,6 +83,7 @@ async function entrar(usuario, contrasena) {
   return { codigo: respuesta.status, cookie, datos: await respuesta.json() };
 }
 
+// Un GET con o sin cookie, sin seguir las redirecciones (para ver los 302)
 function pedir(ruta, cookie, cabeceras = {}) {
   if (cookie) cabeceras.Cookie = cookie;
   return fetch(base + ruta, { headers: cabeceras, redirect: 'manual' });
@@ -101,6 +96,7 @@ function cambiar(ruta, cookie, cuerpo, tipo = 'application/json') {
   return fetch(base + ruta, { method: 'PATCH', headers: cabeceras, body: JSON.stringify(cuerpo), redirect: 'manual' });
 }
 
+// El boton "Avanzar estado" del portal
 function avanzar(idPedido, cookie, estado) {
   return cambiar(`/api/trabajador/pedidos/${idPedido}/estado`, cookie, { estado });
 }
@@ -110,15 +106,18 @@ async function leer(sql, parametros) {
   return bd.consultarSoloLectura(async (cliente) => (await cliente.query(sql, parametros)).rows);
 }
 
+// Estado de un pedido en la base
 async function estadoDe(idPedido) {
   return (await leer('SELECT estado FROM public.pedidos WHERE id_pedido = $1', [idPedido]))[0].estado;
 }
 
+// Stock de un SKU en una nave
 async function stockDe(idSku, idNave) {
   return (await leer('SELECT cantidad FROM public.existencias WHERE id_producto_sku = $1 AND id_nave = $2',
     [idSku, idNave]))[0].cantidad;
 }
 
+// Id del ultimo evento de auditoria (para mirar despues solo los nuevos)
 async function ultimoEvento() {
   return (await leer('SELECT COALESCE(max(id_evento), 0) AS id FROM public.log_eventos'))[0].id;
 }
@@ -169,6 +168,8 @@ async function trabajadorNuevo() {
 }
 
 // --- La tienda, para tener pedidos confirmados de verdad (como un cliente)
+
+// Un "navegador" que guarda su cookie de la tienda entre peticiones
 function navegadorTienda() {
   const nav = { cookie: '' };
   nav.pedir = async (metodo, ruta, cuerpo, cookieForzada) => {
@@ -192,6 +193,7 @@ function navegadorTienda() {
   return nav;
 }
 
+// Registra un cliente nuevo en la tienda y devuelve su "navegador", ya con la sesion abierta
 const CLAVE_CLIENTE = 'clave-de-prueba-portal-1';
 let numeroCliente = 0;
 async function clienteNuevo() {

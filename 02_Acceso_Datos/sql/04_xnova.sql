@@ -1,5 +1,9 @@
+-- 04_xnova.sql — zapatillas X-NOVA hechas a medida y su relacion con las lineas de pedido
+
 BEGIN;
 
+-- Tabla de configuraciones X-NOVA: el diseno que elige el cliente.
+-- id_pedido queda vacio hasta que se compra
 CREATE TABLE public.configuraciones_xnova (
     id_configuracion integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     id_cliente integer NOT NULL,
@@ -25,6 +29,7 @@ CREATE TABLE public.configuraciones_xnova (
         CHECK (talla_referencia BETWEEN 20 AND 55)
 );
 
+-- Una linea de pedido puede apuntar a una configuracion X-NOVA
 ALTER TABLE public.linea_pedido
 ADD COLUMN id_configuracion_xnova integer;
 
@@ -33,9 +38,11 @@ ADD CONSTRAINT linea_xnova_fk
 FOREIGN KEY (id_configuracion_xnova)
 REFERENCES public.configuraciones_xnova(id_configuracion);
 
+-- Las lineas X-NOVA no tienen SKU, asi que id_producto_sku pasa a admitir NULL
 ALTER TABLE public.linea_pedido
 ALTER COLUMN id_producto_sku DROP NOT NULL;
 
+-- Cada linea es de catalogo (SKU) o X-NOVA (configuracion), nunca las dos ni ninguna
 ALTER TABLE public.linea_pedido
 ADD CONSTRAINT linea_tipo_producto_check
 CHECK (
@@ -44,10 +51,12 @@ CHECK (
     (id_producto_sku IS NULL AND id_configuracion_xnova IS NOT NULL)
 );
 
+-- Una configuracion solo se puede comprar una vez
 ALTER TABLE public.linea_pedido
 ADD CONSTRAINT linea_configuracion_xnova_uq
 UNIQUE (id_configuracion_xnova);
 
+-- Solo las lineas de catalogo con nave pueden descontar stock (X-NOVA no tiene stock)
 ALTER TABLE public.linea_pedido
 ADD CONSTRAINT linea_stock_descontado_check
 CHECK (

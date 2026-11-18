@@ -5,6 +5,7 @@ import pandas as pd
 import config
 import pipeline
 
+# Las 12 reglas de calidad
 REGLAS = {
     "01": "Fichero vacío o cabeceras insuficientes",
     "02": "IDs duplicados donde deban ser únicos",
@@ -20,6 +21,7 @@ REGLAS = {
     "12": "Conflicto entre fechas o incoherencia comercial",
 }
 
+# Gravedad de cada incidencia y que se hace con ella
 BLOQUEANTE = "bloqueante"
 RECUPERABLE = "recuperable"
 ADVERTENCIA = "advertencia"
@@ -34,23 +36,27 @@ TRATAMIENTO = {
 CLAVE = {"clientes": "id_cliente", "modelos": "id_modelo", "pedidos": "id_pedido",
          "lineas_pedido": "id_linea", "stock": "sku"}
 
+# Columnas de la tabla de incidencias
 COLUMNAS_INCIDENCIA = ["regla", "nombre_regla", "tabla", "registro", "fila", "columna",
                        "valor", "gravedad", "tratamiento", "detalle"]
 
 
 # Ayudas
 
+# Una fila de la tabla de incidencias
 def incidencia(regla, tabla, gravedad, detalle, registro="", fila="", columna="", valor=""):
     return {"regla": regla, "nombre_regla": REGLAS[regla], "tabla": tabla,
             "registro": registro, "fila": fila, "columna": columna, "valor": valor,
             "gravedad": gravedad, "tratamiento": TRATAMIENTO[gravedad], "detalle": detalle}
 
 
+# El valor tal como venia escrito en el CSV, para ensenarlo en la incidencia
 def original(textos, nombre, indice, columna):
     valor = textos[nombre].at[indice, columna]
     return "" if pd.isna(valor) else str(valor)
 
 
+# Una incidencia por cada fila marcada en la mascara
 def por_filas(regla, nombre, datos, textos, mascara, columna, gravedad, detalle):
     lista = []
     # Un valor que no se pudo convertir da nulo en la comparacion: no cuenta aqui
@@ -64,6 +70,7 @@ def por_filas(regla, nombre, datos, textos, mascara, columna, gravedad, detalle)
     return lista
 
 
+# Celdas vacias y celdas con texto que no se ha podido convertir a su tipo
 def vacio_y_no_convertible(datos, textos, nombre, columna):
     texto = textos[nombre][columna]
     vacio = texto.isna()
@@ -73,6 +80,7 @@ def vacio_y_no_convertible(datos, textos, nombre, columna):
 
 # Regla 01: se aplica al cargar los archivos
 
+# Lee los cinco CSV; un archivo que no se puede leer es bloqueante
 def cargar(carpeta):
     carpeta = Path(carpeta)
     datos = {}
@@ -97,6 +105,7 @@ def cargar(carpeta):
 
 # Reglas 02 a 12: necesitan los cinco archivos cargados
 
+# Regla 02: identificador repetido (bloqueante) o vacio (se rechaza la fila)
 def regla_02_ids_duplicados(datos, textos):
     lista = []
     for nombre, columna in config.CLAVES_UNICAS:
@@ -110,6 +119,7 @@ def regla_02_ids_duplicados(datos, textos):
     return lista
 
 
+# Regla 03: clave ajena que no existe en la tabla padre
 def regla_03_claves_huerfanas(datos, textos):
     lista = []
     for hijos, columna, padres, columna_padre in config.RELACIONES:
@@ -120,6 +130,7 @@ def regla_03_claves_huerfanas(datos, textos):
     return lista
 
 
+# Regla 04: fecha vacia o imposible
 def regla_04_fechas(datos, textos):
     lista = []
     for nombre, columna in [("pedidos", "fecha_pedido"), ("stock", "fecha_corte")]:
@@ -130,6 +141,7 @@ def regla_04_fechas(datos, textos):
     return lista
 
 
+# Regla 05: cantidad vacia, no entera, cero o negativa
 def regla_05_cantidades(datos, textos):
     lista = []
     for nombre, columna in [("lineas_pedido", "cantidad"), ("pedidos", "cantidad_total")]:
@@ -146,6 +158,7 @@ def regla_05_cantidades(datos, textos):
     return lista
 
 
+# Regla 06: precio o importe vacio, no numerico o negativo
 def regla_06_precios(datos, textos):
     lista = []
     columnas = [("lineas_pedido", "precio_unitario", RECUPERABLE),
@@ -162,6 +175,7 @@ def regla_06_precios(datos, textos):
     return lista
 
 
+# Regla 07: estado o tipo fuera del catalogo
 def regla_07_estados(datos, textos):
     lista = []
     catalogos = [("pedidos", "estado_pedido", config.ESTADOS_PEDIDO, RECUPERABLE),
@@ -175,6 +189,7 @@ def regla_07_estados(datos, textos):
     return lista
 
 
+# Regla 08: talla vacia, no entera o fuera de rango
 def regla_08_tallas(datos, textos):
     lista = []
     for nombre in ["lineas_pedido", "stock"]:
@@ -186,6 +201,7 @@ def regla_08_tallas(datos, textos):
         lista += por_filas("08", nombre, datos, textos, fuera_de_rango, "talla", RECUPERABLE,
                            f"talla fuera del rango de la base ({config.TALLA_MINIMA}-{config.TALLA_MAXIMA})")
 
+    # La talla de cada linea tiene que ser la de su SKU en stock.csv
     lineas = datos["lineas_pedido"]
     stock = datos["stock"].drop_duplicates("sku")
     talla_del_sku = lineas["sku"].map(stock.set_index("sku")["talla"])
@@ -195,6 +211,7 @@ def regla_08_tallas(datos, textos):
     return lista
 
 
+# Regla 09: falta el cliente, el pedido o el modelo
 def regla_09_ausencia_cliente_modelo(datos, textos):
     lista = []
     # columna[3:] quita el prefijo "id_" para el mensaje: id_cliente -> cliente
@@ -207,6 +224,7 @@ def regla_09_ausencia_cliente_modelo(datos, textos):
     return lista
 
 
+# Regla 10: el mismo SKU en dos lineas del mismo pedido (solo se avisa)
 def regla_10_lineas_duplicadas(datos, textos):
     lineas = datos["lineas_pedido"]
     repetida = lineas.duplicated(subset=["id_pedido", "sku", "id_modelo", "talla"], keep=False)
@@ -214,6 +232,7 @@ def regla_10_lineas_duplicadas(datos, textos):
                      "el mismo SKU aparece en más de una línea del mismo pedido")
 
 
+# Regla 11: stock vacio, no entero, negativo o duplicado por modelo, color y talla
 def regla_11_stock(datos, textos):
     lista = []
     vacio, malo = vacio_y_no_convertible(datos, textos, "stock", "stock_disponible")
@@ -229,6 +248,7 @@ def regla_11_stock(datos, textos):
     return lista
 
 
+# Texto con las lineas de cada pedido, para encontrar pedidos repetidos
 def huella_de_pedidos(lineas):
     # Una linea sin SKU (X-NOVA) se identifica por su modelo y su talla
     sin_sku = "modelo " + lineas["id_modelo"].fillna("?") + " talla " + lineas["talla"].astype(str)
@@ -239,6 +259,7 @@ def huella_de_pedidos(lineas):
     return partes.groupby(lineas["id_pedido"]).agg(lambda valores: " | ".join(sorted(valores)))
 
 
+# Regla 12: los totales del pedido tienen que ser la suma de sus lineas
 def comprobar_totales_pedido(datos, textos):
     lista = []
     pedidos = datos["pedidos"]
@@ -269,6 +290,7 @@ def comprobar_totales_pedido(datos, textos):
     return lista
 
 
+# Regla 12: mismo cliente y mismas lineas que otro pedido (posible repetido, solo aviso)
 def avisar_pedidos_repetidos(pedidos, lineas):
     lista = []
     huellas = huella_de_pedidos(lineas)
@@ -288,12 +310,14 @@ def avisar_pedidos_repetidos(pedidos, lineas):
     return lista
 
 
+# Regla 12: conflictos de fechas e incoherencias comerciales
 def regla_12_coherencia(datos, textos):
     lista = []
     pedidos = datos["pedidos"]
     lineas = datos["lineas_pedido"]
     stock = datos["stock"]
 
+    # Una sola fecha de corte valida, y ningun pedido posterior a ella
     fechas_corte = stock["fecha_corte"].dropna().unique()
     if len(fechas_corte) > 1:
         lista.append(incidencia("12", "stock", BLOQUEANTE,
@@ -308,6 +332,7 @@ def regla_12_coherencia(datos, textos):
         lista += por_filas("12", "pedidos", datos, textos, pedidos["fecha_pedido"] > corte, "fecha_pedido", RECUPERABLE,
                            f"pedido posterior a la exportación ({corte:%Y-%m-%d %H:%M:%S})")
 
+    # Importes de linea y totales del pedido
     calculado = (lineas["cantidad"] * lineas["precio_unitario"]).round(2)
     distinto = (calculado - lineas["importe_linea"]).abs() > config.TOLERANCIA_EUROS
     lista += por_filas("12", "lineas_pedido", datos, textos, distinto, "importe_linea", RECUPERABLE,
@@ -315,6 +340,7 @@ def regla_12_coherencia(datos, textos):
 
     lista += comprobar_totales_pedido(datos, textos)
 
+    # Personalizacion solo en los pedidos custom, y reembolso solo si esta cancelado
     custom_sin_texto = (pedidos["tipo_pedido"] == "custom") & pedidos["personalizacion"].isna()
     normal_con_texto = (pedidos["tipo_pedido"] == "normal") & pedidos["personalizacion"].notna()
     lista += por_filas("12", "pedidos", datos, textos, custom_sin_texto, "personalizacion", ADVERTENCIA,
@@ -329,6 +355,7 @@ def regla_12_coherencia(datos, textos):
     return lista
 
 
+# Reglas 02 a 12, en el orden en que se aplican
 REGLAS_CON_DATOS = [regla_02_ids_duplicados, regla_03_claves_huerfanas, regla_04_fechas,
                     regla_05_cantidades, regla_06_precios, regla_07_estados, regla_08_tallas,
                     regla_09_ausencia_cliente_modelo, regla_10_lineas_duplicadas, regla_11_stock,
@@ -337,6 +364,7 @@ REGLAS_CON_DATOS = [regla_02_ids_duplicados, regla_03_claves_huerfanas, regla_04
 
 # Separar filas validas y rechazadas, y resumen por tabla
 
+# Rechaza las filas con incidencias; las advertencias no rechazan la fila
 def separar(datos, incidencias):
     motivos = {nombre: {} for nombre in datos}   # nombre -> {indice de fila: motivo}
     de_fila = incidencias[(incidencias["gravedad"] != ADVERTENCIA) & (incidencias["fila"] != "")]
@@ -357,6 +385,7 @@ def separar(datos, incidencias):
     for indice in lineas.index[lineas["id_pedido"].isin(lista_fuera)]:
         motivos["lineas_pedido"].setdefault(indice, "su pedido se ha rechazado")
 
+    # Tablas sin las filas rechazadas, y la lista de rechazadas con su motivo
     validos = {}
     filas_rechazadas = []
     for nombre, tabla in datos.items():
@@ -368,6 +397,7 @@ def separar(datos, incidencias):
     return validos, rechazadas
 
 
+# Una fila por tabla: filas validas y rechazadas e incidencias por gravedad
 def resumen_calidad(datos, validos, incidencias):
     filas = []
     for nombre, definicion in config.ARCHIVOS.items():
@@ -411,6 +441,7 @@ def resumen_calidad(datos, validos, incidencias):
     return pd.DataFrame(filas)
 
 
+# Evaluacion completa: carga, aplica las reglas y separa las filas validas
 def evaluar(carpeta):
     datos, textos, lista, avisos = cargar(carpeta)
     cargados = len(datos) == len(config.ARCHIVOS)
@@ -437,6 +468,7 @@ def evaluar(carpeta):
     }
 
 
+# Nulos de cada columna y si la columna es obligatoria
 def nulos_por_columna(datos):
     filas = []
     for nombre, tabla in datos.items():

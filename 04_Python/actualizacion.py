@@ -23,6 +23,7 @@ DATOS_INVALIDOS = "DATOS INVÁLIDOS"   # se leen, pero hay incidencias bloqueant
 ERROR_CARGA = "ERROR DE CARGA"        # falta un archivo o no se puede leer
 
 
+# Tamano, fecha y huella (hash) de cada archivo de la exportacion
 def inspeccionar_archivos(carpeta):
     carpeta = Path(carpeta)
     # Los cinco CSV y, al final, ORIGEN.txt
@@ -43,11 +44,13 @@ def inspeccionar_archivos(carpeta):
     return pd.DataFrame(filas)
 
 
+# Version de los datos: cambia si cambia cualquier archivo
 def version_datos(archivos):
     texto = "|".join(archivos["archivo"] + ":" + archivos["huella"])
     return hashlib.sha256(texto.encode("utf-8")).hexdigest()[:8]
 
 
+# Avisos: archivos que faltan, vacios, antiguos o de exportaciones distintas
 def avisos_archivos(archivos, ahora):
     avisos = []
     csv = archivos[archivos["archivo"] != config.ARCHIVO_ORIGEN]
@@ -71,6 +74,7 @@ def avisos_archivos(archivos, ahora):
     return avisos
 
 
+# Compara las cifras de Python con los resultados SQL de Acceso a Datos
 def estado_conciliacion(carpeta, tablas, tabla_kpis):
     carpeta_sql = Path(carpeta) / config.CARPETA_SQL
     if pipeline.tipo_origen(carpeta) == "SINTETICO":
@@ -92,6 +96,7 @@ def estado_conciliacion(carpeta, tablas, tabla_kpis):
     return f"NO CUADRA: {texto}", juntas
 
 
+# Calcula todo lo que se publica: tablas, KPIs, segmentos, prediccion, conciliacion e informe
 def calcular_publicacion(carpeta, resultado, version, momento):
     datos = resultado["datos"]
     validos = resultado["validos"]
@@ -123,6 +128,7 @@ def calcular_publicacion(carpeta, resultado, version, momento):
     }
 
 
+# Un ciclo completo: lee, valida, calcula, publica y lo anota en el registro
 def ciclo(carpeta, anterior=None, operacion="comprobación automática", archivo_registro=None):
     inicio = time.perf_counter()
     ahora = datetime.now().replace(microsecond=0)
@@ -131,6 +137,7 @@ def ciclo(carpeta, anterior=None, operacion="comprobación automática", archivo
     if anterior is not None and Path(anterior["carpeta"]) == carpeta:   # nunca se mezclan origenes
         publicado = anterior["publicado"]
 
+    # Estado del ciclo: se completa en el try
     archivos = inspeccionar_archivos(carpeta)
     version = version_datos(archivos)
     estado = {
@@ -144,6 +151,7 @@ def ciclo(carpeta, anterior=None, operacion="comprobación automática", archivo
         "calidad": None,
         "publicado": publicado,
     }
+    # Valida la calidad y, si no hay bloqueantes, publica los datos nuevos
     try:
         resultado = calidad.evaluar(carpeta)
         estado["calidad"] = resultado
@@ -156,6 +164,7 @@ def ciclo(carpeta, anterior=None, operacion="comprobación automática", archivo
                                  f"Primera: {bloqueantes['detalle'].iloc[0]}")
         else:
             nuevo = calcular_publicacion(carpeta, resultado, version, ahora)
+            # Misma version que la publicada: SIN CAMBIOS
             if publicado is not None and publicado["version"] == version:
                 estado["estado"] = SIN_CAMBIOS
                 nuevo["actualizado"] = publicado["actualizado"]   # los datos son los mismos desde entonces
@@ -171,6 +180,7 @@ def ciclo(carpeta, anterior=None, operacion="comprobación automática", archivo
     # Los mensajes de error de lectura llevan la ruta completa de la carpeta: se deja la relativa
     for ruta in {str(carpeta), str(carpeta.resolve())}:
         estado["mensaje"] = estado["mensaje"].replace(ruta, carpeta_relativa(carpeta))
+    # Si los datos nuevos fallan, se sigue viendo lo anterior marcado como desactualizado
     estado["desactualizado"] = estado["publicado"] is not None and estado["estado"] in (DATOS_INVALIDOS, ERROR_CARGA)
     estado["duracion"] = round(time.perf_counter() - inicio, 2)
     try:
@@ -180,6 +190,7 @@ def ciclo(carpeta, anterior=None, operacion="comprobación automática", archivo
     return estado
 
 
+# Ruta de la carpeta relativa al proyecto (o solo su nombre si esta fuera)
 def carpeta_relativa(carpeta):
     try:
         return Path(carpeta).resolve().relative_to(config.CARPETA_PROYECTO).as_posix()
@@ -187,6 +198,7 @@ def carpeta_relativa(carpeta):
         return Path(carpeta).name
 
 
+# Escribe el resultado del ciclo en el registro de eventos
 def anotar_ciclo(estado, operacion, archivo_registro=None):
     resultado = estado["calidad"]
     if resultado is None:

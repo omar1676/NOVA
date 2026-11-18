@@ -6,19 +6,23 @@ import pandas as pd
 
 import config
 
+# Parametros de la simulacion: datos inventados, no son de NOVA
 PRIMER_MES = "2025-05"            # 18 meses seguidos: de mayo de 2025 a octubre de 2026
 NUMERO_MESES = 18
 FECHA_CORTE = "2026-11-01 00:00:00"
 NUMERO_CLIENTES = 40
 NUMERO_EMPRESAS = 10
 NUMERO_PEDIDOS = 900
+# Catalogo inventado: modelos, colores y tallas (con su peso)
 NOMBRES_MODELOS = ["Runner", "Court", "Trail", "Street", "Classic", "Flex",
                    "Sprint", "Urban", "Peak", "Wave", "Volt", "Retro"]
 COLORES = ["Negro", "Blanco", "Rojo", "Azul", "Gris", "Verde"]
 TALLAS = [38, 39, 40, 41, 42, 43, 44, 45, 46]
 PESO_TALLAS = [0.03, 0.06, 0.11, 0.17, 0.20, 0.18, 0.13, 0.08, 0.04]
+# Temporada: peso de cada mes del anio (mas pedidos en primavera y en otono)
 PESO_MES_DEL_ANIO = {1: 0.7, 2: 0.8, 3: 1.1, 4: 1.3, 5: 1.3, 6: 1.0,
                      7: 0.8, 8: 0.6, 9: 1.2, 10: 1.3, 11: 1.0, 12: 1.1}
+# Crecimiento, pedidos Custom, subida de precios y cancelaciones
 CRECIMIENTO_MENSUAL = 0.02
 PROPORCION_CUSTOM = 0.15
 RECARGO_CUSTOM = 0.20
@@ -28,19 +32,23 @@ PROPORCION_CANCELADOS = 0.08
 PERSONALIZACIONES = ["Logo del club y dorsal", "Iniciales en el talón", "Colores del club"]
 
 
+# Pesos que suman 1, para usarlos como probabilidades
 def normalizar(pesos):
     pesos = np.array(pesos, dtype=float)
     return pesos / pesos.sum()
 
 
+# Los dos colores de cada modelo
 def colores_del_modelo(id_modelo):
     return [COLORES[(id_modelo - 1) % len(COLORES)], COLORES[(id_modelo + 2) % len(COLORES)]]
 
 
+# Codigo del SKU, por ejemplo S01-NEG-42
 def codigo_sku(id_modelo, color, talla):
     return f"S{id_modelo:02d}-{color[:3].upper()}-{talla}"
 
 
+# Clientes inventados: clubes (empresas) y particulares
 def generar_clientes():
     filas = []
     for numero in range(1, NUMERO_CLIENTES + 1):
@@ -64,6 +72,7 @@ def generar_clientes():
     return pd.DataFrame(filas)
 
 
+# Modelos inventados con su precio base
 def generar_modelos(rng):
     precios = rng.integers(7, 15, size=len(NOMBRES_MODELOS)) * 10 - 0.01   # de 69,99 a 139,99 euros
     filas = []
@@ -79,6 +88,7 @@ def generar_modelos(rng):
     return pd.DataFrame(filas)
 
 
+# Un SKU por modelo, color y talla, con stock al azar de 0 a 60 pares
 def generar_stock(rng, modelos):
     filas = []
     for id_modelo in modelos["id_modelo"]:
@@ -96,6 +106,7 @@ def generar_stock(rng, modelos):
     return pd.DataFrame(filas)
 
 
+# Fechas de los pedidos: mas o menos pedidos cada mes segun la temporada y el crecimiento
 def generar_fechas(rng):
     meses = pd.period_range(PRIMER_MES, periods=NUMERO_MESES, freq="M")
     pesos = []
@@ -113,6 +124,7 @@ def generar_fechas(rng):
     return sorted(fechas)
 
 
+# Articulos de un pedido: (modelo, color, talla, pares)
 def elegir_articulos(rng, custom, ids_modelos, peso_modelos):
     if custom:
         # Un club pide un modelo y un color en varias tallas distintas
@@ -126,6 +138,7 @@ def elegir_articulos(rng, custom, ids_modelos, peso_modelos):
             articulos.append((id_modelo, color, int(talla), cantidad))
         return articulos
 
+    # Un pedido normal: de 1 a 3 SKU distintos, con pocos pares cada uno
     cuantas = int(rng.choice([1, 2, 3], p=[0.45, 0.40, 0.15]))
     articulos = []
     usados = set()
@@ -141,6 +154,7 @@ def elegir_articulos(rng, custom, ids_modelos, peso_modelos):
     return articulos
 
 
+# Estado segun la antiguedad: cuanto mas antiguo, mas avanzado
 def elegir_estado(rng, fecha, corte):
     if rng.random() < PROPORCION_CANCELADOS:
         return "cancelado"
@@ -154,6 +168,7 @@ def elegir_estado(rng, fecha, corte):
     return str(rng.choice(["pendiente", "confirmado"]))
 
 
+# Estado de pago coherente con el estado del pedido
 def elegir_estado_pago(rng, estado):
     if estado == "entregado":
         return "pagado"
@@ -168,6 +183,7 @@ def elegir_estado_pago(rng, estado):
     return "pendiente"
 
 
+# Precio en la fecha del pedido: mas barato antes de la subida y con recargo si es Custom
 def precio_en_fecha(precio_actual, fecha, custom):
     precio = precio_actual
     if fecha < pd.Timestamp(MES_SUBIDA_PRECIOS + "-01"):
@@ -177,10 +193,12 @@ def precio_en_fecha(precio_actual, fecha, custom):
     return round(precio, 2)
 
 
+# Pedidos y lineas de la simulacion
 def generar_pedidos(rng, clientes, modelos):
     corte = pd.Timestamp(FECHA_CORTE)
     precios = dict(zip(modelos["id_modelo"], modelos["precio_base"]))
     ids_modelos = modelos["id_modelo"].tolist()
+    # Pesos: los primeros modelos y clientes piden mas que los ultimos
     peso_modelos = normalizar([1 / posicion for posicion in range(1, len(ids_modelos) + 1)])
     empresas = clientes.loc[clientes["tipo"] == "empresa", "id_cliente"].tolist()
     particulares = clientes.loc[clientes["tipo"] == "particular", "id_cliente"].tolist()
@@ -203,6 +221,7 @@ def generar_pedidos(rng, clientes, modelos):
             cliente = int(rng.choice(empresas, p=peso_empresas))
         else:
             cliente = int(rng.choice(particulares, p=peso_particulares))
+        # Se repite hasta que el pedido no sea igual a otro del mismo cliente
         while True:
             articulos = elegir_articulos(rng, custom, ids_modelos, peso_modelos)
             # La huella del pedido: su cliente y sus articulos (SKU y cantidad) ordenados
@@ -214,6 +233,7 @@ def generar_pedidos(rng, clientes, modelos):
                 huellas.add(huella)
                 break
 
+        # Estado, lineas y totales del pedido
         estado = elegir_estado(rng, fecha, corte)
         cantidad_total = 0
         importe_total = 0.0
@@ -256,6 +276,7 @@ def generar_pedidos(rng, clientes, modelos):
     return pd.DataFrame(pedidos), pd.DataFrame(lineas)
 
 
+# Genera las cinco tablas con la semilla fija
 def generar(semilla=config.SEMILLA):
     rng = np.random.default_rng(semilla)
     clientes = generar_clientes()
@@ -272,6 +293,7 @@ def generar(semilla=config.SEMILLA):
 
 # Copia con errores introducidos a proposito
 
+# Pasa la tabla a texto (decimales con 2 cifras) para poder meter valores erroneos
 def como_texto(tabla):
     texto = tabla.copy()
     for columna in texto.columns:
@@ -282,6 +304,7 @@ def como_texto(tabla):
     return texto
 
 
+# Mete errores de las reglas 02 a 12 y apunta lo que tiene que detectar calidad.py
 def introducir_errores(datos):
     copia = {nombre: como_texto(tabla) for nombre, tabla in datos.items()}
     pedidos = copia["pedidos"]
@@ -289,6 +312,7 @@ def introducir_errores(datos):
     stock = copia["stock"]
     errores = []
 
+    # Apunta un error introducido y la incidencia que se espera
     def anotar(regla, tabla, registro, cambio, se_espera):
         errores.append({"regla": regla, "tabla": tabla, "registro": registro, "cambio": cambio,
                         "se_espera": se_espera})
@@ -309,6 +333,7 @@ def introducir_errores(datos):
     anotar("10", "lineas_pedido", "999998", f"copia de la línea {lineas.at[80, 'id_linea']} (mismo pedido y SKU)",
            "10 advertencia en las dos líneas; 12 porque el total del pedido ya no es la suma")
 
+    # Cambia una celda y lo apunta
     def cambiar(regla, tabla, nombre_tabla, fila, columna, valor, se_espera):
         anterior = tabla.at[fila, columna]
         tabla.at[fila, columna] = valor
@@ -317,6 +342,7 @@ def introducir_errores(datos):
         registro = tabla.at[fila, columnas[0]]
         anotar(regla, nombre_tabla, registro, f"{columna}: '{anterior}' pasa a '{valor}'", se_espera)
 
+    # Un pedido entregado para el error de la regla 07
     candidatos = (pedidos["estado_pedido"] == "entregado") & (pedidos.index > 70)
     entregado = pedidos.index[candidatos][0]
     # Una talla que no es la de su SKU: la siguiente, o la anterior si ya es la 46
@@ -346,6 +372,7 @@ def introducir_errores(datos):
 
 # Guardar
 
+# Guarda los CSV y ORIGEN.txt; nunca dentro de entrada_acc/
 def guardar(datos, carpeta, descripcion):
     carpeta = Path(carpeta).resolve()
     entrada = config.CARPETA_ENTRADA.resolve()
@@ -360,6 +387,7 @@ def guardar(datos, carpeta, descripcion):
     return carpeta
 
 
+# Genera los datos limpios y la copia con errores, y los guarda
 def main():
     datos = generar(config.SEMILLA)
     descripcion = (f"Datos INVENTADOS por generador_datos.py con la semilla {config.SEMILLA}: "

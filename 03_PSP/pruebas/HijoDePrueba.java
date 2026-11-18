@@ -4,8 +4,11 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
+// Hijo falso, solo para las pruebas: hace lo que le pide la primera linea de su entrada
 public class HijoDePrueba {
 
+    // ECO devuelve lo recibido, DOS_SALIDAS escribe en stdout y en stderr, CODIGO;n sale con n,
+    // EXCEPCION lanza una excepcion y DORMIR tarda 60 s para probar el tiempo de espera
     public static void main(String[] args) throws Exception {
 
         System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
@@ -14,6 +17,7 @@ public class HijoDePrueba {
         BufferedReader entrada = new BufferedReader(
                 new InputStreamReader(System.in, StandardCharsets.UTF_8));
 
+        // Se lee toda la entrada; la primera linea es la orden
         ArrayList<String> lineas = new ArrayList<>();
         String linea;
 

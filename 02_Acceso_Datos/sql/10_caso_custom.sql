@@ -1,3 +1,4 @@
+-- 10_caso_custom.sql — el caso Custom del club (40 pares en 4 tallas), paso a paso
 \echo 'CASO CUSTOM: club deportivo, 40 pares en varias tallas'
 \echo ''
 \echo 'Correspondencia documentada: el modelo Runner X del enunciado se'
@@ -20,6 +21,7 @@ WHERE id_cliente = :cliente;
 
 \echo ''
 \echo 'Paso 2: identificar al operador que atiende el pedido'
+-- Contrasena aleatoria solo para esta prueba; desaparece con el ROLLBACK
 SELECT gen_random_uuid()::text AS clave
 \gset
 SELECT public.establecer_password('tienda.demo', :'clave');
@@ -27,6 +29,7 @@ SELECT public.iniciar_sesion('tienda.demo', :'clave') AS operador_autenticado;
 
 \echo ''
 \echo 'Paso 3: registrar el modelo y las cuatro tallas'
+-- Un SKU de NOVA Velocity Rojo por talla (40 a 43), la nave y el stock total de antes
 SELECT id_producto_sku AS sku40 FROM public.producto_sku s
 JOIN public.variantes v ON v.id_variante = s.id_variante
 JOIN public.modelos m ON m.id_modelo = v.id_modelo
@@ -168,6 +171,7 @@ SELECT public.realizar_compra('CUSTOM-SIN-STOCK',
       WHERE m.nombre = 'NOVA Velocity' AND v.color = 'Rojo' AND s.talla = 40),
     (SELECT min(id_nave) FROM public.nave),
     500) AS pedido_sin_stock;
+-- Confirmar 500 pares tiene que fallar; el bloque DO captura el error
 DO $$
 BEGIN
     UPDATE public.pedidos SET estado = 'confirmado'
@@ -194,6 +198,7 @@ FROM (
 
 \echo ''
 \echo 'Consulta de fabricacion para PSP (solo este pedido)'
+-- Lo que necesita fabricacion: modelo, personalizacion y pares de cada talla
 SELECT
     p.referencia,
     c.nombre AS cliente,
@@ -217,6 +222,7 @@ ORDER BY s.talla;
 \echo '    Para dejarlo guardado:  14_caso_custom_persistente.sql'
 \echo '    Para exportar el CSV:   15_exportar_fabricacion.sql'
 
+-- Se deshace todo: el caso se puede repetir
 ROLLBACK;
 
 \echo ''

@@ -1,3 +1,8 @@
+-- 08_auditoria.sql — triggers que apuntan en log_eventos los cambios importantes
+-- El operador es el de la sesion (usuario_sesion), no el usuario asignado al pedido
+
+-- Funcion de auditoria: registra el alta de un pedido.
+-- Todas son SECURITY DEFINER: los roles no escriben en log_eventos, pero el trigger si
 CREATE OR REPLACE FUNCTION public.auditar_alta_pedido()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -26,6 +31,7 @@ BEGIN
 END;
 $$;
 
+-- Trigger: despues de crear un pedido
 CREATE TRIGGER trg_auditar_alta_pedido
 AFTER INSERT ON public.pedidos
 FOR EACH ROW
@@ -33,6 +39,7 @@ EXECUTE FUNCTION public.auditar_alta_pedido();
 
 
 
+-- Funcion de auditoria: registra cada cambio de estado; cancelar cuenta como baja logica
 CREATE OR REPLACE FUNCTION public.auditar_estado_pedido()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -63,6 +70,7 @@ BEGIN
 END;
 $$;
 
+-- Trigger: solo cuando el estado cambia de verdad
 CREATE TRIGGER trg_auditar_estado_pedido
 AFTER UPDATE OF estado ON public.pedidos
 FOR EACH ROW
@@ -71,6 +79,7 @@ EXECUTE FUNCTION public.auditar_estado_pedido();
 
 
 
+-- Funcion de auditoria: registra los cambios de stock (cantidad antes y despues)
 CREATE OR REPLACE FUNCTION public.auditar_existencias()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -98,6 +107,7 @@ BEGIN
 END;
 $$;
 
+-- Trigger: solo cuando la cantidad cambia de verdad
 CREATE TRIGGER trg_auditar_existencias
 AFTER UPDATE OF cantidad ON public.existencias
 FOR EACH ROW
@@ -106,6 +116,7 @@ EXECUTE FUNCTION public.auditar_existencias();
 
 
 
+-- Funcion de auditoria: registra la baja logica de un modelo (activo pasa a false)
 CREATE OR REPLACE FUNCTION public.auditar_baja_modelo()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -132,6 +143,7 @@ BEGIN
 END;
 $$;
 
+-- Trigger: cuando un modelo activo se desactiva
 CREATE TRIGGER trg_auditar_baja_modelo
 AFTER UPDATE OF activo ON public.modelos
 FOR EACH ROW
@@ -140,6 +152,7 @@ EXECUTE FUNCTION public.auditar_baja_modelo();
 
 
 
+-- Funcion de auditoria: registra la baja logica de un SKU
 CREATE OR REPLACE FUNCTION public.auditar_baja_sku()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -166,6 +179,7 @@ BEGIN
 END;
 $$;
 
+-- Trigger: cuando un SKU activo se desactiva
 CREATE TRIGGER trg_auditar_baja_sku
 AFTER UPDATE OF activo ON public.producto_sku
 FOR EACH ROW
@@ -173,6 +187,7 @@ WHEN (OLD.activo = true AND NEW.activo = false)
 EXECUTE FUNCTION public.auditar_baja_sku();
 
 
+-- Las funciones de auditoria solo las llaman los triggers: nadie puede ejecutarlas a mano
 REVOKE ALL ON FUNCTION public.auditar_alta_pedido()
 FROM PUBLIC;
 

@@ -19,12 +19,14 @@ import prediccion
 import segmentacion
 import visualizaciones
 
+# Cada modo: (carpeta de entrada, carpeta de salida)
 MODOS = {
     "real": (config.CARPETA_ENTRADA, config.CARPETA_SALIDA / "real"),
     "sintetico": (config.CARPETA_SINTETICOS_LIMPIOS, config.CARPETA_SALIDA / "sinteticos"),
     "sintetico-errores": (config.CARPETA_SINTETICOS_ERRORES, config.CARPETA_SALIDA / "sinteticos_con_errores"),
 }
 
+# Nombre de cada tabla en el resumen de la carga
 NOMBRES = {
     "clientes": "Clientes",
     "modelos": "Modelos",
@@ -33,9 +35,11 @@ NOMBRES = {
     "stock": "Registros de stock",
 }
 
+# Tablas que se calculan pero no se guardan en CSV
 NO_SE_GUARDAN = ["lineas_enriquecidas"]
 
 
+# Titulo subrayado en la consola
 def titulo(texto):
     print()
     print(texto)
@@ -44,6 +48,7 @@ def titulo(texto):
 
 # Lo que comparten todos los pasos: la ejecucion y el guardado de los CSV
 
+# Datos de esta ejecucion (carpetas, momento y origen) y cabecera en pantalla
 def empezar(carpeta, salida):
     carpeta = Path(carpeta)
     ejecucion = {
@@ -62,6 +67,7 @@ def empezar(carpeta, salida):
     return ejecucion
 
 
+# Guarda una tabla en la carpeta de salida y la apunta para los metadatos
 def guardar(ejecucion, tabla, archivo):
     # Una tabla con indice con nombre (una matriz) lo pasa a columna
     if tabla.index.name is not None:
@@ -71,6 +77,7 @@ def guardar(ejecucion, tabla, archivo):
                                    ejecucion["momento"])
 
 
+# Guarda el estado final de la ejecucion y los metadatos de cada DataFrame
 def anotar_estado(ejecucion, resultado, estado, detalle):
     guardar(ejecucion, pd.DataFrame([{"estado": estado, "detalle": detalle}]), "estado_ejecucion.csv")
     tabla_metadatos = metadatos.tabla(ejecucion["guardados"], resultado["datos"], resultado["validos"])
@@ -78,6 +85,7 @@ def anotar_estado(ejecucion, resultado, estado, detalle):
                             ejecucion["origen"], ejecucion["momento"])
 
 
+# Filas de una tabla o, si no se ha podido calcular, el motivo
 def imprimir_filas(nombre, tabla):
     if analiticas.es_no_calculable(tabla):
         print(f"  {nombre:32} NO CALCULABLE: {tabla['motivo'].iloc[0]}")
@@ -87,6 +95,7 @@ def imprimir_filas(nombre, tabla):
 
 # Los pasos, en el orden en que los llama ejecutar()
 
+# Paso 1: las 12 reglas de calidad
 def paso_calidad(ejecucion):
     resultado = calidad.evaluar(ejecucion["carpeta"])
     incidencias = resultado["incidencias"]
@@ -105,6 +114,7 @@ def paso_calidad(ejecucion):
     return resultado
 
 
+# Con incidencias bloqueantes se para: no se publica ninguna cifra
 def parar_por_bloqueo(ejecucion, resultado):
     anotar_estado(ejecucion, resultado, "BLOQUEADO",
                   "hay incidencias bloqueantes y no se ha calculado ninguna cifra. Cualquier otro resultado de "
@@ -115,6 +125,7 @@ def parar_por_bloqueo(ejecucion, resultado):
     return 1
 
 
+# Paso 2: filas leidas, archivos, avisos y comprobaciones rapidas
 def paso_resumen_carga(ejecucion, resultado, corte):
     datos = resultado["datos"]
     titulo("Resumen de la carga")
@@ -132,6 +143,7 @@ def paso_resumen_carga(ejecucion, resultado, corte):
         print(f"  [{comprobacion['resultado']:5}] {comprobacion['comprobacion']}: {comprobacion['detalle']}")
 
 
+# Paso 3: DataFrames de analisis, cada uno en su CSV
 def paso_tablas(ejecucion, datos, validos):
     tablas = analiticas.calcular_tablas(datos, validos)
     tablas["nulos_por_columna"] = calidad.nulos_por_columna(datos)
@@ -146,6 +158,7 @@ def paso_tablas(ejecucion, datos, validos):
     return tablas
 
 
+# Paso 4: pedidos, pares e importe con los tres criterios
 def paso_importes(ejecucion, tablas):
     criterios = analiticas.importes_por_criterio(tablas["pedidos_unicos"])
     guardar(ejecucion, criterios, "importes_por_criterio.csv")
@@ -153,6 +166,7 @@ def paso_importes(ejecucion, tablas):
     print(criterios[["criterio", "pedidos", "pares", "importe_eur", "iva"]].to_string(index=False))
 
 
+# Paso 5: los 20 KPIs
 def paso_kpis(ejecucion, tablas):
     tabla_kpis = kpis.calcular_kpis(tablas["pedidos_unicos"], tablas["modelos_abc"], tablas["ventas_por_talla"],
                                     tablas["stock_variantes"], tablas["ventas_por_periodo"])
@@ -162,6 +176,7 @@ def paso_kpis(ejecucion, tablas):
     return tabla_kpis
 
 
+# Paso 6: conciliacion con SQL; devuelve False si alguna cifra no cuadra
 def paso_conciliacion(ejecucion, tablas, tabla_kpis):
     carpeta_sql = ejecucion["carpeta"] / config.CARPETA_SQL
     tabla_conciliacion = conciliacion.conciliar(carpeta_sql, tablas["pedidos_unicos"], tablas["lineas_enriquecidas"])
@@ -188,6 +203,7 @@ def paso_conciliacion(ejecucion, tablas, tabla_kpis):
         guardar(ejecucion, caso_n, "contraste_sql_caso_n.csv")
         comparadas.append(("caso N", caso_n))
 
+    # Cuantas cifras coinciden y cuales no
     cuadra = True
     for nombre, cifras in comparadas:
         iguales = (cifras["resultado"] == "coincide").sum()
@@ -200,11 +216,13 @@ def paso_conciliacion(ejecucion, tablas, tabla_kpis):
     return cuadra
 
 
+# Pie de los graficos: origen, corte, momento del calculo, filtros e IVA
 def pie_de_graficos(ejecucion, corte):
     return (f"Origen: {ejecucion['origen']} · Corte: {corte:%Y-%m-%d %H:%M} · Calculado: {ejecucion['momento']} · "
             f"Filtros: ninguno · IVA {config.IVA}")
 
 
+# Paso 7: graficos PNG
 def paso_graficos(ejecucion, tablas, pie):
     rutas = visualizaciones.generar_todos(tablas, ejecucion["salida"] / "graficos", pie)
     titulo(f"Gráficos ({len(rutas)} PNG en {ejecucion['salida'] / 'graficos'})")
@@ -212,6 +230,7 @@ def paso_graficos(ejecucion, tablas, pie):
         print(f"  {archivo:32} {tipo_grafico:26} {pregunta}")
 
 
+# Paso 8: descriptivos, hipotesis y bootstrap del ticket medio
 def paso_estadistica(ejecucion, tablas):
     tipo = ejecucion["tipo"]
     descriptivos = estadistica.descriptivos(tablas)
@@ -231,6 +250,7 @@ def paso_estadistica(ejecucion, tablas):
           f"{fila_ticket['ic_superior']} €, n = {fila_ticket['n']}) -> {fila_ticket['resultado']}")
 
 
+# Paso 9: RFM, KMeans, prediccion de demanda e informe ejecutivo
 def paso_segmentacion_y_prediccion(ejecucion, tablas, validos, corte):
     tipo = ejecucion["tipo"]
     resultados = segmentacion.segmentar_clientes(tablas["pedidos_unicos"], validos["clientes"], corte)
@@ -241,6 +261,7 @@ def paso_segmentacion_y_prediccion(ejecucion, tablas, validos, corte):
     # Las cinco conclusiones del informe ejecutivo (las mismas que ensena el dashboard)
     resultados["informe_ejecutivo"] = informe.conclusiones(tablas, resumen_rfm, resultados["metricas_prediccion"], tipo)
 
+    # Un CSV por tabla y el resumen en pantalla
     titulo(f"Segmentación y predicción (datos de {tipo}; fecha de referencia {corte})")
     texto_aviso = estadistica.aviso(tipo).strip()
     if texto_aviso:
@@ -265,6 +286,7 @@ def paso_segmentacion_y_prediccion(ejecucion, tablas, validos, corte):
     return resultados
 
 
+# Grafico de pares reales frente a la prediccion
 def paso_grafico_prediccion(ejecucion, predicciones, pie):
     ruta = visualizaciones.grafico_real_frente_a_prediccion(predicciones, ejecucion["salida"] / "graficos_prediccion",
                                                            pie)
@@ -272,6 +294,7 @@ def paso_grafico_prediccion(ejecucion, predicciones, pie):
     print(f"  Gráfico: {ruta}")
 
 
+# Ejecuta todos los pasos; devuelve 0 si todo cuadra y 1 si no
 def ejecutar(carpeta, salida, con_graficos=True):
     pd.set_option("display.width", 200)
     pd.set_option("display.max_colwidth", 90)
@@ -302,6 +325,7 @@ def ejecutar(carpeta, salida, con_graficos=True):
     if con_graficos:
         paso_grafico_prediccion(ejecucion, resultados["predicciones"], pie)
 
+    # Estado final: CORRECTO o NO CUADRA CON SQL
     if cuadra:
         anotar_estado(ejecucion, resultado, "CORRECTO", "todas las cifras de esta carpeta son de esta ejecución")
     else:
@@ -313,6 +337,7 @@ def ejecutar(carpeta, salida, con_graficos=True):
     return 1
 
 
+# Lee los argumentos de la linea de comandos y lanza la ejecucion
 def main():
     parser = argparse.ArgumentParser(description="NOVA Sneakers: calidad, análisis, KPIs, gráficos, estadística, "
                                                  "segmentación y predicción")

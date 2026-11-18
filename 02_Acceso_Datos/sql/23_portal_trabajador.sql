@@ -1,4 +1,5 @@
 -- 23_portal_trabajador.sql — lo que puede hacer en la base el portal del
+-- trabajador (01_Interfaces/trabajador, rutas en servidor-admin/rutas-trabajador.js)
 
 \set ON_ERROR_STOP on
 
@@ -38,6 +39,7 @@ BEGIN
     END IF;
 
     -- 2. El pedido existe. FOR UPDATE: si llegan dos clics a la vez, el
+    --    segundo espera al primero y ya ve el estado nuevo
     SELECT p.estado
     INTO v_estado
     FROM public.pedidos p
@@ -64,6 +66,7 @@ BEGIN
     END IF;
 
     -- 4. Quien hace el cambio: el id y su firma, como iniciar_sesion (02).
+    --    Asi auditar_estado_pedido (08) apunta al trabajador
     v_sesion_anterior := current_setting('nova.id_usuario', true);
     PERFORM set_config(
         'nova.id_usuario',
@@ -152,6 +155,7 @@ END;
 $function$
 ;
 
+-- Por defecto nadie puede ejecutarlas; solo portal_trabajador (abajo)
 REVOKE EXECUTE ON FUNCTION public.avanzar_pedido_trabajador(integer, integer, varchar) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.ajustar_existencias_trabajador(integer, integer, integer, integer) FROM PUBLIC;
 
@@ -190,6 +194,7 @@ ON public.configuraciones_xnova TO portal_trabajador;
 GRANT EXECUTE ON FUNCTION public.avanzar_pedido_trabajador(integer, integer, varchar) TO portal_trabajador;
 GRANT EXECUTE ON FUNCTION public.ajustar_existencias_trabajador(integer, integer, integer, integer) TO portal_trabajador;
 
+-- web_nova puede pasar a portal_trabajador con SET ROLE, sin heredar sus permisos
 GRANT portal_trabajador TO web_nova WITH INHERIT FALSE, SET TRUE;
 
 COMMIT;

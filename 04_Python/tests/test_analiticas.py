@@ -8,6 +8,7 @@ import pipeline
 from test_calidad import PruebaCalidad
 
 
+# Base: lineas enriquecidas y pedidos unicos de los CSV de prueba
 class PruebaAnalisis(PruebaCalidad):
 
     def construir(self):
@@ -19,13 +20,16 @@ class PruebaAnalisis(PruebaCalidad):
         return lineas, pedidos
 
 
+# DataFrame de lineas enriquecidas
 class PruebasLineasEnriquecidas(PruebaAnalisis):
 
+    # Una fila por cada linea del CSV, sin repetir
     def test_una_fila_por_linea(self):
         lineas, _ = self.construir()
         self.assertEqual(lineas["id_linea"].tolist(), ["100", "101", "102"])
         self.assertTrue(lineas["id_linea"].is_unique)
 
+    # Cada linea trae los datos de su pedido, su cliente, su modelo y su color
     def test_datos_del_pedido_cliente_y_modelo(self):
         lineas, _ = self.construir()
         linea = lineas[lineas["id_linea"] == "102"].iloc[0]
@@ -37,12 +41,14 @@ class PruebasLineasEnriquecidas(PruebaAnalisis):
         self.assertTrue(linea["es_cancelado"])
         self.assertTrue(linea["es_custom"])
 
+    # Parte de cada linea en su pedido; las de un mismo pedido suman 1
     def test_participacion_de_la_linea_en_su_pedido(self):
         lineas, _ = self.construir()
         self.assertEqual(lineas["participacion_linea"].tolist(), [0.3333, 0.6667, 1.0])
         por_pedido = lineas.groupby("id_pedido")["participacion_linea"].sum()
         self.assertAlmostEqual(por_pedido["10"], 1.0, places=3)
 
+    # Linea sin SKU: se queda sin color, pero el cruce con stock no falla
     def test_linea_sin_sku_no_rompe_el_cruce_con_stock(self):
         # Una linea sin SKU (como las X-NOVA) no tiene color, pero no es un error
         self.anadir("lineas_pedido.csv", "103,10,,1,40,1,79.99,79.99\n")
@@ -52,8 +58,10 @@ class PruebasLineasEnriquecidas(PruebaAnalisis):
         self.assertTrue(pd.isna(lineas.loc[lineas["id_linea"] == "103", "color"].iloc[0]))
 
 
+# Cruces (merge) con control de filas y de parejas
 class PruebasCruces(PruebaAnalisis):
 
+    # Un cruce que duplicaria filas se para con ErrorDatos
     def test_join_que_duplicaria_filas_se_detiene(self):
         lineas = pd.DataFrame({"id_linea": ["1", "2", "3"], "id_cliente": ["1", "1", "2"]})
         clientes = pd.DataFrame({"id_cliente": ["1", "1", "2"], "nombre": ["Ana", "Ana bis", "Eva"]})
@@ -63,6 +71,7 @@ class PruebasCruces(PruebaAnalisis):
             analiticas.cruzar(lineas, clientes, "id_cliente", "many_to_one", "prueba")
         self.assertIn("many_to_one", str(contexto.exception))
 
+    # Una clave sin pareja se para con ErrorDatos
     def test_clave_sin_pareja_se_detiene(self):
         lineas = pd.DataFrame({"id_linea": ["1"], "id_cliente": ["9"]})
         clientes = pd.DataFrame({"id_cliente": ["1"], "nombre": ["Ana"]})
@@ -70,6 +79,7 @@ class PruebasCruces(PruebaAnalisis):
             analiticas.cruzar(lineas, clientes, "id_cliente", "many_to_one", "prueba")
         self.assertIn("sin pareja", str(contexto.exception))
 
+    # Con exigir_pareja=False, la fila sin pareja se queda
     def test_sin_pareja_permitido_cuando_se_dice(self):
         pedidos = pd.DataFrame({"id_pedido": ["1", "2"]})
         metricas = pd.DataFrame({"id_pedido": ["1"], "pares": [3]})
@@ -77,13 +87,16 @@ class PruebasCruces(PruebaAnalisis):
         self.assertEqual(len(cruce), 2)
 
 
+# DataFrame de pedidos unicos
 class PruebasPedidosUnicos(PruebaAnalisis):
 
+    # Una fila por pedido
     def test_una_fila_por_pedido(self):
         _, pedidos = self.construir()
         self.assertEqual(pedidos["referencia"].tolist(), ["P-1", "P-2"])
         self.assertTrue(pedidos["id_pedido"].is_unique)
 
+    # Lineas, pares, importe, precio medio y tallas salen de sus lineas
     def test_metricas_de_sus_lineas(self):
         _, pedidos = self.construir()
         self.assertEqual(pedidos["num_lineas"].tolist(), [2, 1])
@@ -94,6 +107,7 @@ class PruebasPedidosUnicos(PruebaAnalisis):
         # Lo calculado desde las lineas coincide con la cabecera de Acceso a Datos
         self.assertEqual(pedidos["pares"].tolist(), pedidos["cantidad_total"].tolist())
 
+    # Anio, mes, trimestre, dia de la semana y antiguedad del pedido
     def test_variables_de_calendario(self):
         _, pedidos = self.construir()
         self.assertEqual(pedidos["anio"].tolist(), [2026, 2026])
@@ -103,12 +117,14 @@ class PruebasPedidosUnicos(PruebaAnalisis):
         self.assertEqual(pedidos["dia_semana"].tolist(), ["jueves", "lunes"])
         self.assertEqual(pedidos["antiguedad_dias"].tolist(), [39, 7])   # hasta la fecha de corte
 
+    # Marcas de custom, cancelado y confirmado
     def test_indicadores_de_tipo_y_estado(self):
         _, pedidos = self.construir()
         self.assertEqual(pedidos["es_custom"].tolist(), [False, True])
         self.assertEqual(pedidos["es_cancelado"].tolist(), [False, True])
         self.assertEqual(pedidos["es_confirmado"].tolist(), [True, False])
 
+    # El modelo del pedido solo se pone si todas sus lineas son del mismo modelo
     def test_modelo_del_pedido_solo_si_es_unico(self):
         _, pedidos = self.construir()
         self.assertEqual(pedidos["modelo_pedido"].tolist(), ["Modelo Uno", "Modelo Dos"])
@@ -121,6 +137,7 @@ class PruebasPedidosUnicos(PruebaAnalisis):
         self.assertTrue(pedido["pedido_multimodelo"])
         self.assertTrue(pd.isna(pedido["modelo_pedido"]))
 
+    # Un pedido sin lineas tiene 0 lineas, 0 pares y 0 euros
     def test_pedido_sin_lineas(self):
         self.cambiar("lineas_pedido.csv", "102,11,M2-42,2,42,2,119.90,239.80\n", "")
         self.cambiar("pedidos.csv", "2,239.80", "0,0.00")
@@ -130,6 +147,7 @@ class PruebasPedidosUnicos(PruebaAnalisis):
         self.assertTrue(pd.isna(pedido["precio_medio_par"]))   # sin pares no hay precio medio
         self.assertTrue(pd.isna(pedido["modelo_pedido"]))
 
+    # Una linea rechazada (cantidad 0) deja fuera tambien su pedido
     def test_filas_rechazadas_no_entran(self):
         self.cambiar("lineas_pedido.csv", "100,10,M1-40,1,40,1,", "100,10,M1-40,1,40,0,")
         lineas, pedidos = self.construir()
@@ -137,12 +155,14 @@ class PruebasPedidosUnicos(PruebaAnalisis):
         self.assertEqual(lineas["id_linea"].tolist(), ["102"])
 
 
+# Pedidos, pares e importe con los tres criterios
 class PruebasImportesPorCriterio(PruebaAnalisis):
 
     def criterios(self):
         _, pedidos = self.construir()
         return analiticas.importes_por_criterio(pedidos).set_index("criterio")
 
+    # Registrados, no cancelados y confirmados en adelante
     def test_tres_criterios(self):
         criterios = self.criterios()
         self.assertEqual(criterios.loc["registrados", ["pedidos", "pares", "importe_eur"]].tolist(), [2, 5, 479.77])
@@ -150,10 +170,12 @@ class PruebasImportesPorCriterio(PruebaAnalisis):
         self.assertEqual(criterios.loc["confirmados_en_adelante", ["pedidos", "pares", "importe_eur"]].tolist(), [1, 3, 239.97])
         self.assertEqual(set(criterios["iva"]), {"pendiente de confirmar"})
 
+    # Un pedido en preparacion sigue contando como confirmado
     def test_un_pedido_que_avanza_sigue_contando(self):
         self.cambiar("pedidos.csv", "normal,confirmado,pagado", "normal,en_preparacion,pagado")
         self.assertEqual(self.criterios().loc["confirmados_en_adelante", "pedidos"], 1)
 
+    # Un pendiente es demanda, pero no venta
     def test_pendiente_no_es_confirmado(self):
         self.cambiar("pedidos.csv", "normal,confirmado,pagado", "normal,pendiente,pendiente")
         criterios = self.criterios()
@@ -161,8 +183,10 @@ class PruebasImportesPorCriterio(PruebaAnalisis):
         self.assertEqual(criterios.loc["no_cancelados", "pedidos"], 1)
 
 
+# Comparar dos pedidos campo a campo
 class PruebasCompararPedidos(PruebaAnalisis):
 
+    # P-1 y P-3: mismo cliente y mismos articulos, pero distinto id y estado
     def test_dos_pedidos_lado_a_lado(self):
         self.anadir("pedidos.csv", "12,P-3,1,2026-10-02 10:00:00,normal,pendiente,pendiente,,3,239.97\n")
         self.anadir("lineas_pedido.csv", "103,12,M1-40,1,40,1,79.99,79.99\n104,12,M1-41,1,41,2,79.99,159.98\n")
@@ -182,10 +206,12 @@ SQL_CORRECTOS = {
 }
 
 
+# Conciliacion con P-A, P-B y P-C
 class PruebasConciliacion(PruebaAnalisis):
 
     CORRECTOS = SQL_CORRECTOS
 
+    # Escribe los resultados SQL (con los cambios que se pidan) y concilia
     def conciliar(self, cambios=None):
         carpeta_sql = self.carpeta / "conciliacion_sql"
         carpeta_sql.mkdir(exist_ok=True)
@@ -194,25 +220,30 @@ class PruebasConciliacion(PruebaAnalisis):
         lineas, pedidos = self.construir()
         return conciliacion.conciliar(carpeta_sql, pedidos, lineas)
 
+    # Con los resultados correctos coinciden las 11 cifras
     def test_cifras_que_coinciden(self):
         tabla = self.conciliar()
         self.assertEqual(len(tabla), 11)   # P-A: 3 cifras, P-B: 2 estados x 3, P-C: 1 modelo x 2
         self.assertEqual(set(tabla["resultado"]), {"coincide"})
 
+    # 3 centimos de diferencia ya no coinciden (la tolerancia es medio centimo)
     def test_importe_que_no_coincide(self):
         tabla = self.conciliar({"P-A.csv": "pedidos,pares_solicitados,importe_ventas\n1,3,240.00\n"})
         fila = tabla[(tabla["consulta"] == "P-A") & (tabla["indicador"] == "importe")].iloc[0]
         self.assertEqual(fila["resultado"], "NO COINCIDE")
         self.assertEqual(fila["diferencia"], -0.03)
 
+    # Un estado que solo esta en SQL sale como "falta en Python"
     def test_estado_que_solo_esta_en_sql(self):
         tabla = self.conciliar({"P-B.csv": self.CORRECTOS["P-B.csv"] + "pendiente,1,1,10.00\n"})
         self.assertEqual(set(tabla.loc[tabla["clave"] == "pendiente", "resultado"]), {"falta en Python"})
 
+    # Un modelo que solo esta en Python sale como "falta en SQL"
     def test_modelo_que_solo_esta_en_python(self):
         tabla = self.conciliar({"P-C.csv": "modelo,pares,pedidos\n"})
         self.assertEqual(set(tabla.loc[tabla["consulta"] == "P-C", "resultado"]), {"falta en SQL"})
 
+    # Sin los CSV de SQL no se concilia (devuelve None)
     def test_sin_resultados_sql_queda_pendiente(self):
         lineas, pedidos = self.construir()
         carpeta_sql = self.carpeta / "no_existe"
@@ -228,12 +259,14 @@ SQL_CASO_N = {
 }
 
 
+# Contraste del caso N (N-1, N-2 y N-3)
 class PruebasCasoN(PruebaAnalisis):
 
     def tablas(self):
         resultado = calidad.evaluar(self.carpeta)
         return analiticas.calcular_tablas(resultado["datos"], resultado["validos"])
 
+    # Escribe los resultados del caso N (con los cambios que se pidan) y los contrasta
     def contrastar(self, cambios=None):
         carpeta_sql = self.carpeta / "conciliacion_sql"
         carpeta_sql.mkdir(exist_ok=True)
@@ -241,6 +274,7 @@ class PruebasCasoN(PruebaAnalisis):
             (carpeta_sql / archivo).write_text(texto, encoding="utf-8")
         return conciliacion.contrastar_caso_n(carpeta_sql, self.tablas())
 
+    # Con los resultados correctos coinciden N-1, N-2 y N-3
     def test_las_tres_cifras_coinciden(self):
         tabla = self.contrastar()
         # N-1: pedidos, pares e importe; N-2: 2 celdas con pares; N-3: 3 criterios
@@ -249,6 +283,7 @@ class PruebasCasoN(PruebaAnalisis):
         importe = tabla[(tabla["consulta"] == "N-1") & (tabla["indicador"] == "importe")].iloc[0]
         self.assertEqual((importe["clave"], importe["valor_python"]), ("2026-10", 239.97))
 
+    # Un mes sin ventas da 0 en SQL y 0 en Python
     def test_mes_sin_ventas_es_cero_en_los_dos_lados(self):
         # En noviembre solo hay un pedido cancelado, que no es venta
         tabla = self.contrastar({"N-1.csv": "anio_mes,pedidos,pares,importe\n2026-11,0,0,0.00\n"})
@@ -256,6 +291,7 @@ class PruebasCasoN(PruebaAnalisis):
         self.assertEqual(set(mes["clave"]), {"2026-11"})
         self.assertEqual(set(mes["resultado"]), {"coincide"})
 
+    # Se detecta una celda de mas en N-2 y un cliente de mas en N-3
     def test_discrepancias_detectadas(self):
         # Una consulta que olvida quitar los cancelados: sobra una celda y un cliente con demanda
         tabla = self.contrastar({
@@ -267,6 +303,7 @@ class PruebasCasoN(PruebaAnalisis):
         demanda = tabla[tabla["indicador"] == "clientes_con_demanda"].iloc[0]
         self.assertEqual((demanda["resultado"], demanda["diferencia"]), ("NO COINCIDE", -1.0))
 
+    # Sin los CSV del caso N no se contrasta (devuelve None)
     def test_sin_resultados_queda_pendiente(self):
         carpeta_sql = self.carpeta / "no_existe"
         self.assertIsNone(conciliacion.contrastar_caso_n(carpeta_sql, self.tablas()))
@@ -274,10 +311,13 @@ class PruebasCasoN(PruebaAnalisis):
                          ["N-1.csv", "N-2.csv", "N-3.csv"])
 
 
+# Caso A: un pedido Custom de 40 pares en 4 tallas
 class PruebasCasoA(PruebaAnalisis):
 
+    # Lineas del pedido: id_linea -> (sku, talla, pares)
     LINEAS = {"103": ("M1-40", 40, 10), "104": ("M1-41", 41, 10), "105": ("M1-42", 42, 12), "106": ("M1-43", 43, 8)}
 
+    # Se cuenta linea a linea y suma un solo pedido de 40 pares a los KPIs
     def test_pedido_custom_de_40_pares_linea_a_linea(self):
         sin_el = kpis.calcular_kpis(*self.tablas_para_kpis())
         self.anadir("stock.csv", "M1-42,1,Blanco,42,true,30,2026-11-09 19:00:00\n"
@@ -311,6 +351,7 @@ class PruebasCasoA(PruebaAnalisis):
         self.assertEqual(despues["K05"] - antes["K05"], 40)
         self.assertAlmostEqual(despues["K07"] - antes["K07"], 3199.60, places=2)
 
+    # Las tablas que necesita calcular_kpis, en su orden
     def tablas_para_kpis(self):
         resultado = calidad.evaluar(self.carpeta)
         tablas = analiticas.calcular_tablas(resultado["datos"], resultado["validos"])

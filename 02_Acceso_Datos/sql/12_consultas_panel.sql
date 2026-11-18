@@ -1,3 +1,4 @@
+-- 12_consultas_panel.sql — consultas con filtros (C1-C8), indicadores del panel (P-A a P-H) y caso N
 \echo 'CONSULTAS PARAMETRIZADAS Y PANEL DE INDICADORES'
 \echo ''
 \echo 'Consultas parametrizadas C1 a C8 y panel de indicadores. Aqui los'
@@ -5,6 +6,7 @@
 \echo 'un programa, cada valor va como parametro, nunca pegado al texto.'
 \echo ''
 
+-- Valores de prueba de los filtros, como variables de psql
 \set cliente_buscado 'ferrer'
 \set modelo_buscado 'Velocity'
 \set estado_buscado 'pendiente'
@@ -13,6 +15,7 @@
 \set umbral_stock 10
 
 \echo 'C1 buscar pedidos por nombre o correo de cliente'
+-- ILIKE no distingue mayusculas y los % dejan que el texto aparezca en cualquier parte
 SELECT
     p.referencia,
     c.nombre AS cliente,
@@ -74,6 +77,7 @@ ORDER BY p.fecha_pedido;
 \echo '    (un filtro vacio no debe excluir filas, de ahi los OR con NULL)'
 \set cliente_filtro 'club'
 \set estado_filtro 'pendiente'
+-- Si un filtro esta vacio, su condicion es cierta y no quita ninguna fila
 SELECT
     p.referencia,
     c.nombre AS cliente,
@@ -247,6 +251,7 @@ ORDER BY u.id_usuario;
 \echo 'pedidos no cancelados. Su resultado, con psql --csv, va a'
 \echo '04_Python/entrada_acc/conciliacion_sql/ (N-1.csv, N-2.csv y N-3.csv).'
 
+-- Mes que se compara con Python en N-1
 \set mes_contraste '2026-11'
 
 \echo ''

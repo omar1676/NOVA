@@ -1,14 +1,18 @@
--- 16_exportar_csv_dashboard.sql
+-- 16_exportar_csv_dashboard.sql — exporta los cinco CSV que usa el dashboard
 
 \set ON_ERROR_STOP on
+-- Pedido que se reconstruye al final a partir de los CSV
 \set referencia_prueba 'CUSTOM-40'
 
 \echo 'Exportacion de los cinco CSV para el dashboard'
 
+-- REPEATABLE READ: los cinco CSV salen de la misma foto de la base
 BEGIN ISOLATION LEVEL REPEATABLE READ;
 
 -- 1. Una vista temporal por archivo. Cada vista es la consulta exacta de
+--    su CSV. Desaparecen al cerrar psql.
 
+-- Vista para clientes.csv
 CREATE TEMP VIEW csv_clientes AS
 SELECT
     c.id_cliente,
@@ -19,6 +23,7 @@ SELECT
     c.activo::text AS activo
 FROM public.clientes c;
 
+-- Vista para modelos.csv
 CREATE TEMP VIEW csv_modelos AS
 SELECT
     m.id_modelo,
@@ -28,6 +33,7 @@ SELECT
     m.activo::text AS activo
 FROM public.modelos m;
 
+-- Vista para pedidos.csv; tipo_pedido es custom si el pedido es personalizado
 CREATE TEMP VIEW csv_pedidos AS
 SELECT
     p.id_pedido,
@@ -42,6 +48,8 @@ SELECT
     p.importe_total
 FROM public.pedidos p;
 
+-- Vista para lineas_pedido.csv. Las lineas X-NOVA no tienen SKU:
+-- toman el modelo X-NOVA y la talla de su configuracion
 CREATE TEMP VIEW csv_lineas_pedido AS
 SELECT
     l.id_linea,
@@ -58,6 +66,7 @@ LEFT JOIN public.variantes v ON v.id_variante = s.id_variante
 LEFT JOIN public.configuraciones_xnova x ON x.id_configuracion = l.id_configuracion_xnova
 LEFT JOIN public.modelos mx ON mx.nombre = 'X-NOVA' AND x.id_configuracion IS NOT NULL;
 
+-- Vista para stock.csv: el stock de cada SKU sumando todas las naves
 CREATE TEMP VIEW csv_stock AS
 SELECT
     s.sku,
@@ -76,6 +85,7 @@ GROUP BY s.sku, v.id_modelo, v.color, s.talla, s.activo;
 \echo ''
 \echo 'Comprobaciones previas'
 
+-- Los totales de cada pedido tienen que cuadrar con la suma de sus lineas
 DO $$
 DECLARE
     v_descuadres integer;
@@ -102,6 +112,7 @@ BEGIN
 END
 $$;
 
+-- Todas las lineas tienen que tener modelo y talla
 DO $$
 DECLARE
     v_incompletas integer;
@@ -129,6 +140,7 @@ UNION ALL SELECT 'lineas_pedido.csv', count(*) FROM csv_lineas_pedido
 UNION ALL SELECT 'stock.csv', count(*) FROM csv_stock;
 
 -- 3. Exportacion: cabecera, UTF-8, separador coma, punto decimal y
+--    orden fijo, para que dos exportaciones iguales den archivos iguales
 \echo ''
 \echo 'Exportacion'
 \copy (SELECT * FROM csv_clientes ORDER BY id_cliente) TO 'clientes.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8')
@@ -138,6 +150,7 @@ UNION ALL SELECT 'stock.csv', count(*) FROM csv_stock;
 \copy (SELECT * FROM csv_stock ORDER BY id_modelo, color, talla) TO 'stock.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8')
 
 -- 4. El pedido de prueba tal y como lo vera el dashboard: se une lo que
+--    hay en los CSV con las mismas claves que usara el dashboard
 \echo ''
 \echo 'Pedido de prueba reconstruido a partir de los CSV'
 SELECT

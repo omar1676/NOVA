@@ -13,6 +13,7 @@ GROUP BY COALESCE(m.nombre, 'X-NOVA')
 ORDER BY importe_total DESC;
 
 
+-- Consulta 2. Clientes: numero de pedidos e importe acumulado, sin los cancelados.
 SELECT
     c.nombre,
     c.email,
@@ -27,6 +28,7 @@ ORDER BY importe_acumulado DESC;
 
 
 
+-- Consulta 3. Stock bajo: SKU con menos de 10 pares al restar los pedidos pendientes.
 SELECT
     m.nombre AS modelo,
     v.color,
@@ -39,6 +41,7 @@ FROM public.producto_sku s
 JOIN public.variantes v ON v.id_variante = s.id_variante
 JOIN public.modelos m ON m.id_modelo = v.id_modelo
 LEFT JOIN public.existencias e ON e.id_producto_sku = s.id_producto_sku
+-- Pares de los pedidos pendientes: todavia no se han descontado del stock
 LEFT JOIN (
     SELECT l.id_producto_sku, SUM(l.cantidad) AS pares
     FROM public.linea_pedido l

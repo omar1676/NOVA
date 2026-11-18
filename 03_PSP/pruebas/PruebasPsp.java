@@ -6,22 +6,29 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+// Las 27 pruebas de PSP: lanzan los programas de verdad y comprueban lo que hacen
 public class PruebasPsp {
 
+    // CSV real de CUSTOM-40, exportado con 15_exportar_fabricacion.sql
     private static final String CSV_CUSTOM40 = "datos/custom40_fabricacion_psp.csv";
 
     private static final String CABECERA =
             "referencia,sku,cliente,modelo,color,personalizacion,talla,cantidad";
 
+    // Contadores de pruebas superadas y fallidas
     private static int superadas = 0;
     private static int fallidas = 0;
 
+    // Carpeta temporal donde se lanza el coordinador
     private static Path carpeta;
 
+    // Lo que escribio el coordinador la ultima vez que se lanzo
     private static String ultimaConsola = "";
 
+    // Ejecuta todas las pruebas en orden; termina con codigo 1 si alguna falla
     public static void main(String[] args) throws Exception {
 
+        // Antes de empezar: tienen que estar el CSV y la clase de Alvaro
         if (!Files.exists(Path.of(CSV_CUSTOM40))) {
             System.out.println("No encuentro " + CSV_CUSTOM40
                     + ". Ejecuta las pruebas desde la carpeta 03_PSP.");
@@ -36,6 +43,7 @@ public class PruebasPsp {
             System.exit(1);
         }
 
+        // Se trabaja en una carpeta temporal para no tocar la carpeta salidas de verdad
         carpeta = Files.createTempDirectory("nova_psp_pruebas_");
         System.out.println("Carpeta temporal de trabajo: " + carpeta.getFileName());
         System.out.println();
@@ -52,6 +60,7 @@ public class PruebasPsp {
                 "codigo " + codigo + ", " + ultimaLinea(ultimaConsola));
 
         System.out.println("=== 2. Varias tallas y cantidades (pedido de prueba, no real) ===");
+        // Pedido inventado: 40 pares, 9 tallas, dos colores y la talla 42 Rojo repetida
         String csvVarias = CABECERA + "\n"
                 + fila("PRUEBA-01", "SKU-R-44", "Rojo", 44, "3")
                 + fila("PRUEBA-01", "SKU-R-38", "Rojo", 38, "2")
@@ -97,6 +106,7 @@ public class PruebasPsp {
         GestorProcesos validadorVarias = new GestorProcesos("ValidadorPedidoCustom", 10);
         validadorVarias.ejecutar(csvVarias);
 
+        // Solo el bloque PEDIDO, LINEA y FIN, igual que hace el padre
         StringBuilder bloque = new StringBuilder();
         for (String linea : validadorVarias.getSalida()) {
             if (linea.startsWith("PEDIDO;") || linea.startsWith("LINEA;") || linea.equals("FIN")) {
@@ -139,6 +149,7 @@ public class PruebasPsp {
                         && eco.getSalida().get(3).equals("cuatro, con coma"),
                 "recibido: " + eco.getSalida());
 
+        // Usa la ficha de la prueba 2, cuya personalizacion tiene dos lineas, una coma y comillas
         comprobar("06b La personalizacion de 2 lineas cruza los tres procesos y llega a la ficha",
                 fichaVarias.contains("  Dorsales del 1 al 40, escudo \"del club\"")
                         && fichaVarias.contains("  Segunda linea: nombre en el talon"),
@@ -186,6 +197,7 @@ public class PruebasPsp {
                 "codigo " + noExiste.getCodigoSalida() + ", " + primera(noExiste.getErrores()));
 
         System.out.println("=== 10. Tiempo de espera agotado ===");
+        // Limite de 2 s para un hijo que duerme 60
         GestorProcesos dormilon = new GestorProcesos("HijoDePrueba", 2);
         dormilon.ejecutar("DORMIR\n");
         comprobar("10 Un hijo que no termina se cancela a los 2 s",
@@ -257,6 +269,7 @@ public class PruebasPsp {
                 codigo == 1 && ultimaConsola.contains("Formato no admitido"),
                 ultimaLinea(ultimaConsola));
 
+        // Resumen final
         System.out.println();
         System.out.println("Pruebas superadas: " + superadas + " de " + (superadas + fallidas));
 
@@ -265,6 +278,7 @@ public class PruebasPsp {
         }
     }
 
+    // Apunta el resultado de una prueba; si falla, muestra la consola del coordinador
     private static void comprobar(String nombre, boolean bien, String detalle) {
 
         if (bien) {
@@ -278,6 +292,7 @@ public class PruebasPsp {
         }
     }
 
+    // Prueba un CSV que se tiene que rechazar: codigo esperado, motivo en la consola y sin ficha
     private static void rechazado(String nombre, String referencia, String contenido,
                                   int codigoEsperado, String motivo) throws Exception {
 
@@ -293,6 +308,7 @@ public class PruebasPsp {
                 "codigo " + codigo + ", sin ficha: " + motivoDelFallo(ultimaConsola));
     }
 
+    // Lanza el coordinador como proceso aparte en la carpeta temporal y devuelve su codigo
     private static int coordinador(String archivo) throws Exception {
 
         String java = Path.of(System.getProperty("java.home"), "bin", "java").toString();
@@ -301,6 +317,7 @@ public class PruebasPsp {
                 "ProcesadorPedidosCustom", archivo);
 
         pb.directory(carpeta.toFile());
+        // stdout y stderr juntos, en consola.txt
         pb.redirectErrorStream(true);
 
         File consola = carpeta.resolve("consola.txt").toFile();
@@ -318,6 +335,7 @@ public class PruebasPsp {
         return proceso.exitValue();
     }
 
+    // El classpath con rutas absolutas, porque el coordinador se lanza desde otra carpeta
     private static String classpathAbsoluto() {
 
         String[] partes = System.getProperty("java.class.path").split(File.pathSeparator);
@@ -332,6 +350,7 @@ public class PruebasPsp {
         return classpath.toString();
     }
 
+    // Una fila de CSV de prueba; su personalizacion tiene dos lineas, una coma y comillas
     private static String fila(String referencia, String sku, String color,
                                int talla, String cantidad) {
 
@@ -340,10 +359,12 @@ public class PruebasPsp {
                 + "Segunda linea: nombre en el talon\"," + talla + "," + cantidad + "\n";
     }
 
+    // Escribe un archivo en la carpeta temporal
     private static void escribir(String nombre, String contenido) throws Exception {
         Files.writeString(carpeta.resolve(nombre), contenido, StandardCharsets.UTF_8);
     }
 
+    // Lee un archivo; si no existe, devuelve un texto vacio
     private static String leerSiExiste(Path archivo) throws Exception {
 
         if (!Files.exists(archivo)) {
@@ -352,6 +373,7 @@ public class PruebasPsp {
         return Files.readString(archivo, StandardCharsets.UTF_8);
     }
 
+    // Cuenta cuantas veces aparece un trozo dentro de un texto
     private static int contar(String texto, String trozo) {
 
         int veces = 0;
@@ -364,6 +386,7 @@ public class PruebasPsp {
         return veces;
     }
 
+    // Devuelve la linea de la consola que empieza por Resultado
     private static String ultimaLinea(String consola) {
 
         for (String linea : consola.split("\r?\n")) {
@@ -374,6 +397,7 @@ public class PruebasPsp {
         return "(sin linea de resultado)";
     }
 
+    // Devuelve la primera linea ERROR de la consola, o si no hay, la de Resultado
     private static String motivoDelFallo(String consola) {
 
         for (String linea : consola.split("\r?\n")) {
@@ -384,6 +408,7 @@ public class PruebasPsp {
         return ultimaLinea(consola);
     }
 
+    // Primera linea de una lista, o (nada) si esta vacia
     private static String primera(ArrayList<String> lineas) {
 
         if (lineas.isEmpty()) {
